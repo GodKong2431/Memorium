@@ -13,7 +13,6 @@ public class View : MonoBehaviour
     [SerializeField] Text manaRegenText;
     [SerializeField] Text critText;
     [SerializeField] Text critMultText;
-    [SerializeField] Text skillDamageText;
     [SerializeField] Text coolDownText;
     [SerializeField] Text moveSpeedText;
     [SerializeField] Text expGainText;
@@ -29,7 +28,6 @@ public class View : MonoBehaviour
     public Button manaRegenUpgradeBtn;
     public Button critUpgradeBtn;
     public Button critMultUpgradeBtn;
-    public Button skillDamageUpgradeBtn;
     public Button coolDownUpgradeBtn;
     public Button moveSpeedUpgradeBtn;
     public Button expGainUpgradeBtn;
@@ -68,9 +66,6 @@ public class View : MonoBehaviour
                 break;
             case StatType.CritMult:
                 critMultText.text = "치명타 배율 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case StatType.SkillDamage:
-                skillDamageText.text = "스킬 데미지 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
             case StatType.CoolDown:
                 coolDownText.text = "쿨다운 감소 : [changeValue]".Replace("[changeValue]", value.ToString());

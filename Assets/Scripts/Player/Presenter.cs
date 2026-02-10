@@ -22,7 +22,6 @@ public class Presenter : MonoBehaviour
         view.manaRegenUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.MPRegen));
         view.critUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(1, StatType.CritChance));
         view.critMultUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.CritMult));
-        view.skillDamageUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(1, StatType.SkillDamage));
         view.coolDownUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.CoolDown));
         view.moveSpeedUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.MoveSpeed));
         view.expGainUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.ExpGain));
