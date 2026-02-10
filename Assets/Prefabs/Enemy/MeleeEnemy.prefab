@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2313836269413093444}
   - component: {fileID: 5198204872264942134}
   - component: {fileID: 215967418959097682}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MeleeEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,9 +159,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 252973128719962208}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 939ee802e2c5b1b43abe31c4bcacf5c2, type: 3}
+  m_Script: {fileID: 11500000, guid: 830588e84d80f214ca2ec94bd4e636a1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyNavChase
-  player: {fileID: 0}
-  destinationRefreshInterval: 0.25
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStateMachine
+  animator: {fileID: 0}
+  isBoss: 0
   attackEffectPrefab: {fileID: 3616685332895339214, guid: 82a7b746be35c0b499c26ecf818e1ea4, type: 3}

@@ -10,6 +10,10 @@ using UnityEngine.AI;
 [RequireComponent(typeof(EnemyStatPresenter))]
 public class EnemyStateMachine : MonoBehaviour
 {
+    [Header("플레이어 참조 설정")]
+    [SerializeField][Tooltip("추적할 플레이어. 비워두면 'Player' 태그를 가진 오브젝트를 자동 검색합니다.")]
+    private Transform playerTransformOverride;
+
     [SerializeField][Tooltip("현재 적 개체가 사용할 애니메이터입니다.")]
     private Animator animator;
     [SerializeField][Tooltip("현재 적 개체의 보스 몬스터 여부입니다.")]
@@ -56,11 +60,24 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void Start()
     {
-        var go = GameObject.FindGameObjectWithTag("Player");
-        if (go != null)
-            _ctx.PlayerTransform = go.transform;
+        // 1순위: 인스펙터에서 직접 지정한 플레이어 Transform
+        if (playerTransformOverride != null)
+        {
+            _ctx.PlayerTransform = playerTransformOverride;
+        }
         else
-            Debug.LogWarning("[EnemyStateMachine] 'Player' 태그 오브젝트를 찾을 수 없습니다.");
+        {
+            // 2순위: 'Player' 태그를 가진 오브젝트 자동 검색
+            var go = GameObject.FindGameObjectWithTag("Player");
+            if (go != null)
+            {
+                _ctx.PlayerTransform = go.transform;
+            }
+            else
+            {
+                Debug.LogWarning("[EnemyStateMachine] 'Player' 태그 오브젝트를 찾을 수 없습니다.");
+            }
+        }
 
         EnemyStatData data = _ctx.StatPresenter?.Data;
         if (data != null && _ctx.Agent != null)
@@ -85,6 +102,8 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void ChangeState(EnemyStateType next)
     {
+        Debug.Log($"[EnemyStateMachine] {Context.Agent.name} RequestState: {next}");
+        
         if (_current != null)
             _current.OnExit(_ctx);
 
@@ -95,7 +114,9 @@ public class EnemyStateMachine : MonoBehaviour
             _current.OnEnter(_ctx);
     }
 
-    /// <summary> 외부(플레이어 공격 등)에서 피격 시 호출. 데미지 적용 후 Onhit 상태로 전환 </summary>
+    /// <summary>
+    /// 외부(플레이어 공격 등)에서 피격 시 호출. 데미지 적용 후 Onhit 상태로 전환
+    /// </summary>
     public void TakeDamage(float damage)
     {
         if (!IsAlive) return;

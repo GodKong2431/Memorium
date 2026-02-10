@@ -42,7 +42,6 @@ public class EnemyStateContext
 
     public void RequestState(EnemyStateType next)
     {
-        Debug.Log($"[EnemyStateContext] {Agent.name} RequestState: {next}");
         _requestStateChange?.Invoke(next);
     }
 
@@ -52,7 +51,8 @@ public class EnemyStateContext
     public void TakeDamage(float damage)
     {
         Debug.Log($"[EnemyStateContext] TakeDamage: {damage}");
-        // 실제 데미지 적용은 PlayerAttack 등 외부에서 처리할 듯
+
+        CurrentHealth -= damage;
     }
 
     /// <summary>

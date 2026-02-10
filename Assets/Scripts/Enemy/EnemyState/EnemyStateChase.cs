@@ -7,6 +7,7 @@ using UnityEngine.AI;
 /// </summary>
 public class EnemyStateChase : IEnemyState
 {
+    [SerializeField][Tooltip("추적을 위한 목적지 갱신 주기입니다.")]
     private const float DestinationRefreshInterval = 0.25f;
     private float _lastDestinationTime = -1f;
 
@@ -25,7 +26,11 @@ public class EnemyStateChase : IEnemyState
         Transform player = ctx.PlayerTransform;
         if (player == null) return;
 
+        // 해당 객체는 스테이지에 소환된 직후 플레이어와의 거리가 공격 사거리보다 클 동안 플레이어 위치로 이동
+        // 플레이어와의 거리가 공격 사거리 이하(dist <= AttackRange)가 되는 시점에 전투 상태로 전환
+
         float dist = Vector3.Distance(ctx.EnemyTransform.position, player.position);
+        // 거리가 공격 사거리 이하일 때 Attack 상태로 전환
         if (dist <= ctx.AttackRange)
         {
             ctx.RequestState(EnemyStateType.Attack);
