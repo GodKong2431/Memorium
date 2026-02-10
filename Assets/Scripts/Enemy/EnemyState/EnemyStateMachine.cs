@@ -3,7 +3,9 @@ using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
-/// 몬스터 상태 머신. 상태 정의(EnemyStateType)는 별도 파일, 동작(EnemyState****)은 각 파일에서 참조해 사용.
+/// 몬스터 상태 머신.
+/// 상태 정의(EnemyStateType, enum)는 별도 파일에 정의.
+/// 각 상태 별 동작(EnemyState****)은 각 파일에서 참조해 사용.
 /// 스폰 시 Chase로 시작, 공격 사거리 내면 Attack, 피격 시 Onhit, 사망 시 Dead 등으로 전환.
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
@@ -15,7 +17,7 @@ public class EnemyStateMachine : MonoBehaviour
     private Transform playerTransformOverride;
 
     [SerializeField][Tooltip("현재 적 개체가 사용할 애니메이터입니다.")]
-    private Animator animator;
+    private Animator animator; // 애니메이터는 현재 미구현, 향후 추가를 위해 직렬화만 해둠
     [SerializeField][Tooltip("현재 적 개체의 보스 몬스터 여부입니다.")]
     private bool isBoss;
     [SerializeField][Tooltip("공격 시 나타나는 이펙트 프리팹입니다.")]
@@ -68,7 +70,7 @@ public class EnemyStateMachine : MonoBehaviour
         }
         else
         {
-            // 2순위: 'Player' 태그를 가진 오브젝트 자동 검색
+            // 2순위: 'Player' 태그를 가진 오브젝트 자동 검색 (테스트하다가 좀 missing 당해서 임의로 넣었습니다~ 이건 나중에 확인하고 통합 예정입니다~~~)
             var go = GameObject.FindGameObjectWithTag("Player");
             if (go != null)
             {
@@ -87,6 +89,7 @@ public class EnemyStateMachine : MonoBehaviour
             _ctx.Agent.stoppingDistance = data.attackRange;
         }
 
+        // 스폰되면 바로 chase 상태로 전환
         ChangeState(EnemyStateType.Chase);
     }
 
