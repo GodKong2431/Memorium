@@ -29,7 +29,20 @@ public class EnemyStateDead : IEnemyState
         if (Time.time >= _destroyTime)
         {
             _destroyScheduled = true;
-            Object.Destroy(ctx.EnemyTransform.gameObject);
+            
+            // 현재 적 정보를 복제해서 리스폰
+            Transform enemyTransform = ctx.EnemyTransform;
+            GameObject enemyObject = enemyTransform.gameObject;
+
+            // 최초 스폰 위치로 리스폰
+            Vector3 spawnPos = ctx.SpawnPosition;
+            Quaternion spawnRot = enemyTransform.rotation;
+
+            // 새 적 생성 (Start에서 Chase 상태로 진입)
+            Object.Instantiate(enemyObject, spawnPos, spawnRot);
+
+            // 기존 적 제거
+            Object.Destroy(enemyObject);
         }
     }
 

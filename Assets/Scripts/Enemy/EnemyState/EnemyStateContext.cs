@@ -15,6 +15,11 @@ public class EnemyStateContext
     public Animator Animator { get; set; }
 
     /// <summary>
+    /// 최초 스폰 위치 (리스폰 시 사용)
+    /// </summary>
+    public Vector3 SpawnPosition { get; set; }
+
+    /// <summary>
     /// 현재 체력 (런타임). 피격 시 감소, 0 이하면 Dead 전환
     /// </summary>
     public float CurrentHealth { get; private set; }

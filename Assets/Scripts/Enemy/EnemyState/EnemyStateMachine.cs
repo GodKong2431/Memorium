@@ -38,6 +38,7 @@ public class EnemyStateMachine : MonoBehaviour
         _ctx = new EnemyStateContext
         {
             EnemyTransform = transform,
+            SpawnPosition = transform.position,
             PlayerTransform = null,
             Agent = agent,
             StatPresenter = statPresenter,
