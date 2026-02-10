@@ -73,3 +73,17 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+
+# firebase private info sharing prevention
+Assets/google-services.json
+Assets/StreamingAssets/google-services-desktop.json
+
+# Exclude Folder
+/Assets/ExcludeGit/
+Assets/Firebase/
+
+Assets/Editor Default Resources/Firebase
+Assets/GeneratedLocalRepo
+Assets/ExternalDependencyManager
+Assets/Plugins
