@@ -9,7 +9,7 @@ public enum StatType
     DEF, MagicDEF,
     MP, MPRegen,
     CritChance, CritMult,
-    SkillDamage, CoolDown,
+    CoolDown,
     MoveSpeed,
     ExpGain, GoldGain
 }
@@ -48,8 +48,6 @@ public class PlayerStat : MonoBehaviour
     [SerializeField] private float baseCriticalMultiplier;
 
     [Header("Skill")]
-    [Tooltip("플레이어의 스킬데미지")]
-    [SerializeField] private float baseSkillDamage;
     [Tooltip("플레이어의 쿨타임")]
     [SerializeField] private float baseCoolDown;
 
@@ -76,7 +74,6 @@ public class PlayerStat : MonoBehaviour
     public float ManaRegeneration { get { return baseManaRegeneration;} }
     public float CriticalChance { get { return baseCriticalChance; } }
     public float CriticalMultiplier { get { return baseCriticalMultiplier; } }
-    public float SkillDamage { get { return baseSkillDamage; } }
     public float CoolDown { get { return baseCoolDown; } }
     public float MoveSpeed { get { return baseMoveSpeed; } }
     public float ExpGain { get { return baseExpGain; } }
@@ -97,7 +94,6 @@ public class PlayerStat : MonoBehaviour
             StatType.MPRegen => baseManaRegeneration,
             StatType.CritChance => baseCriticalChance,
             StatType.CritMult => baseCriticalMultiplier,
-            StatType.SkillDamage => baseSkillDamage,
             StatType.CoolDown => baseCoolDown,
             StatType.MoveSpeed => baseMoveSpeed,
             StatType.ExpGain => baseExpGain,
@@ -140,9 +136,6 @@ public class PlayerStat : MonoBehaviour
                 break;
             case StatType.CritMult:
                 Set(ref baseCriticalMultiplier, value, statType);
-                break;
-            case StatType.SkillDamage:
-                Set(ref baseSkillDamage, value, statType);
                 break;
             case StatType.CoolDown:
                 Set(ref baseCoolDown, value, statType);
