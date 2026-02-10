@@ -39,12 +39,14 @@ public class CrossDetect : IDetectShapeStrategy
         Gizmos.color = Color.cyan;
         Matrix4x4 oldMatrix = Gizmos.matrix;
 
+        Vector3 boxSize = new Vector3(data.M2S2, 4f, data.M2S1);
+
         Gizmos.matrix = Matrix4x4.TRS(center, Quaternion.LookRotation(direction), Vector3.one);
-        Gizmos.DrawWireCube(Vector3.zero, new Vector3(data.M2S2, 4f, data.M2S1));
+        Gizmos.DrawWireCube(Vector3.zero, boxSize);
 
         Gizmos.matrix = Matrix4x4.TRS(center, Quaternion.LookRotation(direction) * Quaternion.Euler(0, 90, 0), Vector3.one);
-        Gizmos.DrawWireCube(Vector3.zero, new Vector3(data.M2S1, 4f, data.M2S2));
 
+        Gizmos.DrawWireCube(Vector3.zero, boxSize);
         Gizmos.matrix = oldMatrix;
     }
 }

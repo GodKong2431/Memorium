@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SkillStrategyContainer : MonoBehaviour
+public static class SkillStrategyContainer 
 {
-    private Dictionary<ShapeType, IDetectShapeStrategy> detectShapeStrategies;
-    private Dictionary<MoveType, ISkillMovementStrategy> moveStrategies;
+    private static readonly Dictionary<ShapeType, IDetectShapeStrategy> detectShapeStrategies;
+    private static readonly Dictionary<MoveType, ISkillMovementStrategy> moveStrategies;
 
-    private void Awake()
+    static SkillStrategyContainer()
     {
         detectShapeStrategies = new Dictionary<ShapeType, IDetectShapeStrategy>
         {
@@ -25,15 +25,15 @@ public class SkillStrategyContainer : MonoBehaviour
         };
     }
 
-    public IDetectShapeStrategy GetStrategy(ShapeType type)
+    public static IDetectShapeStrategy GetStrategy(ShapeType type)
     {
         if (detectShapeStrategies.TryGetValue(type, out var strategy))
         {
             return strategy;
         }
-        return null;
+        return detectShapeStrategies[ShapeType.Circle];
     }
-    public ISkillMovementStrategy GetMovement(MoveType type)
+    public static ISkillMovementStrategy GetMovement(MoveType type)
     {
         if (moveStrategies.TryGetValue(type, out var strategy))
         {
