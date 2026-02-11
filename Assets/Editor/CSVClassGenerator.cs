@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 public class CSVClassGenerator : AssetPostprocessor
 {
     private static readonly string CSVPath = "Assets/04. CSV";
-    private static readonly string ClassOutputPath = "Assets/Scripts/CSV/Class";
+    private static readonly string ClassOutputPath = "Assets/00. Scripts/Data/CSV/Class";
 
     // 파일 변경 감지 (생성, 수정, 삭제)
     private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
