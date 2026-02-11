@@ -25,10 +25,13 @@ public class Enemy_PlayerMove : MonoBehaviour
     public float AttackDamage => attackDamage;
     public LayerMask EnemyLayerMask => enemyLayerMask;
 
+    [Header("임시 스킬캐스터")]
+    [SerializeField] private SkillCaster skillCaster;
+
     private void Awake()
     {
         _cc = GetComponent<CharacterController>();
-
+        skillCaster = GetComponent<SkillCaster>();
         // 시작 시에는 꺼 두기
         if (attackIndicator != null)
             attackIndicator.SetActive(false);
@@ -63,6 +66,17 @@ public class Enemy_PlayerMove : MonoBehaviour
             Debug.Log("[PlayerAttack] 근접 공격!");
             PerformAttack();
         }
+
+        if (keyboard.digit1Key.wasPressedThisFrame)
+        {
+            skillCaster.CastSkill(1);
+        }
+
+        if (keyboard.digit2Key.wasPressedThisFrame)
+        {
+            skillCaster.CastSkill(2);
+        }
+
     }
 
     /// <summary>

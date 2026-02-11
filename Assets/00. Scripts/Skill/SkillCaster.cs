@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.GraphicsBuffer;
 
 [System.Serializable]
 public class SkillData
@@ -20,7 +21,6 @@ public class SkillData
 public class SkillCaster : MonoBehaviour, ISkillMovementSubject
 {
     [Header("References")]
-    [SerializeField] private PlayerInputSystem _playerInput; 
     [SerializeField] private LayerMask _targetLayer; 
 
     [Header("테스트")]
@@ -36,25 +36,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementSubject
     private Vector3 _debugLastCastDir;
 
     public Vector3 Position => transform.position;
-    private void Update()
-    {
-        if (Keyboard.current == null) return;
-
-        if (Keyboard.current.digit1Key.wasPressedThisFrame)
-        {
-            CastSkill(1);
-        }
-
-        if (Keyboard.current.digit2Key.wasPressedThisFrame)
-        {
-            CastSkill(2);
-        }
-
-        if (Keyboard.current.qKey.wasPressedThisFrame)
-        {
-            ForceStopSkill();
-        }
-    }
+   
     public void SetPosition(Vector3 position)
     {
         transform.position = position;
@@ -89,9 +71,6 @@ public class SkillCaster : MonoBehaviour, ISkillMovementSubject
     private IEnumerator SkillSequence(SkillData data)
     {
         _isCasting = true;
-
-        if (_playerInput != null) _playerInput.CanMove = false;
-
         _debugLastSkillData = data;
 
         var m1Strategy = SkillStrategyContainer.GetMovement(data.m1Data.M1Type);
@@ -112,13 +91,13 @@ public class SkillCaster : MonoBehaviour, ISkillMovementSubject
 
         for (int i = 0; i < hitCount; i++)
         {
-            Collider target = _hitBuffer[i];
-            Debug.Log($" 타격 대상: {target.name}");
-            //target.TryGetComponent<IDamageable>(out var damageable)?.TakeDamage();
+            if (_hitBuffer[i].TryGetComponent<EnemyStateMachine>(out var target))
+            {
+                target.TakeDamage(10);
+                Debug.Log($" 타격 대상: {target.name}");
+            }
         }
-
         _isCasting = false;
-        if (_playerInput != null) _playerInput.CanMove = true; 
     }
 
     public void ForceStopSkill()
@@ -126,7 +105,6 @@ public class SkillCaster : MonoBehaviour, ISkillMovementSubject
         if (_currentSkillRoutine != null) StopCoroutine(_currentSkillRoutine);
 
         _isCasting = false;
-        if (_playerInput != null) _playerInput.CanMove = true;
 
         Debug.LogWarning("스킬 시전 중단");
     }
@@ -137,7 +115,6 @@ public class SkillCaster : MonoBehaviour, ISkillMovementSubject
 
         var m2Strategy = SkillStrategyContainer.GetStrategy(_debugLastSkillData.m2Data.M2Type);
 
-        // 시전 중일 때는 현재 위치, 끝났으면 마지막 타격 위치
         Vector3 drawPos = _isCasting ? transform.position : _debugLastCastPos;
         Vector3 drawDir = _isCasting ? transform.forward : _debugLastCastDir;
 
