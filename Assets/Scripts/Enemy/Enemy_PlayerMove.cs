@@ -11,8 +11,8 @@ public class Enemy_PlayerMove : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float rotationSpeed = 10f;    // 이동 방향으로 회전 속도
     [Header("공격 설정")]
-    [SerializeField] private float attackRange = 2f;      // 플레이어 전방 거리 (대략 2)
-    [SerializeField] private float attackRadius = 0.75f;  // 폭 (원형 범위 반지름)
+    //[SerializeField] private float attackRange = 2f;      // 플레이어 전방 거리 (대략 2)
+    //[SerializeField] private float attackRadius = 0.75f;  // 폭 (원형 범위 반지름)
     [SerializeField] private float attackDamage = 10f;    // 한 번 공격 시 줄 데미지
     [SerializeField] private LayerMask enemyLayerMask;    // 적이 속한 레이어만 감지
     [Header("공격 시각 효과")]
@@ -60,7 +60,7 @@ public class Enemy_PlayerMove : MonoBehaviour
         // 좌클릭 시 근접 공격
         if (mouse.leftButton.wasPressedThisFrame)
         {
-            Debug.Log("[PlayerAttack] 근접 공격!");
+            //Debug.Log("[PlayerAttack] 근접 공격!");
             PerformAttack();
         }
     }

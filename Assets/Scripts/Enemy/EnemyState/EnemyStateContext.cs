@@ -55,7 +55,7 @@ public class EnemyStateContext
     /// </summary>
     public void TakeDamage(float damage)
     {
-        Debug.Log($"[EnemyStateContext] TakeDamage: {damage}");
+        //Debug.Log($"[EnemyStateContext] TakeDamage: {damage}");
 
         CurrentHealth -= damage;
     }

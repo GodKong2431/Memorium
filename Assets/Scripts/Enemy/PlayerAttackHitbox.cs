@@ -41,7 +41,7 @@ public class PlayerAttackHitbox : MonoBehaviour
         _hitEnemies.Add(enemy);
 
         enemy.TakeDamage(owner.AttackDamage);
-        Debug.Log($"[PlayerAttackHitbox] {enemy.name} 피격, 데미지: {owner.AttackDamage}");
+        //Debug.Log($"[PlayerAttackHitbox] {enemy.name} 피격, 데미지: {owner.AttackDamage}");
     }
 }
 
