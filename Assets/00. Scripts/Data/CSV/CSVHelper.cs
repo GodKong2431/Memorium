@@ -69,7 +69,20 @@ public static class CSVHelper
             if (type == typeof(double)) return double.Parse(value, CultureInfo.InvariantCulture);
             if (type == typeof(bool)) return bool.Parse(value);
             if (type == typeof(string)) return value;
-            if (type.IsEnum) return Enum.Parse(type, value);
+            if (type.IsEnum)
+            {
+                // 데이터가 숫자(0, 1)로 들어온 경우
+                if (int.TryParse(value, out int intValue))
+                {
+                    return Enum.ToObject(type, intValue);
+                }
+                // 데이터가 문자열(Weapon, Armor)로 들어온 경우
+                else
+                {
+                    // true: 대소문자 무시
+                    return Enum.Parse(type, value, true); 
+                }
+            }
 
             return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }
