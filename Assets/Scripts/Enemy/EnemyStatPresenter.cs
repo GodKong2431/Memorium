@@ -7,6 +7,7 @@ public class EnemyStatPresenter : MonoBehaviour
     private EnemyStatData _data;
 
     public EnemyStatData Data => _data ??= setting != null ? setting.stat : null;
+    public EnemyRewardData RewardData => setting != null ? setting.reward : null;
 
     public void SetData(EnemyStatData data)
     {

@@ -21,6 +21,14 @@ public class EnemyStateDead : IEnemyState
         SetAnimatorTrigger(ctx, "Dead");
         _destroyTime = Time.time + DestroyDelay;
         _destroyScheduled = false;
+
+        // 보상: 골드·경험치·아이템 (수식은 EnemyRewardData / EnemyRewardCalculator에서 관리)
+        var rewardData = ctx.StatPresenter?.RewardData;
+        if (rewardData != null)
+        {
+            Vector3 pos = ctx.EnemyTransform != null ? ctx.EnemyTransform.position : Vector3.zero;
+            EnemyKillRewardDispatcher.GrantRewards(rewardData, isBoss: ctx.IsBoss, stageLevel: EnemyKillRewardDispatcher.CurrentStageLevel, worldPosition: pos);
+        }
     }
 
     public void OnUpdate(EnemyStateContext ctx)
@@ -29,27 +37,27 @@ public class EnemyStateDead : IEnemyState
         if (Time.time >= _destroyTime)
         {
             _destroyScheduled = true;
-            
-            // 현재 적 정보를 복제해서 리스폰
-            Transform enemyTransform = ctx.EnemyTransform;
-            GameObject enemyObject = enemyTransform.gameObject;
+            GameObject enemyObject = ctx.EnemyTransform.gameObject;
 
-            // 최초 스폰 위치로 리스폰
-            Vector3 spawnPos = ctx.SpawnPosition;
-            Quaternion spawnRot = enemyTransform.rotation;
-
-            // 새 적 생성 (Start에서 Chase 상태로 진입)
-            Object.Instantiate(enemyObject, spawnPos, spawnRot);
-
-            // 기존 적 제거
-            Object.Destroy(enemyObject);
+            if (ctx.IsBoss)
+            {
+                // 보스: 리스폰 없이 제거. MonsterSpawner가 다음 스폰 처리.
+                Object.Destroy(enemyObject);
+            }
+            else
+            {
+                // 일반 몬스터: 기존 리스폰 로직 (스폰러 연동 전까지)
+                Vector3 spawnPos = ctx.SpawnPosition;
+                Quaternion spawnRot = ctx.EnemyTransform.rotation;
+                Object.Instantiate(enemyObject, spawnPos, spawnRot);
+                Object.Destroy(enemyObject);
+            }
         }
     }
 
     public void OnExit(EnemyStateContext ctx)
     {
-        // 아이템 드랍 등 후처리 로직 추가
-        Debug.Log("[EnemyStateDead] 몬스터 사망 처리 완료. 아이템 드랍!");
+        // 보상은 OnEnter에서 이미 지급됨
     }
 
     private static void SetAnimatorTrigger(EnemyStateContext ctx, string trigger)

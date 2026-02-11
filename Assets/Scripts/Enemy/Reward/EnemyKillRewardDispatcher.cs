@@ -1,0 +1,103 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+/// <summary>
+/// 적 처치 시 보상을 계산한 뒤 골드/경험치/아이템 이벤트로 전달.
+/// 각 아이템 카테고리 독립 롤, 보스는 5배 확률.
+/// </summary>
+public static class EnemyKillRewardDispatcher
+{
+    public static event Action<int> OnGoldEarned;
+    public static event Action<int> OnExpEarned;
+    public static event Action<string, int> OnItemDropped;
+    public static event Action<string, int, int> OnEquipmentDropped;
+    public static event Action OnBossKilled;
+    public static event Action OnNormalEnemyKilled;
+
+    private static readonly List<ItemDropLogic.ItemDropResult> _itemDropBuffer = new List<ItemDropLogic.ItemDropResult>();
+
+    /// <summary>현재 스테이지 레벨. StageManager 등에서 설정.</summary>
+    public static int CurrentStageLevel { get; set; } = 1;
+
+    /// <summary>한 번에 골드·경험치·아이템 계산 후 이벤트 발송.</summary>
+    public static void GrantRewards(EnemyRewardData rewardData, bool isBoss = false, int stageLevel = -1, Vector3 worldPosition = default)
+    {
+        if (rewardData == null) return;
+
+        int stage = stageLevel >= 1 ? stageLevel : CurrentStageLevel;
+
+        // 골드 100%
+        int gold = EnemyRewardCalculator.CalculateGold(rewardData, stage);
+        if (gold > 0)
+        {
+            OnGoldEarned?.Invoke(gold);
+            Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{gold}");
+        }
+
+        // 경험치
+        int exp = EnemyRewardCalculator.CalculateExp(rewardData, stage);
+        if (exp > 0)
+        {
+            OnExpEarned?.Invoke(exp);
+            Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{exp}");
+        }
+
+        // 아이템: 카테고리별 독립 확률 규칙 (장비·수호요정·스킬주문서·스킬잼·던전입장권)
+        var dropSettings = ItemDropSettings.Instance ?? Resources.Load<ItemDropSettings>("ItemDropSettings")
+            ?? CreateDefaultItemDropSettings();
+        if (dropSettings != null)
+        {
+            ItemDropLogic.RollAll(dropSettings, stage, isBoss, _itemDropBuffer);
+            foreach (var drop in _itemDropBuffer)
+            {
+                if (drop.category == ItemDropLogic.ItemCategory.Equipment)
+                {
+                    OnEquipmentDropped?.Invoke(drop.itemId, drop.count, drop.power);
+                    Debug.Log($"[EnemyKillRewardDispatcher] 장비 드랍: {drop.itemId} x{drop.count} (파워 {drop.power})");
+                }
+                else
+                {
+                    OnItemDropped?.Invoke(drop.itemId, drop.count);
+                    Debug.Log($"[EnemyKillRewardDispatcher] 아이템 드랍: {drop.itemId} x{drop.count}");
+                }
+            }
+        }
+
+        if (isBoss)
+        {
+            CurrentStageLevel++;
+            OnBossKilled?.Invoke();
+            Debug.Log($"[EnemyKillRewardDispatcher] 보스 처치! 스테이지 레벨 → {CurrentStageLevel}");
+        }
+        else
+        {
+            OnNormalEnemyKilled?.Invoke();
+        }
+    }
+
+    private static ItemDropSettings CreateDefaultItemDropSettings()
+    {
+        var s = ScriptableObject.CreateInstance<ItemDropSettings>();
+        s.equipmentChance = 0.05f;
+        s.fairyShardChance = 0.0001f;
+        s.skillScrollChance = 0.00005f;
+        s.skillGemChance = 0.00001f;
+        s.dungeonTicketChance = 0.00001f;
+        s.stageGap = 3;
+        s.startIP = 100;
+        s.offsetTable = new ItemDropSettings.EquipmentOffsetEntry[]
+        {
+            new() { offset = 0, weight = 800 },
+            new() { offset = 100, weight = 150 },
+            new() { offset = 200, weight = 40 },
+            new() { offset = 300, weight = 10 }
+        };
+        s.equipmentSlotIds = new[] { "equip_weapon", "equip_armor", "equip_helmet", "equip_boots", "equip_gloves" };
+        s.fairyShardIds = new[] { "shard_fairy_01" };
+        s.skillScrollIds = new[] { "scroll_skill_01" };
+        s.skillGemIds = new[] { "gem_skill_01" };
+        s.dungeonTicketIds = new[] { "ticket_dungeon_01" };
+        return s;
+    }
+}
