@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 
 [System.Serializable]
-public class PlayerExpTable
+public class PlayerExpTable : TableBase
 {
-    public int ID;
     public int playerLevel;
     public BigDouble reqExp;
 }

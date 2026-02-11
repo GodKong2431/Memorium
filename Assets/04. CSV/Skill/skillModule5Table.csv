@@ -1,0 +1,6 @@
+잼 ID,스킬ID 참조여부,"상태이상 타입(fire=0, poison=1, bleed=2)",데미지 주기(1=1초),"발동 방식(assignTarget=0, strikeLocation=1)",상태 지속시간(1=1초),최대 중첩 횟수,방어력 감소량 (1=0.01),아이콘 경로,사운드 경로,VFX 경로,주석
+m5ID,skillID,statusEffectType,damage,applyType,duration,maxStack,defDown,icon,sound,m5VFX,desc
+string,int,enum,float,enum,string,int,int,string,string,string,text
+110501,110001,0,0.3,1,2.1,0,0.1,,,,
+110502,110001,1,0.5,0,5,0,0,,,,
+110503,110001,2,1,0,8,5,0,,,,
