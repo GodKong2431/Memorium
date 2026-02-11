@@ -5,6 +5,22 @@ public class Presenter : MonoBehaviour
     [SerializeField] PlayerStat playerStat;
     [SerializeField] View view;
 
+    [SerializeField] private PlayerStatSetting setting;
+
+    private PlayerBaseStatData _data;
+    public PlayerBaseStatData Data => _data ??= setting != null ? setting.stat : null;
+
+    public void SetData(PlayerBaseStatData data)
+    {
+        _data = data;
+    }
+
+    public void SetSetting(PlayerStatSetting newSetting)
+    {
+        setting = newSetting;
+        _data = setting != null ? setting.stat : null;
+    }
+
     private void Start()
     {
         
