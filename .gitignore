@@ -77,6 +77,7 @@ crashlytics-build.properties
 
 # firebase private info sharing prevention
 Assets/google-services.json
+user.keystore
 Assets/StreamingAssets/google-services-desktop.json
 
 # Exclude Folder
@@ -87,3 +88,6 @@ Assets/Editor Default Resources/Firebase
 Assets/GeneratedLocalRepo
 Assets/ExternalDependencyManager
 Assets/Plugins
+Assets/GoogleSignIn
+
+*.keystore

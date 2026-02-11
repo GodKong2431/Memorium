@@ -5,6 +5,7 @@ using Google;
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -28,6 +29,7 @@ public class LoginSystem : MonoBehaviour
     [SerializeField] TMP_InputField newNickNameInputField;
     [SerializeField] Button nickNameConfirmBtn;
 
+    [SerializeField] TestPlayerData playerData;
     private void Start()
     {
         Init();
@@ -83,7 +85,9 @@ public class LoginSystem : MonoBehaviour
             nickNameInputField.text = FirebaseAuthManager.Instance.user.DisplayName;//파이어베이스 상에 기억된 닉네임 가져옴
             //loginButton.interactable = true;
             Debug.Log("로그인 성공");
-            SceneManager.LoadSceneAsync("Lobby");
+
+            yield return new WaitUntil(()=>FirebaseAuthManager.Instance.user != null);
+            CheckUserData();
         }
     }
     #endregion
@@ -202,7 +206,7 @@ public class LoginSystem : MonoBehaviour
                 else
                 {
                     //앞선 문제점들 모두 지나면 정상적으로 로그인 되었다는 뜻
-                    OnGoogleAuthenticatedFinished(task);
+                    OnGoogleLoginTask(task);
                 }
             });
         }
@@ -213,7 +217,7 @@ public class LoginSystem : MonoBehaviour
     }
 
     //전달받은 구글 데이터 기반으로 파이어 베이스 로그인
-    private void OnGoogleAuthenticatedFinished(Task<GoogleSignInUser> task)
+    private void OnGoogleLoginTask(Task<GoogleSignInUser> task)
     {
 
         Credential credential = GoogleAuthProvider.GetCredential(task.Result.IdToken, null);
@@ -230,15 +234,12 @@ public class LoginSystem : MonoBehaviour
             FirebaseAuthManager.Instance.user = FirebaseAuthManager.Instance.auth.CurrentUser;
 
 
-            if (string.IsNullOrEmpty(FirebaseAuthManager.Instance.user.DisplayName))
+            if (string.IsNullOrEmpty(FirebaseAuthManager.Instance.user.DisplayName) || FirebaseAuthManager.Instance.user.DisplayName.Length<4)
             {
                 SetPlayerNameSequence();
             }
-            //Debug.Log($"UserName: {user.DisplayName}");
-            //Debug.Log($"UserEmail: {user.Email}");
-
-            //userIdTMP.text = $"Google UserId: {user.UserId}";
-            //userNameTMP.text = $"User Name: {user.DisplayName}";
+            Debug.Log($"UserName: {FirebaseAuthManager.Instance.user.DisplayName}");
+            Debug.Log($"UserEmail: {FirebaseAuthManager.Instance.user.Email}");
         });
     }
 
@@ -249,10 +250,42 @@ public class LoginSystem : MonoBehaviour
 
     private void SetPlayerName(string playerName)
     {
-        //이건 로컬에서 만든 것
+
+        if (playerName.Length < 4)
+        {
+            Debug.Log("닉네임은 4글자 이상");
+            return;
+        }
+
         UserProfile profile = new UserProfile { DisplayName = playerName };
 
         Task profileTask = FirebaseAuthManager.Instance.user.UpdateUserProfileAsync(profile);
+
+        //다음에 씬 넘어가거나 아니면 패널을 끄거나 하면 될 듯
+    }
+    #endregion
+
+    #region 로그인 아이디 기반 데이터베이스 콜렉션 생성
+    public async void CheckUserData()
+    {
+        bool isExistId = await DataSaveOnFireStore.InitUserData();
+
+        if (isExistId)
+        {
+            //정보를 가져오는 코드
+            playerData = await DataSaveOnFireStore.ReadData<TestPlayerData>();
+            Debug.Log("정보 가져오기");
+            playerData.SaveCheck();
+        }
+        else
+        {
+            //새로 만드는 코드
+            //초기 세팅
+            TestPlayerData playerData = new TestPlayerData();
+
+            DataSaveOnFireStore.WriteClassData(playerData);
+            Debug.Log("정보 작성하기");
+        }
     }
     #endregion
 }
