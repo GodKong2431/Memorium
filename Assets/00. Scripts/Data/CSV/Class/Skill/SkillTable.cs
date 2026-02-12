@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+
+[System.Serializable]
+public class SkillTable : TableBase
+{
+    public int m1ID;
+    public int m2ID;
+    public int m3ID;
+    public float skillDamage;
+    public float skillDamageValue;
+    public string skillName;
+    public string skillDesc;
+    public float skillRange;
+    public float skillCooldown;
+    public skillType skillType;
+    public string skillVFX;
+    public string skillSound;
+    public string desc;
+    public string skillIcon;
+}
