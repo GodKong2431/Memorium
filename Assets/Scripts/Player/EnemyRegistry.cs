@@ -28,16 +28,15 @@ public static class EnemyRegistry
         }
     }
 
+    private static void ClearNull()
+    {
+        enemies.RemoveAll(enemy => enemy == null);
+    }
+
     private static void CheckEnemy()
     {
-        if (enemies.Count > 0)
-        {
-            isEnemyExist = true;
-        }
-
-        else
-        {
-            isEnemyExist = false;
-        }
+     
+        ClearNull();
+        isEnemyExist = enemies.Count > 0;
     }
 }
