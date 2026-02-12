@@ -462,7 +462,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1440368051}
-  - component: {fileID: 1440368050}
   - component: {fileID: 1440368049}
   m_Layer: 0
   m_Name: PlayerStatus
@@ -488,20 +487,6 @@ MonoBehaviour:
   goldText: {fileID: 0}
   expText: {fileID: 0}
   itemsText: {fileID: 0}
---- !u!114 &1440368050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1440368048}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8fe0f3285142ed44b0a965e29bc948a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerData
-  maxHealth: 100
-  startGold: 0
 --- !u!4 &1440368051
 Transform:
   m_ObjectHideFlags: 0

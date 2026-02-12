@@ -14,7 +14,9 @@ public class PlayerStatusUI : MonoBehaviour
     [SerializeField] private Text healthText;
     [SerializeField] private Text goldText;
     [SerializeField] private Text expText;
+    [SerializeField] private Text berserkerOrbText;
     [SerializeField] private Text itemsText;
+    [SerializeField] private Button berserkerModeButton;
 
     private PlayerData _playerData;
 
@@ -25,6 +27,7 @@ public class PlayerStatusUI : MonoBehaviour
             CreateDefaultUI();
         if (_playerData != null)
             _playerData.OnDataChanged += Refresh;
+        BerserkerModeController.OnBerserkerModeEnded += Refresh;
         Refresh();
     }
 
@@ -32,6 +35,7 @@ public class PlayerStatusUI : MonoBehaviour
     {
         if (_playerData != null)
             _playerData.OnDataChanged += Refresh;
+        BerserkerModeController.OnBerserkerModeEnded += Refresh;
         Refresh();
     }
 
@@ -39,6 +43,7 @@ public class PlayerStatusUI : MonoBehaviour
     {
         if (_playerData != null)
             _playerData.OnDataChanged -= Refresh;
+        BerserkerModeController.OnBerserkerModeEnded -= Refresh;
     }
 
     private void CreateDefaultUI()
@@ -57,14 +62,16 @@ public class PlayerStatusUI : MonoBehaviour
         rect.anchorMax = new Vector2(0, 1);
         rect.pivot = new Vector2(0, 1);
         rect.anchoredPosition = new Vector2(20, -20);
-        rect.sizeDelta = new Vector2(280, 120);
+        rect.sizeDelta = new Vector2(280, 190);
         var img = panel.AddComponent<Image>();
         img.color = new Color(0, 0, 0, 0.6f);
 
         healthText = CreateLabel(panel.transform, "HP", 0);
         goldText = CreateLabel(panel.transform, "Gold", 1);
         expText = CreateLabel(panel.transform, "Exp", 2);
-        itemsText = CreateLabel(panel.transform, "Items", 3, 18);
+        berserkerOrbText = CreateLabel(panel.transform, "버서커 오브", 3);
+        itemsText = CreateLabel(panel.transform, "Items", 4, 18);
+        berserkerModeButton = CreateBerserkerButton(panel.transform);
     }
 
     private static Text CreateLabel(Transform parent, string prefix, int index, int fontSize = 22)
@@ -87,6 +94,49 @@ public class PlayerStatusUI : MonoBehaviour
         return text;
     }
 
+    private static Button CreateBerserkerButton(Transform parent)
+    {
+        var go = new GameObject("BerserkerModeButton");
+        go.transform.SetParent(parent, false);
+        var rect = go.AddComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0, 1);
+        rect.anchorMax = new Vector2(1, 1);
+        rect.pivot = new Vector2(0, 1);
+        rect.anchoredPosition = new Vector2(10, -135);
+        rect.sizeDelta = new Vector2(-20, 28);
+
+        var img = go.AddComponent<Image>();
+        img.color = new Color(0.6f, 0.2f, 0.2f);
+
+        var button = go.AddComponent<Button>();
+        var textGo = new GameObject("Text");
+        textGo.transform.SetParent(go.transform, false);
+        var textRect = textGo.AddComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
+        var text = textGo.AddComponent<Text>();
+        text.text = "버서커 모드";
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = 16;
+        text.color = Color.white;
+        text.alignment = TextAnchor.MiddleCenter;
+
+        button.onClick.AddListener(OnBerserkerModeClicked);
+        return button;
+    }
+
+    private static void OnBerserkerModeClicked()
+    {
+        var playerData = PlayerData.Instance ?? FindAnyObjectByType<PlayerData>();
+        var berserker = BerserkerModeController.Instance ?? FindAnyObjectByType<BerserkerModeController>();
+        if (playerData == null || berserker == null) return;
+        if (berserker.IsActive) return;
+        if (!playerData.TryConsumeBerserkerOrbs(PlayerData.MaxBerserkerOrb)) return;
+        berserker.Activate();
+    }
+
     private void Refresh()
     {
         if (_playerData == null)
@@ -94,6 +144,7 @@ public class PlayerStatusUI : MonoBehaviour
             if (healthText) healthText.text = "HP: -";
             if (goldText) goldText.text = "Gold: -";
             if (expText) expText.text = "Exp: -";
+            if (berserkerOrbText) berserkerOrbText.text = "버서커 오브: -";
             if (itemsText) itemsText.text = "Items: -";
             return;
         }
@@ -104,7 +155,13 @@ public class PlayerStatusUI : MonoBehaviour
             goldText.text = $"Gold: {_playerData.Gold}";
         if (expText)
             expText.text = $"Exp: {_playerData.Exp}";
+        if (berserkerOrbText)
+            berserkerOrbText.text = $"버서커 오브: {_playerData.BerserkerOrb} / {PlayerData.MaxBerserkerOrb}";
         if (itemsText)
             itemsText.text = $"Items: {_playerData.GetItemsSummary()}";
+
+        var berserker = BerserkerModeController.Instance ?? FindAnyObjectByType<BerserkerModeController>();
+        if (berserkerModeButton)
+            berserkerModeButton.interactable = berserker != null && !berserker.IsActive && _playerData.BerserkerOrb >= PlayerData.MaxBerserkerOrb;
     }
 }

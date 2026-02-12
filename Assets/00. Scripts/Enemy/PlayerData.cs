@@ -17,12 +17,16 @@ public class PlayerData : MonoBehaviour
     private float _currentHealth;
     private int _gold;
     private int _exp;
+    private int _berserkerOrb;
     private readonly Dictionary<string, int> _items = new Dictionary<string, int>();
+
+    public const int MaxBerserkerOrb = 50;
 
     public float CurrentHealth => _currentHealth;
     public float MaxHealth => maxHealth;
     public int Gold => _gold;
     public int Exp => _exp;
+    public int BerserkerOrb => _berserkerOrb;
     public IReadOnlyDictionary<string, int> Items => _items;
 
     public event Action OnDataChanged;
@@ -45,6 +49,7 @@ public class PlayerData : MonoBehaviour
         EnemyKillRewardDispatcher.OnExpEarned += AddExp;
         EnemyKillRewardDispatcher.OnItemDropped += AddItem;
         EnemyKillRewardDispatcher.OnEquipmentDropped += AddEquipment;
+        EnemyKillRewardDispatcher.OnBerserkerOrbEarned += AddBerserkerOrb;
     }
 
     private void OnDestroy()
@@ -55,6 +60,7 @@ public class PlayerData : MonoBehaviour
             EnemyKillRewardDispatcher.OnExpEarned -= AddExp;
             EnemyKillRewardDispatcher.OnItemDropped -= AddItem;
             EnemyKillRewardDispatcher.OnEquipmentDropped -= AddEquipment;
+            EnemyKillRewardDispatcher.OnBerserkerOrbEarned -= AddBerserkerOrb;
             Instance = null;
         }
     }
@@ -71,6 +77,22 @@ public class PlayerData : MonoBehaviour
         if (amount <= 0) return;
         _exp += amount;
         OnDataChanged?.Invoke();
+    }
+
+    public void AddBerserkerOrb(int amount)
+    {
+        if (amount <= 0) return;
+        _berserkerOrb = Mathf.Min(MaxBerserkerOrb, _berserkerOrb + amount);
+        OnDataChanged?.Invoke();
+    }
+
+    /// <summary>버서커 모드 발동 시 오브 50개 소모. 보유량이 부족하면 false.</summary>
+    public bool TryConsumeBerserkerOrbs(int amount)
+    {
+        if (amount <= 0 || _berserkerOrb < amount) return false;
+        _berserkerOrb -= amount;
+        OnDataChanged?.Invoke();
+        return true;
     }
 
     public void AddItem(string itemId, int count)

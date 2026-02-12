@@ -12,6 +12,7 @@ public static class EnemyKillRewardDispatcher
     public static event Action<int> OnExpEarned;
     public static event Action<string, int> OnItemDropped;
     public static event Action<string, int, int> OnEquipmentDropped;
+    public static event Action<int> OnBerserkerOrbEarned;
     public static event Action OnBossKilled;
     public static event Action OnNormalEnemyKilled;
 
@@ -63,6 +64,11 @@ public static class EnemyKillRewardDispatcher
                 }
             }
         }
+
+        // 버서커 오브: 일반 1개, 보스 10개
+        int berserkerOrb = isBoss ? 10 : 1;
+        OnBerserkerOrbEarned?.Invoke(berserkerOrb);
+        Debug.Log($"[EnemyKillRewardDispatcher] 버서커 오브 +{berserkerOrb}");
 
         if (isBoss)
         {
