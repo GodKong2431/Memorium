@@ -21,7 +21,7 @@ public class CSVClassGenerator : AssetPostprocessor
             if (IsTargetCSV(movedFromAssetPaths[i])) { DeleteClass(movedFromAssetPaths[i]); anyChange = true; }
         }
 
-        if (anyChange) { AssetDatabase.Refresh(); Debug.Log("[Auto-Gen] 클래스 동기화"); }
+        if (anyChange) { AssetDatabase.Refresh(); Debug.Log("[Auto-Gen] 클래스 동기화 완료."); }
     }
 
     private static bool IsTargetCSV(string path) => path.Replace("\\", "/").Contains(CSVPath) && path.EndsWith(".csv");
@@ -50,12 +50,17 @@ public class CSVClassGenerator : AssetPostprocessor
 
         for (int i = 1; i < varNames.Length; i++)
         {
-            string type = varTypes[i].Trim();
-            string name = varNames[i].Trim();
-            if (string.IsNullOrEmpty(name)) continue;
+            string rawType = varTypes[i];
+            string rawName = varNames[i];
 
-            string finalType = ConvertType(type, name);
-            sb.AppendLine($"    public {finalType} {name};");
+            rawType = rawType.Trim().Replace("\"", "").Replace("'", "").Replace("\r", "");
+            rawName = rawName.Trim().Replace("\"", "").Replace("'", "").Replace("\r", "");
+
+            if (string.IsNullOrEmpty(rawName)) continue;
+
+            string finalType = ConvertType(rawType, rawName);
+
+            sb.AppendLine($"    public {finalType} {rawName};");
         }
         sb.AppendLine("}");
 
@@ -108,14 +113,18 @@ public class CSVClassGenerator : AssetPostprocessor
             case "bool": return "bool";
             case "long": return "long";
             case "bigdouble": return "BigDouble";
-            case "enum": return fieldName;
+
+            case "enum":
+                if (string.IsNullOrEmpty(fieldName)) return "string";
+                return char.ToUpper(fieldName[0]) + fieldName.Substring(1);
+
             default: return "string";
         }
     }
 
     private static string[] SplitCsvLine(string line) => Regex.Split(line, ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
-    [MenuItem("[Auto-Gen] Tools/CSV 클래스 강제 재생성")]
+    [MenuItem("Tools/CSV 클래스 강제 재생성")]
     public static void GenerateAllClasses()
     {
         if (!Directory.Exists(CSVPath)) return;

@@ -11,16 +11,16 @@ public class DataManager : Singleton<DataManager>
 {
     #region 데이터 맵
     // 플레이어 데이터
-    public Dictionary<int, PlayerExpTable> PlayerLevelDict;
+    //public Dictionary<int, PlayerExpTable> PlayerLevelDict;
 
-    // 스킬 데이터
-    public Dictionary<int, SkillTable> SkillDict;
-    public Dictionary<int, SkillModule1Table> SkillModule1Dict;
-    public Dictionary<int, SkillModule2Table> SkillModule2Dict;
-    public Dictionary<int, SkillModule3Table> SkillModule3Dict;
-    public Dictionary<int, SkillModule4Table> SkillModule4Dict;
-    public Dictionary<int, SkillModule5Table> SkillModule5Dict;
-    public Dictionary<int, M5FusionTable> M5FusionDict;
+    //// 스킬 데이터
+    //public Dictionary<int, SkillTable> SkillDict;
+    //public Dictionary<int, SkillModule1Table> SkillModule1Dict;
+    //public Dictionary<int, SkillModule2Table> SkillModule2Dict;
+    //public Dictionary<int, SkillModule3Table> SkillModule3Dict;
+    //public Dictionary<int, SkillModule4Table> SkillModule4Dict;
+    //public Dictionary<int, SkillModule5Table> SkillModule5Dict;
+    //public Dictionary<int, M5FusionTable> M5FusionDict;
     #endregion
 
     // (현재개수, 총개수, 현재작업중인파일)

@@ -1,7 +1,7 @@
-스킬 고유 키,모듈1 정보,모듈2 정보,모듈3 정보,기본 데미지,추가 수치 데미지 (0.01=1%),스킬명(스트링),스킬툴팁(스트링),시전 사거리,스킬 쿨타임,"스킬 타입(0=일반스킬, 1=궁극스킬)",VFX 경로,사운드 경로,주석,스킬 아이콘 경로
+스킬 고유 키,모듈1 정보,모듈2 정보,모듈3 정보,기본 데미지,추가 수치 데미지 (0.01=1%),스킬명(스트링),스킬툴팁(스트링),시전 사거리,스킬 쿨타임,"스킬 타입(0=basicSkill, 1=ultimateSkill)",VFX 경로,사운드 경로,주석,스킬 아이콘 경로
 skillID,m1ID,m2ID,m3ID,skillDamage,skillDamageValue,skillName,skillDesc,skillRange,skillCooldown,skillType,skillVFX,skillSound,desc,skillIcon
 int,int,int,int,float,float,string,string,float,float,enum,string,string,text,string
-110001,110101,110201,110301,100,0.6,SKILL_NAME_01,SKILL_DESC_01,20,3,0,,,,
-110002,110102,110202,110302,100,0.6,SKILL_NAME_02,SKILL_DESC_02,20,3,0,,,,
-110003,110103,110203,110303,100,0.6,SKILL_NAME_03,SKILL_DESC_03,15,3,0,,,,
-110004,110104,110204,110304,100,0.6,SKILL_NAME_04,SKILL_DESC_04,20,2,1,,,,
+4000001,4010001,4020001,4030001,100,0.6,SKILL_NAME_01,SKILL_DESC_01,20,3,0,,,,
+4000002,4010002,4020002,4030002,100,0.6,SKILL_NAME_02,SKILL_DESC_02,20,3,0,,,,
+4000003,4010003,4020003,4030003,100,0.6,SKILL_NAME_03,SKILL_DESC_03,15,3,0,,,,
+4000004,4010004,4020004,4030004,100,0.6,SKILL_NAME_04,SKILL_DESC_04,20,2,1,,,,

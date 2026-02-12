@@ -4,7 +4,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class SkillModule2Table : TableBase
 {
-    public m2Type m2Type;
+    public M2Type m2Type;
     public float m2Delay;
     public float m2S1;
     public float m2S2;
