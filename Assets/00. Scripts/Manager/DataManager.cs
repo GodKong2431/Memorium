@@ -10,17 +10,69 @@ using System.Reflection;
 public class DataManager : Singleton<DataManager>
 {
     #region 데이터 맵
-    // 플레이어 데이터
-    //public Dictionary<int, PlayerExpTable> PlayerLevelDict;
+    // 드랍 테이블
+    public Dictionary<int, EquipmentDropTable> EquipmentDropDict;
+    public Dictionary<int, ItemDropTable> ItemDropDict;
+    
+    // 던전 테이블
+    public Dictionary<int, DungeonReqTable> DungeonReqDict;
 
-    //// 스킬 데이터
-    //public Dictionary<int, SkillTable> SkillDict;
-    //public Dictionary<int, SkillModule1Table> SkillModule1Dict;
-    //public Dictionary<int, SkillModule2Table> SkillModule2Dict;
-    //public Dictionary<int, SkillModule3Table> SkillModule3Dict;
-    //public Dictionary<int, SkillModule4Table> SkillModule4Dict;
-    //public Dictionary<int, SkillModule5Table> SkillModule5Dict;
-    //public Dictionary<int, M5FusionTable> M5FusionDict;
+    // 적 테이블
+    public Dictionary<int, BossManageTable> BossManageDict;
+    public Dictionary<int, MonsterBasestatTable> MonsterBasestatDict;
+    public Dictionary<int, MonsterGroupTable> MonsterGroupDict;
+    public Dictionary<int, MonsterStringTable> MonsterStringDict;
+
+    // 아이템 테이블
+    public Dictionary<int, ItemsTable> ItemsDict;
+
+    // 장비 테이블
+    public Dictionary<int, EnemyGrowthTable> EnemyGrowthDict;
+    public Dictionary<int, EquipArmorTable> EquipArmorDict;
+    public Dictionary<int, EquipBootsTable> EquipBootsDict;
+    public Dictionary<int, EquipWeaponTable> EquipWeaponDict;
+    public Dictionary<int, EquipGloveTable> EquipGloveDict;
+    public Dictionary<int, EquipHelmetTable> EquipHelmetDict;
+    public Dictionary<int, EquipListTable> EquipListDict;
+
+    // 페어리 테이블
+    public Dictionary<int, FairyStatTable> FairyStatDict;
+    public Dictionary<int, FairyEffectTable> FairyEffectDict;
+    public Dictionary<int, FairyGradeTable> FairyGradeDict;
+    public Dictionary<int, FairyGrowthTable> FairyGrowthDict;
+    public Dictionary<int, FairyInfoTable> FairyInfoDict;
+    public Dictionary<int, TriggerInfoTable> TriggerInfoDict;
+
+    // 스테이지 테이블
+    public Dictionary<int, StageManageTable> StageManageDict;
+
+    // 플레이어 데이터
+    public Dictionary<int, CharacterBaseStatTable> CharacterBaseStatDict;
+    public Dictionary<int, CharacterTable> CharacterDict;
+    public Dictionary<int, LevelbonusTable> LevelbonusDict;
+    public Dictionary<int, PlayerExpTable> PlayerLevelDict;
+    public Dictionary<int, StatUpgradeTable> StatUpgradeDict;
+    public Dictionary<int, TraitTable> TraitDict;
+    
+    // 퀘스트 테이블
+    public Dictionary<int, LineQuestTable> LineQuestDict;
+    public Dictionary<int, QuestRewardsTable> QuestRewardsDict;
+
+    // 스킬 데이터
+    public Dictionary<int, SkillTable> SkillDict;
+    public Dictionary<int, SkillModule1Table> SkillModule1Dict;
+    public Dictionary<int, SkillModule2Table> SkillModule2Dict;
+    public Dictionary<int, SkillModule3Table> SkillModule3Dict;
+    public Dictionary<int, SkillModule4Table> SkillModule4Dict;
+    public Dictionary<int, SkillModule5Table> SkillModule5Dict;
+    public Dictionary<int, M5FusionTable> M5FusionDict;
+
+    // 패시브 데이터
+    public Dictionary<int, PassiveBalance> PassiveBalanceDict;
+    public Dictionary<int, PassiveGrowthTable> PassiveGrowthDict;
+    public Dictionary<int, PassiveInfoTable> PassiveInfoDict;
+    public Dictionary<int, PassiveSetTable> PassiveSetDict;
+
     #endregion
 
     // (현재개수, 총개수, 현재작업중인파일)
