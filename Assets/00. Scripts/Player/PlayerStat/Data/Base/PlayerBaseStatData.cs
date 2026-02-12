@@ -4,7 +4,7 @@
 public class PlayerBaseStatData
 {
     public int characterStatID;
-    public ClassType classType;
+    public classType classType;
     public float baseAttack;
     public float baseAttackSpeed;
     public float baseHP;

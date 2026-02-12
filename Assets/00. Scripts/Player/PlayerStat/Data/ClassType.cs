@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public enum ClassType
+public enum classType
 {
     Assassin,
     Warrior,
