@@ -1,19 +1,35 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Build.Pipeline;
 using UnityEngine;
 
 public class EquipmentHandler : MonoBehaviour
 {
-    [SerializeField] PlayerEquipment playerEquipment;
-    [SerializeField] PlayerInventory playerInventory;
-    //종류별 장비 데이터를 참조하기 위한 딕셔너리
-    public Dictionary<EquipmentType, Dictionary<int, TableBase>> equipmentTableDict;
+    public PlayerEquipment playerEquipment;
+    public PlayerInventory playerInventory;
+    ////종류별 장비 데이터를 참조하기 위한 딕셔너리
+    //public Dictionary<EquipmentType, Dictionary<int, TableBase>> equipmentTableDict;
 
-    //처음 생성 시 플레이어 착용하던 장비 아이템을 다시 장착하는 코드
-    public void SetMyEquipOnStart()
-    { 
+
+
+    IEnumerator Start()
+    {
+        yield return new WaitUntil(()=>DataManager.Instance != null);
+        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+    }
+    //시작 시 플레이어 착용하던 장비 아이템을 다시 장착 및 인벤토리 정보 불러 코드
+    public void SetMyEquipOnStart(int weaponId, int helmetId, int glovesId, int armorId, int bootsId, Dictionary<int,int> equipCountDict)
+    {
         //나중에 플레이어 관련 매니저에서 정보 불러와 해당 장비 장착
+        playerEquipment.OnEqipItem(weaponId);
+        playerEquipment.OnEqipItem(helmetId);
+        playerEquipment.OnEqipItem(glovesId);
+        playerEquipment.OnEqipItem(armorId);
+        playerEquipment.OnEqipItem(bootsId);
+
+        //인벤토리 정보 불러옴
+        playerInventory.SetMyEquipmentCountDictionary(equipCountDict);
     }
 
     //해당 작업에 필요한 과정 <- 아래 과정은 장비마다 반복
