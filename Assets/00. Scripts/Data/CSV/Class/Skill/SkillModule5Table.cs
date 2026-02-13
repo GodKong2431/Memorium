@@ -5,9 +5,9 @@ using System.Collections.Generic;
 public class SkillModule5Table : TableBase
 {
     public int skillID;
-    public m5Type m5Type;
+    public M5Type m5Type;
     public float damage;
-    public applyType applyType;
+    public ApplyType applyType;
     public string duration;
     public int maxStack;
     public int defDown;

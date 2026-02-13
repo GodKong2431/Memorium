@@ -1,0 +1,4 @@
+스킬의 고유 ID ,스킬 이름 로컬라이징 키,"적용 능력치 타입(1:공격력, 2:이동속도, 3:공격속도, 4:치명타, 5:마법저항)",아이콘 리소스 경로,퍼센트 적용 여부(고정값이 아닌 비율로 적용할지 결정하는 컬럼),최대치 제한값 (0일 시 제한 없음)
+skillID,skillNameKey,statType,iconPath,isPercent,maxValue
+int,string,enum,string,bool,float
+4100001,PASSIVE_NAME_ATK,1,Asset/@/Icon/Passive_NAME_4100001,FALSE,5
