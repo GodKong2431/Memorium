@@ -13,7 +13,7 @@ public class SkillTable : TableBase
     public string skillDesc;
     public float skillRange;
     public float skillCooldown;
-    public skillType skillType;
+    public SkillType skillType;
     public string skillVFX;
     public string skillSound;
     public string desc;
