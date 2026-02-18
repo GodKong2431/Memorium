@@ -82,6 +82,9 @@ public class DataManager : Singleton<DataManager>
     // AutoAddressableImporter에서 설정한 라벨 이름
     private const string LABEL_TO_LOAD = "CSV_Data";
 
+    //데이터 로드 완료했는지 체크하는 bool값
+    public bool DataLoad = false;
+
     protected override void Awake()
     {
         base.Awake();
@@ -155,6 +158,8 @@ public class DataManager : Singleton<DataManager>
 
             // 로드되어있던 CSV 
             Addressables.Release(loadHandle);
+
+            DataLoad = true;
         }
         else
         {
