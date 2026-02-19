@@ -9,7 +9,8 @@ using UnityEngine;
 /// </summary>
 public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler, ISkillDetectable
 {
-
+    private ISkillStatProvider statProvider;
+    private ISkillTargetProvider targetProvider;
     [Header("레이어")]
     [SerializeField] private LayerMask targetLayer; 
 
@@ -20,9 +21,10 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     [SerializeField] GameObject shadowPrepab;
     [SerializeField] private bool isTestContextOn = false;
 
-    private SkillDataContext skillDataContext = new SkillDataContext();
+    private SkillDataContext skillDataContext;
 
     private bool isCasting = false;
+    public bool IsCasting => isCasting;
     private Coroutine currentSkillRoutine;
 
     private Collider[] hitBuffer = new Collider[20];//타격 대상 버퍼, nonalloc 저장용도
@@ -49,6 +51,11 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         Debug.Log($"애니메이션 재생: {key}");
     }
 
+    public void Init(ISkillStatProvider stat, ISkillTargetProvider target)
+    {
+        statProvider = stat;
+        targetProvider = target;
+    }
 
     public void CastSkill(SkillDataContext dataContext, float extraDelay = 0)
     {
@@ -91,7 +98,10 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         yield return SkillSequenceMove(data);
 
 
-        Vector3 castDirection = transform.forward;
+        Transform target = targetProvider.GetTarget();
+        Vector3 castDirection = (target.position - transform.position);
+        castDirection.y = 0;
+        castDirection = castDirection.normalized;
         Vector3 ExecutePivot = transform.position;
 
         if (data.m3Data.m3Delay > 0)
@@ -117,7 +127,10 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     /// </summary>
     private IEnumerator SkillSequenceMove(SkillData data)
     {
-        Vector3 castDirection = transform.forward;
+        Transform target = targetProvider.GetTarget();
+        Vector3 castDirection = (target.position - transform.position);
+        castDirection.y = 0;
+        castDirection = castDirection.normalized;
 
         if (data.m1Data.m1Delay > 0)
         {

@@ -330,7 +330,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 198373267}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 20.9, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1651,6 +1651,7 @@ GameObject:
   - component: {fileID: 1669711378}
   - component: {fileID: 1669711379}
   - component: {fileID: 1669711380}
+  - component: {fileID: 1669711381}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -1857,7 +1858,7 @@ MonoBehaviour:
         m1Type: 0
         m1Delay: 0
         m1Scale: 0
-        m2Duration: 0
+        m1Duration: 0
         desc: 
       m2Data:
         ID: 0
@@ -1892,7 +1893,7 @@ MonoBehaviour:
       m5Type: 0
       damage: 0
       applyType: 0
-      duration: 
+      duration: 0
       maxStack: 0
       defDown: 0
       icon: 
@@ -1903,6 +1904,18 @@ MonoBehaviour:
   deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
   shadowPrepab: {fileID: 9106158446547060106, guid: ad334d366ce436447a3b287029a8541f, type: 3}
   isTestContextOn: 0
+--- !u!114 &1669711381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1669711372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1f90f35de5715949b82d1bf7ffd75b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillHandler
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

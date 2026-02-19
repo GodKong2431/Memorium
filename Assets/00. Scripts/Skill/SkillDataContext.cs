@@ -30,9 +30,8 @@ public class SkillDataContext
     [Header("M5: 상태 이상")]
     public SkillModule5Table m5Data;
 
-    public void Init(int skillID, int m4ID = -1, int m5ID = -1)
+    public SkillDataContext(int skillID, int m4ID = -1, int m5ID = -1)
     {
-        if (!DataManager.Instance.DataLoad) return;
         if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table)) return;
 
         if (skillData == null) skillData = new SkillData();
