@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class SkillData
 {
-    public SkillTable skillTable;
+    public SkillInfoTable skillTable;
 
     [Header("M1: ¿Ãµø")]
     public SkillModule1Table m1Data;
@@ -33,7 +33,7 @@ public class SkillDataContext
     public void Init(int skillID, int m4ID = -1, int m5ID = -1)
     {
         if (!DataManager.Instance.DataLoad) return;
-        if (!DataManager.Instance.SkillDict.TryGetValue(skillID, out var table)) return;
+        if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table)) return;
 
         if (skillData == null) skillData = new SkillData();
 

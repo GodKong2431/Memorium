@@ -23,4 +23,3 @@ public class CharacterBaseStatInfoTable : TableBase
     public float baseMoneyGain;
     public float baseExpGain;
 }
-
