@@ -37,13 +37,15 @@ public class PlayerStateAttack : IPlayerState
 
     public void OnUpdate(PlayerStateContext ctx)
     {
-        float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
-
         if (enemy == null && EnemyRegistry.isEnemyExist == false)
         {
             ctx.RequestState(PlayerStateType.Idle);
             return;
         }
+        enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position).transform;
+        float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
+        
+
 
         if (ctx.playerSkillHandler.AutoCast())
         {

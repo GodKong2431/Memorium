@@ -16,7 +16,7 @@ public interface ISkillTargetProvider
 public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTargetProvider
 {
     private SkillCaster skillCaster;
-    private CharacterFinalStat finalStat;
+    private CharacterStatManager finalStat;
     private SkillDataContext[] skilldataContexts;
     private float[] cooldownTimers;
 
@@ -25,7 +25,7 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
     private void Awake()
     {
         skillCaster = GetComponent<SkillCaster>();
-        finalStat = GetComponent<CharacterFinalStat>();
+        finalStat = GetComponent<CharacterStatManager>();
     }
     public void Init(int[] skillIDs, int[] m4IDs =null, int[] m5IDs=null )
     {

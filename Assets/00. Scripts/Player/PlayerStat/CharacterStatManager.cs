@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -35,6 +36,12 @@ public class CharacterStatManager : MonoBehaviour
     [SerializeField] private PlayerTrait coolDownTrait;
     [SerializeField] private PlayerTrait damageMultTrait;
 
+    IEnumerator Start()
+    {
+        yield return new WaitUntil(()=>DataManager.Instance!=null);
+        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        LoadTable();
+    }
     public CharacterBaseStat BaseStat { get { return baseStat; } }
 
     public StatUpgrade AttackStatUpgrade { get { return attackStatUpgrade; } }

@@ -15,6 +15,13 @@ public class EnemyStateDead : IEnemyState
 
     public void OnEnter(EnemyStateContext ctx)
     {
+        //test용 코드
+        GameObject enemyObject = ctx.EnemyTransform.gameObject;
+        Object.Destroy(enemyObject);
+
+
+
+
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
             ctx.Agent.isStopped = true;
 
@@ -33,26 +40,26 @@ public class EnemyStateDead : IEnemyState
 
     public void OnUpdate(EnemyStateContext ctx)
     {
-        if (_destroyScheduled) return;
-        if (Time.time >= _destroyTime)
-        {
-            _destroyScheduled = true;
-            GameObject enemyObject = ctx.EnemyTransform.gameObject;
+        //if (_destroyScheduled) return;
+        //if (Time.time >= _destroyTime)
+        //{
+        //    _destroyScheduled = true;
+        //    GameObject enemyObject = ctx.EnemyTransform.gameObject;
 
-            if (ctx.IsBoss)
-            {
-                // 보스: 리스폰 없이 제거. MonsterSpawner가 다음 스폰 처리.
-                Object.Destroy(enemyObject);
-            }
-            else
-            {
-                // 일반 몬스터: 기존 리스폰 로직 (스폰러 연동 전까지)
-                Vector3 spawnPos = ctx.SpawnPosition;
-                Quaternion spawnRot = ctx.EnemyTransform.rotation;
-                Object.Instantiate(enemyObject, spawnPos, spawnRot);
-                Object.Destroy(enemyObject);
-            }
-        }
+        //    if (ctx.IsBoss)
+        //    {
+        //        // 보스: 리스폰 없이 제거. MonsterSpawner가 다음 스폰 처리.
+        //        Object.Destroy(enemyObject);
+        //    }
+        //    else
+        //    {
+        //        // 일반 몬스터: 기존 리스폰 로직 (스폰러 연동 전까지)
+        //        Vector3 spawnPos = ctx.SpawnPosition;
+        //        Quaternion spawnRot = ctx.EnemyTransform.rotation;
+        //        Object.Instantiate(enemyObject, spawnPos, spawnRot);
+        //        Object.Destroy(enemyObject);
+        //    }
+        //}
     }
 
     public void OnExit(EnemyStateContext ctx)

@@ -16,6 +16,7 @@ public class InfinityMap : MonoBehaviour
     
     private void Awake()
     {
+        
         //if(curMapIndex+1 < maps.Length)
         //    mapMoveTrigger.transform.position = maps[curMapIndex + 1].transform.position;
         //바운드 가져오기 위해 맵 렌더러 미리 모두 가져오기
@@ -30,6 +31,9 @@ public class InfinityMap : MonoBehaviour
             }
             originMapPos.Add(maps[i].transform.position);
         }
+
+        mapMoveTrigger.transform.position = maps[curMapIndex].transform.position;
+
         originTriggerPos = mapMoveTrigger.transform.position;
         Debug.Log(originTriggerPos);
     }

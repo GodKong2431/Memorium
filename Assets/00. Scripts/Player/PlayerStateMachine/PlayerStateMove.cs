@@ -30,6 +30,12 @@ public class PlayerStateMove : IPlayerState
 
         agent.SetDestination(goal.position);
 
+        if (EnemyRegistry.isEnemyExist)
+        {
+            ctx.RequestState(PlayerStateType.Chase);
+            return;
+        }
+
         if (agent.pathPending) return;
 
         if (agent.remainingDistance <= agent.stoppingDistance)

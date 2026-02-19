@@ -11,4 +11,9 @@ public class Enemy : MonoBehaviour
     {
         EnemyRegistry.UnRegister(this);
     }
+
+    private void OnDestroy()
+    {
+        EnemyRegistry.UnRegister(this);
+    }
 }
