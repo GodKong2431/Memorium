@@ -16,7 +16,7 @@ public class PlayerStateContext : BaseStateContext
     public bool isSecondSkillReady = true;
     public bool isThirdSkillReady = true;
 
-    public float MaxHealth => StatPresenter?.Data?.baseHP ?? 100f;
+    public float MaxHealth => StatPresenter?.playerStat?.HP ?? 100f;
     
     // 일반공격 사거리
     public float AttackRange => 1.5f;

@@ -1,4 +1,4 @@
-public enum ClassType
+﻿public enum ClassType
 {
     Assassin = 0,
     Warrior = 1,

@@ -52,7 +52,8 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void Start()
     {
-        PlayerBaseStatData data = _ctx.StatPresenter?.Data;
+        CharacterBaseStatTable data = _ctx.StatPresenter?.Data;
+
         if (data != null && _ctx.Agent != null)
         {
             _ctx.Agent.speed = data.baseMoveSpeed;

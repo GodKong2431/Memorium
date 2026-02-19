@@ -2,50 +2,37 @@
 
 public class PlayerStatPresenter : MonoBehaviour
 {
-    [SerializeField] PlayerStat playerStat;
+    public CharacterBaseStat playerStat;
+    
     [SerializeField] PlayerStatView view;
 
-    [SerializeField] private PlayerStatSetting setting;
-
-    private PlayerBaseStatData _data;
-    public PlayerBaseStatData Data => _data ??= setting != null ? setting.stat : null;
-
-    public void SetData(PlayerBaseStatData data)
-    {
-        _data = data;
-    }
-
-    public void SetSetting(PlayerStatSetting newSetting)
-    {
-        setting = newSetting;
-        _data = setting != null ? setting.stat : null;
-    }
+    private CharacterBaseStatTable _data;
+    public CharacterBaseStatTable Data {  get { return _data; } }
 
     private void Start()
     {
-        
     }
 
     private void OnEnable()
     {
         if (view != null)
         {
-            view.hpUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.HP));
-            view.hpRegenUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(1, StatType.HPRegen));
-            view.atkUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(100, StatType.ATK));
-            view.atkSpeedUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.ATKSpeed));
-            view.defUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.DEF));
-            view.magicDEFUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.MagicDEF));
-            view.manaUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.MP));
-            view.manaRegenUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.MPRegen));
-            view.critUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(1, StatType.CritChance));
-            view.critMultUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.CritMult));
-            view.coolDownUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.CoolDown));
-            view.moveSpeedUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.MoveSpeed));
-            view.expGainUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.ExpGain));
-            view.goldGainUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, StatType.GoldGain));
+            view.hpUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.HP));
+            view.hpRegenUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(1, PlayerStatType.HP_REGEN));
+            view.atkUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(100, PlayerStatType.ATK));
+            view.atkSpeedUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.ATK_SPEED));
+            view.defUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.PHYS_DEF));
+            view.magicDEFUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.MAGIC_DEF));
+            view.manaUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.MP));
+            view.manaRegenUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.MP_REGEN));
+            view.critUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(1, PlayerStatType.CRIT_CHANCE));
+            view.critMultUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.CRIT_MULT));
+            view.coolDownUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.COOLDOWN_REDUCE));
+            view.moveSpeedUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.MOVE_SPEED));
+            view.expGainUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.EXP_GAIN));
+            view.goldGainUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(10, PlayerStatType.GOLD_GAIN));
 
-            playerStat.StatChanged += view.SetStat;
+            //playerStat.StatChanged += view.SetStat;
         }
         
     }
@@ -55,13 +42,13 @@ public class PlayerStatPresenter : MonoBehaviour
  
         if (view != null)
         {
-            playerStat.StatChanged -= view.SetStat;
+            //playerStat.StatChanged -= view.SetStat;
 
         }
     }
 
-    private void OnClickUpgrade(float value, StatType statType)
+    private void OnClickUpgrade(float value, PlayerStatType statType)
     {
-        playerStat.AddStat(value, statType);
+        //playerStat.AddStat(value, statType);
     }
 }
