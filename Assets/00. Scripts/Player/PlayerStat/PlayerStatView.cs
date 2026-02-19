@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class View : MonoBehaviour
+public class PlayerStatView : MonoBehaviour
 {
     [SerializeField] Text hpText;
     [SerializeField] Text hpRegenText;
