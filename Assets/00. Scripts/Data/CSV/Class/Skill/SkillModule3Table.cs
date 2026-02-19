@@ -9,5 +9,6 @@ public class SkillModule3Table : TableBase
     public float m3Scale;
     public float m3Distance;
     public float m3Duration;
+    public float m3TickInterval;
     public string desc;
 }
