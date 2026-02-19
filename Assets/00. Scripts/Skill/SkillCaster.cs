@@ -184,7 +184,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         {
             if (hitBuffer[i].TryGetComponent<EnemyStateMachine>(out var target))
             {
-                target.TakeDamage(10);
+                target.TakeDamage(skillDataContext.skillData.skillTable.skillDamage);
 
                 if (m4Strategy is ISkillHitAddon hitAddon)
                 {
