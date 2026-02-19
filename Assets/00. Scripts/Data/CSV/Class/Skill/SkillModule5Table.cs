@@ -8,9 +8,9 @@ public class SkillModule5Table : TableBase
     public M5Type m5Type;
     public float damage;
     public ApplyType applyType;
-    public string duration;
+    public float duration;
     public int maxStack;
-    public int defDown;
+    public float defDown;
     public string icon;
     public string sound;
     public string m5VFX;
