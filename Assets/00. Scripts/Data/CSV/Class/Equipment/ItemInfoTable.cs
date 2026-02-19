@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 [System.Serializable]
-public class ItemsTable : TableBase
+public class ItemInfoTable : TableBase
 {
     public ItemType itemType;
     public string itemName;

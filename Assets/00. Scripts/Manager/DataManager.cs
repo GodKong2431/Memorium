@@ -24,7 +24,7 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, MonsterStringTable> MonsterStringDict;
 
     // 아이템 테이블
-    public Dictionary<int, ItemsTable> ItemsDict;
+    public Dictionary<int, ItemInfoTable> ItemInfoDict;
 
     // 장비 테이블
     public Dictionary<int, EnemyGrowthTable> EnemyGrowthDict;
@@ -47,19 +47,19 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, StageManageTable> StageManageDict;
 
     // 플레이어 데이터
-    public Dictionary<int, CharacterBaseStatTable> CharacterBaseStatDict;
+    public Dictionary<int, CharacterBaseStatInfoTable> CharacterBaseStatInfoDict;
     public Dictionary<int, CharacterTable> CharacterDict;
     public Dictionary<int, LevelbonusTable> LevelbonusDict;
     public Dictionary<int, PlayerExpTable> PlayerLevelDict;
     public Dictionary<int, StatUpgradeTable> StatUpgradeDict;
-    public Dictionary<int, TraitTable> TraitDict;
+    public Dictionary<int, TraitInfoTable> TraitInfoDict;
     
     // 퀘스트 테이블
     public Dictionary<int, LineQuestTable> LineQuestDict;
     public Dictionary<int, QuestRewardsTable> QuestRewardsDict;
 
     // 스킬 데이터
-    public Dictionary<int, SkillTable> SkillDict;
+    public Dictionary<int, SkillInfoTable> SkillInfoDict;
     public Dictionary<int, SkillModule1Table> SkillModule1Dict;
     public Dictionary<int, SkillModule2Table> SkillModule2Dict;
     public Dictionary<int, SkillModule3Table> SkillModule3Dict;
