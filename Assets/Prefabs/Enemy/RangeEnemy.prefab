@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2313836269413093444}
   - component: {fileID: 5198204872264942134}
   - component: {fileID: 215967418959097682}
+  - component: {fileID: -5653522181094946145}
   m_Layer: 6
   m_Name: RangeEnemy
   m_TagString: Untagged
@@ -162,6 +163,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 830588e84d80f214ca2ec94bd4e636a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStateMachine
+  playerTransformOverride: {fileID: 0}
   animator: {fileID: 0}
   isBoss: 0
   attackEffectPrefab: {fileID: 3616685332895339214, guid: 82a7b746be35c0b499c26ecf818e1ea4, type: 3}
+--- !u!54 &-5653522181094946145
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252973128719962208}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0

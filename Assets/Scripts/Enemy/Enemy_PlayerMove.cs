@@ -69,12 +69,31 @@ public class Enemy_PlayerMove : MonoBehaviour
 
         if (keyboard.digit1Key.wasPressedThisFrame)
         {
-            skillCaster.CastSkill(1);
+            SkillDataContext skillDataContext = new SkillDataContext();
+            skillDataContext.Init(4000001);
+            skillCaster.CastSkill(skillDataContext);
+
         }
 
         if (keyboard.digit2Key.wasPressedThisFrame)
         {
-            skillCaster.CastSkill(2);
+            SkillDataContext skillDataContext = new SkillDataContext();
+            skillDataContext.Init(4000002);
+            skillCaster.CastSkill(skillDataContext);
+        }
+
+        if (keyboard.digit3Key.wasPressedThisFrame)
+        {
+            SkillDataContext skillDataContext = new SkillDataContext();
+            skillDataContext.Init(4000003);
+            skillCaster.CastSkill(skillDataContext);
+        }
+
+        if (keyboard.digit4Key.wasPressedThisFrame)
+        {
+            SkillDataContext skillDataContext = new SkillDataContext();
+            skillDataContext.Init(4000004);
+            skillCaster.CastSkill(skillDataContext);
         }
 
     }

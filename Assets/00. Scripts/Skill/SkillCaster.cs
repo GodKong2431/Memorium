@@ -1,42 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using static UnityEngine.GraphicsBuffer;
 
-[System.Serializable]
-public class SkillData
+/// <summary>
+/// 원래 스킬 세개가있는구조 
+/// 나중에 얘는 정말 스킬실행만시키고 쿨타임이나 마나계산같은건 스킬캐스터를 가지는 클래스를 만들어서 플레이어에 컴포넌트로 붙이려고함
+/// 이유는 분신이나 아니면 마나없거나 아니면 몬스터가 이 스킬캐스터를 가질수있더라도 각자 자신의 로직에따라서 실행시키기 위해서임
+/// </summary>
+public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler, ISkillDetectable
 {
-    public int skillId;
-    public string skillName;
 
-    [Header("M1: 이동")]
-    public skillModule1 m1Data;
-
-    [Header("M2: 범위")]
-    public skillModule2 m2Data;
-}
-
-public class SkillCaster : MonoBehaviour, ISkillMovementSubject
-{
-    [Header("References")]
-    [SerializeField] private LayerMask _targetLayer; 
+    [Header("레이어")]
+    [SerializeField] private LayerMask targetLayer; 
 
     [Header("테스트")]
-    [SerializeField] private List<SkillData> _testDatabase; 
+    [SerializeField] private SkillDataContext testskillDataContext;
+    [SerializeField] SkillProjectile projectilePrefab;
+    [SerializeField] SkillDeploy deployPrefab;
+    [SerializeField] GameObject shadowPrepab;
+    [SerializeField] private bool isTestContextOn = false;
 
-    private bool _isCasting = false;
-    private Coroutine _currentSkillRoutine;
+    private SkillDataContext skillDataContext = new SkillDataContext();
 
-    private Collider[] _hitBuffer = new Collider[20];
+    private bool isCasting = false;
+    private Coroutine currentSkillRoutine;
 
-    private SkillData _debugLastSkillData;
-    private Vector3 _debugLastCastPos;
-    private Vector3 _debugLastCastDir;
+    private Collider[] hitBuffer = new Collider[20];//타격 대상 버퍼, nonalloc 저장용도
+
+    // 기즈모 디버그용, 다른 시각적 방식으로 바꾸는게 좋을것 같음.
+    private SkillData debugLastSkillData;
+    private Vector3 debugLastCastPos;
+    private Vector3 debugLastCastDir;
 
     public Vector3 Position => transform.position;
-   
+
     public void SetPosition(Vector3 position)
     {
         transform.position = position;
@@ -53,74 +50,147 @@ public class SkillCaster : MonoBehaviour, ISkillMovementSubject
     }
 
 
-    public void CastSkill(int skillId)
+    public void CastSkill(SkillDataContext dataContext, float extraDelay = 0)
     {
-        if (_isCasting) return;
-
-        SkillData data = _testDatabase.Find(x => x.skillId == skillId);
-        if (data == null)
+        if (isCasting) return;
+        if (isTestContextOn)
         {
-            Debug.LogError($"ID {skillId} 스킬 데이터를 찾을 수 없습니다.");
-            return;
+            skillDataContext = testskillDataContext;
+        }
+        else
+        {
+            skillDataContext= dataContext;
         }
 
-        if (_currentSkillRoutine != null) StopCoroutine(_currentSkillRoutine);
-        _currentSkillRoutine = StartCoroutine(SkillSequence(data));
+        Enemy_PlayerMove tmp = GetComponent<Enemy_PlayerMove>(); //분신이랑 플레이어 구분용, 임시로 겟컴포넌트로 구분해놨고 , id가 아니라 m4컨텍스트를 비워서 주는쪽이 좋을듯
+        if (tmp!=null&&skillDataContext.m4Data != null)
+        {
+            var m4Strategy = SkillStrategyContainer.GetAddon(skillDataContext.m4Data.m4Type);
+            if (m4Strategy is ISkillCastAddon castAddon)
+            {
+                castAddon.OnCast(this, skillDataContext, shadowPrepab); 
+            }
+
+        }
+        if (currentSkillRoutine != null)
+            StopCoroutine(currentSkillRoutine);
+        currentSkillRoutine = StartCoroutine(SkillSequence(skillDataContext, extraDelay));
     }
 
-    private IEnumerator SkillSequence(SkillData data)
+    private IEnumerator SkillSequence(SkillDataContext dataContext, float extraDelay = 0)
     {
-        _isCasting = true;
-        _debugLastSkillData = data;
 
-        var m1Strategy = SkillStrategyContainer.GetMovement(data.m1Data.M1Type);
+        isCasting = true;
+        SkillData data = dataContext.skillData;
+        debugLastSkillData = data;
+        if(extraDelay > 0)
+        {
+            yield return CoroutineManager.waitForSeconds(extraDelay);
+        }
+
+        yield return SkillSequenceMove(data);
+
 
         Vector3 castDirection = transform.forward;
-        yield return StartCoroutine(m1Strategy.SkillMove(this, castDirection, data.m1Data));
+        Vector3 ExecutePivot = transform.position;
 
-        Vector3 impactPivot = transform.position;
-
-        var m2Strategy = SkillStrategyContainer.GetStrategy(data.m2Data.M2Type);
-
-        System.Array.Clear(_hitBuffer, 0, _hitBuffer.Length);
-        int hitCount = m2Strategy.Detect(impactPivot, castDirection, data.m2Data, _hitBuffer, _targetLayer);
-
-
-        _debugLastCastPos = impactPivot;
-        _debugLastCastDir = castDirection;
-
-        for (int i = 0; i < hitCount; i++)
+        if (data.m3Data.m3Delay > 0)
         {
-            if (_hitBuffer[i].TryGetComponent<EnemyStateMachine>(out var target))
-            {
-                target.TakeDamage(10);
-                Debug.Log($" 타격 대상: {target.name}");
-            }
+            yield return CoroutineManager.waitForSeconds(data.m3Data.m3Delay);
         }
-        _isCasting = false;
+        var m3Strategy = SkillStrategyContainer.GetExecute(data.m3Data.m3Type);
+
+        //나중에 프리팹을 넘기는게아니라 데이터 테이블에서 프리팹을 가져오도록 바꿀예정
+        GameObject prefab = null;
+        if (m3Strategy is ExecuteProjectile)
+            prefab = projectilePrefab.gameObject;
+        else if (m3Strategy is ExecuteDeploy)
+            prefab = deployPrefab.gameObject; 
+
+        yield return m3Strategy.Execute(this, this, dataContext, ExecutePivot, castDirection, targetLayer, prefab);
+
+        isCasting = false;
     }
 
-    public void ForceStopSkill()
+    /// <summary>
+    /// 모듈 1 시퀀스
+    /// </summary>
+    private IEnumerator SkillSequenceMove(SkillData data)
     {
-        if (_currentSkillRoutine != null) StopCoroutine(_currentSkillRoutine);
+        Vector3 castDirection = transform.forward;
 
-        _isCasting = false;
+        if (data.m1Data.m1Delay > 0)
+        {
+            yield return CoroutineManager.waitForSeconds(data.m1Data.m1Delay);
+        }
+        var m1Strategy = SkillStrategyContainer.GetMovement(data.m1Data.m1Type);
+
+        yield return m1Strategy.SkillMove(this, castDirection, data.m1Data);
+    }
+    public void StopSkill()
+    {
+        if (currentSkillRoutine != null) StopCoroutine(currentSkillRoutine);
+
+        isCasting = false;
 
         Debug.LogWarning("스킬 시전 중단");
     }
 
     private void OnDrawGizmos()
     {
-        if (_debugLastSkillData == null) return;
+        if (debugLastSkillData == null) return;
 
-        var m2Strategy = SkillStrategyContainer.GetStrategy(_debugLastSkillData.m2Data.M2Type);
+        var m2Strategy = SkillStrategyContainer.GetDetect(debugLastSkillData.m2Data.m2Type);
 
-        Vector3 drawPos = _isCasting ? transform.position : _debugLastCastPos;
-        Vector3 drawDir = _isCasting ? transform.forward : _debugLastCastDir;
-
+        Vector3 drawPos = isCasting ? transform.position : debugLastCastPos;
+        Vector3 drawDir = isCasting ? transform.forward : debugLastCastDir;
+        if (drawDir == Vector3.zero)
+        {
+            drawDir = transform.forward;
+        }
         if (m2Strategy != null)
         {
-            m2Strategy.DrawGizmo(drawPos, drawDir, _debugLastSkillData.m2Data);
+            m2Strategy.DrawGizmo(drawPos, drawDir, debugLastSkillData.m2Data);
+        }
+    }
+
+    public Collider[] GetBuffer()
+    {
+        return hitBuffer;
+    }
+
+    public SkillDataContext GetSkillDataContext()
+    {
+        return skillDataContext;
+    }
+    public void HandleSkillHit(int hitCount, SkillDataContext data, Collider[] hitBuffer)
+    {
+        ProcessHit(hitCount, data, hitBuffer, true);
+    }
+
+    public void HandleAddonHit(int hitCount, SkillDataContext data, Collider[] hitBuffer)
+    {
+        ProcessHit(hitCount, data, hitBuffer, false);
+    }
+    private void ProcessHit(int hitCount, SkillDataContext data, Collider[] hitBuffer, bool applyAddon)
+    {
+        ISkillAddonStrategy m4Strategy = null;
+        if (applyAddon && data.m4Data != null)
+        {
+            m4Strategy = SkillStrategyContainer.GetAddon(data.m4Data.m4Type);
+        }
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            if (hitBuffer[i].TryGetComponent<EnemyStateMachine>(out var target))
+            {
+                target.TakeDamage(10);
+
+                if (m4Strategy is ISkillHitAddon hitAddon)
+                {
+                    hitAddon.OnHit(this, target.gameObject, data, targetLayer);
+                }
+            }
         }
     }
 }

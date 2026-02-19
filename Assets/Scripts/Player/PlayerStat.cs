@@ -1,10 +1,9 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
-
 public enum StatType
 {
-    HP,HPRegen,
+    HP, HPRegen,
     ATK, ATKSpeed,
     DEF, MagicDEF,
     MP, MPRegen,

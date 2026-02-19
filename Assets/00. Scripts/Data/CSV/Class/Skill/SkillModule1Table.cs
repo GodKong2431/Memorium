@@ -5,8 +5,8 @@ using System.Collections.Generic;
 public class SkillModule1Table : TableBase
 {
     public M1Type m1Type;
-    public string m1Delay;
-    public string m1Scale;
-    public string m2Duration;
+    public float m1Delay;
+    public float m1Scale;
+    public float m2Duration;
     public string desc;
 }

@@ -106,8 +106,8 @@ public class EnemyStateMachine : MonoBehaviour
 
     private void ChangeState(EnemyStateType next)
     {
-        Debug.Log($"[EnemyStateMachine] {Context.Agent.name} RequestState: {next}");
-        
+        //Debug.Log($"[EnemyStateMachine] {Context.Agent.name} RequestState: {next}");
+
         if (_current != null)
             _current.OnExit(_ctx);
 
