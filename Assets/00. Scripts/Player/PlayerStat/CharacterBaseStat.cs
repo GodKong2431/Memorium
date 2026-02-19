@@ -53,6 +53,14 @@ public class CharacterBaseStat
     [Tooltip("플레이어의 경험치 획득량")]
     [SerializeField] private float baseExpGain;
 
+    [Header("DamageMult")]
+    [Tooltip("추가 보스 데미지")]
+    [SerializeField] private float baseBossDamage;
+    [Tooltip("추가 기본 데미지")]
+    [SerializeField] private float baseNormalDamage;
+    [Tooltip("데미지 배율")]
+    [SerializeField] private float baseDamageMult;
+
     // 이벤트
     //public event Action<PlayerStatType,float> StatChanged;
 
@@ -71,6 +79,10 @@ public class CharacterBaseStat
     public float MoveSpeed { get { return baseMoveSpeed; } }
     public float ExpGain { get { return baseExpGain; } }
     public float GoldGain { get { return baseGoldGain; } }
+
+    public float BossDamage { get { return baseBossDamage; } }
+    public float NormalDamage { get { return baseNormalDamage; } }
+    public float DamageMult { get { return baseDamageMult; } }
 
     private CharacterBaseStatInfoTable statTable;
 
@@ -102,5 +114,8 @@ public class CharacterBaseStat
         baseMoveSpeed = statTable.baseMoveSpeed;
         baseGoldGain = statTable.baseMoneyGain;
         baseExpGain = statTable.baseExpGain;
+        baseBossDamage = statTable.baseBossDamage;
+        baseNormalDamage = statTable.baseNormalDamage;
+        baseDamageMult = statTable.baseFinalMultiPlier;
     }
 }

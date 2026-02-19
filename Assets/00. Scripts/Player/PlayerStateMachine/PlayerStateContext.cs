@@ -18,7 +18,7 @@ public class PlayerStateContext : BaseStateContext
 
     public bool isGoal = false;
 
-    public float MaxHealth => StatPresenter?.playerStat?.HP ?? 100f;
+    public float MaxHealth => StatPresenter?.playerStat?.FinalHP ?? 100f;
     
     // 일반공격 사거리
     public float AttackRange => 1.5f;

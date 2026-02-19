@@ -28,6 +28,5 @@ public class PlayerTrait
         MaxLevel = value.maxLevel;
         DecreasePoint = value.decreasePoint;
         NeedTrait = value.needTrait;
-
     }
 }
