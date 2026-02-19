@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 [System.Serializable]
-public class TraitTable : TableBase
+public class TraitInfoTable : TableBase
 {
     public string traitTier;
     public string traitName;

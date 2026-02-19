@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 [System.Serializable]
-public class SkillTable : TableBase
+public class SkillInfoTable : TableBase
 {
     public int m1ID;
     public int m2ID;
