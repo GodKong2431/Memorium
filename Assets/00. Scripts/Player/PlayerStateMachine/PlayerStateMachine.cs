@@ -45,6 +45,7 @@ public class PlayerStateMachine : MonoBehaviour
             { PlayerStateType.Idle, new PlayerStateIdle() },
             { PlayerStateType.Chase, new PlayerStateChase() },
             { PlayerStateType.Attack, new PlayerStateAttack() },
+            { PlayerStateType.Move, new PlayerStateMove() },
         };
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
@@ -52,7 +53,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void Start()
     {
-        CharacterBaseStatTable data = _ctx.StatPresenter?.Data;
+        CharacterBaseStatInfoTable data = _ctx.StatPresenter?.Data;
 
         if (data != null && _ctx.Agent != null)
         {
