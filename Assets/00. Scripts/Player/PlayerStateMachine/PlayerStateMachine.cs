@@ -48,6 +48,7 @@ public class PlayerStateMachine : MonoBehaviour
             { PlayerStateType.Idle, new PlayerStateIdle() },
             { PlayerStateType.Chase, new PlayerStateChase() },
             { PlayerStateType.Attack, new PlayerStateAttack() },
+            { PlayerStateType.Move, new PlayerStateMove() },
         };
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
