@@ -33,50 +33,50 @@ public class PlayerStatView : MonoBehaviour
     public Button expGainUpgradeBtn;
     public Button goldGainUpgradeBtn;
 
-    public void SetStat(StatType statType,float value)
+    public void SetStat(PlayerStatType statType,float value)
     {
         switch (statType)
         {
-            case StatType.HP:
+            case PlayerStatType.HP:
                 hpText.text = "체력 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.HPRegen:
+            case PlayerStatType.HP_REGEN:
                 hpRegenText.text = "체력재생 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.ATK:
+            case PlayerStatType.ATK:
                 atkText.text = "공격력 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.ATKSpeed:
+            case PlayerStatType.ATK_SPEED:
                 atkSpeedText.text = "공격속도 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.DEF:
+            case PlayerStatType.PHYS_DEF:
                 defText.text = "물리 방어력 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.MagicDEF:
+            case PlayerStatType.MAGIC_DEF:
                 magicDEFText.text = "마법 방어력 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.MP:
+            case PlayerStatType.MP:
                 manaText.text = "마나 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.MPRegen:
+            case PlayerStatType.MP_REGEN:
                 manaRegenText.text = "마나재생 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.CritChance:
+            case PlayerStatType.CRIT_CHANCE:
                 critText.text = "치명타 확률 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.CritMult:
+            case PlayerStatType.CRIT_MULT:
                 critMultText.text = "치명타 배율 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.CoolDown:
+            case PlayerStatType.COOLDOWN_REDUCE:
                 coolDownText.text = "쿨다운 감소 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.MoveSpeed:
+            case PlayerStatType.MOVE_SPEED:
                 moveSpeedText.text = "이동 속도 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.ExpGain:
+            case PlayerStatType.EXP_GAIN:
                 expGainText.text = "추가 경험치 획득량 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
-            case StatType.GoldGain:
+            case PlayerStatType.GOLD_GAIN:
                 goldGainText.text = "추가 골드 획득량 : [changeValue]".Replace("[changeValue]", value.ToString());
                 break;
             default:
