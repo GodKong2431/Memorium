@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿//using UnityEngine;
 
-public class PlayerStat : MonoBehaviour
-{
+//public class PlayerStat : MonoBehaviour
+//{
 
-}
+//}

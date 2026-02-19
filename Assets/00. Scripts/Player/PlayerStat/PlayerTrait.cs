@@ -18,7 +18,7 @@ public class PlayerTrait
 
     public PlayerTrait(int key)
     {
-        DataManager.Instance.TraitDict.TryGetValue(key, out var value);
+        DataManager.Instance.TraitInfoDict.TryGetValue(key, out var value);
 
         TraitTier = value.traitTier;
         TraitName = value.traitName;

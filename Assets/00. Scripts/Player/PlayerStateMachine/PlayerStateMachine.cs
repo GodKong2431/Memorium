@@ -27,6 +27,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<PlayerStatPresenter>();
+        var _playerSkillHandler = GetComponent<PlayerSkillHandler>();
 
         _ctx = new PlayerStateContext
         {
@@ -35,7 +36,9 @@ public class PlayerStateMachine : MonoBehaviour
             Agent = agent,
             StatPresenter = statPresenter,
             Animator = animator,
-            AttackEffectPrefab = attackEffectPrefab
+            AttackEffectPrefab = attackEffectPrefab,
+            playerSkillHandler = _playerSkillHandler
+
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);
@@ -52,14 +55,14 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void Start()
     {
-        CharacterBaseStatTable data = _ctx.StatPresenter?.Data;
+        CharacterBaseStatInfoTable data = _ctx.StatPresenter?.Data;
 
         if (data != null && _ctx.Agent != null)
         {
             _ctx.Agent.speed = data.baseMoveSpeed;
             _ctx.Agent.stoppingDistance = 1.5f;
         }
-
+        _ctx.playerSkillHandler.Init(new int[] { 4000001, 4000002, 4000003 });
         // 스폰되면 바로 chase 상태로 전환
         playerStateMachine.ChangeState(PlayerStateType.Idle);
     }

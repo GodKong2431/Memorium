@@ -30,6 +30,8 @@ public class PlayerStateContext : BaseStateContext
 
     public GameObject AttackEffectPrefab { get; set; }
 
+    public PlayerSkillHandler playerSkillHandler;
+
     public void Initialize(float? startHealth = null)
     {
         CurrentHealth = startHealth ?? MaxHealth;

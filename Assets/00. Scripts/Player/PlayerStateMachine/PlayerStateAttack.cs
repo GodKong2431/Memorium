@@ -45,30 +45,10 @@ public class PlayerStateAttack : IPlayerState
             return;
         }
 
-        if (ctx.isFirstSkillReady == true && dist <= ctx.FirstSkillRange)
+        if (ctx.playerSkillHandler.AutoCast())
         {
-            // 첫번째 스킬
-            Debug.Log("첫번째 스킬 사용됨");
-            ctx.isFirstSkillReady = false;
-            Debug.Log("첫번째 스킬 쿨타임 작동");
-        }
 
-        else if (ctx.isSecondSkillReady == true && dist <= ctx.SecondSkillRange)
-        {
-            // 두번째 스킬
-            Debug.Log("두번째 스킬 사용됨");
-            ctx.isSecondSkillReady = false;
-            Debug.Log("두번째 스킬 쿨타임 작동");
         }
-
-        else if (ctx.isThirdSkillReady == true && dist <= ctx.ThirdSkillRange)
-        {
-            // 세번째 스킬
-            Debug.Log("세번째 스킬 사용됨");
-            ctx.isThirdSkillReady = false;
-            Debug.Log("세번째 스킬 쿨타임 작동");
-        }
-
         else if (dist <= ctx.AttackRange)
         {
             // 일반 공격
