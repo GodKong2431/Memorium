@@ -72,11 +72,11 @@ public class CharacterBaseStat
     public float ExpGain { get { return baseExpGain; } }
     public float GoldGain { get { return baseGoldGain; } }
 
-    private CharacterBaseStatTable statTable;
+    private CharacterBaseStatInfoTable statTable;
 
     public CharacterBaseStat(int key)
     {
-        if (!DataManager.Instance.CharacterBaseStatDict.TryGetValue(key, out statTable))
+        if (!DataManager.Instance.CharacterBaseStatInfoDict.TryGetValue(key, out statTable))
         {
             Debug.Log($"[CharacterBaseStat] [{key}] ID 값에 해당하는 데이터가 없습니다 ");
             return;

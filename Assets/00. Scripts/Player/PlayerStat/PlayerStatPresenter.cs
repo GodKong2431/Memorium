@@ -6,8 +6,8 @@ public class PlayerStatPresenter : MonoBehaviour
     
     [SerializeField] PlayerStatView view;
 
-    private CharacterBaseStatTable _data;
-    public CharacterBaseStatTable Data {  get { return _data; } }
+    private CharacterBaseStatInfoTable _data;
+    public CharacterBaseStatInfoTable Data {  get { return _data; } }
 
     private void Start()
     {
