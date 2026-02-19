@@ -2,7 +2,7 @@
 
 public class PlayerStatPresenter : MonoBehaviour
 {
-    public CharacterBaseStat playerStat;
+    [SerializeField] public CharacterStatManager playerStat;
     
     [SerializeField] PlayerStatView view;
 
@@ -49,6 +49,6 @@ public class PlayerStatPresenter : MonoBehaviour
 
     private void OnClickUpgrade(float value, PlayerStatType statType)
     {
-        //playerStat.AddStat(value, statType);
+        //playerStat.Upgrade(value, statUpgrade);
     }
 }

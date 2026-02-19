@@ -1168,6 +1168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f2fc0fa3a6da024c992243438caaa94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DataManager
+  DataLoad: 0
 --- !u!4 &472024397
 Transform:
   m_ObjectHideFlags: 0
@@ -3865,9 +3866,110 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39159c08c7c95f94f8cdd42b0ddf3ab8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStatManager
-  characterBaseKey: 0
-  characterTableKey: 0
-  level: 0
+  characterBaseKey: 1000001
+  characterTableKey: 1030001
+  level: 1
+  baseStat:
+    classType: 0
+    baseHealthPoint: 0
+    baseHpRegeneration: 0
+    baseAttack: 0
+    baseAttackSpeed: 0
+    basePhysicalResist: 0
+    baseMagicResist: 0
+    baseMana: 0
+    baseManaRegeneration: 0
+    baseCriticalChance: 0
+    baseCriticalMultiplier: 0
+    baseCoolDown: 0
+    baseMoveSpeed: 0
+    baseGoldGain: 0
+    baseExpGain: 0
+    baseBossDamage: 0
+    baseNormalDamage: 0
+    baseDamageMult: 0
+  attackStatUpgrade:
+    upgradeCount: 0
+    statInCrease: 0
+    baseCost: 0
+    costMultiplyRate: 0
+    stat: 0
+  mpStatUpgrade:
+    upgradeCount: 0
+    statInCrease: 0
+    baseCost: 0
+    costMultiplyRate: 0
+    stat: 0
+  mpRegenStatUpgrade:
+    upgradeCount: 0
+    statInCrease: 0
+    baseCost: 0
+    costMultiplyRate: 0
+    stat: 0
+  hpStatUpgrade:
+    upgradeCount: 0
+    statInCrease: 0
+    baseCost: 0
+    costMultiplyRate: 0
+    stat: 0
+  hpRegenStatUpgrade:
+    upgradeCount: 0
+    statInCrease: 0
+    baseCost: 0
+    costMultiplyRate: 0
+    stat: 0
+  critStatUpgrade:
+    upgradeCount: 0
+    statInCrease: 0
+    baseCost: 0
+    costMultiplyRate: 0
+    stat: 0
+  critMultStatUpgrade:
+    upgradeCount: 0
+    statInCrease: 0
+    baseCost: 0
+    costMultiplyRate: 0
+    stat: 0
+  bossDamageStatUpgrade:
+    upgradeCount: 0
+    statInCrease: 0
+    baseCost: 0
+    costMultiplyRate: 0
+    stat: 0
+  traitStatUpgrade:
+    upgradeCount: 0
+    statInCrease: 0
+    baseCost: 0
+    costMultiplyRate: 0
+    stat: 0
+  levelBonus:
+    CurrentLevel: 0
+    RequiredExp:
+      mantissa: 0
+      exponent: 0
+    CurrentExp:
+      mantissa: 0
+      exponent: 0
+    BonusAttack: 0
+    BonusMP: 0
+    BonusMPRegen: 0
+    BonusHP: 0
+    BonusHPRegen: 0
+    BonusCriticalDamage: 0
+    BonusBossDamage: 0
+    BonusNormalDamage: 0
+    BonusCristal: 0
+  playerSlot:
+    CharacterStatID: 0
+    SkillSlot1: 0
+    SkillSlot2: 0
+    SkillSlot3: 0
+    WeaponSlot: 0
+    HelmetSlot: 0
+    ArmorSlot: 0
+    GloveSlot: 0
+    BootsSlot: 0
+    FairySlot: 0
   attackTrait:
     TraitTier: 
     TraitName: 
@@ -4433,7 +4535,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1731820376}
-  - component: {fileID: 1731820375}
   - component: {fileID: 1731820374}
   - component: {fileID: 1731820373}
   m_Layer: 0
@@ -4495,19 +4596,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe7d81c7d4fb6ed4c89deff66bfe4076, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Presenter
+  playerStat: {fileID: 1598482870}
   view: {fileID: 1731820373}
---- !u!114 &1731820375
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1731820372}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49449163364aa9d43beb1abf5ef4cb0e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerStat
 --- !u!4 &1731820376
 Transform:
   m_ObjectHideFlags: 0
