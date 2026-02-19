@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 [System.Serializable]
-public class CharacterBaseStatTable : TableBase
+public class CharacterBaseStatInfoTable : TableBase
 {
     public ClassType classType;
     public float baseAttack;
