@@ -10,9 +10,9 @@ public class WarpMove : ISkillMovementStrategy
 
         subject.SetPosition(targetPos);
 
-        if (data.m2Duration > 0)
+        if (data.m1Duration > 0)
         {
-            yield return CoroutineManager.waitForSeconds(data.m2Duration);
+            yield return CoroutineManager.waitForSeconds(data.m1Duration);
         }
     }
 }

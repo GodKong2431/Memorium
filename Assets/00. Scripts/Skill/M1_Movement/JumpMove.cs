@@ -16,17 +16,17 @@ public class JumpMove : ISkillMovementStrategy
         if (jumpHeight < 1.0f) jumpHeight = 1.0f;
 
         float elapsedTime = 0f;
-        if (data.m2Duration <= 0)
+        if (data.m1Duration <= 0)
         {
             subject.SetPosition(endPos);
             subject.SetInvincible(false);
             yield break;
         }
 
-        while (elapsedTime < data.m2Duration)
+        while (elapsedTime < data.m1Duration)
         {
             elapsedTime += Time.deltaTime;
-            float t = elapsedTime / data.m2Duration;
+            float t = elapsedTime / data.m1Duration;
 
             // 수평 이동 
             Vector3 currentPos = Vector3.Lerp(startPos, endPos, t);
