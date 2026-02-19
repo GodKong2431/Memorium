@@ -16,7 +16,7 @@ MonoBehaviour:
   m_GUID: 242cd81dadb4eba42af3d03ba8e94776
   m_SerializeEntries:
   - m_GUID: 070857858f2e6e4468c551cdd09a2d45
-    m_Address: skillModule4Table
+    m_Address: SkillModule4Table
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -81,6 +81,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3e3bd86a83977c34c86d81dc0ca2a39f
+    m_Address: TraitInfoTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CSV_Data
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 41add335c8a679a4b90bb3f2ef8c8d3f
     m_Address: EquipArmorTable
     m_ReadOnly: 0
@@ -94,13 +100,19 @@ MonoBehaviour:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4affd2c7057a0db4f85aaed20e589550
-    m_Address: skillModule2Table
+    m_Address: SkillModule2Table
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CSV_Data
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4e15f9077c87a7249bd215802f4b5692
+    m_Address: CharacterBaseStatInfoTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 50b62079621ff0b4a90624e031aff394
-    m_Address: skillModule5Table
+    m_Address: SkillModule5Table
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -113,12 +125,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5c95c1334048edd40bc952e58ee73c53
     m_Address: EquipHelmetTable
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - CSV_Data
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 6acb5aa341d600e4190a49e4b071a600
-    m_Address: ItemsTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -142,19 +148,13 @@ MonoBehaviour:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 879296b3a09b2344e8d2867a75df9199
-    m_Address: skillModule1Table
+    m_Address: SkillModule1Table
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9499ad9c6bdcf65478e12c4e6c507f00
     m_Address: FairyGrowthTable
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - CSV_Data
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 98a243e6fd1997e4ab0617b31ded14c4
-    m_Address: skillTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -177,12 +177,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a9aadfae066b9ae4ea5f63581d059ad5
-    m_Address: CharacterBaseStatTable
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - CSV_Data
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b0bd6ee00edb9c44fb18f0fb2a7738b1
     m_Address: CharacterTable
     m_ReadOnly: 0
@@ -195,6 +189,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b57d2a759b14996458de16770275493f
+    m_Address: SkillInfoTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CSV_Data
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: bc7a45be959cc554589c441cd55fae54
     m_Address: PassiveSetTable
     m_ReadOnly: 0
@@ -202,7 +202,7 @@ MonoBehaviour:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: bced216e7beebc14b9835038fb92ef3f
-    m_Address: skillModule3Table
+    m_Address: SkillModule3Table
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -219,8 +219,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: d8e580c447e3d5048902dacb507f5ab9
-    m_Address: TraitTable
+  - m_GUID: d46420d5781ef1c468b598ad39978ae5
+    m_Address: ItemInfoTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data

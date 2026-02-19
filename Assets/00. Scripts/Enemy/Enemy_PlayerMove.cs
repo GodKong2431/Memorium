@@ -25,10 +25,13 @@ public class Enemy_PlayerMove : MonoBehaviour
     public float AttackDamage => attackDamage;
     public LayerMask EnemyLayerMask => enemyLayerMask;
 
+    [Header("임시 스킬캐스터")]
+    [SerializeField] private SkillCaster skillCaster;
+
     private void Awake()
     {
         _cc = GetComponent<CharacterController>();
-
+        skillCaster = GetComponent<SkillCaster>();
         // 시작 시에는 꺼 두기
         if (attackIndicator != null)
             attackIndicator.SetActive(false);
@@ -63,6 +66,36 @@ public class Enemy_PlayerMove : MonoBehaviour
             //Debug.Log("[PlayerAttack] 근접 공격!");
             PerformAttack();
         }
+
+        if (keyboard.digit1Key.wasPressedThisFrame)
+        {
+            SkillDataContext skillDataContext = new SkillDataContext();
+            skillDataContext.Init(4000001);
+            skillCaster.CastSkill(skillDataContext);
+
+        }
+
+        if (keyboard.digit2Key.wasPressedThisFrame)
+        {
+            SkillDataContext skillDataContext = new SkillDataContext();
+            skillDataContext.Init(4000002);
+            skillCaster.CastSkill(skillDataContext);
+        }
+
+        if (keyboard.digit3Key.wasPressedThisFrame)
+        {
+            SkillDataContext skillDataContext = new SkillDataContext();
+            skillDataContext.Init(4000003);
+            skillCaster.CastSkill(skillDataContext);
+        }
+
+        if (keyboard.digit4Key.wasPressedThisFrame)
+        {
+            SkillDataContext skillDataContext = new SkillDataContext();
+            skillDataContext.Init(4000004);
+            skillCaster.CastSkill(skillDataContext);
+        }
+
     }
 
     /// <summary>

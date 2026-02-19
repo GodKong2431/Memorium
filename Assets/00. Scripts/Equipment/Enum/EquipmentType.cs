@@ -1,8 +1,8 @@
 public enum EquipmentType
 {
-    Weapon = 0,
-    Helmet = 1,
-    Gloves = 2,
-    Armor = 3,
-    Boots = 4
+    Weapon = 11,
+    Helmet = 12,
+    Gloves = 13,
+    Armor = 14,
+    Boots = 15
 }
