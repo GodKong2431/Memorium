@@ -34,6 +34,9 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
         for(int i=0; i< skillIDs.Length; i++)
         {
             skilldataContexts[i] = new SkillDataContext(skillIDs[i], m4IDs?[i] ?? -1, m5IDs?[i] ?? -1);
+            Debug.Log($"½½·Ô{i}: skillData={skilldataContexts[i].skillData != null}, table={skilldataContexts[i].skillData?.skillTable != null}");
+            cooldownTimers[i] = 0;
+           
         }
         skillCaster.Init(this,this);
 
@@ -94,8 +97,10 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
     public bool ReadySkillInRange(float dist)
     {
         if (skilldataContexts == null) return false;
+        if (cooldownTimers == null) return false;
         for (int i = 0; i < skilldataContexts.Length; i++)
         {
+            if (skilldataContexts[i]?.skillData?.skillTable == null) continue;
             if (cooldownTimers[i] <= 0f && dist <= skilldataContexts[i].skillData.skillTable.skillRange)
                 return true;
         }

@@ -63,11 +63,22 @@ public class PlayerStateMachine : MonoBehaviour
             _ctx.Agent.speed = data.baseMoveSpeed;
             _ctx.Agent.stoppingDistance = 1.5f;
         }
-        _ctx.playerSkillHandler.Init(new int[] { 4000001, 4000002, 4000003 });
+        if (DataManager.Instance.DataLoad)
+        {
+            _ctx.playerSkillHandler.Init(new int[] { 4000001, 4000002, 4000003 });//임시로 스킬초기화, 나중엔 ui에 장착한 스킬이나 초기스킬로.
+        }
+        else
+        {
+            DataManager.Instance.OnComplete += OnDataLoaded;
+        }
         // 스폰되면 바로 chase 상태로 전환
         playerStateMachine.ChangeState(PlayerStateType.Idle);
     }
-
+    private void OnDataLoaded()
+    {
+        DataManager.Instance.OnComplete -= OnDataLoaded;
+        _ctx.playerSkillHandler.Init(new int[] { 4000001, 4000002, 4000003 });
+    }
     private void Update()
     {
         CurrentType = playerStateMachine.CurrentStateType;

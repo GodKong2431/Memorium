@@ -98,7 +98,10 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         yield return SkillSequenceMove(data);
 
 
-        Vector3 castDirection = transform.forward;
+        Transform target = targetProvider.GetTarget();
+        Vector3 castDirection = (target.position - transform.position);
+        castDirection.y = 0;
+        castDirection = castDirection.normalized;
         Vector3 ExecutePivot = transform.position;
 
         if (data.m3Data.m3Delay > 0)
@@ -124,7 +127,10 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     /// </summary>
     private IEnumerator SkillSequenceMove(SkillData data)
     {
-        Vector3 castDirection = transform.forward;
+        Transform target = targetProvider.GetTarget();
+        Vector3 castDirection = (target.position - transform.position);
+        castDirection.y = 0;
+        castDirection = castDirection.normalized;
 
         if (data.m1Data.m1Delay > 0)
         {

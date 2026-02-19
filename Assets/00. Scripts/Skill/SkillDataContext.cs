@@ -32,7 +32,6 @@ public class SkillDataContext
 
     public SkillDataContext(int skillID, int m4ID = -1, int m5ID = -1)
     {
-        if (!DataManager.Instance.DataLoad) return;
         if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table)) return;
 
         if (skillData == null) skillData = new SkillData();
