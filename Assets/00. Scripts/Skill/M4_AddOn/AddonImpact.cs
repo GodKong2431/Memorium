@@ -13,7 +13,6 @@ public class AddonImpact : ISkillHitAddon
 
         int count = detectStrategy.Detect(target.transform.position,Vector3.zero,tempM2Data,provider,targetLayer);
 
-        dataContext.m4Data = null;
         if (count > 0 && provider != null)
         {
             owner.HandleAddonHit(count, dataContext, provider.GetBuffer());
