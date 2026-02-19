@@ -1,8 +1,11 @@
 ﻿using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class PlayerStateIdle : IPlayerState
 {
+    private bool goal = false;
+
     public PlayerStateType Type => PlayerStateType.Idle;
     public void OnEnter(PlayerStateContext ctx)
     {
@@ -21,6 +24,11 @@ public class PlayerStateIdle : IPlayerState
         {
             ctx.RequestState(PlayerStateType.Chase);
             return;
+        }
+
+        if (ctx.isGoal == false)
+        {
+            ctx.RequestState(PlayerStateType.Move);
         }
     }
     private static void SetAnimatorTrigger(PlayerStateContext ctx, string trigger)
