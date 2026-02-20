@@ -1,87 +1,100 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerStatView : MonoBehaviour
 {
-    [SerializeField] Text hpText;
-    [SerializeField] Text hpRegenText;
-    [SerializeField] Text atkText;
-    [SerializeField] Text atkSpeedText;
-    [SerializeField] Text defText;
-    [SerializeField] Text magicDEFText;
-    [SerializeField] Text manaText;
-    [SerializeField] Text manaRegenText;
-    [SerializeField] Text critText;
-    [SerializeField] Text critMultText;
-    [SerializeField] Text coolDownText;
-    [SerializeField] Text moveSpeedText;
-    [SerializeField] Text expGainText;
-    [SerializeField] Text goldGainText;
+    [SerializeField] TextMeshProUGUI hpText;
+    [SerializeField] TextMeshProUGUI hpRegenText;
+    [SerializeField] TextMeshProUGUI atkText;
+    [SerializeField] TextMeshProUGUI atkSpeedText;
+    [SerializeField] TextMeshProUGUI defText;
+    [SerializeField] TextMeshProUGUI magicDEFText;
+    [SerializeField] TextMeshProUGUI manaText;
+    [SerializeField] TextMeshProUGUI manaRegenText;
+    [SerializeField] TextMeshProUGUI critText;
+    [SerializeField] TextMeshProUGUI critMultText;
+    [SerializeField] TextMeshProUGUI coolDownText;
+    [SerializeField] TextMeshProUGUI moveSpeedText;
+    [SerializeField] TextMeshProUGUI expGainText;
+    [SerializeField] TextMeshProUGUI goldGainText;
+    [SerializeField] TextMeshProUGUI bossDamageText;
+    [SerializeField] TextMeshProUGUI normalDamageText;
+    [SerializeField] TextMeshProUGUI traitText;
 
     public Button hpUpgradeBtn;
     public Button hpRegenUpgradeBtn;
     public Button atkUpgradeBtn;
-    public Button atkSpeedUpgradeBtn;
-    public Button defUpgradeBtn;
-    public Button magicDEFUpgradeBtn;
     public Button manaUpgradeBtn;
     public Button manaRegenUpgradeBtn;
     public Button critUpgradeBtn;
     public Button critMultUpgradeBtn;
-    public Button coolDownUpgradeBtn;
-    public Button moveSpeedUpgradeBtn;
-    public Button expGainUpgradeBtn;
-    public Button goldGainUpgradeBtn;
+    public Button bossDamageUpgradeBtn;
+    public Button traitUpgradeBtn;
 
     public void SetStat(PlayerStatType statType,float value)
     {
         switch (statType)
         {
             case PlayerStatType.HP:
-                hpText.text = "체력 : [changeValue]".Replace("[changeValue]", value.ToString());
+                hpText.text = $"HP : {value}";
                 break;
             case PlayerStatType.HP_REGEN:
-                hpRegenText.text = "체력재생 : [changeValue]".Replace("[changeValue]", value.ToString());
+                hpRegenText.text = $"HP Regen : {value}";
                 break;
             case PlayerStatType.ATK:
-                atkText.text = "공격력 : [changeValue]".Replace("[changeValue]", value.ToString());
+                atkText.text = $"ATK : {value}";
                 break;
             case PlayerStatType.ATK_SPEED:
-                atkSpeedText.text = "공격속도 : [changeValue]".Replace("[changeValue]", value.ToString());
+                atkSpeedText.text = $"ATK Speed : {value}";
                 break;
             case PlayerStatType.PHYS_DEF:
-                defText.text = "물리 방어력 : [changeValue]".Replace("[changeValue]", value.ToString());
+                defText.text = $"Phys DEF : {value}";
                 break;
             case PlayerStatType.MAGIC_DEF:
-                magicDEFText.text = "마법 방어력 : [changeValue]".Replace("[changeValue]", value.ToString());
+                magicDEFText.text = $"Magic DEF : {value}";
                 break;
             case PlayerStatType.MP:
-                manaText.text = "마나 : [changeValue]".Replace("[changeValue]", value.ToString());
+                manaText.text = $"MP : {value}";
                 break;
             case PlayerStatType.MP_REGEN:
-                manaRegenText.text = "마나재생 : [changeValue]".Replace("[changeValue]", value.ToString());
+                manaRegenText.text = $"MP Regen : {value}";
                 break;
             case PlayerStatType.CRIT_CHANCE:
-                critText.text = "치명타 확률 : [changeValue]".Replace("[changeValue]", value.ToString());
+                critText.text = $"Crit Chance : {value}";
                 break;
             case PlayerStatType.CRIT_MULT:
-                critMultText.text = "치명타 배율 : [changeValue]".Replace("[changeValue]", value.ToString());
+                critMultText.text = $"Crit Mult : {value}";
                 break;
             case PlayerStatType.COOLDOWN_REDUCE:
-                coolDownText.text = "쿨다운 감소 : [changeValue]".Replace("[changeValue]", value.ToString());
+                coolDownText.text = $"CoolDown : {value}";
                 break;
             case PlayerStatType.MOVE_SPEED:
-                moveSpeedText.text = "이동 속도 : [changeValue]".Replace("[changeValue]", value.ToString());
+                moveSpeedText.text = $"Move Speed : {value}";
                 break;
             case PlayerStatType.EXP_GAIN:
-                expGainText.text = "추가 경험치 획득량 : [changeValue]".Replace("[changeValue]", value.ToString());
+                expGainText.text = $"Exp Gain : {value}";
                 break;
             case PlayerStatType.GOLD_GAIN:
-                goldGainText.text = "추가 골드 획득량 : [changeValue]".Replace("[changeValue]", value.ToString());
+                goldGainText.text = $"Gold Gain : {value}";
+                break;
+            case PlayerStatType.BOSS_DMG:
+                bossDamageText.text = $"Boss Dmg : {value}";
+                break;
+            case PlayerStatType.NORMAL_DMG:
+                normalDamageText.text = $"Normal Dmg : {value}";
+                break;
+            case PlayerStatType.TRIAT:
+                traitText.text = $"Triat : {value}";
                 break;
             default:
                 Debug.Log($"{statType.ToString()}에 해당하는 스탯의 텍스트가 없습니다");
                 break;
         }
+    }
+
+    public void SetButton()
+    {
+
     }
 }

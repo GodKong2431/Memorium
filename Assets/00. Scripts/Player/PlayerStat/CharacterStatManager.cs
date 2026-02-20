@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -86,17 +87,10 @@ public class CharacterStatManager : MonoBehaviour
     public float FinalNormalDamage { get; private set; }
     public float FinalDamageMult { get; private set; }
 
+    public event Action<PlayerStatType, float> StatUpdate;
+
     private void OnEnable()
     {
-        attackStatUpgrade.UpgradeStat += FinalStat;
-        mpStatUpgrade.UpgradeStat += FinalStat;
-        mpRegenStatUpgrade.UpgradeStat += FinalStat;
-        hpStatUpgrade.UpgradeStat += FinalStat;
-        hpRegenStatUpgrade.UpgradeStat += FinalStat;
-        critStatUpgrade.UpgradeStat += FinalStat;
-        critMultStatUpgrade.UpgradeStat += FinalStat;
-        bossDamageStatUpgrade.UpgradeStat += FinalStat;
-        traitStatUpgrade.UpgradeStat += FinalStat;
     }
 
     private void OnDisable()
@@ -141,38 +135,60 @@ public class CharacterStatManager : MonoBehaviour
         coolDownTrait = new PlayerTrait(1040034);
         damageMultTrait = new PlayerTrait(1040041);
 
+        EventSet();
+
         FinalStat();
     }
 
     public void FinalStat()
     {
-        FinalHP = FinalStatAdd(baseStat.HP, hpStatUpgrade.Stat, levelBonus.BonusHP, hpTrait.CurrentLevel, hpTrait.StatUP);
-        FinalHPRegen = FinalStatAdd(baseStat.HpRegeneration, hpRegenStatUpgrade.Stat, levelBonus.BonusHPRegen, 0, 0);
-        FinalMP = FinalStatAdd(baseStat.Mana, mpStatUpgrade.Stat, levelBonus.BonusMP, mpTrait.CurrentLevel, mpTrait.StatUP);
-        FinalMPRegen = FinalStatAdd(baseStat.ManaRegeneration, mpRegenStatUpgrade.Stat, levelBonus.BonusMPRegen, 0, 0);
-        FinalATK = FinalStatAdd(baseStat.Attack, attackStatUpgrade.Stat, levelBonus.BonusAttack, attackTrait.CurrentLevel, attackTrait.StatUP);
-        FinalATKSpeed = FinalStatAdd(baseStat.AttackSpeed, 0, 0, attackSpeedTrait.CurrentLevel, attackSpeedTrait.StatUP);
-        FinalPhysDEF = FinalStatAdd(baseStat.PhysicsResist, 0, 0, 0, 0);
-        FinalMagicDEF = FinalStatAdd(baseStat.MagicResist, 0, 0, 0, 0);
-        FinalCritChance = FinalStatAdd(baseStat.CriticalChance, critStatUpgrade.Stat, 0, critTrait.CurrentLevel, critTrait.StatUP);
-        FinalCritMult = FinalStatAdd(baseStat.CriticalMultiplier, critMultStatUpgrade.Stat, levelBonus.BonusCriticalDamage, critMultTrait.CurrentLevel, critMultTrait.StatUP);
-        FinalMoveSpeed = FinalStatAdd(baseStat.MoveSpeed, 0, 0, 0, 0);
-        FinalCoolDownReduce = FinalStatAdd(baseStat.CoolDown, 0, 0, coolDownTrait.CurrentLevel, coolDownTrait.StatUP);
-        FinalGoldGain = FinalStatAdd(baseStat.GoldGain, 0, 0, 0, 0);
-        FinalExpGain = FinalStatAdd(baseStat.ExpGain, 0, 0, 0, 0);
-        FinalBossDamage = FinalStatAdd(baseStat.BossDamage, 0, 0, 0, 0);
-        FinalNormalDamage = FinalStatAdd(baseStat.NormalDamage, 0, 0, 0, 0);
-        FinalDamageMult = FinalStatAdd(baseStat.DamageMult, 0, 0, 0, 0);
+        FinalHP = FinalStatAdd(PlayerStatType.HP,baseStat.HP, hpStatUpgrade.Stat, levelBonus.BonusHP, hpTrait.CurrentLevel, hpTrait.StatUP);
+        FinalHPRegen = FinalStatAdd(PlayerStatType.HP_REGEN,baseStat.HpRegeneration, hpRegenStatUpgrade.Stat, levelBonus.BonusHPRegen, 0, 0);
+        FinalMP = FinalStatAdd(PlayerStatType.MP,baseStat.Mana, mpStatUpgrade.Stat, levelBonus.BonusMP, mpTrait.CurrentLevel, mpTrait.StatUP);
+        FinalMPRegen = FinalStatAdd(PlayerStatType.MP_REGEN, baseStat.ManaRegeneration, mpRegenStatUpgrade.Stat, levelBonus.BonusMPRegen, 0, 0);
+        FinalATK = FinalStatAdd(PlayerStatType.ATK, baseStat.Attack, attackStatUpgrade.Stat, levelBonus.BonusAttack, attackTrait.CurrentLevel, attackTrait.StatUP);
+        FinalATKSpeed = FinalStatAdd(PlayerStatType.ATK_SPEED, baseStat.AttackSpeed, 0, 0, attackSpeedTrait.CurrentLevel, attackSpeedTrait.StatUP);
+        FinalPhysDEF = FinalStatAdd(PlayerStatType.PHYS_DEF, baseStat.PhysicsResist, 0, 0, 0, 0);
+        FinalMagicDEF = FinalStatAdd(PlayerStatType.MAGIC_DEF, baseStat.MagicResist, 0, 0, 0, 0);
+        FinalCritChance = FinalStatAdd(PlayerStatType.CRIT_CHANCE, baseStat.CriticalChance, critStatUpgrade.Stat, 0, critTrait.CurrentLevel, critTrait.StatUP);
+        FinalCritMult = FinalStatAdd(PlayerStatType.CRIT_MULT, baseStat.CriticalMultiplier, critMultStatUpgrade.Stat, levelBonus.BonusCriticalDamage, critMultTrait.CurrentLevel, critMultTrait.StatUP);
+        FinalMoveSpeed = FinalStatAdd(PlayerStatType.MOVE_SPEED, baseStat.MoveSpeed, 0, 0, 0, 0);
+        FinalCoolDownReduce = FinalStatAdd(PlayerStatType.COOLDOWN_REDUCE, baseStat.CoolDown, 0, 0, coolDownTrait.CurrentLevel, coolDownTrait.StatUP);
+        FinalGoldGain = FinalStatAdd(PlayerStatType.GOLD_GAIN, baseStat.GoldGain, 0, 0, 0, 0);
+        FinalExpGain = FinalStatAdd(PlayerStatType.EXP_GAIN, baseStat.ExpGain, 0, 0, 0, 0);
+        FinalBossDamage = FinalStatAdd(PlayerStatType.BOSS_DMG, baseStat.BossDamage, bossDamageStatUpgrade.Stat, 0, 0, 0);
+        FinalNormalDamage = FinalStatAdd(PlayerStatType.NORMAL_DMG, baseStat.NormalDamage, 0, 0, 0, 0);
+        FinalDamageMult = FinalStatAdd(PlayerStatType.DMG_MULT, baseStat.DamageMult, 0, 0, 0, 0);
+
+        Debug.Log("작동 되고있음");
     }
 
-    private float FinalStatAdd(float baseStat, float upgradeStat, float levelHP, int traitLevel, float traitStat)
+    private float FinalStatAdd(PlayerStatType playerStatType ,float baseStat, float upgradeStat, float levelHP, int traitLevel, float traitStat)
     {
-        return baseStat + upgradeStat + levelHP + (traitLevel * traitStat);
+
+        float complate = baseStat + upgradeStat + levelHP + (traitLevel * traitStat);
+
+        StatUpdate?.Invoke(playerStatType, complate);
+
+        return complate;
     }
 
     public void Upgrade(ref StatUpgrade statUpgrade)
     {
+        statUpgrade.Upgrade();
+    }
 
+    public void EventSet()
+    {
+        attackStatUpgrade.UpgradeStat += FinalStat;
+        mpStatUpgrade.UpgradeStat += FinalStat;
+        mpRegenStatUpgrade.UpgradeStat += FinalStat;
+        hpStatUpgrade.UpgradeStat += FinalStat;
+        hpRegenStatUpgrade.UpgradeStat += FinalStat;
+        critStatUpgrade.UpgradeStat += FinalStat;
+        critMultStatUpgrade.UpgradeStat += FinalStat;
+        bossDamageStatUpgrade.UpgradeStat += FinalStat;
+        traitStatUpgrade.UpgradeStat += FinalStat;
     }
 
     private void FailLoadTable(TableBase table)

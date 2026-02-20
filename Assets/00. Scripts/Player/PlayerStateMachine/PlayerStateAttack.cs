@@ -17,7 +17,7 @@ public class PlayerStateAttack : IPlayerState
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
             ctx.Agent.isStopped = true;
 
-        float attackSpeed = ctx.StatPresenter?.Data?.baseAttackSpeed ?? 1f;
+        float attackSpeed = ctx.StatPresenter?.PlayerStat?.FinalATKSpeed ?? 1f;
         float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
         _attackEndTime = Time.time + delay;
         _attackInProgress = true;

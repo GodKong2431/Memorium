@@ -56,11 +56,11 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void Start()
     {
-        CharacterBaseStatInfoTable data = _ctx.StatPresenter?.Data;
+        CharacterStatManager playerStat = _ctx.StatPresenter?.PlayerStat;
 
-        if (data != null && _ctx.Agent != null)
+        if (playerStat != null && _ctx.Agent != null)
         {
-            _ctx.Agent.speed = data.baseMoveSpeed;
+            _ctx.Agent.speed = playerStat.FinalMoveSpeed;
             _ctx.Agent.stoppingDistance = 1.5f;
         }
         if (DataManager.Instance.DataLoad)

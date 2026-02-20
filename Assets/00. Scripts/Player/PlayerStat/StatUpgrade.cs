@@ -9,6 +9,7 @@ public class StatUpgrade
     [SerializeField] private float baseCost;
     [SerializeField] private float costMultiplyRate;
     [SerializeField] private float stat;
+    [SerializeField] private float currentCost;
 
     public event Action UpgradeStat;
 
@@ -22,6 +23,7 @@ public class StatUpgrade
 
     public float Stat { get { return stat; } }
 
+    public float CurrentCost { get { return currentCost; } }
 
     public StatUpgrade(int key)
     {
@@ -30,12 +32,13 @@ public class StatUpgrade
         baseCost = statUpgradeTable.baseCost;
         costMultiplyRate = statUpgradeTable.costMultiplyRate;
         stat = upgradeCount * statInCrease;
+        currentCost = statUpgradeTable.baseCost;
     }
 
     public void Upgrade()
     {
         upgradeCount++;
-        baseCost = baseCost * CostMultiplyRate;
+        currentCost = currentCost * CostMultiplyRate;
         stat = upgradeCount * statInCrease;
         UpgradeStat?.Invoke();
     }
