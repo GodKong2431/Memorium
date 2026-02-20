@@ -8,7 +8,7 @@ public class EnemyStatPresenter : MonoBehaviour
 {
     [SerializeField] private EnemyStatSetting setting;
     [SerializeField] [Tooltip("0이 아니면 DataManager에서 해당 몬스터 ID로 스탯 로드. setting보다 우선.")]
-    private int monsterIdFromDataManager;
+    public int monsterIdFromDataManager;
 
     private EnemyStatData _data;
     private int _loadedMonsterId;

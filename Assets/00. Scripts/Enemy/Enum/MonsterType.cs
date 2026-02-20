@@ -1,5 +1,5 @@
 public enum MonsterType
 {
-    normalMonster = 0,
-    bossMonster = 1
+    normalMonster = 1,
+    bossMonster = 2
 }

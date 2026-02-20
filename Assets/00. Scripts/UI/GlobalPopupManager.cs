@@ -1,24 +1,58 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 전체 화면 팝업 레이어의 표시 모드를 관리하는 매니저 클래스
+/// 모든 팝업의 종류를 관리하는 Enum입니다. (새로운 팝업이 생기면 여기에 이름만 추가하세요)
 /// </summary>
+public enum PopupMode
+{
+    BottomSheet,        // 하단 성장/장비 시트
+    CharInfo,           // 캐릭터 정보창
+    DungeonList,        // 던전 목록 팝업
+    DungeonLevelSelect  // 던전 난이도 선택 팝업
+}
+
+/// <summary>
+/// 인스펙터에서 팝업 모드와 켜질 패널들을 매칭하기 위한 구조체입니다.
+/// </summary>
+[Serializable]
+public struct PopupMapping
+{
+    public PopupMode mode;
+    public List<GameObject> activePanels; 
+}
+
 public class GlobalPopupManager : MonoBehaviour
 {
+    public static GlobalPopupManager Instance { get; private set; }
+
     [Header("Core UI")]
     public GameObject popupLayerRoot;
     public Button btnCommonClose;
 
-    [Header("시트 팝업")]
-    public GameObject bottomSheetHandleMenu;
-    public GameObject bottomSheetContentArea;
+    [Header("팝업 그룹 설정")]
+    public List<PopupMapping> popupMappings = new List<PopupMapping>();
 
-    [Header("캐릭 인포 팝업")]
-    public GameObject charInfoArea;
+    private List<GameObject> allRegisteredPanels = new List<GameObject>();
 
-    // 현재 팝업이 어떤 모드로 열려있는지 추적
-    private bool isBottomSheetMode = false;
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        foreach (var mapping in popupMappings)
+        {
+            foreach (var panel in mapping.activePanels)
+            {
+                if (panel != null && !allRegisteredPanels.Contains(panel))
+                {
+                    allRegisteredPanels.Add(panel);
+                }
+            }
+        }
+    }
 
     private void Start()
     {
@@ -27,66 +61,50 @@ public class GlobalPopupManager : MonoBehaviour
 
     private void InitializeUI()
     {
-        // 시작 시 팝업 닫기
         ClosePopup();
 
-        // 닫기 버튼 이벤트 연결
         if (btnCommonClose != null)
         {
             btnCommonClose.onClick.RemoveAllListeners();
-            btnCommonClose.onClick.AddListener(OnCloseButtonClicked);
+            btnCommonClose.onClick.AddListener(ClosePopup);
         }
     }
 
     /// <summary>
-    /// 닫기 버튼 클릭 시 현재 모드에 따라 적절한 종료 처리를 수행
+    /// 원하는 팝업 모드를 열고, 나머지는 전부 끔
     /// </summary>
-    private void OnCloseButtonClicked()
+    public void OpenPopupMode(PopupMode targetMode)
     {
-        ClosePopup();
-    }
-
-    /// <summary>
-    /// 시트 팝업을 엽니다.
-    /// 화살표 메뉴를 표시하고, 캐릭터 정보창은 숨김
-    /// </summary>
-    public void OpenBottomSheetMode()
-    {
-        isBottomSheetMode = true;
-
         if (popupLayerRoot != null) popupLayerRoot.SetActive(true);
 
-        // 바텀 시트 관련 UI 활성화
-        if (bottomSheetHandleMenu != null) bottomSheetHandleMenu.SetActive(true);
-        if (bottomSheetContentArea != null) bottomSheetContentArea.SetActive(true);
+        foreach (var panel in allRegisteredPanels)
+        {
+            if (panel != null) panel.SetActive(false);
+        }
 
-        // 캐릭터 정보 UI 비활성화
-        if (charInfoArea != null) charInfoArea.SetActive(false);
+        foreach (var mapping in popupMappings)
+        {
+            if (mapping.mode == targetMode)
+            {
+                foreach (var panel in mapping.activePanels)
+                {
+                    if (panel != null) panel.SetActive(true);
+                }
+                break;
+            }
+        }
     }
 
     /// <summary>
-    /// 캐릭 인포 팝업을 엽니다.
-    /// 화살표 메뉴를 숨기고, 캐릭터 정보창을 표시
-    /// </summary>
-    public void OpenCharInfoMode()
-    {
-        isBottomSheetMode = false;
-
-        if (popupLayerRoot != null) popupLayerRoot.SetActive(true);
-
-        // 바텀 시트 관련 UI 비활성화
-        if (bottomSheetHandleMenu != null) bottomSheetHandleMenu.SetActive(false);
-        if (bottomSheetContentArea != null) bottomSheetContentArea.SetActive(false);
-
-        // 캐릭터 정보 UI 활성화
-        if (charInfoArea != null) charInfoArea.SetActive(true);
-    }
-
-    /// <summary>
-    /// 팝업 레이어를 닫고 초기화
+    /// 팝업 레이어를 닫고 모든 패널을 비활성화
     /// </summary>
     public void ClosePopup()
     {
         if (popupLayerRoot != null) popupLayerRoot.SetActive(false);
+
+        foreach (var panel in allRegisteredPanels)
+        {
+            if (panel != null) panel.SetActive(false);
+        }
     }
 }

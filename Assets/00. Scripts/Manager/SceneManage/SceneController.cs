@@ -1,38 +1,36 @@
 using System.Collections;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneController : Singleton<SceneController>
 {
-    [Header("Settings")]
-    [SerializeField] private string _loadingSceneName = "LoadingScene";
+    [Header("로딩 UI 설정")]
+    public LoadingUI loadingUI;
 
-    private SceneBase _currentSceneController;
     private bool _isLoading;
 
-    private void Start()
-    {
-        LoadScene(SceneType.TitleScene);
-    }
-
-    public async void LoadScene(SceneType type)
+    public void LoadScene(SceneType type)
     {
         if (_isLoading) return;
-        _isLoading = true;
+        StartCoroutine(LoadSceneRoutine(type));
+    }
 
+    private IEnumerator LoadSceneRoutine(SceneType type)
+    {
+        _isLoading = true;
         string targetSceneName = type.ToString();
 
-        if (_currentSceneController != null)
+        SceneBase currentScene = Object.FindFirstObjectByType<SceneBase>();
+        if (currentScene != null)
         {
-            await _currentSceneController.ExitScene();
-            _currentSceneController = null;
+            currentScene.ExitScene();
         }
 
-        AsyncOperation loadingSceneOp = SceneManager.LoadSceneAsync(_loadingSceneName);
-        while (!loadingSceneOp.isDone) await Task.Yield();
-
-        LoadingUI loadingUI = Object.FindFirstObjectByType<LoadingUI>();
+        if (loadingUI != null)
+        {
+            loadingUI.gameObject.SetActive(true);
+            loadingUI.SetProgress(0f);
+        }
 
         AsyncOperation op = SceneManager.LoadSceneAsync(targetSceneName);
         op.allowSceneActivation = false;
@@ -41,36 +39,27 @@ public class SceneController : Singleton<SceneController>
 
         while (!op.isDone)
         {
-            await Task.Yield();
-
             timer += Time.deltaTime;
-
             float progress = Mathf.Clamp01(op.progress / 0.9f);
 
             if (progress >= 1f && timer >= 1.0f)
             {
                 if (loadingUI != null) loadingUI.SetProgress(1f);
-
                 op.allowSceneActivation = true;
             }
             else
             {
                 if (loadingUI != null) loadingUI.SetProgress(progress);
             }
+
+            yield return null;
         }
 
-        _currentSceneController = SceneFactory.Create(type);
-
-        if (_currentSceneController != null)
+        if (loadingUI != null)
         {
-            await _currentSceneController.EnterScene();
+            loadingUI.gameObject.SetActive(false);
         }
 
         _isLoading = false;
-    }
-
-    public void Button()
-    {
-        SceneController.Instance.LoadScene(SceneType.DungeonScene);
     }
 }
