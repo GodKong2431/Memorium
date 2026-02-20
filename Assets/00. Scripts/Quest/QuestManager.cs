@@ -57,7 +57,7 @@ public class QuestManager : Singleton<QuestManager>
             if (currentProgress >= questData.reqCount)
             {
                 currentProgress = questData.reqCount;
-                GameEventManager.OnQuestCompleted?.Invoke(); // UI에 보상받기 버튼 활성화 지시
+                GameEventManager.OnQuestCompleted?.Invoke();
             }
 
             GameEventManager.OnQuestProgressChanged?.Invoke();
