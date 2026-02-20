@@ -47,11 +47,7 @@ public class PlayerStateAttack : IPlayerState
         
 
 
-        if (ctx.playerSkillHandler.AutoCast())
-        {
-
-        }
-        else if (dist <= ctx.AttackRange)
+        if (!ctx.playerSkillHandler.AutoCast()&&dist <= ctx.AttackRange)
         {
             // 일반 공격
             Debug.Log("일반 공격 중");

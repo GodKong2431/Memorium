@@ -1,11 +1,9 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 /// <summary>
-/// 원래 스킬 세개가있는구조 
-/// 나중에 얘는 정말 스킬실행만시키고 쿨타임이나 마나계산같은건 스킬캐스터를 가지는 클래스를 만들어서 플레이어에 컴포넌트로 붙이려고함
-/// 이유는 분신이나 아니면 마나없거나 아니면 몬스터가 이 스킬캐스터를 가질수있더라도 각자 자신의 로직에따라서 실행시키기 위해서임
+/// 스킬 실행하는 컴포넌트, 플레이어/몬스터/분신 어디든 붙여도 나가도록
 /// </summary>
 public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler, ISkillDetectable
 {
@@ -35,6 +33,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     private Vector3 debugLastCastDir;
 
     public Vector3 Position => transform.position;
+    public event Action OnSkillEnd;
 
     public void SetPosition(Vector3 position)
     {
@@ -57,7 +56,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         targetProvider = target;
     }
 
-    public void CastSkill(SkillDataContext dataContext, float extraDelay = 0)
+    public void CastSkill(SkillDataContext dataContext, float extraDelay = 0, bool applyAddon = true)
     {
         if (isCasting) return;
         if (isTestContextOn)
@@ -68,9 +67,8 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         {
             skillDataContext= dataContext;
         }
-
-        Enemy_PlayerMove tmp = GetComponent<Enemy_PlayerMove>(); //분신이랑 플레이어 구분용, 임시로 겟컴포넌트로 구분해놨고 , id가 아니라 m4컨텍스트를 비워서 주는쪽이 좋을듯
-        if (tmp!=null&&skillDataContext.m4Data != null)
+       
+        if (applyAddon&& skillDataContext.m4Data != null)
         {
             var m4Strategy = SkillStrategyContainer.GetAddon(skillDataContext.m4Data.m4Type);
             if (m4Strategy is ISkillCastAddon castAddon)
@@ -97,27 +95,9 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
 
         yield return SkillSequenceMove(data);
 
+        yield return SkillSequenceExecute(dataContext);
 
-        Transform target = targetProvider.GetTarget();
-        Vector3 castDirection = (target.position - transform.position);
-        castDirection.y = 0;
-        castDirection = castDirection.normalized;
-        Vector3 ExecutePivot = transform.position;
-
-        if (data.m3Data.m3Delay > 0)
-        {
-            yield return CoroutineManager.waitForSeconds(data.m3Data.m3Delay);
-        }
-        var m3Strategy = SkillStrategyContainer.GetExecute(data.m3Data.m3Type);
-
-        //나중에 프리팹을 넘기는게아니라 데이터 테이블에서 프리팹을 가져오도록 바꿀예정
-        GameObject prefab = null;
-        if (m3Strategy is ExecuteProjectile)
-            prefab = projectilePrefab.gameObject;
-        else if (m3Strategy is ExecuteDeploy)
-            prefab = deployPrefab.gameObject; 
-
-        yield return m3Strategy.Execute(this, this, dataContext, ExecutePivot, castDirection, targetLayer, prefab);
+        OnSkillEnd?.Invoke();
 
         isCasting = false;
     }
@@ -128,9 +108,6 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     private IEnumerator SkillSequenceMove(SkillData data)
     {
         Transform target = targetProvider.GetTarget();
-        Vector3 castDirection = (target.position - transform.position);
-        castDirection.y = 0;
-        castDirection = castDirection.normalized;
 
         if (data.m1Data.m1Delay > 0)
         {
@@ -138,15 +115,45 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         }
         var m1Strategy = SkillStrategyContainer.GetMovement(data.m1Data.m1Type);
 
-        yield return m1Strategy.SkillMove(this, castDirection, data.m1Data);
+        yield return m1Strategy.SkillMove(this, target.position, data.m1Data);
+    }
+
+    /// <summary>
+    /// 모듈 3 시퀀스, 모듈 2는 모듈3에 종속되어있어서 따로 시퀀스 나누지않음
+    /// </summary>
+    /// <param name="dataContext"></param>
+    /// <returns></returns>
+    private IEnumerator SkillSequenceExecute(SkillDataContext dataContext)
+    {
+        M3Type m3Type = dataContext.skillData.m3Data.m3Type;
+        float delay = dataContext.skillData.m3Data.m3Delay ;
+        Transform target = targetProvider.GetTarget();
+        Vector3 castDirection = (target.position - transform.position);
+        castDirection.y = 0;
+        castDirection = castDirection.normalized;
+        Vector3 ExecutePivot = transform.position;
+
+        if (delay > 0)
+        {
+            yield return CoroutineManager.waitForSeconds(delay);
+        }
+        var m3Strategy = SkillStrategyContainer.GetExecute(m3Type);
+
+        //나중에 프리팹을 넘기는게아니라 데이터 테이블에서 프리팹을 가져오도록 바꿀예정
+        GameObject prefab = null;
+        if (m3Strategy is ExecuteProjectile)
+            prefab = projectilePrefab.gameObject;
+        else if (m3Strategy is ExecuteDeploy)
+            prefab = deployPrefab.gameObject;
+
+        yield return m3Strategy.Execute(this, this, dataContext, ExecutePivot, castDirection, targetLayer, prefab);
     }
     public void StopSkill()
     {
         if (currentSkillRoutine != null) StopCoroutine(currentSkillRoutine);
 
         isCasting = false;
-
-        Debug.LogWarning("스킬 시전 중단");
+        OnSkillEnd?.Invoke();
     }
 
     private void OnDrawGizmos()

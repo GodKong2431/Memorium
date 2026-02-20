@@ -1,13 +1,18 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 //벽에 막히는 기능추가
 public class JumpMove : ISkillMovementStrategy
 {
-    public IEnumerator SkillMove(ISkillMovementTarget subject, Vector3 direction, SkillModule1Table data)
+    public IEnumerator SkillMove(ISkillMovementTarget subject, Vector3 target, SkillModule1Table data)
     {
-        //subject.PlayAnim("Jump");
-        subject.SetInvincible(true); 
+        subject.SetInvincible(true);
+
+
+        Vector3 direction = (target - subject.Position);
+        direction.y = 0;
+        direction = direction.normalized;
 
         Vector3 startPos = subject.Position;
         Vector3 endPos = startPos + (direction * data.m1Scale);

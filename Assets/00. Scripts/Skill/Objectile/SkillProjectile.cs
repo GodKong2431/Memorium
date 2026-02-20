@@ -8,7 +8,6 @@ public class SkillProjectile : SkillObjectileBase
 
     private void Update()
     {
-
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
     private void OnTriggerEnter(Collider other)
