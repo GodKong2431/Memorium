@@ -23,9 +23,6 @@ public class BottomSheetController : MonoBehaviour
     public RectTransform skillPanelRect;
     public float openHeight = 800f;
 
-    [Header("Popup Integration")]
-    public GlobalPopupManager popupManager;
-
     public Button btnArrowUp;    // 시트 -> 팝업 확장 버튼
     public Button btnArrowDown;  // 팝업 -> 시트 축소 버튼
 
@@ -59,8 +56,8 @@ public class BottomSheetController : MonoBehaviour
         if (skillPanelRect != null)
             skillPanelStartY = skillPanelRect.anchoredPosition.y;
 
-        if (popupManager != null)
-            popupManager.ClosePopup();
+        if (GlobalPopupManager.Instance != null)
+            GlobalPopupManager.Instance.ClosePopup();
 
         foreach (var pair in tabPages)
         {
@@ -74,9 +71,9 @@ public class BottomSheetController : MonoBehaviour
         if (btnArrowUp != null) btnArrowUp.onClick.AddListener(OpenPopup);
         if (btnArrowDown != null) btnArrowDown.onClick.AddListener(ReturnToSheet);
 
-        if (popupManager != null && popupManager.btnCommonClose != null)
+        if (GlobalPopupManager.Instance != null && GlobalPopupManager.Instance.btnCommonClose != null)
         {
-            popupManager.btnCommonClose.onClick.AddListener(CloseAll);
+            GlobalPopupManager.Instance.btnCommonClose.onClick.AddListener(CloseAll);
         }
 
         for (int i = 0; i < tabPages.Length; i++)
@@ -120,7 +117,7 @@ public class BottomSheetController : MonoBehaviour
         if (isOn)
         {
             isPopupOpen = false;
-            if (popupManager != null) popupManager.ClosePopup();
+            if (GlobalPopupManager.Instance != null) GlobalPopupManager.Instance.ClosePopup();
 
             for (int i = 0; i < tabPages.Length; i++)
             {
@@ -156,8 +153,8 @@ public class BottomSheetController : MonoBehaviour
     {
         isPopupOpen = true;
 
-        if (popupManager != null)
-            popupManager.OpenBottomSheetMode();
+        if (GlobalPopupManager.Instance != null)
+            GlobalPopupManager.Instance.OpenPopupMode(PopupMode.BottomSheet);
 
         if (currentPage != null && popupContentParent != null)
         {
@@ -172,8 +169,8 @@ public class BottomSheetController : MonoBehaviour
     {
         isPopupOpen = false;
 
-        if (popupManager != null)
-            popupManager.ClosePopup();
+        if (GlobalPopupManager.Instance != null)
+            GlobalPopupManager.Instance.ClosePopup();
 
         if (currentPage != null && sheetContentParent != null)
         {
@@ -188,8 +185,8 @@ public class BottomSheetController : MonoBehaviour
     {
         isPopupOpen = false;
 
-        if (popupManager != null)
-            popupManager.ClosePopup();
+        if (GlobalPopupManager.Instance != null)
+            GlobalPopupManager.Instance.ClosePopup();
 
         if (toggleGroup != null) toggleGroup.SetAllTogglesOff();
 
