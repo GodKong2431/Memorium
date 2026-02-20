@@ -8,5 +8,6 @@ public enum CurrencyType
     ScrollFragment,
     TraitPoint, 
     Exp, 
-    DungeonTicket
+    DungeonTicket,
+    Count,
 }
