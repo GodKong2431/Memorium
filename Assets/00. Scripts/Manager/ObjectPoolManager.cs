@@ -8,6 +8,9 @@ using UnityEngine;
 /// </summary>
 public static class ObjectPoolManager
 {
+    /// <summary>true면 Get/Return 시 Debug.Log 출력 (테스트용).</summary>
+    public static bool DebugLog { get; set; }
+
     private static readonly Dictionary<int, Queue<GameObject>> _pools = new Dictionary<int, Queue<GameObject>>();
     private static Transform _poolRoot;
 
@@ -47,10 +50,12 @@ public static class ObjectPoolManager
 
             var poolable = obj.GetComponent<PoolableObject>();
             poolable?.OnSpawnFromPool();
+            if (DebugLog) Debug.Log($"[ObjectPool] Get (풀에서 꺼냄): {prefab.name} → {obj.name}");
         }
         else
         {
             obj = Object.Instantiate(prefab, position, rotation, parent ?? PoolRoot);
+            if (DebugLog) Debug.Log($"[ObjectPool] Get (새로 생성): {prefab.name}");
             var poolable = obj.GetComponent<PoolableObject>();
             if (poolable == null)
                 poolable = obj.AddComponent<PoolableObject>();
@@ -77,6 +82,7 @@ public static class ObjectPoolManager
         poolable.OnReturnToPool();
         obj.SetActive(false);
         obj.transform.SetParent(PoolRoot);
+        if (DebugLog) Debug.Log($"[ObjectPool] Return: {obj.name} → 풀에 반환");
 
         int key = poolable.PrefabId;
         if (!_pools.TryGetValue(key, out var queue))
@@ -91,4 +97,22 @@ public static class ObjectPoolManager
     {
         return obj != null && obj.GetComponent<PoolableObject>() != null;
     }
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// [테스트용] 풀 상태 로그. 콘솔에서 호출하거나 에디터 스크립트에서 사용.
+    /// </summary>
+    public static void LogPoolStatus()
+    {
+        int totalCount = 0;
+        foreach (var kv in _pools)
+        {
+            int count = kv.Value.Count;
+            totalCount += count;
+            if (count > 0)
+                Debug.Log($"[ObjectPool] PrefabId {kv.Key}: {count}개 대기");
+        }
+        Debug.Log($"[ObjectPool] 총 대기 오브젝트: {totalCount}개");
+    }
+#endif
 }
