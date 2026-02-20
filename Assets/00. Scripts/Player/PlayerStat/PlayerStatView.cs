@@ -22,6 +22,16 @@ public class PlayerStatView : MonoBehaviour
     [SerializeField] TextMeshProUGUI normalDamageText;
     [SerializeField] TextMeshProUGUI traitText;
 
+    [SerializeField] TextMeshProUGUI hpTraitText;
+    [SerializeField] TextMeshProUGUI mpTraitText;
+    [SerializeField] TextMeshProUGUI atkTraitText;
+    [SerializeField] TextMeshProUGUI atkSpeedTraitText;
+    [SerializeField] TextMeshProUGUI critTraitText;
+    [SerializeField] TextMeshProUGUI critMultTraitText;
+    [SerializeField] TextMeshProUGUI bossDamageTraitText;
+    [SerializeField] TextMeshProUGUI coolDownTraitText;
+    [SerializeField] TextMeshProUGUI dmgMultTraitText;
+
     public Button hpUpgradeBtn;
     public Button hpRegenUpgradeBtn;
     public Button atkUpgradeBtn;
@@ -31,6 +41,16 @@ public class PlayerStatView : MonoBehaviour
     public Button critMultUpgradeBtn;
     public Button bossDamageUpgradeBtn;
     public Button traitUpgradeBtn;
+
+    public Button hpTraitBtn;
+    public Button mpTraitBtn;
+    public Button atkTraitBtn;
+    public Button atkSpeedTraitBtn;
+    public Button critTraitBtn;
+    public Button critMultTraitBtn;
+    public Button bossDmgTraitBtn;
+    public Button coolDownTraitBtn;
+    public Button dmgMultTraitBtn;
 
     public void SetStat(PlayerStatType statType,float value)
     {
@@ -93,8 +113,40 @@ public class PlayerStatView : MonoBehaviour
         }
     }
 
-    public void SetButton()
+    public void SetTrait(int id, int currentLevel , int maxLevel)
     {
-
+        switch (id)
+        {
+            case 1040012:
+                hpTraitText.text = $"HPTarit {currentLevel} / {maxLevel}";
+                break;
+            case 1040011:
+                mpTraitText.text = $"MPTarit {currentLevel} / {maxLevel}";
+                break;
+            case 1040001:
+                atkTraitText.text = $"ATKTarit {currentLevel} / {maxLevel}";
+                break;
+            case 1040013:
+                atkSpeedTraitText.text = $"ATKSPEEDTarit {currentLevel} / {maxLevel}";
+                break;
+            case 1040021:
+                critTraitText.text = $"CRITTarit {currentLevel} / {maxLevel}";
+                break;
+            case 1040032:
+                critMultTraitText.text = $"CRITMULTTarit {currentLevel} / {maxLevel}";
+                break;
+            case 1040033:
+                bossDamageTraitText.text = $"BOSSDMGTarit {currentLevel} / {maxLevel}";
+                break;
+            case 1040034:
+                coolDownTraitText.text = $"COOLDOWNTarit {currentLevel} / {maxLevel}";
+                break;
+            case 1040041:
+                dmgMultTraitText.text = $"DMGMULTTarit {currentLevel} / {maxLevel}";
+                break;
+            default:
+                Debug.Log($"에 해당하는 특성의 텍스트가 없습니다");
+                break;
+        }
     }
 }

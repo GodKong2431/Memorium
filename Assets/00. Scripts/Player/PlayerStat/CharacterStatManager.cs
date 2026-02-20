@@ -11,6 +11,8 @@ public class CharacterStatManager : MonoBehaviour
     [SerializeField] private int characterTableKey;
     [SerializeField] private int level;
 
+    [SerializeField] private TraitManager traitManager;
+
     [SerializeField] private CharacterBaseStat baseStat;
 
     [SerializeField] private StatUpgrade attackStatUpgrade;
@@ -42,6 +44,7 @@ public class CharacterStatManager : MonoBehaviour
         yield return new WaitUntil(()=>DataManager.Instance!=null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
         LoadTable();
+
     }
     public CharacterBaseStat BaseStat { get { return baseStat; } }
 
@@ -89,6 +92,8 @@ public class CharacterStatManager : MonoBehaviour
 
     public event Action<PlayerStatType, float> StatUpdate;
 
+    public event Action<int, int, int> TraitUpdate;
+
     private void OnEnable()
     {
     }
@@ -104,6 +109,16 @@ public class CharacterStatManager : MonoBehaviour
         critMultStatUpgrade.UpgradeStat -= FinalStat;
         bossDamageStatUpgrade.UpgradeStat -= FinalStat;
         traitStatUpgrade.UpgradeStat -= FinalStat;
+
+        attackTrait.UpgradeTrait -= FinalStat;
+        mpTrait.UpgradeTrait -= FinalStat;
+        hpTrait.UpgradeTrait -= FinalStat;
+        attackSpeedTrait.UpgradeTrait -= FinalStat;
+        critTrait.UpgradeTrait -= FinalStat;
+        critMultTrait.UpgradeTrait -= FinalStat;
+        bossDamageTrait.UpgradeTrait -= FinalStat;
+        coolDownTrait.UpgradeTrait -= FinalStat;
+        damageMultTrait.UpgradeTrait -= FinalStat;
     }
 
 
@@ -156,11 +171,9 @@ public class CharacterStatManager : MonoBehaviour
         FinalCoolDownReduce = FinalStatAdd(PlayerStatType.COOLDOWN_REDUCE, baseStat.CoolDown, 0, 0, coolDownTrait.CurrentLevel, coolDownTrait.StatUP);
         FinalGoldGain = FinalStatAdd(PlayerStatType.GOLD_GAIN, baseStat.GoldGain, 0, 0, 0, 0);
         FinalExpGain = FinalStatAdd(PlayerStatType.EXP_GAIN, baseStat.ExpGain, 0, 0, 0, 0);
-        FinalBossDamage = FinalStatAdd(PlayerStatType.BOSS_DMG, baseStat.BossDamage, bossDamageStatUpgrade.Stat, 0, 0, 0);
+        FinalBossDamage = FinalStatAdd(PlayerStatType.BOSS_DMG, baseStat.BossDamage, bossDamageStatUpgrade.Stat, 0, bossDamageTrait.CurrentLevel, bossDamageTrait.StatUP);
         FinalNormalDamage = FinalStatAdd(PlayerStatType.NORMAL_DMG, baseStat.NormalDamage, 0, 0, 0, 0);
         FinalDamageMult = FinalStatAdd(PlayerStatType.DMG_MULT, baseStat.DamageMult, 0, 0, 0, 0);
-
-        Debug.Log("작동 되고있음");
     }
 
     private float FinalStatAdd(PlayerStatType playerStatType ,float baseStat, float upgradeStat, float levelHP, int traitLevel, float traitStat)
@@ -173,9 +186,15 @@ public class CharacterStatManager : MonoBehaviour
         return complate;
     }
 
-    public void Upgrade(ref StatUpgrade statUpgrade)
+    public void Upgrade(StatUpgrade statUpgrade)
     {
         statUpgrade.Upgrade();
+    }
+
+    public void TraitUpgrade (PlayerTrait playerTrait)
+    {
+        playerTrait.Upgrade(ref traitManager.StatPoints);
+        TraitUpdate?.Invoke(playerTrait.ID, playerTrait.CurrentLevel, playerTrait.MaxLevel);
     }
 
     public void EventSet()
@@ -189,6 +208,16 @@ public class CharacterStatManager : MonoBehaviour
         critMultStatUpgrade.UpgradeStat += FinalStat;
         bossDamageStatUpgrade.UpgradeStat += FinalStat;
         traitStatUpgrade.UpgradeStat += FinalStat;
+
+        attackTrait.UpgradeTrait += FinalStat;
+        mpTrait.UpgradeTrait += FinalStat;
+        hpTrait.UpgradeTrait += FinalStat;
+        attackSpeedTrait.UpgradeTrait += FinalStat;
+        critTrait.UpgradeTrait += FinalStat;
+        critMultTrait.UpgradeTrait += FinalStat;
+        bossDamageTrait.UpgradeTrait += FinalStat;
+        coolDownTrait.UpgradeTrait += FinalStat;
+        damageMultTrait.UpgradeTrait += FinalStat;
     }
 
     private void FailLoadTable(TableBase table)

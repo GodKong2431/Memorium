@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 [System.Serializable]
 public class PlayerTrait
 {
+    public int ID;
     public string TraitTier;
     public string TraitName;
     public string TraitUPStatName;
@@ -16,10 +18,13 @@ public class PlayerTrait
 
     public bool unlock = false;
 
+    public event Action UpgradeTrait;
+
     public PlayerTrait(int key)
     {
         DataManager.Instance.TraitInfoDict.TryGetValue(key, out var value);
 
+        ID = value.ID;
         TraitTier = value.traitTier;
         TraitName = value.traitName;
         TraitUPStatName = value.traitUPStatName;
@@ -30,9 +35,9 @@ public class PlayerTrait
         NeedTrait = value.needTrait;
     }
 
-    public bool Upgrade()
+    public bool Upgrade(ref int point)
     {
-        if (!PointCheck())
+        if (!PointCheck(ref point))
         {
             return false;
         }
@@ -41,13 +46,14 @@ public class PlayerTrait
         {
             return false;
         }
+        point -= DecreasePoint;
         CurrentLevel++;
-
+        UpgradeTrait?.Invoke();
         return true;
     }
 
-    public bool PointCheck()
+    public bool PointCheck(ref int point)
     {
-        return false; // 포인트 생기면 포인트 관련 
+        return point >= DecreasePoint; // 포인트 생기면 포인트 관련 
     }
 }

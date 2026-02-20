@@ -28,6 +28,18 @@ public class PlayerStatPresenter : MonoBehaviour
             view.traitUpgradeBtn.onClick.AddListener(() => OnClickUpgrade(playerStat.TraitStatUpgrade));
 
             playerStat.StatUpdate += view.SetStat;
+
+            view.hpTraitBtn.onClick.AddListener(() => OnClickTraitUpgrade(playerStat.HpTrait));
+            view.mpTraitBtn.onClick.AddListener(() => OnClickTraitUpgrade(playerStat.MpTrait));
+            view.atkTraitBtn.onClick.AddListener(() => OnClickTraitUpgrade(playerStat.AttackTrait));
+            view.atkSpeedTraitBtn.onClick.AddListener(() => OnClickTraitUpgrade(playerStat.AttackSpeedTrait));
+            view.critTraitBtn.onClick.AddListener(() => OnClickTraitUpgrade(playerStat.CritTrait));
+            view.critMultTraitBtn.onClick.AddListener(() => OnClickTraitUpgrade(playerStat.CritMultTrait));
+            view.bossDmgTraitBtn.onClick.AddListener(() => OnClickTraitUpgrade(playerStat.BossDamageTrait));
+            view.coolDownTraitBtn.onClick.AddListener(() => OnClickTraitUpgrade(playerStat.CoolDownTrait));
+            view.dmgMultTraitBtn.onClick.AddListener(() => OnClickTraitUpgrade(playerStat.DamageMultTrait));
+
+            playerStat.TraitUpdate += view.SetTrait;
         }
         
     }
@@ -38,11 +50,16 @@ public class PlayerStatPresenter : MonoBehaviour
         if (view != null)
         {
             playerStat.StatUpdate -= view.SetStat;
+            playerStat.TraitUpdate -= view.SetTrait;
         }
     }
 
     private void OnClickUpgrade(StatUpgrade statUpgrade)
     {
-        playerStat.Upgrade(ref statUpgrade);
+        playerStat.Upgrade(statUpgrade);
+    }
+    private void OnClickTraitUpgrade(PlayerTrait playerTrait)
+    {
+        playerStat.TraitUpgrade(playerTrait);
     }
 }
