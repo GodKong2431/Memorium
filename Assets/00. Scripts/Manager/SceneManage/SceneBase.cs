@@ -1,14 +1,19 @@
-using System.Threading.Tasks;
+using UnityEngine;
+using System.Collections;
 
-public class SceneBase
+/// <summary>
+/// 모든 씬 매니저가 상속받는 부모 클래스.
+/// </summary>
+public abstract class SceneBase : MonoBehaviour
 {
-    public virtual async Task EnterScene()
+    protected virtual void Start()
     {
-        await Task.CompletedTask;
+        StartCoroutine(EnterScene());
     }
 
-    public virtual async Task ExitScene()
+    public abstract IEnumerator EnterScene();
+
+    public virtual void ExitScene()
     {
-        await Task.CompletedTask;
     }
 }
