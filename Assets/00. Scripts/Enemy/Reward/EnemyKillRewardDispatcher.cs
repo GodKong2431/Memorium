@@ -96,7 +96,7 @@ public static class EnemyKillRewardDispatcher
             OnKillCountChanged?.Invoke(TotalKillCount);
             OnNormalEnemyKilled?.Invoke();
 
-            GameEventManager.OnQuestActionUpdated?.Invoke(QuestType.questElimination, 1); 몬스터 죽었을 때 호출
+            GameEventManager.OnQuestActionUpdated?.Invoke(QuestType.questElimination, 1); //몬스터 죽었을 때 호출
         }
     }
 
