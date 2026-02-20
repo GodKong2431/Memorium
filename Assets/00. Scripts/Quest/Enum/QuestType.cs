@@ -1,7 +1,6 @@
 public enum QuestType
 {
-    EnemyKill = 0,
-    EquipmentEnforce = 1,
-    SkillEnforce = 2,
-    
+    questElimination = 0,   // 몬스터 처치
+    questEquipImprove = 1,  // 장비 강화
+    questSkillImprove = 2   // 스킬 강화
 }
