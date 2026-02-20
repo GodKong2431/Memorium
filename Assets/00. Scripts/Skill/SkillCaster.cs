@@ -108,6 +108,11 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     private IEnumerator SkillSequenceMove(SkillData data)
     {
         Transform target = targetProvider.GetTarget();
+        Vector3 targetPosition;
+        if (target != null)
+            targetPosition = target.position;
+        else
+            targetPosition = transform.position + transform.forward;
 
         if (data.m1Data.m1Delay > 0)
         {
@@ -115,7 +120,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         }
         var m1Strategy = SkillStrategyContainer.GetMovement(data.m1Data.m1Type);
 
-        yield return m1Strategy.SkillMove(this, target.position, data.m1Data);
+        yield return m1Strategy.SkillMove(this, targetPosition, data.m1Data);
     }
 
     /// <summary>
@@ -128,9 +133,13 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         M3Type m3Type = dataContext.skillData.m3Data.m3Type;
         float delay = dataContext.skillData.m3Data.m3Delay ;
         Transform target = targetProvider.GetTarget();
-        Vector3 castDirection = (target.position - transform.position);
-        castDirection.y = 0;
-        castDirection = castDirection.normalized;
+        Vector3 castDirection = transform.forward;
+        if (target != null)
+        {
+            castDirection = (target.position - transform.position);
+            castDirection.y = 0;
+            castDirection = castDirection.normalized;
+        }
         Vector3 ExecutePivot = transform.position;
 
         if (delay > 0)

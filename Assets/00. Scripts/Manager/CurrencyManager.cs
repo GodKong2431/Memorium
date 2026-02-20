@@ -43,9 +43,10 @@ public class CurrencyManager : Singleton<CurrencyManager>
         return true;
     }
 
-    public void Add(CurrencyType type, BigDouble amount)
+    public void AddCurrency(CurrencyType type, BigDouble amount)
     {
-        currencies[type] = GetAmount(type) + amount;
+        if(currencies.ContainsKey(type))
+            currencies[type] = GetAmount(type) + amount;
         OnCurrencyChanged?.Invoke(type);
     }
 }
