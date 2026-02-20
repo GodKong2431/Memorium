@@ -13,7 +13,7 @@ public class AddonShadow : ISkillCastAddon
 
         if (cloneObj.TryGetComponent<SkillCaster>(out var cloneCaster))
         {
-            cloneCaster.CastSkill(dataContext, dataContext.m4Data.m4Delay);
+            cloneCaster.CastSkill(dataContext, 0.6f, false);
         }
     }
 }

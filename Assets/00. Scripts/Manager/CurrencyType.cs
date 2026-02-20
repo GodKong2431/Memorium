@@ -9,5 +9,5 @@ public enum CurrencyType
     TraitPoint, 
     Exp, 
     DungeonTicket,
-    Count,
+    Count,//초기화 및 반복문에서 사용하기 위한 개수 체크용
 }
