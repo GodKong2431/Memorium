@@ -1,5 +1,3 @@
-// SceneFactory.cs
-
 using UnityEngine;
 
 public static class SceneFactory
