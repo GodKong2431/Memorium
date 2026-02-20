@@ -13,6 +13,9 @@ public class InfinityMap : MonoBehaviour
     [SerializeField] int curMapIndex = 1;
     List<Vector3> originMapPos = new List<Vector3>();
     Vector3 originTriggerPos;
+
+    //목표 위치
+    [SerializeField] Transform goal;
     
     private void Awake()
     {
@@ -31,6 +34,8 @@ public class InfinityMap : MonoBehaviour
             }
             originMapPos.Add(maps[i].transform.position);
         }
+        goal.SetParent(maps[maps.Length - 1].transform);
+        goal.transform.localPosition = Vector3.zero;
 
         mapMoveTrigger.transform.position = maps[curMapIndex].transform.position;
 
@@ -72,6 +77,9 @@ public class InfinityMap : MonoBehaviour
         curMapIndex++;
         if (curMapIndex >= maps.Length)
             curMapIndex = 0;
+
+        goal.transform.SetParent(maps[moveMapIndex].transform);
+        goal.transform.localPosition = Vector3.zero;
     }
 
     public void MapReset()
@@ -81,5 +89,8 @@ public class InfinityMap : MonoBehaviour
             maps[i].transform.position = originMapPos[i];
         }
         mapMoveTrigger.transform.position = originTriggerPos;
+
+        goal.SetParent(maps[maps.Length - 1].transform);
+        goal.transform.localPosition = Vector3.zero;
     }
 }
