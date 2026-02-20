@@ -11,6 +11,11 @@ public class SceneController : Singleton<SceneController>
     private SceneBase _currentSceneController;
     private bool _isLoading;
 
+    private void Start()
+    {
+        LoadScene(SceneType.TitleScene);
+    }
+
     public async void LoadScene(SceneType type)
     {
         if (_isLoading) return;
