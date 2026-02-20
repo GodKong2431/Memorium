@@ -1,11 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 원래 스킬 세개가있는구조 
-/// 나중에 얘는 정말 스킬실행만시키고 쿨타임이나 마나계산같은건 스킬캐스터를 가지는 클래스를 만들어서 플레이어에 컴포넌트로 붙이려고함
-/// 이유는 분신이나 아니면 마나없거나 아니면 몬스터가 이 스킬캐스터를 가질수있더라도 각자 자신의 로직에따라서 실행시키기 위해서임
+/// 스킬 실행하는 컴포넌트, 플레이어/몬스터/분신 어디든 붙여도 나가도록
 /// </summary>
 public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler, ISkillDetectable
 {
@@ -128,9 +125,6 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     private IEnumerator SkillSequenceMove(SkillData data)
     {
         Transform target = targetProvider.GetTarget();
-        Vector3 castDirection = (target.position - transform.position);
-        castDirection.y = 0;
-        castDirection = castDirection.normalized;
 
         if (data.m1Data.m1Delay > 0)
         {
@@ -138,7 +132,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         }
         var m1Strategy = SkillStrategyContainer.GetMovement(data.m1Data.m1Type);
 
-        yield return m1Strategy.SkillMove(this, castDirection, data.m1Data);
+        yield return m1Strategy.SkillMove(this, target.position, data.m1Data);
     }
     public void StopSkill()
     {
