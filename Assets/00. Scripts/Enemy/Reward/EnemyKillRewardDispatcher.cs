@@ -88,6 +88,7 @@ public static class EnemyKillRewardDispatcher
             CurrentStageLevel++;
             OnBossKilled?.Invoke();
             Debug.Log($"[EnemyKillRewardDispatcher] 보스 처치! 스테이지 레벨 → {CurrentStageLevel}");
+            // CurrentStageLevel은 임시로 사용중입니다
         }
         else
         {
