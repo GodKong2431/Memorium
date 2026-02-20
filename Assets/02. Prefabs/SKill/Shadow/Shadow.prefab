@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 667515823424975288}
   - component: {fileID: 492858912920291824}
   - component: {fileID: 9105937442156124377}
+  - component: {fileID: 1562346812131621160}
   m_Layer: 0
   m_Name: Shadow
   m_TagString: Player
@@ -272,7 +273,7 @@ MonoBehaviour:
         m1Type: 0
         m1Delay: 0
         m1Scale: 0
-        m2Duration: 0
+        m1Duration: 0
         desc: 
       m2Data:
         ID: 0
@@ -307,7 +308,7 @@ MonoBehaviour:
       m5Type: 0
       damage: 0
       applyType: 0
-      duration: 
+      duration: 0
       maxStack: 0
       defDown: 0
       icon: 
@@ -318,3 +319,15 @@ MonoBehaviour:
   deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
   shadowPrepab: {fileID: 0}
   isTestContextOn: 0
+--- !u!114 &1562346812131621160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9106158446547060106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89b75f3163a4d6c49a0ba2aaf6f9bb19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Shadow

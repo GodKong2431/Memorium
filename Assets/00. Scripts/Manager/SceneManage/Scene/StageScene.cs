@@ -1,19 +1,19 @@
 using UnityEngine;
-using System.Threading.Tasks;
+using System.Collections;
 
 public class StageScene : SceneBase
 {
-    public override async Task EnterScene()
+    public override IEnumerator EnterScene()
     {
         Debug.Log("스테이지 씬 로직 진입");
-        
-        await Task.CompletedTask;
+
+        // GameEventManager.OnQuestProgressChanged?.Invoke();
+
+        yield return null;
     }
 
-    public override async Task ExitScene()
+    public override void ExitScene()
     {
         Debug.Log("스테이지 씬 로직 종료");
-        
-        await Task.CompletedTask;
     }
 }
