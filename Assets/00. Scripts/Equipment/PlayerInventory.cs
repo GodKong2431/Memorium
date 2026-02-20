@@ -17,6 +17,7 @@ public class PlayerInventory : MonoBehaviour
     public List<int> myEquipmentCountKeys = new List<int>();
 
     [SerializeField] Text testInventory;
+    Dictionary<EquipmentType, int> mergeItemByType = new Dictionary<EquipmentType, int>();
     public void SetMyEquipmentCountDictionary(Dictionary<int, int> dict)
     {
         Debug.Log($"[PlayerInventory] 아이디와 갯수 가져오기");
@@ -83,6 +84,10 @@ public class PlayerInventory : MonoBehaviour
         myEquipmentCountKeys = equipmentCount.Keys.ToList<int>();
         myEquipmentCountKeys.Sort();
 
+        //Dictionary<EquipmentType, int> mergeItemByType= new Dictionary<EquipmentType, int>();
+
+        mergeItemByType.Clear();
+
         //생각해보니 해금 안된 것들도 합성 과정에서 해금 되는 경우가 있어서 모든 itemListKeys 봐야 겠다
         foreach (int key in itemListKeys)
         {
@@ -107,7 +112,15 @@ public class PlayerInventory : MonoBehaviour
 
                 //합성 이펙트 출력
                 //합성 사운드 출력
+
+                mergeItemByType[DataManager.Instance.EquipListDict[nextIndex].equipmentType] = nextIndex;
             }
+        }
+
+        //여기서 타입에따라 가장 높은 티어 장비의 합성 결과 인덱스 불러오기 가능
+        foreach (var dic in mergeItemByType)
+        {
+            Debug.Log($"아이템 타입 : {dic.Key} 아이템 번호 : {dic.Value}");
         }
         //ShowMyInventory();
         //일괄합성 버튼 비활성화 <- 다음에 아이템 얻을 경우마다 체크 후 출력
