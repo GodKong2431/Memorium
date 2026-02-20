@@ -9,5 +9,4 @@ public class LineQuestTable : TableBase
     public QuestType questType;
     public int reqCount;
     public int rewardGroupID;
-    public int nextQuestID;
 }

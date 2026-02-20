@@ -13,6 +13,6 @@ public class StageManageTable : TableBase
     public int dropTableID;
     public int commonMonsterExp;
     public int bossMonsterExp;
-    public int monsterSpawnGroupID;
+    public int monsterSpawnGroup;
     public string mapObject;
 }
