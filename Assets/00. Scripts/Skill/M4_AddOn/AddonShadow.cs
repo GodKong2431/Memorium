@@ -15,7 +15,5 @@ public class AddonShadow : ISkillCastAddon
         {
             cloneCaster.CastSkill(dataContext, dataContext.m4Data.m4Delay);
         }
-
-        Object.Destroy(cloneObj, dataContext.m4Data.m4Delay + 5.0f);
     }
 }

@@ -6,12 +6,12 @@ public class WarpMove : ISkillMovementStrategy
 {
     public IEnumerator SkillMove(ISkillMovementTarget subject, Vector3 target, SkillModule1Table data)
     {
-        Debug.Log("¿Ø¥÷ ≈ı∏Ì");
+        Debug.Log("¿Ø¥÷ ªÁ∂Û¡¸");
         if (data.m1Duration > 0)
         {
             yield return CoroutineManager.waitForSeconds(data.m1Duration);
         }
-        Debug.Log("¿Ø¥÷ ≈ı∏Ì «ÿ¡¶");
+        Debug.Log("¿Ø¥÷ ªÁ∂Û¡¸ «ÿ¡¶");
         subject.SetPosition(target);
 
     }
