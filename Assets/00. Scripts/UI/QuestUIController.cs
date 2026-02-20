@@ -24,8 +24,10 @@ public class QuestUIController : MonoBehaviour
         {
             btnClaimReward.onClick.RemoveAllListeners();
             btnClaimReward.onClick.AddListener(OnClickClaimReward);
-            btnClaimReward.gameObject.SetActive(false);
+            btnClaimReward.interactable = false;
         }
+
+        UpdateUI();
     }
 
     private void OnDestroy()
@@ -58,6 +60,11 @@ public class QuestUIController : MonoBehaviour
         {
             imageProgressBar.fillAmount = (float)currentCount / data.reqCount;
         }
+
+        if (btnClaimReward != null)
+        {
+            btnClaimReward.interactable = currentCount >= data.reqCount;
+        }
     }
 
     /// <summary>
@@ -67,7 +74,7 @@ public class QuestUIController : MonoBehaviour
     {
         if (btnClaimReward != null)
         {
-            btnClaimReward.gameObject.SetActive(true);
+            btnClaimReward.interactable = true;
         }
     }
 
@@ -82,7 +89,7 @@ public class QuestUIController : MonoBehaviour
         // 보상 버튼 다시 숨기기
         if (btnClaimReward != null)
         {
-            btnClaimReward.gameObject.SetActive(false);
+            btnClaimReward.interactable = false;
         }
     }
 }
