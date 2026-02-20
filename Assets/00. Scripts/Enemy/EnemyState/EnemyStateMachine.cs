@@ -10,7 +10,7 @@ using UnityEngine.AI;
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyStatPresenter))]
-public class EnemyStateMachine : MonoBehaviour
+public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
 {
     [Header("플레이어 참조 설정")]
     [SerializeField][Tooltip("추적할 플레이어. 비워두면 'Player' 태그를 가진 오브젝트를 자동 검색합니다.")]
@@ -136,5 +136,26 @@ public class EnemyStateMachine : MonoBehaviour
             ChangeState(EnemyStateType.Onhit);
         else if (_currentType != EnemyStateType.Onhit && _currentType != EnemyStateType.Dead)
             ChangeState(EnemyStateType.Onhit);
+    }
+
+    /// <summary>
+    /// 풀에서 재스폰될 때 호출. 체력·상태·에이전트 리셋.
+    /// </summary>
+    public void OnSpawnFromPool()
+    {
+        _ctx.SpawnPosition = transform.position;
+        _ctx.Initialize();
+        if (_ctx.Agent != null)
+        {
+            _ctx.Agent.isStopped = false;
+            _ctx.Agent.ResetPath();
+        }
+        EnemyStatData data = _ctx.StatPresenter?.Data;
+        if (data != null && _ctx.Agent != null)
+        {
+            _ctx.Agent.speed = data.monsterSpeed;
+            _ctx.Agent.stoppingDistance = data.attackRange;
+        }
+        ChangeState(EnemyStateType.Chase);
     }
 }

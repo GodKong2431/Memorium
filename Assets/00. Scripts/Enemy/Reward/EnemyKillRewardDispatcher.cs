@@ -16,10 +16,23 @@ public static class EnemyKillRewardDispatcher
     public static event Action OnBossKilled;
     public static event Action OnNormalEnemyKilled;
 
+    /// <summary>전역 몬스터 처치 카운트 (일반 몬스터만).</summary>
+    public static int TotalKillCount { get; private set; }
+
+    /// <summary>처치 카운트 변경 시 (새 총합).</summary>
+    public static event Action<int> OnKillCountChanged;
+
     private static readonly List<ItemDropLogic.ItemDropResult> _itemDropBuffer = new List<ItemDropLogic.ItemDropResult>();
 
     /// <summary>현재 스테이지 레벨. StageManager 등에서 설정.</summary>
     public static int CurrentStageLevel { get; set; } = 1;
+
+    /// <summary>전역 처치 카운트 초기화 (씬 전환 등에서 호출).</summary>
+    public static void ResetKillCount()
+    {
+        TotalKillCount = 0;
+        OnKillCountChanged?.Invoke(0);
+    }
 
     /// <summary>한 번에 골드·경험치·아이템 계산 후 이벤트 발송.</summary>
     public static void GrantRewards(EnemyRewardData rewardData, bool isBoss = false, int stageLevel = -1, Vector3 worldPosition = default)
@@ -36,8 +49,8 @@ public static class EnemyKillRewardDispatcher
             Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{gold}");
         }
 
-        // 경험치
-        int exp = EnemyRewardCalculator.CalculateExp(rewardData, stage);
+        // 경험치 (스테이지에서 계산된 expBase를 그대로 사용)
+        int exp = rewardData.expBase;
         if (exp > 0)
         {
             OnExpEarned?.Invoke(exp);
@@ -75,10 +88,16 @@ public static class EnemyKillRewardDispatcher
             CurrentStageLevel++;
             OnBossKilled?.Invoke();
             Debug.Log($"[EnemyKillRewardDispatcher] 보스 처치! 스테이지 레벨 → {CurrentStageLevel}");
+            // CurrentStageLevel은 임시로 사용중입니다
         }
         else
         {
+            // 전역 몬스터 처치 카운트 (일반 몬스터만)
+            TotalKillCount++;
+            OnKillCountChanged?.Invoke(TotalKillCount);
             OnNormalEnemyKilled?.Invoke();
+
+            GameEventManager.OnQuestActionUpdated?.Invoke(QuestType.questElimination, 1); //몬스터 죽었을 때 호출
         }
     }
 

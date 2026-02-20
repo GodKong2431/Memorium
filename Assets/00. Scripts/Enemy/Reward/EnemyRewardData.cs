@@ -14,10 +14,10 @@ public class EnemyRewardData : ScriptableObject
     [Tooltip("스테이지당 골드 증가율 (예: 1.1 = 10% 증가)")]
     public float goldStageGrowthRate = 1.1f;
 
-    [Header("경험치 수식")]
-    [Tooltip("몬스터 베이스 경험치. 수식: 베이스 경험치 × (증가상수)^(현재 레벨 - 1)")]
+    [Header("경험치")]
+    [Tooltip("처치 시 획득 경험치.")]
     public int expBase = 15;
-    [Tooltip("증가상수 (예: 1.1 = 10% 증가)")]
+    [Tooltip("(미사용) 스테이지 측 계산용. 현재 처치 시에는 expBase만 사용.")]
     public float expGrowthRate = 1.1f;
 
     [Header("아이템 드랍")]
