@@ -43,7 +43,6 @@ public class PlayerStatView : MonoBehaviour
         foreach (var finalStatUI in finalStatUIs)
         {
             BigDouble value = CharacterStatManager.Instance.GetFinalStat(finalStatUI.type);
-            Debug.Log(value);
             finalStatUI.statUIItem.FinalStatValue.text = value.ToString();
             finalStatUI.statUIItem.FinalStatName.text = finalStatUI.statName;
         }

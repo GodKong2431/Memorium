@@ -185,8 +185,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         playerSlot = new PlayerSlot(characterTableKey);
 
         attackTrait = new PlayerTrait(1040001, PlayerStatType.ATK);
-        mpTrait = new PlayerTrait(1040011, PlayerStatType.MP);
-        hpTrait = new PlayerTrait(1040012,PlayerStatType.HP);
+        hpTrait = new PlayerTrait(1040011,PlayerStatType.HP);
+        mpTrait = new PlayerTrait(1040012, PlayerStatType.MP);
         attackSpeedTrait = new PlayerTrait(1040013, PlayerStatType.ATK_SPEED);
         critTrait = new PlayerTrait(1040021, PlayerStatType.CRIT_CHANCE);
         critMultTrait = new PlayerTrait(1040032, PlayerStatType.CRIT_MULT);
@@ -262,9 +262,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
                 break;
         }
 
-        expectedCrit = 1 + (finalCritChance * (finalCritMult - 100) / 100);
+        expectedCrit = 1 + (finalCritChance * (finalCritMult - 1));
         normalPower = (finalATK * finalATKSpeed * expectedCrit) * (1 + finalTrait) * (1 + finalDamageMult) * (1 + finalNormalDamage);
-        Debug.Log(normalPower);
         StatUpdate?.Invoke();
     }
 

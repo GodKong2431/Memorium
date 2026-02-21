@@ -54,6 +54,8 @@ public class TraitNode : MonoBehaviour
         traitName = trait.TraitName;
         statGainPerLevel = trait.StatUP;
         CurrentLevel = trait.CurrentLevel;
+
+        UpdateVisuals();
     }
 
     /// <summary>
@@ -88,7 +90,6 @@ public class TraitNode : MonoBehaviour
     {
         if (levelText != null)
             levelText.text = $"{trait.TraitName} ({trait.CurrentLevel}/{trait.MaxLevel})";
-
         // 조건을 만족하면 진하게, 만족하지 않으면 반투명하게 표시
         canvasGroup.alpha = (trait.CurrentLevel > 0 || CanUnlock()) ? 1.0f : 0.4f;
     }
