@@ -18,9 +18,13 @@ public class PlayerTrait
 
     public bool unlock = false;
 
-    public event Action UpgradeTrait;
+    public PlayerStatType statType;
 
-    public PlayerTrait(int key)
+    public event Action<PlayerStatType> UpgradeTrait;
+
+    public float CurrentStat;
+
+    public PlayerTrait(int key, PlayerStatType statType)
     {
         DataManager.Instance.TraitInfoDict.TryGetValue(key, out var value);
 
@@ -33,6 +37,7 @@ public class PlayerTrait
         MaxLevel = value.maxLevel;
         DecreasePoint = value.decreasePoint;
         NeedTrait = value.needTrait;
+        this.statType = statType;
     }
 
     public bool Upgrade(ref int point)
@@ -48,7 +53,8 @@ public class PlayerTrait
         }
         point -= DecreasePoint;
         CurrentLevel++;
-        UpgradeTrait?.Invoke();
+        CurrentStat = CurrentLevel * StatUP;
+        UpgradeTrait?.Invoke(statType);
         return true;
     }
 
