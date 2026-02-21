@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 
 public class TestPlayerDataManager : Singleton<TestPlayerDataManager>
@@ -6,7 +6,7 @@ public class TestPlayerDataManager : Singleton<TestPlayerDataManager>
     [SerializeField] TestSavePlayerEquipmentData testSaveData;
     [SerializeField] EquipmentHandler equipmentHandler;
 
-    [Header("Å×½ºÆ®¿ë ÇÃ·¹ÀÌ¾î ½ºÅÈ")]
+    [Header("í…ŒìŠ¤íŠ¸ìš© í”Œë ˆì´ì–´ ìŠ¤íƒ¯")]
     public int playerAttack;
     public float playerAttackSpeed;
     public float playerDefense;
@@ -18,10 +18,10 @@ public class TestPlayerDataManager : Singleton<TestPlayerDataManager>
     {
         yield return new WaitUntil(() => DataManager.Instance != null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
-        //½ÃÀÛ ½Ã µ¥ÀÌÅÍ ºÒ·¯¿È
+        //ì‹œì‘ ì‹œ ë°ì´í„° ë¶ˆëŸ¬ì˜´
         testSaveData = JSONService.Load<TestSavePlayerEquipmentData>();
         testSaveData.InitPlayerEquipmentData();
-        //ºÒ·¯¿Â µ¥ÀÌÅÍ ÇÃ·¹ÀÌ¾î ÀåÂø ¹× µ¥ÀÌÅÍ ¼¼ÆÃ
+        //ë¶ˆëŸ¬ì˜¨ ë°ì´í„° í”Œë ˆì´ì–´ ì¥ì°© ë° ë°ì´í„° ì„¸íŒ…
         equipmentHandler.SetMyEquipOnStart(testSaveData.weaponId, testSaveData.helmetId, testSaveData.gloveId, testSaveData.armorId, testSaveData.bootsId, testSaveData.unlockEquipmentDict);
     }
 

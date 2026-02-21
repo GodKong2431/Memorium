@@ -364,6 +364,7 @@ GameObject:
   - component: {fileID: 6640569666401843021}
   - component: {fileID: 3461202560470809450}
   - component: {fileID: 7236152053230833131}
+  - component: {fileID: 8407433952980468324}
   m_Layer: 0
   m_Name: PrefabStatsItem
   m_TagString: Untagged
@@ -477,3 +478,17 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &8407433952980468324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8079504307375028890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 243e36e4b3d4d3b48a990ae1b2bf5c6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FinalStatUIItem
+  FinalStatName: {fileID: 6256278645109144595}
+  FinalStatValue: {fileID: 5613856596395968030}

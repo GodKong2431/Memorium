@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class PlayerEquipment : MonoBehaviour
 {
@@ -9,51 +9,52 @@ public class PlayerEquipment : MonoBehaviour
     public EquipBootsTable boots;
     public void OnEqipItem(int itemId)
     {
-        Debug.Log($"[PlayerEquipment] ID : {itemId} Âø¿ë ½Ãµµ");
+        Debug.Log($"[PlayerEquipment] ID : {itemId} ì°©ìš© ì‹œë„");
         EquipListTable equipment = DataManager.Instance.EquipListDict[itemId];
-        //ÇÃ·¹ÀÌ¾î µ¥ÀÌÅÍ¿¡¼­ ÇØ´ç ´É·ÂÄ¡¸¦ »©°í ÀåÂø ÈÄ ´Ù½Ã ÇØ´ç ´É·ÂÄ¡¸¦ Ãß°¡ÇÏ´Â ÄÚµå
-        //¸Å´ÏÀú¿¡ ÇØ´ç id °ªÀ» ÀúÀåÇÏ´Â ÄÚµå
+        //í”Œë ˆì´ì–´ ë°ì´í„°ì—ì„œ í•´ë‹¹ ëŠ¥ë ¥ì¹˜ë¥¼ ë¹¼ê³  ì¥ì°© í›„ ë‹¤ì‹œ í•´ë‹¹ ëŠ¥ë ¥ì¹˜ë¥¼ ì¶”ê°€í•˜ëŠ” ì½”ë“œ
+        //ë§¤ë‹ˆì €ì— í•´ë‹¹ id ê°’ì„ ì €ì¥í•˜ëŠ” ì½”ë“œ
         switch (equipment.equipmentType)
         {
             case EquipmentType.Weapon:
-                //ÇÃ·¹ÀÌ¾î µ¥ÀÌÅÍ¿¡¼­ weapon ´É·ÂÄ¡¸¦ »©´Â ÄÚµå <- ÇØ´ç ÄÚµå ÀÛ¼º ½Ã Ã³À½¿¡ nullÀÌ¸é ¿¹¿ÜÃ³¸®·Î ±×³É ³Ñ±â°í ¹Ù·Î ÀåÂø ÇÒ °Í
-                if (weapon != null)
-                {
-                    TestPlayerDataManager.Instance.playerAttack -= weapon.attackPower;
-                    TestPlayerDataManager.Instance.playerAttackSpeed -= weapon.attackSpeed;
-                }
+                //í”Œë ˆì´ì–´ ë°ì´í„°ì—ì„œ weapon ëŠ¥ë ¥ì¹˜ë¥¼ ë¹¼ëŠ” ì½”ë“œ <- í•´ë‹¹ ì½”ë“œ ì‘ì„± ì‹œ ì²˜ìŒì— nullì´ë©´ ì˜ˆì™¸ì²˜ë¦¬ë¡œ ê·¸ëƒ¥ ë„˜ê¸°ê³  ë°”ë¡œ ì¥ì°© í•  ê²ƒ
+                //if (weapon != null)
+                //{
+                //    TestPlayerDataManager.Instance.playerAttack -= weapon.attackPower;
+                //    TestPlayerDataManager.Instance.playerAttackSpeed -= weapon.attackSpeed;
+                //}
                 weapon = DataManager.Instance.EquipWeaponDict[itemId];
-                TestPlayerDataManager.Instance.playerAttack += weapon.attackPower;
-                TestPlayerDataManager.Instance.playerAttackSpeed += weapon.attackSpeed;
+                //TestPlayerDataManager.Instance.playerAttack += weapon.attackPower;
+                //TestPlayerDataManager.Instance.playerAttackSpeed += weapon.attackSpeed;
 
-                //ÀåºñÃ¢¿¡ ÇØ´ç Å×ÀÌºí ÀÌ¹ÌÁö ³Ö´Â ÄÚµå
+                CharacterStatManager.Instance.PlayerSlot.SetSlot(itemId, SlotType.Weapon);
+
+                //ì¥ë¹„ì°½ì— í•´ë‹¹ í…Œì´ë¸” ì´ë¯¸ì§€ ë„£ëŠ” ì½”ë“œ
                 break;
             case EquipmentType.Helmet:
-                if (helmet != null)
-                    TestPlayerDataManager.Instance.playerDefense -= helmet.defense;
+                //if (helmet != null)
+                //    TestPlayerDataManager.Instance.playerDefense -= helmet.defense;
                 helmet = DataManager.Instance.EquipHelmetDict[itemId];
-                TestPlayerDataManager.Instance.playerDefense += helmet.defense;
+                //TestPlayerDataManager.Instance.playerDefense += helmet.defense;
+
+                CharacterStatManager.Instance.PlayerSlot.SetSlot(itemId, SlotType.Helmet);
+
                 break;
             case EquipmentType.Gloves:
-                if(glove != null)
-                    TestPlayerDataManager.Instance.playerMagicDefense -= glove.magicDefense;
                 glove = DataManager.Instance.EquipGloveDict[itemId];
-                TestPlayerDataManager.Instance.playerMagicDefense += glove.magicDefense;
+                CharacterStatManager.Instance.PlayerSlot.SetSlot(itemId, SlotType.Glove);
+
                 break;
             case EquipmentType.Armor:
-                if (armor != null)
-                    TestPlayerDataManager.Instance.playerHp -= armor.hp;
                 armor = DataManager.Instance.EquipArmorDict[itemId];
-                TestPlayerDataManager.Instance.playerHp += armor.hp;
+                CharacterStatManager.Instance.PlayerSlot.SetSlot(itemId, SlotType.Armor);
+
                 break;
             case EquipmentType.Boots:
-                if (boots != null)
-                    TestPlayerDataManager.Instance.playerMoveSpeed -= boots.moveSpeed;
                 boots = DataManager.Instance.EquipBootsDict[itemId];
-                TestPlayerDataManager.Instance.playerMoveSpeed += boots.moveSpeed;
+                CharacterStatManager.Instance.PlayerSlot.SetSlot(itemId, SlotType.Boots);
                 break;
         }
-        Debug.Log($"[PlayerEquipment] ¾ÆÀÌÅÛ ÀåÂø : ${equipment.equipmentName}");
+        Debug.Log($"[PlayerEquipment] ì•„ì´í…œ ì¥ì°© : ${equipment.equipmentName}");
     }
 
     public int ReturnItemNum(EquipmentType equipmentType)
