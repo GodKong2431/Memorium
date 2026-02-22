@@ -11,24 +11,25 @@ public class MonsterSpawner : MonoBehaviour
 
     //소환할 몬스터 프리팹, 해당 프리팹 정보는 테이블에서 ID 확인 후 EnemyListManager에서 가져온다
     [SerializeField] List<GameObject> enemyPrefab;
-    //소환할 보스 몬스터 프리팹
+    ////소환할 보스 몬스터 프리팹 <- 이거 안씀
     [SerializeField] GameObject bossPrefab;
     //현재 층(맵)을 나타내며 해당 값 변경 시 enemyPrefab과 bossPrefab을 모두 변경해야 한다
     [SerializeField] int curSpawnGroup = 1;
     //현재 층 몬스터 테이블 정보
     [SerializeField] List<MonsterGroupTable> curSpawnGroupMonsterTable;
-    [SerializeField] List<MonsterGroupTable> curSpawnGroupBossMonsterTable;
+    //[SerializeField] List<MonsterGroupTable> curSpawnGroupBossMonsterTable;
+    [SerializeField] MonsterGroupTable curSpawnGroupBossMonsterTable;//보스 몬스터는 한 마리 고정임
 
     [SerializeField] float randomRange=4f;
 
     [SerializeField] Transform[] maps;
     private int curSpawnerPos = 0;
+    Vector3 originPos;
 
     //아래 해당 값들은 매니저는 아니지만 전역객체로 하나씩 저장해두는게 낫지 않을까?
     IEnumerator Start()
     {
         ChangeParent(maps[curSpawnerPos]);
-
         yield return new WaitUntil(() => DataManager.Instance != null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
         yield return new WaitUntil(() => EnemyListManager.Instance.DataLoad);
@@ -44,7 +45,7 @@ public class MonsterSpawner : MonoBehaviour
             return;
 
         //보스소환조건 만족하면 보스 소환 아니면 잡몹 소환
-        if (true)
+        if (!StageManager.Instance.isReadyToBossSpawn)
         {
             for (int i = 0; i < curSpawnGroupMonsterTable.Count; i++)
             {
@@ -59,16 +60,19 @@ public class MonsterSpawner : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < spawnPos.Length; i++)
-            {
-                GameObject spawnEnemy = EnemyListManager.Instance.enemyMap[curSpawnGroupMonsterTable[i].MonsterID];
-                for (int j = 0; j < curSpawnGroupMonsterTable[i].monsterSpawnCount; j++)
-                {
-                    Vector3 randX = Random.Range(randomRange, randomRange) * Vector3.right;
-                    Vector3 randZ = Random.Range(randomRange, randomRange) * Vector3.forward;
-                    Instantiate(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
-                }
-            }
+            GameObject spawnBoss = EnemyListManager.Instance.enemyMap[curSpawnGroupBossMonsterTable.MonsterID];
+            Instantiate(spawnBoss, spawnPos[spawnPos.Length-1].position, spawnPos[spawnPos.Length - 1].rotation);
+            StageManager.Instance.isReadyToBossSpawn = false;
+            //for (int i = 0; i < spawnPos.Length; i++)
+            //{
+            //    GameObject spawnEnemy = EnemyListManager.Instance.enemyMap[curS];
+            //    for (int j = 0; j < curSpawnGroupMonsterTable[i].monsterSpawnCount; j++)
+            //    {
+            //        Vector3 randX = Random.Range(randomRange, randomRange) * Vector3.right;
+            //        Vector3 randZ = Random.Range(randomRange, randomRange) * Vector3.forward;
+            //        Instantiate(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+            //    }
+            //}
         }
 
         curSpawnerPos++;
@@ -84,11 +88,22 @@ public class MonsterSpawner : MonoBehaviour
     }
 
     //curSpawnGroup 값에 따라서 소환되는 몬스터 설정 -> 층이 바뀌면 cur SpawnGroup 바꾸고 해당 메서드 호출해야 함
-    //스테이지 바뀌면 stage +1 하고 해당 메서드 호출해야 함
-    private void SetMonster()
+    //스테이지 바뀌면 stage +1 하고 해당 메서드 호출해야 함 <- 스테이지 바뀌어도 몬스터는 안바뀌는데?
+    public void SetMonster()
     {
+
+        curSpawnerPos = 0;
+        ChangeParent(maps[curSpawnerPos]);
+
+        if (StageManager.Instance != null) 
+        { 
+            int prevSpawnGroup = curSpawnGroup;
+        curSpawnGroup = DataManager.Instance.StageManageDict[StageManager.Instance.stageKeyList[StageManager.Instance.curStage - 1]].monsterSpawnGroup;
+        if (curSpawnGroup == prevSpawnGroup)
+            return;
+        }
         curSpawnGroupMonsterTable.Clear();
-        curSpawnGroupBossMonsterTable.Clear();
+        //curSpawnGroupBossMonsterTable.Clear();
         enemyPrefab.Clear();
 
         int i = 0;
@@ -105,7 +120,8 @@ public class MonsterSpawner : MonoBehaviour
                 }
                 else
                 {
-                    curSpawnGroupBossMonsterTable.Add(monster.Value);
+                    //curSpawnGroupBossMonsterTable.Add(monster.Value);
+                    curSpawnGroupBossMonsterTable=monster.Value;
                 }
                 //해당 값은 직렬화로 몬스터 종류 정상적으로 가져왔는지 확인 하기 위한 테스트용 코드
                 enemyPrefab.Add(EnemyListManager.Instance.enemyMap[monster.Value.MonsterID]);

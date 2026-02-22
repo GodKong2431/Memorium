@@ -1,8 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 일반 몬스터를 N마리 처치하면 보스를 (0, 1, -4) 월드좌표에 소환.
-/// 스포너 없이 단순 트리거.
+/// 일반 몬스터를 N마리 처치하면 보스를 (0, 1, -4) 월드좌표에 소환 (스포너 구현 전이라 임시로 지정한 좌표입니다~)
 /// </summary>
 public class NormalKillBossSpawner : MonoBehaviour
 {
@@ -48,7 +47,7 @@ public class NormalKillBossSpawner : MonoBehaviour
             return;
         }
 
-        Object.Instantiate(prefab, bossSpawnPosition, Quaternion.identity);
+        ObjectPoolManager.Get(prefab, bossSpawnPosition, Quaternion.identity);
         Debug.Log($"[NormalKillBossSpawner] 일반 몬스터 {killThreshold}마리 처치 → 보스 소환 ({bossSpawnPosition})");
     }
 }
