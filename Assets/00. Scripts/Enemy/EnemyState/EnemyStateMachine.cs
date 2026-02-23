@@ -36,6 +36,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
     {
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<EnemyStatPresenter>();
+        var skillHandler = GetComponent<EnemySkillHandler>();
 
         _ctx = new EnemyStateContext
         {
@@ -46,7 +47,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
             StatPresenter = statPresenter,
             Animator = animator,
             IsBoss = isBoss,
-            AttackEffectPrefab = attackEffectPrefab
+            AttackEffectPrefab = attackEffectPrefab,
+            SkillHandler = skillHandler
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);
@@ -80,6 +82,13 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
             {
                 Debug.LogWarning("[EnemyStateMachine] 'Player' 태그 오브젝트를 찾을 수 없습니다.");
             }
+        }
+
+        if (_ctx.SkillHandler != null)
+        {
+            _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
+            int skillId = _ctx.StatPresenter?.SkillId ?? 0;
+            _ctx.SkillHandler.Init(skillId > 0 ? skillId : 4000001);
         }
 
         EnemyStatData data = _ctx.StatPresenter?.Data;
@@ -145,6 +154,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
     {
         _ctx.SpawnPosition = transform.position;
         _ctx.Initialize();
+        if (_ctx.SkillHandler != null && _ctx.PlayerTransform != null)
+            _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
         if (_ctx.Agent != null)
         {
             _ctx.Agent.isStopped = false;

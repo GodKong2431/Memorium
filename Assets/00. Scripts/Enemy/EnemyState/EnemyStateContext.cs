@@ -33,6 +33,16 @@ public class EnemyStateContext
     /// </summary>
     public GameObject AttackEffectPrefab { get; set; }
 
+    /// <summary>
+    /// 스킬 공격형일 때 스킬 시전 핸들러. null이면 일반 근접 공격
+    /// </summary>
+    public EnemySkillHandler SkillHandler { get; set; }
+
+    /// <summary>
+    /// 스킬 공격형 몬스터 여부
+    /// </summary>
+    public bool IsSkillAttackType => SkillHandler != null;
+
     private Action<EnemyStateType> _requestStateChange;
 
     public void Initialize(float? startHealth = null)
