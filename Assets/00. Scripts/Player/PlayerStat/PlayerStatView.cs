@@ -1,87 +1,109 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
+using static PlayerStatView;
 
 public class PlayerStatView : MonoBehaviour
 {
-    [SerializeField] Text hpText;
-    [SerializeField] Text hpRegenText;
-    [SerializeField] Text atkText;
-    [SerializeField] Text atkSpeedText;
-    [SerializeField] Text defText;
-    [SerializeField] Text magicDEFText;
-    [SerializeField] Text manaText;
-    [SerializeField] Text manaRegenText;
-    [SerializeField] Text critText;
-    [SerializeField] Text critMultText;
-    [SerializeField] Text coolDownText;
-    [SerializeField] Text moveSpeedText;
-    [SerializeField] Text expGainText;
-    [SerializeField] Text goldGainText;
-
-    public Button hpUpgradeBtn;
-    public Button hpRegenUpgradeBtn;
-    public Button atkUpgradeBtn;
-    public Button atkSpeedUpgradeBtn;
-    public Button defUpgradeBtn;
-    public Button magicDEFUpgradeBtn;
-    public Button manaUpgradeBtn;
-    public Button manaRegenUpgradeBtn;
-    public Button critUpgradeBtn;
-    public Button critMultUpgradeBtn;
-    public Button coolDownUpgradeBtn;
-    public Button moveSpeedUpgradeBtn;
-    public Button expGainUpgradeBtn;
-    public Button goldGainUpgradeBtn;
-
-    public void SetStat(PlayerStatType statType,float value)
+    [System.Serializable]
+    public struct StatUpgradUI
     {
-        switch (statType)
+        public PlayerStatType type;
+        public StatUpgradeUIItem statUIItem;
+    }
+
+    [System.Serializable]
+    public struct FinalStatUI
+    {
+        public PlayerStatType type;
+        public string statName;
+        public FinalStatUIItem statUIItem;
+    }
+
+    public struct TraitUI
+    {
+        public PlayerStatType type;
+
+    }
+
+    public List<StatUpgradUI> upgradeStatUIs;
+
+    public List<FinalStatUI> finalStatUIs;
+
+    [SerializeField] TextMeshProUGUI normalPowerText;
+
+    IEnumerator Start()
+    {
+        yield return new WaitUntil(()=>CharacterStatManager.Instance != null);
+        yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
+
+
+        foreach (var finalStatUI in finalStatUIs)
         {
-            case PlayerStatType.HP:
-                hpText.text = "체력 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.HP_REGEN:
-                hpRegenText.text = "체력재생 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.ATK:
-                atkText.text = "공격력 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.ATK_SPEED:
-                atkSpeedText.text = "공격속도 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.PHYS_DEF:
-                defText.text = "물리 방어력 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.MAGIC_DEF:
-                magicDEFText.text = "마법 방어력 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.MP:
-                manaText.text = "마나 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.MP_REGEN:
-                manaRegenText.text = "마나재생 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.CRIT_CHANCE:
-                critText.text = "치명타 확률 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.CRIT_MULT:
-                critMultText.text = "치명타 배율 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.COOLDOWN_REDUCE:
-                coolDownText.text = "쿨다운 감소 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.MOVE_SPEED:
-                moveSpeedText.text = "이동 속도 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.EXP_GAIN:
-                expGainText.text = "추가 경험치 획득량 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            case PlayerStatType.GOLD_GAIN:
-                goldGainText.text = "추가 골드 획득량 : [changeValue]".Replace("[changeValue]", value.ToString());
-                break;
-            default:
-                Debug.Log($"{statType.ToString()}에 해당하는 스탯의 텍스트가 없습니다");
-                break;
+            BigDouble value = CharacterStatManager.Instance.GetFinalStat(finalStatUI.type);
+            finalStatUI.statUIItem.FinalStatValue.text = value.ToString();
+            finalStatUI.statUIItem.FinalStatName.text = finalStatUI.statName;
         }
+
+        SetFinalStat();
+        GetNormalPowerStat();
+
+        CharacterStatManager.Instance.StatUpdate += SetFinalStat;
+        CharacterStatManager.Instance.StatUpdate += GetNormalPowerStat;
+
+        foreach (var upgradeStatUI in upgradeStatUIs)
+        {
+            var statUpgrade = CharacterStatManager.Instance.GetUpgradeTable(upgradeStatUI.type);
+
+            if (upgradeStatUI.statUIItem != null)
+            {
+                upgradeStatUI.statUIItem.StatValue.text = statUpgrade.Stat.ToString();
+                upgradeStatUI.statUIItem.StatDescription.text = $"{statUpgrade.StatName} Enchance";
+                upgradeStatUI.statUIItem.StatLevel.text = $"Lv {statUpgrade.UpgradeCount.ToString()}";
+                upgradeStatUI.statUIItem.UpgradeCost.text = $"{statUpgrade.CurrentCost.ToString()}";
+                upgradeStatUI.statUIItem.UpgradeBtn.onClick.AddListener(() => statUpgrade.Upgrade());
+
+                statUpgrade.UpgradeStat += SetStat;
+            }
+        }
+    }
+
+    public void SetFinalStat()
+    {
+        foreach (var finalStatUI in finalStatUIs)
+        {
+            BigDouble value = CharacterStatManager.Instance.GetFinalStat(finalStatUI.type);
+            finalStatUI.statUIItem.FinalStatValue.text = value.ToString();
+            finalStatUI.statUIItem.FinalStatName.text = finalStatUI.statName;
+        }
+    }
+
+    public void SetStat(PlayerStatType statType)
+    {
+        foreach (var statui in upgradeStatUIs)
+        {
+            if (statType != statui.type)
+            {
+                continue;
+            }
+
+            var statUpgrade = CharacterStatManager.Instance.GetUpgradeTable(statui.type);
+
+            if (statui.statUIItem != null)
+            {
+                statui.statUIItem.StatValue.text = statUpgrade.Stat.ToString();
+                statui.statUIItem.StatDescription.text = $"{statUpgrade.StatName} Enchance";
+                statui.statUIItem.StatLevel.text = $"Lv {statUpgrade.UpgradeCount.ToString()}";
+                statui.statUIItem.UpgradeCost.text = $"{statUpgrade.CurrentCost.ToString()}";
+            }
+        }
+    }
+
+    public void GetNormalPowerStat()
+    {
+        BigDouble value = CharacterStatManager.Instance.NormalPower;
+        normalPowerText.text = value.ToString();
     }
 }

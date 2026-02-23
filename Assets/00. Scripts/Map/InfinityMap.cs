@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class InfinityMap : MonoBehaviour
 {
@@ -13,13 +15,15 @@ public class InfinityMap : MonoBehaviour
     [SerializeField] int curMapIndex = 1;
     List<Vector3> originMapPos = new List<Vector3>();
     Vector3 originTriggerPos;
+    [SerializeField] Vector3 originPlayerPos;
 
     //목표 위치
     [SerializeField] Transform goal;
+
+    [SerializeField] Transform player;
     
     private void Awake()
     {
-        
         //if(curMapIndex+1 < maps.Length)
         //    mapMoveTrigger.transform.position = maps[curMapIndex + 1].transform.position;
         //바운드 가져오기 위해 맵 렌더러 미리 모두 가져오기
@@ -36,12 +40,20 @@ public class InfinityMap : MonoBehaviour
         }
         goal.SetParent(maps[maps.Length - 1].transform);
         goal.transform.localPosition = Vector3.zero;
-
+        
         mapMoveTrigger.transform.position = maps[curMapIndex].transform.position;
 
         originTriggerPos = mapMoveTrigger.transform.position;
-        Debug.Log(originTriggerPos);
+
+        originPlayerPos=player.position;
     }
+
+    private IEnumerator Start()
+    {
+        yield return new WaitUntil(() => StageManager.Instance != null);
+        StageManager.Instance.infinityMap = this;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player"))
@@ -84,13 +96,22 @@ public class InfinityMap : MonoBehaviour
 
     public void MapReset()
     {
+
         for (int i = 0; i < maps.Length; i++)
         {
             maps[i].transform.position = originMapPos[i];
         }
         mapMoveTrigger.transform.position = originTriggerPos;
+        curMapIndex = 1;
 
         goal.SetParent(maps[maps.Length - 1].transform);
         goal.transform.localPosition = Vector3.zero;
+
+        NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
+        agent.enabled = false;
+        player.position = originPlayerPos;
+        agent.enabled = true;
+        //agent.Warp(originPlayerPos);
+
     }
 }

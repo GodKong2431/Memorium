@@ -16,3 +16,10 @@ public enum StatType
     MoveSpeed,
     ExpGain, GoldGain
 }
+
+public enum SlotType
+{
+    Skill1, Skill2, Skill3,
+    Weapon, Helmet, Armor, Glove, Boots,
+    Fairy
+}
