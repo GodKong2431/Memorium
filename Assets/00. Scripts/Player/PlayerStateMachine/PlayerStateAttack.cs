@@ -44,14 +44,17 @@ public class PlayerStateAttack : IPlayerState
         }
         enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position).transform;
         float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
-        
 
 
-        if (!ctx.playerSkillHandler.AutoCast()&&dist <= ctx.AttackRange)
+
+        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange)
         {
-            // 일반 공격
-            Debug.Log("일반 공격 중");
+            if (enemy.TryGetComponent<EnemyStateMachine>(out var target))
+            {
+                target.TakeDamage(ctx.StatPresenter.PlayerStat.FinalATK);
+            }
         }
+
 
         if (_attackInProgress && Time.time >= _attackEndTime)
         {

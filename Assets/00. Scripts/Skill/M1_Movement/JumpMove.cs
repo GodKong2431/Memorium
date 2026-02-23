@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
+using UnityEngine.AI;
 
 //벽에 막히는 기능추가
 public class JumpMove : ISkillMovementStrategy
@@ -15,10 +15,13 @@ public class JumpMove : ISkillMovementStrategy
         direction = direction.normalized;
 
         Vector3 startPos = subject.Position;
-        Vector3 endPos = startPos + (direction * data.m1Scale);
+        Vector3 endPos = startPos + (direction * data.m1Scale); 
+        if (NavMesh.SamplePosition(endPos, out var navHit, SkillConstants.NAV_SEARCH_RADIUS, NavMesh.AllAreas))
+            endPos = navHit.position;
 
         float jumpHeight = data.m1Scale * 0.3f;
-        if (jumpHeight < 1.0f) jumpHeight = 1.0f;
+        
+        if (jumpHeight < SkillConstants.JUMP_MIN_HEIGHT) jumpHeight = SkillConstants.JUMP_MIN_HEIGHT;
 
         float elapsedTime = 0f;
         if (data.m1Duration <= 0)

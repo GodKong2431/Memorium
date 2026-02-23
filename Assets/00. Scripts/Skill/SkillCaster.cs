@@ -9,6 +9,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
 {
     private ISkillStatProvider statProvider;
     private ISkillTargetProvider targetProvider;
+
     [Header("레이어")]
     [SerializeField] private LayerMask targetLayer; 
 
@@ -25,7 +26,9 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     public bool IsCasting => isCasting;
     private Coroutine currentSkillRoutine;
 
-    private Collider[] hitBuffer = new Collider[20];//타격 대상 버퍼, nonalloc 저장용도
+    private Action<bool> onInvincibleChanged;       
+
+    private Collider[] hitBuffer = new Collider[SkillConstants.HIT_BUFFER_SIZE];//타격 대상 버퍼, nonalloc 저장용도
 
     // 기즈모 디버그용, 다른 시각적 방식으로 바꾸는게 좋을것 같음.
     private SkillData debugLastSkillData;
@@ -42,7 +45,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
 
     public void SetInvincible(bool active)
     {
-        Debug.Log(active ? "무적" : "무적 해제");
+        onInvincibleChanged?.Invoke(active);
     }
 
     public void PlayAnim(string key)
@@ -50,12 +53,35 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         Debug.Log($"애니메이션 재생: {key}");
     }
 
-    public void Init(ISkillStatProvider stat, ISkillTargetProvider target)
+    public void Init(ISkillStatProvider stat, ISkillTargetProvider target, Action<bool> onInvincible = null)
     {
         statProvider = stat;
         targetProvider = target;
+        onInvincibleChanged = onInvincible;
     }
-
+    public Vector3 GetTargetPosition()
+    {
+        if (targetProvider != null)
+        {
+            Transform target = targetProvider.GetTarget();
+            if (target != null) return target.position;
+        }
+        return transform.position + transform.forward;
+    }
+    public Vector3 GetTargetDirection()
+    {
+        if (targetProvider != null)
+        {
+            Transform target = targetProvider.GetTarget();
+            if (target != null)
+            {
+                Vector3 dir = target.position - transform.position;
+                dir.y = 0;
+                return dir.normalized;
+            }
+        }
+        return transform.forward;
+    }
     public void CastSkill(SkillDataContext dataContext, float extraDelay = 0, bool applyAddon = true)
     {
         if (isCasting) return;
@@ -107,13 +133,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     /// </summary>
     private IEnumerator SkillSequenceMove(SkillData data)
     {
-        Transform target = targetProvider.GetTarget();
-        Vector3 targetPosition;
-        if (target != null)
-            targetPosition = target.position;
-        else
-            targetPosition = transform.position + transform.forward;
-
+        Vector3 targetPosition = GetTargetPosition();
         if (data.m1Data.m1Delay > 0)
         {
             yield return CoroutineManager.waitForSeconds(data.m1Data.m1Delay);
@@ -131,16 +151,9 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     private IEnumerator SkillSequenceExecute(SkillDataContext dataContext)
     {
         M3Type m3Type = dataContext.skillData.m3Data.m3Type;
-        float delay = dataContext.skillData.m3Data.m3Delay ;
-        Transform target = targetProvider.GetTarget();
-        Vector3 castDirection = transform.forward;
-        if (target != null)
-        {
-            castDirection = (target.position - transform.position);
-            castDirection.y = 0;
-            castDirection = castDirection.normalized;
-        }
-        Vector3 ExecutePivot = transform.position;
+        float delay = dataContext.skillData.m3Data.m3Delay;
+        Vector3 castDirection = GetTargetDirection();
+        Vector3 executePivot = transform.position;
 
         if (delay > 0)
         {
@@ -155,7 +168,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         else if (m3Strategy is ExecuteDeploy)
             prefab = deployPrefab.gameObject;
 
-        yield return m3Strategy.Execute(this, this, dataContext, ExecutePivot, castDirection, targetLayer, prefab);
+        yield return m3Strategy.Execute(this, this, dataContext, executePivot, castDirection, targetLayer, prefab);
     }
     public void StopSkill()
     {
