@@ -8,9 +8,8 @@ public interface ISkillMovementTarget
 {
     Transform transform { get; }
     Vector3 Position { get; }
-
+    public Vector3 GetTargetPosition();
     void SetPosition(Vector3 position);
-
     void SetInvincible(bool active);
     void PlayAnim(string key);
 }

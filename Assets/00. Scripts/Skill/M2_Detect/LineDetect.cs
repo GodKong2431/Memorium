@@ -6,7 +6,7 @@ public class LineDetect : IDetectShapeStrategy
     {
         Collider[] buffer = provider.GetBuffer();
 
-        Vector3 halfExtents = new Vector3(data.m2S2 * 0.5f, 10f, data.m2S1 * 0.5f);
+        Vector3 halfExtents = new Vector3(data.m2S2 * 0.5f, SkillConstants.DETECT_HEIGHT, data.m2S1 * 0.5f);
         Quaternion orientation = Quaternion.LookRotation(direction);
         return Physics.OverlapBoxNonAlloc(center, halfExtents, buffer, orientation, targetLayer);
     }

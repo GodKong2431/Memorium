@@ -6,7 +6,7 @@ public class CircleDetect : IDetectShapeStrategy
     {
         Collider[] buffer = provider.GetBuffer();
 
-        float cylinderHalfHeight = 10f;
+        float cylinderHalfHeight = SkillConstants.DETECT_HEIGHT;
 
         Vector3 pointBottom = center - (Vector3.up * cylinderHalfHeight);
         Vector3 pointTop = center + (Vector3.up * cylinderHalfHeight);

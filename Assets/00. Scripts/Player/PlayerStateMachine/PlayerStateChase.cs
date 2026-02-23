@@ -43,7 +43,7 @@ public class PlayerStateChase : IPlayerState
         float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
         // 거리가 공격 사거리 이하일 때 Attack 상태로 전환
 
-        if (ctx.playerSkillHandler.ReadySkillInRange(dist) || dist <= ctx.AttackRange)
+        if (ctx.playerSkillHandler.ReadySkill(dist) || dist <= ctx.AttackRange)
         {
             ctx.RequestState(PlayerStateType.Attack);
             return;

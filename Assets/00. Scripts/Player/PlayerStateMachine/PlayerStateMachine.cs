@@ -4,7 +4,7 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(PlayerStatPresenter))]
-public class PlayerStateMachine : MonoBehaviour
+public class PlayerStateMachine : MonoBehaviour, IDamageable
 {
     [SerializeField]
     [Tooltip("현재 적 개체가 사용할 애니메이터입니다.")]
@@ -14,7 +14,7 @@ public class PlayerStateMachine : MonoBehaviour
     [Tooltip("공격 시 나타나는 이펙트 프리팹입니다.")]
     private GameObject attackEffectPrefab;
 
-    PlayerStateContext _ctx;
+    public PlayerStateContext _ctx { get; private set; }
     private Dictionary<PlayerStateType, IPlayerState> _states;
     //private IPlayerState _current;
     //private PlayerStateType _currentType;
@@ -49,6 +49,7 @@ public class PlayerStateMachine : MonoBehaviour
             { PlayerStateType.Chase, new PlayerStateChase() },
             { PlayerStateType.Attack, new PlayerStateAttack() },
             { PlayerStateType.Move, new PlayerStateMove() },
+            { PlayerStateType.Die, new PlayerStateDie() }
         };
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
@@ -90,4 +91,10 @@ public class PlayerStateMachine : MonoBehaviour
     {
         playerStateMachine.ChangeState(next);
     }
+
+    public void TakeDamage(float damage, DamageType damageType)
+    {
+        _ctx.TakeDamage(damage, damageType);
+    }
+
 }
