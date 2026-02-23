@@ -42,6 +42,14 @@ public class StatUpgrade
 
     public void Upgrade()
     {
+        var currency = CurrencyManager.Instance;
+        var gold = currency.GetAmount(CurrencyType.Gold);
+
+        if (!currency.TrySpend(CurrencyType.Gold, currentCost))
+        {
+            return;
+        }
+
         upgradeCount++;
         currentCost = currentCost * CostMultiplyRate;
         stat = upgradeCount * statInCrease;

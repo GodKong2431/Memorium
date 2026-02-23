@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static PlayerStatView;
+using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerStatView : MonoBehaviour
 {
@@ -59,7 +60,9 @@ public class PlayerStatView : MonoBehaviour
 
             if (upgradeStatUI.statUIItem != null)
             {
-                upgradeStatUI.statUIItem.StatValue.text = statUpgrade.Stat.ToString();
+                BigDouble value = statUpgrade.Stat;
+
+                upgradeStatUI.statUIItem.StatValue.text = value.ToString();
                 upgradeStatUI.statUIItem.StatDescription.text = $"{statUpgrade.StatName} Enchance";
                 upgradeStatUI.statUIItem.StatLevel.text = $"Lv {statUpgrade.UpgradeCount.ToString()}";
                 upgradeStatUI.statUIItem.UpgradeCost.text = $"{statUpgrade.CurrentCost.ToString()}";
@@ -93,7 +96,9 @@ public class PlayerStatView : MonoBehaviour
 
             if (statui.statUIItem != null)
             {
-                statui.statUIItem.StatValue.text = statUpgrade.Stat.ToString();
+                BigDouble value = statUpgrade.Stat;
+
+                statui.statUIItem.StatValue.text = value.ToString();
                 statui.statUIItem.StatDescription.text = $"{statUpgrade.StatName} Enchance";
                 statui.statUIItem.StatLevel.text = $"Lv {statUpgrade.UpgradeCount.ToString()}";
                 statui.statUIItem.UpgradeCost.text = $"{statUpgrade.CurrentCost.ToString()}";

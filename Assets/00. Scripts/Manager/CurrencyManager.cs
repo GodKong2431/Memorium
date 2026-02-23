@@ -1,4 +1,4 @@
-
+ï»¿
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,7 +33,7 @@ public class CurrencyManager : Singleton<CurrencyManager>
     {
         if (!HasEnough(type, cost))
         {
-            Debug.Log($"{type}ÀçÈ­ ºÎÁ·");
+            Debug.Log($"{type}ìž¬í™” ë¶€ì¡±");
             return false;
 
         }
@@ -46,5 +46,17 @@ public class CurrencyManager : Singleton<CurrencyManager>
     {
         currencies[type] = GetAmount(type) + amount;
         GameEventManager.OnCurrencyChanged?.Invoke(type, currencies[type]);
+    }
+
+    public bool TrySpendSlience(CurrencyType type, BigDouble cost)
+    {
+        if (!HasEnough(type, cost))
+        {
+            Debug.Log($"{type}ìž¬í™” ë¶€ì¡±");
+            return false;
+
+        }
+        currencies[type] = currencies[type] - cost;
+        return true;
     }
 }
