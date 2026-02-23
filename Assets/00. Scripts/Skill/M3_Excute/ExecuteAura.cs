@@ -21,7 +21,6 @@ public class ExecuteAura : ISkillExecuteStrategy
 
             Vector3 currentPos = targetTransform.position + (targetTransform.forward * data.m3Data.m3Distance);
 
-            Debug.DrawRay(currentPos, Vector3.up * 2f, Color.green, 0.5f);
 
             int count = m2.Detect(currentPos, targetTransform.forward, data.m2Data, bufferProvider, targetLayer);
 

@@ -6,7 +6,7 @@ public abstract class SkillObjectileBase : MonoBehaviour, ISkillDetectable
     protected SkillData data;             
     protected LayerMask targetLayer;       
 
-    protected Collider[] hitBuffer = new Collider[20];
+    protected Collider[] hitBuffer = new Collider[SkillConstants.HIT_BUFFER_SIZE];
 
     public Collider[] GetBuffer() => hitBuffer;
 

@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
-//해당방향으로 이동이 아닌 목표 객체의 위치로 순간이동으로 바꿔야함
 public class WarpMove : ISkillMovementStrategy
 {
     public IEnumerator SkillMove(ISkillMovementTarget subject, Vector3 target, SkillModule1Table data)
@@ -11,8 +11,12 @@ public class WarpMove : ISkillMovementStrategy
         {
             yield return CoroutineManager.waitForSeconds(data.m1Duration);
         }
-        Debug.Log("유닛 사라짐 해제");
-        subject.SetPosition(target);
 
+        Debug.Log("유닛 나타남");
+        Vector3 finalTarget = subject.GetTargetPosition();
+        if (NavMesh.SamplePosition(finalTarget, out var hit, SkillConstants.NAV_SEARCH_RADIUS, NavMesh.AllAreas))
+            finalTarget = hit.position;
+
+        subject.SetPosition(finalTarget);
     }
 }
