@@ -62,6 +62,11 @@ public class PlayerStateContext : BaseStateContext
             RequestState(PlayerStateType.Die);
         }
     }
+    public void ConsumeMana(float amount)
+    {
+        CurrentMana -= amount;
+        if (CurrentMana < 0) CurrentMana = 0;
+    }
     public void RequestState(PlayerStateType next)
     {
         _requestStateChange?.Invoke(next);

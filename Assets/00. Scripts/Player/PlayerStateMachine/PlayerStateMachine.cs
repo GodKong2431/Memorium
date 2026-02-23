@@ -14,7 +14,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     [Tooltip("공격 시 나타나는 이펙트 프리팹입니다.")]
     private GameObject attackEffectPrefab;
 
-    PlayerStateContext _ctx;
+    public PlayerStateContext _ctx { get; private set; }
     private Dictionary<PlayerStateType, IPlayerState> _states;
     //private IPlayerState _current;
     //private PlayerStateType _currentType;

@@ -9,6 +9,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
 {
     private ISkillStatProvider statProvider;
     private ISkillTargetProvider targetProvider;
+
     [Header("레이어")]
     [SerializeField] private LayerMask targetLayer; 
 
@@ -24,6 +25,8 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     private bool isCasting = false;
     public bool IsCasting => isCasting;
     private Coroutine currentSkillRoutine;
+
+    private Action<bool> onInvincibleChanged;       
 
     private Collider[] hitBuffer = new Collider[20];//타격 대상 버퍼, nonalloc 저장용도
 
@@ -42,7 +45,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
 
     public void SetInvincible(bool active)
     {
-        Debug.Log(active ? "무적" : "무적 해제");
+        onInvincibleChanged?.Invoke(active);
     }
 
     public void PlayAnim(string key)
@@ -50,10 +53,11 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         Debug.Log($"애니메이션 재생: {key}");
     }
 
-    public void Init(ISkillStatProvider stat, ISkillTargetProvider target)
+    public void Init(ISkillStatProvider stat, ISkillTargetProvider target, Action<bool> onInvincible = null)
     {
         statProvider = stat;
         targetProvider = target;
+        onInvincibleChanged = onInvincible;
     }
 
     public void CastSkill(SkillDataContext dataContext, float extraDelay = 0, bool applyAddon = true)
@@ -107,12 +111,12 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     /// </summary>
     private IEnumerator SkillSequenceMove(SkillData data)
     {
-        Transform target = targetProvider.GetTarget();
-        Vector3 targetPosition;
-        if (target != null)
-            targetPosition = target.position;
-        else
-            targetPosition = transform.position + transform.forward;
+        Vector3 targetPosition = transform.position + transform.forward;
+        if (targetProvider != null)
+        {
+            Transform target = targetProvider.GetTarget();
+            targetPosition = target != null ? target.position : transform.position + transform.forward;
+        }
 
         if (data.m1Data.m1Delay > 0)
         {
@@ -132,13 +136,16 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     {
         M3Type m3Type = dataContext.skillData.m3Data.m3Type;
         float delay = dataContext.skillData.m3Data.m3Delay ;
-        Transform target = targetProvider.GetTarget();
         Vector3 castDirection = transform.forward;
-        if (target != null)
+        if (targetProvider != null)
         {
-            castDirection = (target.position - transform.position);
-            castDirection.y = 0;
-            castDirection = castDirection.normalized;
+            Transform target = targetProvider.GetTarget();
+            if (target != null)
+            {
+                castDirection = (target.position - transform.position);
+                castDirection.y = 0;
+                castDirection = castDirection.normalized;
+            }
         }
         Vector3 ExecutePivot = transform.position;
 
