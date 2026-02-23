@@ -85,6 +85,7 @@ public static class EnemyKillRewardDispatcher
 
         if (isBoss)
         {
+            ResetKillCount();
             CurrentStageLevel++;
             OnBossKilled?.Invoke();
             Debug.Log($"[EnemyKillRewardDispatcher] 보스 처치! 스테이지 레벨 → {CurrentStageLevel}");
