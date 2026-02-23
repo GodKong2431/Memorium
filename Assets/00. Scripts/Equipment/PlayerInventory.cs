@@ -129,11 +129,11 @@ public class PlayerInventory : MonoBehaviour
     public void AutoMerge()
     {
         //모든 장비 테이블의 키를 가져와서 저장 <- 합성 시 다음 테이블 키의 값을 올리기 위함 
-        if (myEquipmentListKeys.Count <= 0)
-        {
-            myEquipmentListKeys = DataManager.Instance.EquipListDict.Keys.ToList<int>();
-            myEquipmentListKeys.Sort();
-        }
+        //if (myEquipmentCountKeys.Count <= 0)
+        //{
+        //    myEquipmentListKeys = DataManager.Instance.EquipListDict.Keys.ToList<int>();
+        //    myEquipmentListKeys.Sort();
+        //}
         //현재 소유중인 아이템의 키값들 전부 가져옴
         myEquipmentCountKeys.Clear();
         myEquipmentCountKeys = equipmentCount.Keys.ToList<int>();
@@ -144,7 +144,7 @@ public class PlayerInventory : MonoBehaviour
         mergeItemByType.Clear();
 
         //생각해보니 해금 안된 것들도 합성 과정에서 해금 되는 경우가 있어서 모든 itemListKeys 봐야 겠다
-        foreach (int key in myEquipmentListKeys)
+        foreach (int key in allEquipmentListKeys)
         {
             //해당 키값을 가지고 있지 않으면(해금하지 않았으면 넘긴다)
             if (!equipmentCount.ContainsKey(key))
@@ -152,8 +152,9 @@ public class PlayerInventory : MonoBehaviour
             if (equipmentCount[key] >= 3)
             {
                 //키값의 인덱스를 찾고 1을 추가하여 다음 단계의 아이템 인덱스를 가지고 온다
-                int nextIndex = myEquipmentListKeys[myEquipmentListKeys.IndexOf(key) + 1];
-
+                Debug.Log($"[PlayerInventory] 아이템 합성 : {key} 인덱스 {allEquipmentListKeys.IndexOf(key)}");
+                int nextIndex = allEquipmentListKeys[allEquipmentListKeys.IndexOf(key) + 1];
+                Debug.Log("[PlayerInventory] 아이템 합성 성공");
                 //만약 다음 단계의 아이템이 락 상태면 해금 시킨다
                 //if (!equipmentCount.ContainsKey(nextIndex))
                 //{
