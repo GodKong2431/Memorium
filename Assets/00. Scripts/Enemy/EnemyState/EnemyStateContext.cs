@@ -26,12 +26,24 @@ public class EnemyStateContext
 
     public float MaxHealth => StatPresenter?.Data?.monsterHealth ?? 100f;
     public float AttackRange => StatPresenter?.Data?.attackRange ?? 1.5f;
-    public bool IsBoss { get; set; }
+    /// <summary>StatPresenter.IsBoss 우선 (DataManager 연동). 없으면 인스펙터 fallback.</summary>
+    private bool _isBossFallback;
+    public bool IsBoss { get => StatPresenter?.IsBoss ?? _isBossFallback; set => _isBossFallback = value; }
 
     /// <summary>
     /// 공격 시 생성할 이펙트 프리팹. EnemyStateMachine에서 설정
     /// </summary>
     public GameObject AttackEffectPrefab { get; set; }
+
+    /// <summary>
+    /// 스킬 공격형일 때 스킬 시전 핸들러. null이면 일반 근접 공격
+    /// </summary>
+    public EnemySkillHandler SkillHandler { get; set; }
+
+    /// <summary>
+    /// 스킬 공격형 몬스터 여부
+    /// </summary>
+    public bool IsSkillAttackType => SkillHandler != null;
 
     private Action<EnemyStateType> _requestStateChange;
 

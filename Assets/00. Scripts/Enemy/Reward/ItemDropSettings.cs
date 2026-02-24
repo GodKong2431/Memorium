@@ -42,12 +42,13 @@ public class ItemDropSettings : ScriptableObject
         new() { offset = 300, weight = 10 }    // Ultra 1%
     };
 
-    [Header("아이템 테이블 (각 카테고리별 ID 목록, 동일 확률)")]
-    public string[] equipmentSlotIds = { "equip_weapon", "equip_armor", "equip_helmet", "equip_boots", "equip_gloves" };
-    public string[] fairyShardIds = { "shard_fairy_01" };
-    public string[] skillScrollIds = { "scroll_skill_01" };
-    public string[] skillGemIds = { "gem_skill_01" };
-    public string[] dungeonTicketIds = { "ticket_dungeon_01" };
+    [Header("아이템 테이블 (EquipListTable/ItemInfoTable ID, 동일 확률)")]
+    [Tooltip("장비: 비어있으면 DataManager.EquipListDict에서 EquipmentType+티어로 선택")]
+    public int[] equipmentIds = Array.Empty<int>();
+    public int[] fairyShardIds = { 3310001 };
+    public int[] skillScrollIds = { 3210001 };
+    public int[] skillGemIds = { 3220001 };
+    public int[] dungeonTicketIds = { 3831001 };
 
     [Serializable]
     public class EquipmentOffsetEntry
