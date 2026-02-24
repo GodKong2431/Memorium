@@ -1,17 +1,19 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 
 [System.Serializable]
 
 public class PlayerLevel
 {
+    private CurrencyType currencyType = CurrencyType.Exp;
+
     private int levelKey = 1020001;
     private int playerExpKey = 1510000;
 
     public int CurrentLevel;
 
     public BigDouble RequiredExp;
-
-    public BigDouble CurrentExp;
 
     public int BonusAttack;
     public int BonusMP;
@@ -23,11 +25,12 @@ public class PlayerLevel
     public float BonusNormalDamage;
     public int BonusCristal;
 
+    public event Action OnLevelUp;
     public PlayerLevel(int level)
     {
         for (int i = 0; i < level; i++)
         {
-            DataManager.Instance.LevelbonusDict.TryGetValue(levelKey++, out var value);
+            DataManager.Instance.LevelbonusDict.TryGetValue(levelKey+i, out var value);
 
             BonusAttack += value.bonusAttack;
             BonusMP += value.bonusMP;
@@ -44,16 +47,33 @@ public class PlayerLevel
 
         playerExpKey += level;
 
+        levelKey = (level-1) + levelKey;
+
         DataManager.Instance.PlayerLevelDict.TryGetValue(playerExpKey, out var playerExpTable);
 
         RequiredExp = playerExpTable.reqExp;
     }
 
-    public void ExpCheck()
+    public void ExpCheck(CurrencyType currencyType, BigDouble currentExp)
     {
-        if (CurrentExp >= RequiredExp)
+
+        //var currentExp = currency.GetAmount(CurrencyType.Exp);
+
+        if (this.currencyType != currencyType)
         {
-            DataManager.Instance.LevelbonusDict.TryGetValue(levelKey++, out var value);
+            return;
+        }
+
+        while (CurrencyManager.Instance.TrySpendSlience(CurrencyType.Exp, RequiredExp))
+        {
+            levelKey++;
+
+            DataManager.Instance.LevelbonusDict.TryGetValue(levelKey, out var value);
+
+            if (value == null)
+            {
+                break;
+            }
 
             BonusAttack += value.bonusAttack;
             BonusMP += value.bonusMP;
@@ -65,13 +85,15 @@ public class PlayerLevel
             BonusNormalDamage += value.bonusNormalDamage;
             BonusCristal += value.bonusCristal;
 
-            CurrentExp -= RequiredExp;
+            playerExpKey++;
 
-            DataManager.Instance.PlayerLevelDict.TryGetValue(playerExpKey++, out var playerExpTable);
+            DataManager.Instance.PlayerLevelDict.TryGetValue(playerExpKey, out var playerExpTable);
 
             RequiredExp = playerExpTable.reqExp;
 
             CurrentLevel++;
         }
+
+        OnLevelUp?.Invoke();
     }
 }

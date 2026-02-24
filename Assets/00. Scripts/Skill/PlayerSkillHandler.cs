@@ -16,7 +16,7 @@ public interface ISkillTargetProvider
 public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTargetProvider
 {
     private SkillCaster skillCaster;
-    private CharacterStatManager characterStatManager;
+    //private CharacterStatManager characterStatManager;
     private SkillDataContext[] skilldataContexts;
     private float[] cooldownTimers;
     private PlayerStateMachine playerStateMachine;
@@ -26,7 +26,7 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
     private void Awake()
     {
         skillCaster = GetComponent<SkillCaster>();
-        characterStatManager = GetComponent<CharacterStatManager>();
+        //characterStatManager = GetComponent<CharacterStatManager>();
         playerStateMachine = GetComponent<PlayerStateMachine>();
     }
     public void Init(int[] skillIDs, int[] m4IDs =null, int[] m5IDs=null )
@@ -115,7 +115,8 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
         //playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
         //마나 테이블없어서 주석
         skillCaster.CastSkill(skilldataContexts[index]);
-        float cooldownReduce = characterStatManager.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE); 
+        //float cooldownReduce = characterStatManager.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE); 
+        float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE); 
         cooldownTimers[index] = Mathf.Max(0f, skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f));
         return true;
     }
@@ -134,11 +135,14 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
         return CheckCooldown(index) && CheckRange(index, dist) && CheckMana(index);
     }
 
-    public float GetAttack() =>characterStatManager.GetFinalStat(PlayerStatType.ATK);
+    //public float GetAttack() =>characterStatManager.GetFinalStat(PlayerStatType.ATK);
+    public float GetAttack() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.ATK);
 
-    public float GetCriticalChance() => characterStatManager.GetFinalStat(PlayerStatType.CRIT_CHANCE);
+    //public float GetCriticalChance() => characterStatManager.GetFinalStat(PlayerStatType.CRIT_CHANCE);
+    public float GetCriticalChance() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.CRIT_CHANCE);
 
-    public float GetCriticalMulti() => characterStatManager.GetFinalStat(PlayerStatType.CRIT_MULT);
+    //public float GetCriticalMulti() => characterStatManager.GetFinalStat(PlayerStatType.CRIT_MULT);
+    public float GetCriticalMulti() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.CRIT_MULT);
 
 
     public Transform GetTarget()

@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,7 +26,14 @@ public class StageManager : Singleton<StageManager>
 
     public bool isReadyToBossSpawn=false;
 
-    [SerializeField] GameObject BossSpawnBtn;
+    //[SerializeField] GameObject BossSpawnBtn;
+    [SerializeField] Button bossSpawnBtn;
+    bool onClickBossSpawnBtn=false;
+
+    //[SerializeField] TextMeshProUGUI curStageAndFloorText;
+    //[SerializeField] TextMeshProUGUI curMonsterKillCountText;
+    //[SerializeField] Image curMonsterGuage;
+
 
     private IEnumerator Start()
     {
@@ -38,30 +46,45 @@ public class StageManager : Singleton<StageManager>
         SetKillCount();
         //킬 카운트 변경 시 스테이지 매니저의 킬 카운트도 증가 <- 나중에는 그냥 디스패쳐에 있는거 그냥 사용
         EnemyKillRewardDispatcher.OnKillCountChanged += (num) => CheckBossEnemySpawn();
+        
         EnemyKillRewardDispatcher.OnBossKilled += StageClear;
-        BossSpawnBtn.GetComponent<Button>().onClick.AddListener(() => 
-        { 
-            isReadyToBossSpawn = !isReadyToBossSpawn;
-            BossSpawnBtn.SetActive(false);
-        });
+        GameEventManager.OnSummonBossClicked += OnClickBossSummonButtonClick;
+        //bossSpawnBtn.onClick.AddListener(() => 
+        //{ 
+        //    isReadyToBossSpawn = !isReadyToBossSpawn;
+        //    //BossSpawnBtn.SetActive(false);
+        //    bossSpawnBtn.interactable = false;
+        //    onClickBossSpawnBtn = true;
+        //});
     }
     private void Init()
     {
         stageKeyList = DataManager.Instance.StageManageDict.Keys.ToList<int>();
         stageKeyList.Sort();
     }
-
+    public void OnClickBossSummonButtonClick()
+    {
+        isReadyToBossSpawn = !isReadyToBossSpawn;
+        //BossSpawnBtn.SetActive(false);
+        bossSpawnBtn.interactable = false;
+        onClickBossSpawnBtn = true;
+    }
     public void CheckBossEnemySpawn()
     {
         curMonsterKillCount++;
+        //curMonsterGuage.fillAmount = (float)curMonsterKillCount / (float)maxMonsterKillCount;
+        //curMonsterKillCountText.text = curMonsterKillCount.ToString();
+        GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
         //여기에 현재 몇 마리 잡았는지 UI로 보여주는 코드도 추가
         //if (maxMonsterKillCount <= EnemyKillRewardDispatcher.TotalKillCount)
         if (maxMonsterKillCount <= curMonsterKillCount)
         {
-            if (!BossSpawnBtn.activeSelf)
-            {
-                BossSpawnBtn.SetActive(true);
-            }
+            //if (!BossSpawnBtn.activeSelf)
+            //{
+            //    BossSpawnBtn.SetActive(true);
+            //}
+            if(!onClickBossSpawnBtn)
+                bossSpawnBtn.interactable = true;
         }
     }
 
@@ -74,11 +97,22 @@ public class StageManager : Singleton<StageManager>
         monsterSpawner.SetMonster();
         normalEnemyReward.expBase = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].commonMonsterExp;
         bossEnemyReward.expBase = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].bossMonsterExp;
+        if (curStage % 20 == 0)
+        {
+            GameEventManager.OnStageChanged?.Invoke(curFloor, 20);
+        }
+        else
+        {
+            GameEventManager.OnStageChanged?.Invoke(curFloor, curStage % 20);
+        }
     }
     public void SetKillCount()
     {
         curMonsterKillCount = 0;
         maxMonsterKillCount = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].monsterKillCount;
+        //curMonsterKillCountText.text = curMonsterKillCount + "/" + maxMonsterKillCount;
+        //curMonsterGuage.fillAmount = 0;
+        GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
     }
 
     public void StageClear()
