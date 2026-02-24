@@ -22,7 +22,6 @@ public interface ISkillCooldownProvider
 public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTargetProvider
 {
     private SkillCaster skillCaster;
-    //private CharacterStatManager characterStatManager;
     private SkillDataContext[] skilldataContexts;
     private float[] cooldownTimers;
     private PlayerStateMachine playerStateMachine;
@@ -32,7 +31,6 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     private void Awake()
     {
         skillCaster = GetComponent<SkillCaster>();
-        //characterStatManager = GetComponent<CharacterStatManager>();
         playerStateMachine = GetComponent<PlayerStateMachine>();
     }
     public void Init(int[] skillIDs, int[] m4IDs = null, int[] m5IDs = null)
@@ -99,7 +97,6 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
         playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
         skillCaster.CastSkill(skilldataContexts[index]);
-        //float cooldownReduce = characterStatManager.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE); 
         float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE);
         cooldownTimers[index] = Mathf.Max(0f, skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f));
         return true;
@@ -159,13 +156,10 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
 
     #region ISkillStatProvider
-    //public float GetAttack() =>characterStatManager.GetFinalStat(PlayerStatType.ATK);
     public float GetAttack() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.ATK);
 
-    //public float GetCriticalChance() => characterStatManager.GetFinalStat(PlayerStatType.CRIT_CHANCE);
     public float GetCriticalChance() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.CRIT_CHANCE);
 
-    //public float GetCriticalMulti() => characterStatManager.GetFinalStat(PlayerStatType.CRIT_MULT);
     public float GetCriticalMulti() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.CRIT_MULT);
     #endregion
 
