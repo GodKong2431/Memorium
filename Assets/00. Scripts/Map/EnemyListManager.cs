@@ -16,6 +16,7 @@ public class EnemyListManager : Singleton<EnemyListManager>
         enemyMap = new Dictionary<int, GameObject>();
         foreach (var enemy in enemyList)
         {
+
             Debug.Log($"[EnemyListManager] ∏ÛΩ∫≈Õ ID {enemy.monsterIdFromDataManager}");
             enemyMap[enemy.monsterIdFromDataManager]=enemy.gameObject;
             //enemyRewardMap[enemy.monsterIdFromDataManager] = enemy.RewardData;
