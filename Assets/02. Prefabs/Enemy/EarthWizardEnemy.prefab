@@ -17,7 +17,8 @@ GameObject:
   - component: {fileID: 215967418959097682}
   - component: {fileID: -5653522181094946145}
   - component: {fileID: 5387610512574402815}
-  - component: {fileID: 2880453209257351237}
+  - component: {fileID: 7830570775401134637}
+  - component: {fileID: -5739125162171152386}
   m_Layer: 6
   m_Name: EarthWizardEnemy
   m_TagString: Untagged
@@ -209,7 +210,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 617a873b3157e6b4faf9bc04e8a88784, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
---- !u!114 &2880453209257351237
+--- !u!114 &7830570775401134637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252973128719962208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2068fd3fc5013bd408f2bb1cb6aa60ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySkillHandler
+  skillId: 4000001
+--- !u!114 &-5739125162171152386
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -231,6 +245,7 @@ MonoBehaviour:
         m1ID: 0
         m2ID: 0
         m3ID: 0
+        manaCost: 0
         skillDamage: 0
         skillDamageValue: 0
         skillName: 
@@ -292,4 +307,4 @@ MonoBehaviour:
   projectilePrefab: {fileID: 1604259860813359153, guid: cc27048a1a6486843887c6285dab2d36, type: 3}
   deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
   shadowPrepab: {fileID: 9106158446547060106, guid: ad334d366ce436447a3b287029a8541f, type: 3}
-  isTestContextOn: 1
+  isTestContextOn: 0

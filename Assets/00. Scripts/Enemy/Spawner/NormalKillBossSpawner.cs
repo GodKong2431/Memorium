@@ -48,6 +48,7 @@ public class NormalKillBossSpawner : MonoBehaviour
         }
 
         ObjectPoolManager.Get(prefab, bossSpawnPosition, Quaternion.identity);
+        EnemyKillRewardDispatcher.ResetKillCount();
         Debug.Log($"[NormalKillBossSpawner] 일반 몬스터 {killThreshold}마리 처치 → 보스 소환 ({bossSpawnPosition})");
     }
 }

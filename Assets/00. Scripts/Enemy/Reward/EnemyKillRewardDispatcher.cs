@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 적 처치 시 보상을 계산한 뒤 골드/경험치/아이템 이벤트로 전달.
-/// 각 아이템 카테고리 독립 롤, 보스는 5배 확률.
+/// 적 처치 시 보상 계산. 아이템은 Resources/ItemDrop 프리팹 스폰 → 3초 후 끌어당김 → 회수 시 이벤트 발송.
 /// </summary>
 public static class EnemyKillRewardDispatcher
 {
+    private const string DropItemPrefabPath = "ItemDrop";
+
     public static event Action<int> OnGoldEarned;
     public static event Action<int> OnExpEarned;
     public static event Action<string, int> OnItemDropped;
@@ -27,6 +28,30 @@ public static class EnemyKillRewardDispatcher
     /// <summary>현재 스테이지 레벨. StageManager 등에서 설정.</summary>
     public static int CurrentStageLevel { get; set; } = 1;
 
+    /// <summary>드랍 회수 시 호출 (DropItemController에서 사용).</summary>
+    public static void RaiseItemCollected(int itemId, int count, bool isEquipment)
+    {
+        var idStr = itemId.ToString();
+        if (isEquipment)
+            OnEquipmentDropped?.Invoke(idStr, count, 0);
+        else
+            OnItemDropped?.Invoke(idStr, count);
+    }
+
+    /// <summary>아이템 획득 시 디버그 로그 (프리팹 없이 이벤트만 발송할 때 사용).</summary>
+    internal static void LogItemAcquired(int itemId, int count, ItemDropLogic.ItemCategory category)
+    {
+        string name = null;
+        if (DataManager.Instance != null && DataManager.Instance.DataLoad)
+        {
+            if (category == ItemDropLogic.ItemCategory.Equipment && DataManager.Instance.EquipListDict?.TryGetValue(itemId, out var e) == true)
+                name = e.equipmentName;
+            else if (DataManager.Instance.ItemInfoDict?.TryGetValue(itemId, out var i) == true)
+                name = i.itemName;
+        }
+        Debug.Log($"[아이템 획득] ID={itemId} x{count} ({category}) {(string.IsNullOrEmpty(name) ? "" : $"- {name}")}");
+    }
+
     /// <summary>전역 처치 카운트 초기화 (씬 전환 등에서 호출).</summary>
     public static void ResetKillCount()
     {
@@ -45,6 +70,8 @@ public static class EnemyKillRewardDispatcher
         int gold = EnemyRewardCalculator.CalculateGold(rewardData, stage);
         if (gold > 0)
         {
+            if (CurrencyManager.Instance != null)
+                CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, gold);
             OnGoldEarned?.Invoke(gold);
             Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{gold}");
         }
@@ -53,6 +80,8 @@ public static class EnemyKillRewardDispatcher
         int exp = rewardData.expBase;
         if (exp > 0)
         {
+            if (CurrencyManager.Instance != null)
+                CurrencyManager.Instance.AddCurrency(CurrencyType.Exp, exp);
             OnExpEarned?.Invoke(exp);
             Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{exp}");
         }
@@ -63,17 +92,25 @@ public static class EnemyKillRewardDispatcher
         if (dropSettings != null)
         {
             ItemDropLogic.RollAll(dropSettings, stage, isBoss, _itemDropBuffer);
+            var prefab = Resources.Load<GameObject>(DropItemPrefabPath);
             foreach (var drop in _itemDropBuffer)
             {
-                if (drop.category == ItemDropLogic.ItemCategory.Equipment)
+                if (prefab != null)
                 {
-                    OnEquipmentDropped?.Invoke(drop.itemId, drop.count, drop.power);
-                    Debug.Log($"[EnemyKillRewardDispatcher] 장비 드랍: {drop.itemId} x{drop.count} (파워 {drop.power})");
+                    var go = UnityEngine.Object.Instantiate(prefab, worldPosition + Vector3.up * 0.5f, Quaternion.identity);
+                    var ctrl = go.GetComponent<DropItemController>();
+                    if (ctrl == null) ctrl = go.AddComponent<DropItemController>();
+                    ctrl.Initialize(drop.itemId, drop.count, drop.category);
+                    Debug.Log($"[EnemyKillRewardDispatcher] 드랍 스폰: itemId={drop.itemId} x{drop.count}");
                 }
                 else
                 {
-                    OnItemDropped?.Invoke(drop.itemId, drop.count);
-                    Debug.Log($"[EnemyKillRewardDispatcher] 아이템 드랍: {drop.itemId} x{drop.count}");
+                    // 프리팹 없으면 기존처럼 이벤트만 발송 (PlayerData 구독)
+                    LogItemAcquired(drop.itemId, drop.count, drop.category);
+                    if (drop.category == ItemDropLogic.ItemCategory.Equipment)
+                        OnEquipmentDropped?.Invoke(drop.itemId.ToString(), drop.count, 0);
+                    else
+                        OnItemDropped?.Invoke(drop.itemId.ToString(), drop.count);
                 }
             }
         }
@@ -85,7 +122,6 @@ public static class EnemyKillRewardDispatcher
 
         if (isBoss)
         {
-            ResetKillCount();
             CurrentStageLevel++;
             OnBossKilled?.Invoke();
             Debug.Log($"[EnemyKillRewardDispatcher] 보스 처치! 스테이지 레벨 → {CurrentStageLevel}");
@@ -119,11 +155,11 @@ public static class EnemyKillRewardDispatcher
             new() { offset = 200, weight = 40 },
             new() { offset = 300, weight = 10 }
         };
-        s.equipmentSlotIds = new[] { "equip_weapon", "equip_armor", "equip_helmet", "equip_boots", "equip_gloves" };
-        s.fairyShardIds = new[] { "shard_fairy_01" };
-        s.skillScrollIds = new[] { "scroll_skill_01" };
-        s.skillGemIds = new[] { "gem_skill_01" };
-        s.dungeonTicketIds = new[] { "ticket_dungeon_01" };
+        s.equipmentIds = Array.Empty<int>();
+        s.fairyShardIds = new[] { 3310001 };
+        s.skillScrollIds = new[] { 3210001 };
+        s.skillGemIds = new[] { 3220001 };
+        s.dungeonTicketIds = new[] { 3831001 };
         return s;
     }
 }
