@@ -2547,6 +2547,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6770343322133905381}
   - component: {fileID: 1408886181171525233}
+  - component: {fileID: 8847147242347140411}
   m_Layer: 5
   m_Name: StatusUI
   m_TagString: Untagged
@@ -2602,6 +2603,97 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &8847147242347140411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6239394504179429114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39ca827c1ba44f5468a15a17f863aed0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStatView
+  hpGauge:
+    fillImage: {fileID: 7562097399802550662}
+    valueText: {fileID: 2138023141783356043}
+  mpGauge:
+    fillImage: {fileID: 1837303891249528888}
+    valueText: {fileID: 3819226130509252305}
+  upgradeStatUIs:
+  - type: 4
+    statUIItem: {fileID: 0}
+  - type: 0
+    statUIItem: {fileID: 0}
+  - type: 1
+    statUIItem: {fileID: 0}
+  - type: 2
+    statUIItem: {fileID: 0}
+  - type: 3
+    statUIItem: {fileID: 0}
+  - type: 8
+    statUIItem: {fileID: 0}
+  - type: 9
+    statUIItem: {fileID: 0}
+  - type: 14
+    statUIItem: {fileID: 0}
+  finalStatUIs:
+  - type: 0
+    statName: HP
+    statUIItem: {fileID: 0}
+  - type: 1
+    statName: HP Regen
+    statUIItem: {fileID: 0}
+  - type: 2
+    statName: MP
+    statUIItem: {fileID: 0}
+  - type: 3
+    statName: MP Regen
+    statUIItem: {fileID: 0}
+  - type: 4
+    statName: ATK
+    statUIItem: {fileID: 0}
+  - type: 5
+    statName: ATK Speed
+    statUIItem: {fileID: 0}
+  - type: 6
+    statName: Phys Def
+    statUIItem: {fileID: 0}
+  - type: 7
+    statName: Magic Def
+    statUIItem: {fileID: 0}
+  - type: 8
+    statName: Crit
+    statUIItem: {fileID: 0}
+  - type: 9
+    statName: Crit Mult
+    statUIItem: {fileID: 0}
+  - type: 10
+    statName: Move Speed
+    statUIItem: {fileID: 0}
+  - type: 11
+    statName: CoolDown
+    statUIItem: {fileID: 0}
+  - type: 12
+    statName: Gold Gain
+    statUIItem: {fileID: 0}
+  - type: 13
+    statName: Exp Gain
+    statUIItem: {fileID: 0}
+  - type: 14
+    statName: Boss Dmg
+    statUIItem: {fileID: 0}
+  - type: 15
+    statName: Normal Dmg
+    statUIItem: {fileID: 0}
+  - type: 10
+    statName: Move Speed
+    statUIItem: {fileID: 0}
+  - type: 17
+    statName: Dmg Mult
+    statUIItem: {fileID: 0}
+  normalPowerText: {fileID: 0}
 --- !u!1 &6277622331246835261
 GameObject:
   m_ObjectHideFlags: 0
