@@ -83,9 +83,12 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
 
     private bool CheckMana(int index)
     {
+        return true;// 마나 테이블없어서 임시
         if (skilldataContexts[index]?.skillData?.skillTable == null) return false;
-        float cost = skilldataContexts[index].skillData.skillTable.skillDamageValue;
-        return playerStateMachine._ctx.CurrentMana >= cost;
+        //float cost = playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
+        //return playerStateMachine._ctx.CurrentMana >= cost;
+
+        //마나 테이블없어서 주석
     }
     public bool AutoCast()
     {
@@ -106,14 +109,14 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
     public bool TryCastSkill(int index, float distToTarget)
     {
         if (skilldataContexts == null) return false;
-        if (index < 0 || index >= skilldataContexts.Length) return false;
-        if (!CheckCooldown(index)) return false;
-        if (!CheckRange(index, distToTarget)) return false;
-        if (!CheckMana(index)) return false;
+        if (index < 0 || index >= skilldataContexts.Length) return false; 
+        if (!ReadySkill(index, distToTarget)) return false;
 
-        playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.skillDamageValue);// 마나소모량으로 바꿔야함
+        //playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
+        //마나 테이블없어서 주석
         skillCaster.CastSkill(skilldataContexts[index]);
-        cooldownTimers[index] = skilldataContexts[index].skillData.skillTable.skillCooldown;
+        float cooldownReduce = characterStatManager.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE); 
+        cooldownTimers[index] = Mathf.Max(0f, skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f));
         return true;
     }
     public bool ReadySkill(float dist)
@@ -126,11 +129,16 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
         }
         return false;
     }
-    public float GetAttack() =>characterStatManager.FinalATK;
+    private bool ReadySkill(int index, float dist)
+    {
+        return CheckCooldown(index) && CheckRange(index, dist) && CheckMana(index);
+    }
 
-    public float GetCriticalChance() => characterStatManager.FinalCritChance;
+    public float GetAttack() =>characterStatManager.GetFinalStat(PlayerStatType.ATK);
 
-    public float GetCriticalMulti() => characterStatManager.FinalCritMult;
+    public float GetCriticalChance() => characterStatManager.GetFinalStat(PlayerStatType.CRIT_CHANCE);
+
+    public float GetCriticalMulti() => characterStatManager.GetFinalStat(PlayerStatType.CRIT_MULT);
 
 
     public Transform GetTarget()
