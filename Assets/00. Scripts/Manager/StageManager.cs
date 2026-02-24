@@ -105,8 +105,22 @@ public class StageManager : Singleton<StageManager>
         int prevCurFloor=curFloor;
         curFloor = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].floorNumber;
         monsterSpawner.SetMonster();
+
+        //노말, 보스 몬스터 경험치 세팅
         normalEnemyReward.expBase = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].commonMonsterExp;
         bossEnemyReward.expBase = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].bossMonsterExp;
+
+        //스테이지에서 사용할 드롭테이블 인덱스 가져오기
+        int dropTableId = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].dropTableID;
+        Debug.Log($"[StageManager] dropTableId : {dropTableId}");
+        ItemDropTable dropTable = DataManager.Instance.ItemDropDict[dropTableId];
+
+        //SetDropTable을 적용할 인스턴스를 만드시거나, 다른 전역객체를 만드시면 될것 같습니다.
+        if (ItemDropSettings.Instance != null)
+        {
+            ItemDropSettings.Instance.SetDropTable(dropTable);
+        }
+
         if (curStage % 20 == 0)
         {
             GameEventManager.OnStageChanged?.Invoke(curFloor, 20);

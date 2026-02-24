@@ -57,9 +57,11 @@ public static class ItemDropLogic
     {
         if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.EquipListDict == null)
             return 0;
-        var match = DataManager.Instance.EquipListDict.Values
-            .FirstOrDefault(e => e.equipmentType == type && e.equipmentTier == tier);
-        return match != null ? match.ID : 0;
+        int typeNum = (int)type - (int)EquipmentType.Weapon;
+        return EquipmentManager.Instance.equipmentByTierDict[tier][typeNum];
+        //var match = DataManager.Instance.EquipListDict.Values
+        //    .FirstOrDefault(e => e.equipmentType == type && e.equipmentTier == tier);
+        //return match != null ? match.ID : 0;
     }
 
     /// <summary>각 카테고리 독립 롤, itemId = EquipListTable/ItemInfoTable ID</summary>
@@ -75,10 +77,24 @@ public static class ItemDropLogic
                 equipmentId = PickRandom(settings.equipmentIds);
             else if (DataManager.Instance != null && DataManager.Instance.DataLoad)
             {
+                float rand = Random.value;
+                float curDropRate = 0f;
+                int equipmentTier = settings.baseEquipmentTier;
+                for (int i = 0; i < settings.equipmentDropRate.Count; i++)
+                {
+                    curDropRate += settings.equipmentDropRate[i];
+                    if (rand < curDropRate)
+                    {
+                        equipmentTier += i;
+                        break;
+                    }
+                }
+
                 var type = EquipmentTypes[Random.Range(0, EquipmentTypes.Length)];
                 int basePower = GetBaseEquipmentPower(settings, stageLevel);
                 int tier = RollEquipmentTier(settings, basePower);
-                equipmentId = GetEquipmentIdByTypeAndTier(type, tier);
+                //equipmentId = GetEquipmentIdByTypeAndTier(type, tier);
+                equipmentId = GetEquipmentIdByTypeAndTier(type, equipmentTier);
             }
             if (equipmentId > 0)
                 results.Add(new ItemDropResult { itemId = equipmentId, count = 1, category = ItemCategory.Equipment });

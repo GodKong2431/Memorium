@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -10,19 +11,29 @@ public class ItemDropSettings : ScriptableObject
 {
     [Header("드랍 확률 (기본값, 보스 5배 적용)")]
     [Tooltip("골드 100% - 별도 골드 수식 사용")]
-    public bool goldDrop = true;
+    //public bool goldDrop = true;
+    public BigDouble dropGold = 10;
+
+    [Tooltip("장비 아이템 베이스 티어 및 가중치")]
+    public int baseEquipmentTier = 1;
+    public List<float> equipmentDropRate = new List<float>();
+
     [Tooltip("장비 아이템 5%")]
     [Range(0f, 1f)]
     public float equipmentChance = 0.05f;
+
     [Tooltip("수호요정 조각 0.01%")]
     [Range(0f, 1f)]
     public float fairyShardChance = 0.0001f;
+
     [Tooltip("스킬 주문서 0.005%")]
     [Range(0f, 1f)]
     public float skillScrollChance = 0.00005f;
+
     [Tooltip("스킬 잼 0.001%")]
     [Range(0f, 1f)]
     public float skillGemChance = 0.00001f;
+
     [Tooltip("던전 입장권 0.001%")]
     [Range(0f, 1f)]
     public float dungeonTicketChance = 0.00001f;
@@ -59,4 +70,27 @@ public class ItemDropSettings : ScriptableObject
 
     /// <summary>전역 설정. 씬에서 설정하거나 Resources/ItemDropSettings 로드.</summary>
     public static ItemDropSettings Instance { get; set; }
+    //드롭 테이블을 설정하는 메서드
+    public void SetDropTable(ItemDropTable dropTable)
+    {
+        equipmentDropRate.Clear();
+        dropGold = dropTable.dropGold;
+        //베이스 스탯 및 각 아이템 드랍 확률 계산
+        EquipmentDropTable equipmentDropTable = DataManager.Instance.EquipmentDropDict[dropTable.equipmentDropID];
+        baseEquipmentTier = equipmentDropTable.BaseEquipmentTier;
+        int fullRate = equipmentDropTable.EquipmentTierWeight01 + equipmentDropTable.EquipmentTierWeight02 + equipmentDropTable.EquipmentTierWeight03
+            + equipmentDropTable.EquipmentTierWeight04;
+        //0에는 base 등급 이후 1씩 증가하며 각 아이템 드랍 확률 계산
+        equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight01 / (float)fullRate);
+        equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight02 / (float)fullRate);
+        equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight03 / (float)fullRate);
+        equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight04 / (float)fullRate);
+
+        equipmentChance = dropTable.equipmentRate;
+        fairyShardChance = dropTable.fairyPieceRate;
+        skillScrollChance = dropTable.scrollRate;
+        skillGemChance = dropTable.gemRate;
+        dungeonTicketChance = dropTable.keyRate;
+    }
 }
+
