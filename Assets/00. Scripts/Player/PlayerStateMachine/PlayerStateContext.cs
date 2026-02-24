@@ -28,14 +28,20 @@ public class PlayerStateContext : BaseStateContext
     public float ThirdSkillRange => 3.0f;
 
     private Action<PlayerStateType> _requestStateChange;
+    public event Action<float, float> OnHealthChanged;
+    public event Action<float, float> OnManaChanged;
 
     public GameObject AttackEffectPrefab { get; set; }
 
     public PlayerSkillHandler playerSkillHandler;
 
-    public void Initialize(float? startHealth = null)
+    public void Initialize(float? startHealth = null, float? startMana = null)
     {
         CurrentHealth = startHealth ?? MaxHealth;
+        CurrentMana = startMana ?? MaxMana;
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
 
     public void SetStateChangeCallback(Action<PlayerStateType> callback)
@@ -61,11 +67,15 @@ public class PlayerStateContext : BaseStateContext
             CurrentHealth = 0;
             RequestState(PlayerStateType.Die);
         }
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
     public void ConsumeMana(float amount)
     {
         CurrentMana -= amount;
         if (CurrentMana < 0) CurrentMana = 0;
+
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
     public void RequestState(PlayerStateType next)
     {
@@ -84,6 +94,8 @@ public class PlayerStateContext : BaseStateContext
         {
             CurrentHealth = MaxHealth;
         }
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
 
     public void RestoreMana(float amount)
@@ -93,6 +105,17 @@ public class PlayerStateContext : BaseStateContext
         {
             CurrentMana = MaxMana;
         }
+
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
 
+
+    public void RefreshMaxStats()
+    {
+        if (CurrentHealth > MaxHealth) CurrentHealth = MaxHealth;
+        if (CurrentMana > MaxMana) CurrentMana = MaxMana;
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
+    }
 }

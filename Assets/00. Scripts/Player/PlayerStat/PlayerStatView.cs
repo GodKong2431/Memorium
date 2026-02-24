@@ -21,6 +21,17 @@ public class PlayerStatView : MonoBehaviour
         public FinalStatUIItem statUIItem;
     }
 
+    [System.Serializable]
+    public struct GaugeUI
+    {
+        public Image fillImage;
+        public TextMeshProUGUI valueText;
+    }
+
+    private PlayerStateContext playerContext;
+    [SerializeField] private GaugeUI hpGauge;
+    [SerializeField] private GaugeUI mpGauge;
+
     public struct TraitUI
     {
         public PlayerStatType type;
@@ -70,6 +81,20 @@ public class PlayerStatView : MonoBehaviour
 
                 statUpgrade.UpgradeStat += SetStat;
             }
+        }
+    }
+
+    public void InitContext(PlayerStateContext context)
+    {
+        this.playerContext = context;
+
+        if (playerContext != null)
+        {
+            playerContext.OnHealthChanged += UpdateHealthUI;
+            playerContext.OnManaChanged += UpdateManaUI;
+
+            UpdateHealthUI(playerContext.CurrentHealth, playerContext.MaxHealth);
+            UpdateManaUI(playerContext.CurrentMana, playerContext.MaxMana);
         }
     }
 
@@ -142,5 +167,40 @@ public class PlayerStatView : MonoBehaviour
     {
         BigDouble value = CharacterStatManager.Instance.NormalPower;
         normalPowerText.text = value.ToString();
+    }
+
+    private void UpdateHealthUI(float current, float max)
+    {
+        if (hpGauge.fillImage != null)
+            hpGauge.fillImage.fillAmount = max > 0 ? current / max : 0f;
+
+        if (hpGauge.valueText != null)
+            hpGauge.valueText.text = $"{Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
+    }
+
+    private void UpdateManaUI(float current, float max)
+    {
+        if (mpGauge.fillImage != null)
+            mpGauge.fillImage.fillAmount = max > 0 ? current / max : 0f;
+
+        if (mpGauge.valueText != null)
+            mpGauge.valueText.text = $"{Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
+    }
+
+    private void OnDestroy()
+    {
+        if (CharacterStatManager.Instance != null)
+        {
+            CharacterStatManager.Instance.StatUpdate -= SetFinalStat;
+            CharacterStatManager.Instance.StatUpdate -= GetNormalPowerStat;
+        }
+
+        GameEventManager.OnCurrencyChanged -= CheakGold;
+
+        if (playerContext != null)
+        {
+            playerContext.OnHealthChanged -= UpdateHealthUI;
+            playerContext.OnManaChanged -= UpdateManaUI;
+        }
     }
 }

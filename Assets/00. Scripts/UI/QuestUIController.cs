@@ -47,7 +47,7 @@ public class QuestUIController : MonoBehaviour
     {
         var data = QuestManager.Instance.CurrentQuestData;
         int currentCount = QuestManager.Instance.currentProgress;
-        Debug.Log($"Updating Quest UI: {data?.questTitle ?? "No Quest"}, Progress: {currentCount}/{data?.reqCount ?? 0}");
+        
         // 모든 퀘스트 완료 시 예외 처리
         if (data == null)
         {
