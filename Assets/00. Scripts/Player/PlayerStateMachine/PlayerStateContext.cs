@@ -28,17 +28,20 @@ public class PlayerStateContext : BaseStateContext
     public float ThirdSkillRange => 3.0f;
 
     private Action<PlayerStateType> _requestStateChange;
+    public event Action<float, float> OnHealthChanged;
+    public event Action<float, float> OnManaChanged;
 
     public GameObject AttackEffectPrefab { get; set; }
 
     public PlayerSkillHandler playerSkillHandler;
 
-    //초당 회복
-    private float regenTimer = 0f;
-    private const float REGEN_INTERVAL = 1f;
-    public void Initialize(float? startHealth = null)
+    public void Initialize(float? startHealth = null, float? startMana = null)
     {
         CurrentHealth = startHealth ?? MaxHealth;
+        CurrentMana = startMana ?? MaxMana;
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
 
     public void SetStateChangeCallback(Action<PlayerStateType> callback)
@@ -64,11 +67,15 @@ public class PlayerStateContext : BaseStateContext
             CurrentHealth = 0;
             RequestState(PlayerStateType.Die);
         }
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
     public void ConsumeMana(float amount)
     {
         CurrentMana -= amount;
         if (CurrentMana < 0) CurrentMana = 0;
+
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
     public void RequestState(PlayerStateType next)
     {
@@ -87,6 +94,8 @@ public class PlayerStateContext : BaseStateContext
         {
             CurrentHealth = MaxHealth;
         }
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
 
     public void RestoreMana(float amount)
@@ -96,22 +105,17 @@ public class PlayerStateContext : BaseStateContext
         {
             CurrentMana = MaxMana;
         }
+
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
 
-    //초당 회복
-    public void UpdateRegen(float deltaTime)
+
+    public void RefreshMaxStats()
     {
-        regenTimer += deltaTime;
-        if (regenTimer >= REGEN_INTERVAL)
-        {
-            regenTimer -= REGEN_INTERVAL;
+        if (CurrentHealth > MaxHealth) CurrentHealth = MaxHealth;
+        if (CurrentMana > MaxMana) CurrentMana = MaxMana;
 
-            float hpRegen = StatPresenter?.PlayerStat?.FinalHPRegen ?? 0f;
-            float mpRegen = StatPresenter?.PlayerStat?.FinalMPRegen ?? 0f;
-
-            Heal(hpRegen);
-            RestoreMana(mpRegen);
-        }
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
-
 }

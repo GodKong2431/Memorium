@@ -59,6 +59,12 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     {
         CharacterStatManager playerStat = _ctx.StatPresenter?.PlayerStat;
 
+        PlayerStatView statView = FindAnyObjectByType<PlayerStatView>();
+        if (statView != null)
+        {
+            statView.InitContext(_ctx);
+        }
+
         if (playerStat != null && _ctx.Agent != null)
         {
             _ctx.Agent.speed = playerStat.FinalMoveSpeed;
