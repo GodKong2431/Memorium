@@ -9,6 +9,6 @@
     COOLDOWN_REDUCE,
     GOLD_GAIN, EXP_GAIN,
     BOSS_DMG, NORMAL_DMG,
-    TRIAT,
+    Attribute,
     DMG_MULT
 }

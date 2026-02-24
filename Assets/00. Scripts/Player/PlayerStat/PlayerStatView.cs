@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static PlayerStatView;
-using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerStatView : MonoBehaviour
 {
@@ -37,7 +35,7 @@ public class PlayerStatView : MonoBehaviour
 
     IEnumerator Start()
     {
-        yield return new WaitUntil(()=>CharacterStatManager.Instance != null);
+        yield return new WaitUntil(() => CharacterStatManager.Instance != null);
         yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
 
 
@@ -53,6 +51,8 @@ public class PlayerStatView : MonoBehaviour
 
         CharacterStatManager.Instance.StatUpdate += SetFinalStat;
         CharacterStatManager.Instance.StatUpdate += GetNormalPowerStat;
+
+        GameEventManager.OnCurrencyChanged += CheakGold;
 
         foreach (var upgradeStatUI in upgradeStatUIs)
         {
@@ -96,12 +96,44 @@ public class PlayerStatView : MonoBehaviour
 
             if (statui.statUIItem != null)
             {
+                Debug.Log("스탯 호출");
                 BigDouble value = statUpgrade.Stat;
 
                 statui.statUIItem.StatValue.text = value.ToString();
                 statui.statUIItem.StatDescription.text = $"{statUpgrade.StatName} Enchance";
                 statui.statUIItem.StatLevel.text = $"Lv {statUpgrade.UpgradeCount.ToString()}";
                 statui.statUIItem.UpgradeCost.text = $"{statUpgrade.CurrentCost.ToString()}";
+            }
+        }
+    }
+
+    public void CheakGold(CurrencyType currencyType, BigDouble value)
+    {
+        Debug.Log("골드 체크 호출");
+        if (currencyType != CurrencyType.Gold)
+        {
+            return;
+        }
+        StartCoroutine(NextGoldCheck());
+
+    }
+
+    IEnumerator NextGoldCheck()
+    {
+        yield return null;
+        ApplyGold();
+
+    }
+
+    private void ApplyGold()
+    {
+        foreach (var statui in upgradeStatUIs)
+        {
+            var statUpgrade = CharacterStatManager.Instance.GetUpgradeTable(statui.type);
+
+            if (statui.statUIItem != null)
+            {
+                statui.statUIItem.UpgradeCost.color = statUpgrade.CheckGold() ? Color.white : Color.red;
             }
         }
     }

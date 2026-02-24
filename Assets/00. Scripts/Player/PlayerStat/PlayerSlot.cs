@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 [System.Serializable]
@@ -15,6 +16,8 @@ public class PlayerSlot
     public int GloveSlot;
     public int BootsSlot;
     public int FairySlot;
+
+    public event Action OnSlotUpdate;
 
     public PlayerSlot(int key)
     {
@@ -64,6 +67,7 @@ public class PlayerSlot
                 FairySlot = key;
                 break;
         }
+        OnSlotUpdate?.Invoke();
     }
 
     public float GetStat(PlayerStatType playerStatType)
