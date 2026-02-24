@@ -32,13 +32,21 @@ public class PlayerStateContext : BaseStateContext
 
     private Action<PlayerStateType> _requestStateChange;
 
+    public event Action<float, float> OnHealthChanged;
+    public event Action<float, float> OnManaChanged;
+
     public GameObject AttackEffectPrefab { get; set; }
 
     public PlayerSkillHandler playerSkillHandler;
 
-    public void Initialize(float? startHealth = null)
+    public void Initialize(float? startHealth = null, float? startMana = null)
     {
         CurrentHealth = startHealth ?? MaxHealth;
+        CurrentMana = startMana ?? MaxMana;
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
+
         StatPresenter.PlayerStat.StatUpdate += SetSpeed;
     }
 
@@ -71,6 +79,8 @@ public class PlayerStateContext : BaseStateContext
     {
         CurrentMana -= amount;
         if (CurrentMana < 0) CurrentMana = 0;
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
     public void RequestState(PlayerStateType next)
     {
@@ -89,6 +99,8 @@ public class PlayerStateContext : BaseStateContext
         {
             CurrentHealth = MaxHealth;
         }
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
 
     public void RestoreMana(float amount)
@@ -98,6 +110,14 @@ public class PlayerStateContext : BaseStateContext
         {
             CurrentMana = MaxMana;
         }
+
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
+    }
+
+    public void RefreshMaxStats()
+    {
+        if (CurrentHealth > MaxHealth) CurrentHealth = MaxHealth;
+        if (CurrentMana > MaxMana) CurrentMana = MaxMana;
     }
 
     public void SetSpeed()
