@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UI;
 
 public class PlayerInventory : MonoBehaviour
@@ -13,11 +15,64 @@ public class PlayerInventory : MonoBehaviour
     //public Dictionary<int, bool> equipmentUnlock;
     //해당 아이템의 소유 개수 <- 해당 값에는 해금된 아이템만 아이디 값으로 받는다
     public Dictionary<int, int> equipmentCount;
-    public List<int> itemListKeys = new List<int>();
+    public List<int> myEquipmentListKeys = new List<int>();
     public List<int> myEquipmentCountKeys = new List<int>();
+
+    public List<int> allEquipmentListKeys;
+
+    [SerializeField] private Transform[] uIPage;
+
+    public EquipmentHandler equipmentHandler;
 
     [SerializeField] Text testInventory;
     Dictionary<EquipmentType, int> mergeItemByType = new Dictionary<EquipmentType, int>();
+
+    Dictionary<int, EquipmentSlotComponent> allEquipmentComponents = new Dictionary<int, EquipmentSlotComponent>();
+
+    //사실상 테이블 값 전체를 가지고 와야할 듯 함
+    //가져온 테이블을 순서대로 배치 후 가져오는 시점에서 해당 아이디 값이 인벤토리 내에 존재하는지 확인 -> 색 변환
+    //없으면 회색으로 있으면 각 등급에 맞도록 색을 바꾸자
+
+    //
+    public GameObject prefabEquipTierGroup;
+
+    public void SetMyEquipmentInventory()
+    {
+        allEquipmentListKeys = DataManager.Instance.EquipListDict.Keys.ToList();
+        allEquipmentListKeys.Sort();
+
+        //한 번에 넣을 값 : 현재는 일반, 희귀, 레어, 전설, 신화로 있어 총 5개
+        int count = prefabEquipTierGroup.GetComponent<EquipmentSlotContainer>().slot.Count;
+        for (int i = 0; i < allEquipmentListKeys.Count; i+=5)
+        {
+            //1 = 무기 2 = 투구 3 = 장갑 4 = 갑옷 5 = 신발
+            int equipType = allEquipmentListKeys[i] / 10000 % 10;
+            GameObject equipmentUIGroup = Instantiate(prefabEquipTierGroup, uIPage[equipType-1]);
+            EquipmentSlotContainer slotContainer = equipmentUIGroup.GetComponent<EquipmentSlotContainer>();
+            for (int j = i; j < i + 5; j++)
+            {
+                int index = allEquipmentListKeys[j];
+                if (string.IsNullOrEmpty(slotContainer.gradeText.text))
+                {
+                    slotContainer.gradeText.text = DataManager.Instance.EquipListDict[index].grade+"";
+                }
+                allEquipmentComponents[index] = slotContainer.slot[j-i];
+                //slotContainer.slot[index].slotImage =  <= 나중에 이미지 넣을때 사용
+                if (equipmentCount.ContainsKey(index))
+                {
+                    slotContainer.slot[j - i].ownerShipImage.gameObject.SetActive(false);
+                    slotContainer.slot[j - i].equipmentCountSlider.value = equipmentCount[index];
+                    slotContainer.slot[j - i].equipmentCountText.text = equipmentCount[index] + " / 3";
+                }
+            }
+
+        }
+
+    }
+    private void Start()
+    {
+
+    }
     public void SetMyEquipmentCountDictionary(Dictionary<int, int> dict)
     {
         Debug.Log($"[PlayerInventory] 아이디와 갯수 가져오기");
@@ -38,27 +93,27 @@ public class PlayerInventory : MonoBehaviour
         switch (equipmentType)
         {
             case EquipmentType.Weapon:
-                itemListKeys = DataManager.Instance.EquipWeaponDict.Keys.ToList<int>();
+                myEquipmentListKeys = DataManager.Instance.EquipWeaponDict.Keys.ToList<int>();
                 break;
             case EquipmentType.Helmet:
-                itemListKeys = DataManager.Instance.EquipHelmetDict.Keys.ToList<int>();
+                myEquipmentListKeys = DataManager.Instance.EquipHelmetDict.Keys.ToList<int>();
                 break;
             case EquipmentType.Gloves:
-                itemListKeys = DataManager.Instance.EquipGloveDict.Keys.ToList<int>();
+                myEquipmentListKeys = DataManager.Instance.EquipGloveDict.Keys.ToList<int>();
                 break;
             case EquipmentType.Armor:
-                itemListKeys = DataManager.Instance.EquipArmorDict.Keys.ToList<int>();
+                myEquipmentListKeys = DataManager.Instance.EquipArmorDict.Keys.ToList<int>();
                 break;
             case EquipmentType.Boots:
-                itemListKeys = DataManager.Instance.EquipBootsDict.Keys.ToList<int>();
+                myEquipmentListKeys = DataManager.Instance.EquipBootsDict.Keys.ToList<int>();
                 break;
         }
 
 
-        itemListKeys.Sort();
-        itemListKeys.Reverse();
+        myEquipmentListKeys.Sort();
+        myEquipmentListKeys.Reverse();
 
-        foreach (int key in itemListKeys)
+        foreach (int key in myEquipmentListKeys)
         {
             if (equipmentCount.ContainsKey(key))
             {
@@ -66,7 +121,7 @@ public class PlayerInventory : MonoBehaviour
                 break;
             }
         }
-        itemListKeys.Clear();
+        myEquipmentListKeys.Clear();
         return itemId;
     }
 
@@ -74,11 +129,11 @@ public class PlayerInventory : MonoBehaviour
     public void AutoMerge()
     {
         //모든 장비 테이블의 키를 가져와서 저장 <- 합성 시 다음 테이블 키의 값을 올리기 위함 
-        if (itemListKeys.Count <= 0)
-        {
-            itemListKeys = DataManager.Instance.EquipListDict.Keys.ToList<int>();
-            itemListKeys.Sort();
-        }
+        //if (myEquipmentCountKeys.Count <= 0)
+        //{
+        //    myEquipmentListKeys = DataManager.Instance.EquipListDict.Keys.ToList<int>();
+        //    myEquipmentListKeys.Sort();
+        //}
         //현재 소유중인 아이템의 키값들 전부 가져옴
         myEquipmentCountKeys.Clear();
         myEquipmentCountKeys = equipmentCount.Keys.ToList<int>();
@@ -89,7 +144,7 @@ public class PlayerInventory : MonoBehaviour
         mergeItemByType.Clear();
 
         //생각해보니 해금 안된 것들도 합성 과정에서 해금 되는 경우가 있어서 모든 itemListKeys 봐야 겠다
-        foreach (int key in itemListKeys)
+        foreach (int key in allEquipmentListKeys)
         {
             //해당 키값을 가지고 있지 않으면(해금하지 않았으면 넘긴다)
             if (!equipmentCount.ContainsKey(key))
@@ -97,18 +152,22 @@ public class PlayerInventory : MonoBehaviour
             if (equipmentCount[key] >= 3)
             {
                 //키값의 인덱스를 찾고 1을 추가하여 다음 단계의 아이템 인덱스를 가지고 온다
-                int nextIndex = itemListKeys[itemListKeys.IndexOf(key) + 1];
-                
+                Debug.Log($"[PlayerInventory] 아이템 합성 : {key} 인덱스 {allEquipmentListKeys.IndexOf(key)}");
+                int nextIndex = allEquipmentListKeys[allEquipmentListKeys.IndexOf(key) + 1];
+                Debug.Log("[PlayerInventory] 아이템 합성 성공");
                 //만약 다음 단계의 아이템이 락 상태면 해금 시킨다
-                if (!equipmentCount.ContainsKey(nextIndex))
-                {
-                    equipmentCount[nextIndex] = 0;
-                    //equipmentUnlock[nextIndex] = true;
-                }
+                //if (!equipmentCount.ContainsKey(nextIndex))
+                //{
+                //    equipmentCount[nextIndex] = 0;
+                //    //equipmentUnlock[nextIndex] = true;
+                //}
                 //다음 단계의 아이템 인덱스의 갯수를 증가시킨다
-                equipmentCount[nextIndex] += equipmentCount[key] / 3;
+                //equipmentCount[nextIndex] += equipmentCount[key] / 3;
                 //원래 단계의 아이템은 3개씩 나눈 나머지를 가진다
-                equipmentCount[key] %= 3;
+                //equipmentCount[key] %= 3;
+
+                int plusCount = DivideEquipment(key, 3);
+                IncreaseEquipment(nextIndex, plusCount);
 
                 //합성 이펙트 출력
                 //합성 사운드 출력
@@ -123,7 +182,10 @@ public class PlayerInventory : MonoBehaviour
             Debug.Log($"아이템 타입 : {dic.Key} 아이템 번호 : {dic.Value}");
         }
         //ShowMyInventory();
+        //equipmentHandler.autoMerge.gameObject.SetActive(false);
+        equipmentHandler.autoMerge.interactable = false;
         //일괄합성 버튼 비활성화 <- 다음에 아이템 얻을 경우마다 체크 후 출력
+        equipmentHandler.CheckAutoEquip();
     }
 
     public void ShowMyInventory()
@@ -134,6 +196,69 @@ public class PlayerInventory : MonoBehaviour
             stringBuilder.AppendLine("ID : "+dic.Key + " 이름 : "+ DataManager.Instance.EquipListDict[dic.Key] +" 갯수 : "+dic.Value);
         }
         testInventory.text =stringBuilder.ToString();
+    }
 
+    public void CheckAutoMerge()
+    {
+        //if(equipmentHandler.autoMerge.gameObject.activeSelf)
+        //    return;
+
+        if(equipmentHandler.autoMerge.interactable)
+            return;
+
+        foreach (int count in equipmentCount.Values)
+        {
+            if ((count>=3))
+            {
+                //equipmentHandler.autoMerge.gameObject.SetActive(true);
+                equipmentHandler.autoMerge.interactable = true;
+                break;
+            }
+        }
+    }
+
+    public void IncreaseEquipment(int itemNum, int count)
+    {
+        if (equipmentCount.ContainsKey(itemNum))
+        {
+            equipmentCount[itemNum] += count;
+            allEquipmentComponents[itemNum].equipmentCountSlider.value = equipmentCount[itemNum];
+            allEquipmentComponents[itemNum].equipmentCountText.text = equipmentCount[itemNum] + " / 3";
+        }
+        else
+        {
+            equipmentCount[itemNum] = count;
+            allEquipmentComponents[itemNum].ownerShipImage.SetActive(false);
+            allEquipmentComponents[itemNum].equipmentCountSlider.value = count;
+            allEquipmentComponents[itemNum].equipmentCountText.text = count + " / 3";
+        }
+
+        CheckAutoMerge();
+        equipmentHandler.CheckAutoEquip();
+    }
+    public void DecreaseEquipment(int itemNum, int count)
+    {
+        if (!equipmentCount.ContainsKey(itemNum))
+        {
+            Debug.Log($"[PlayerInventory] 해당 아이템 [{itemNum}]을 보유하고 있지 않습니다");
+            return;
+        }
+        equipmentCount[itemNum] -= count;
+        allEquipmentComponents[itemNum].equipmentCountSlider.value = equipmentCount[itemNum];
+        allEquipmentComponents[itemNum].equipmentCountText.text = equipmentCount[itemNum] + " / 3";
+    }
+
+    public int DivideEquipment(int itemNum, int divid)
+    {
+        if (!equipmentCount.ContainsKey(itemNum))
+        {
+            Debug.Log($"[PlayerInventory] 해당 아이템 [{itemNum}]을 보유하고 있지 않습니다");
+            return -1;
+        }
+        int returnCount = equipmentCount[itemNum] / divid;
+        equipmentCount[itemNum] = equipmentCount[itemNum] % divid;
+        allEquipmentComponents[itemNum].equipmentCountSlider.value = equipmentCount[itemNum];
+        allEquipmentComponents[itemNum].equipmentCountText.text = equipmentCount[itemNum] + " / 3";
+        return returnCount;
     }
 }

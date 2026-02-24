@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerEquipment : MonoBehaviour
 {
@@ -7,9 +8,19 @@ public class PlayerEquipment : MonoBehaviour
     public EquipGloveTable glove;
     public EquipArmorTable armor;
     public EquipBootsTable boots;
+
+    //0 : 무기 1: 모자 2: 장갑 3:갑옷 4:신발
+    public GameObject[] onEquipmentUI;
+
+    public EquipmentHandler equipmentHandler;
     public void OnEqipItem(int itemId)
     {
         Debug.Log($"[PlayerEquipment] ID : {itemId} 착용 시도");
+        if (!DataManager.Instance.EquipListDict.ContainsKey(itemId))
+        {
+            Debug.Log($"[PlayerEquipment] 아이템 번호 : {itemId}가 존재하지 않습니다.");
+            return;
+        }
         EquipListTable equipment = DataManager.Instance.EquipListDict[itemId];
         //플레이어 데이터에서 해당 능력치를 빼고 장착 후 다시 해당 능력치를 추가하는 코드
         //매니저에 해당 id 값을 저장하는 코드
@@ -25,7 +36,6 @@ public class PlayerEquipment : MonoBehaviour
                 weapon = DataManager.Instance.EquipWeaponDict[itemId];
                 //TestPlayerDataManager.Instance.playerAttack += weapon.attackPower;
                 //TestPlayerDataManager.Instance.playerAttackSpeed += weapon.attackSpeed;
-
                 CharacterStatManager.Instance.PlayerSlot.SetSlot(itemId, SlotType.Weapon);
 
                 //장비창에 해당 테이블 이미지 넣는 코드
@@ -54,6 +64,7 @@ public class PlayerEquipment : MonoBehaviour
                 CharacterStatManager.Instance.PlayerSlot.SetSlot(itemId, SlotType.Boots);
                 break;
         }
+        ChangeOnEquipmentUIImage(equipment.equipmentType, itemId);
         Debug.Log($"[PlayerEquipment] 아이템 장착 : ${equipment.equipmentName}");
     }
 
@@ -81,4 +92,11 @@ public class PlayerEquipment : MonoBehaviour
         return itemId;
     }
 
+    public void ChangeOnEquipmentUIImage(EquipmentType type, int itemId)
+    {
+        int indexNum = (int)type - (int)EquipmentType.Weapon;
+        onEquipmentUI[indexNum].GetComponent<Image>().color=
+            RarityColor.ItemGradeColor(DataManager.Instance.EquipListDict[itemId].rarityType);
+        onEquipmentUI[indexNum].GetComponentInChildren<Text>().text = DataManager.Instance.EquipListDict[itemId].description +"\n"+ DataManager.Instance.EquipListDict[itemId].equipmentName;
+    }
 }
