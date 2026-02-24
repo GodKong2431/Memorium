@@ -127,7 +127,7 @@ public class StageManager : Singleton<StageManager>
 
     public void StageClear()
     {
-        if(stageKeyList.Count<curStage-1)
+        if(stageKeyList.Count>curStage-1)
             curStage++;
         SetReward();
         SetKillCount();

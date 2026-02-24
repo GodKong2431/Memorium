@@ -41,6 +41,9 @@ public class StageUIController : MonoBehaviour
 
     private void UpdateStageProgress(int currentKill, int maxKill)
     {
+        if(currentKill >= maxKill)
+            currentKill = maxKill;
+
         if (textProgress != null)
             textProgress.text = $"{currentKill} / {maxKill}";
 
