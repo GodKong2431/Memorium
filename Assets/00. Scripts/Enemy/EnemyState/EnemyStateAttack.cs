@@ -18,7 +18,7 @@ public class EnemyStateAttack : IEnemyState
 
     public void OnEnter(EnemyStateContext ctx)
     {
-        if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
+        if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = true;
 
         _isSkillAttack = ctx.IsSkillAttackType;

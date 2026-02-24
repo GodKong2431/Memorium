@@ -63,11 +63,11 @@ public class EnemySkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarget
 
         if (_skillDataContext == null || _skillDataContext.skillData?.skillTable == null)
         {
-            if (DataManager.Instance != null)
+            if (DataManager.Instance != null && DataManager.Instance.SkillInfoDict != null)
                 _skillDataContext = new SkillDataContext(skillId, -1, -1);
             if (_skillDataContext?.skillData?.skillTable == null)
             {
-                Debug.LogWarning($"[EnemySkillHandler] 스킬 ID {skillId} 로드 실패. DataManager 확인.");
+                Debug.LogWarning($"[EnemySkillHandler] 스킬 ID {skillId} 로드 실패. DataManager.DataLoad 완료 여부 및 SkillInfoDict 확인.");
                 return false;
             }
         }

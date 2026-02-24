@@ -156,7 +156,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
         _ctx.Initialize();
         if (_ctx.SkillHandler != null && _ctx.PlayerTransform != null)
             _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
-        if (_ctx.Agent != null)
+        if (_ctx.Agent != null && _ctx.Agent.isOnNavMesh)
         {
             _ctx.Agent.isStopped = false;
             _ctx.Agent.ResetPath();
