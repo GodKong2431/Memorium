@@ -30,7 +30,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     [SerializeField] private StatUpgrade critStatUpgrade;
     [SerializeField] private StatUpgrade critMultStatUpgrade;
     [SerializeField] private StatUpgrade bossDamageStatUpgrade;
-    [SerializeField] private StatUpgrade traitStatUpgrade;
+    //[SerializeField] private StatUpgrade traitStatUpgrade;
 
     [SerializeField] private PlayerLevel levelBonus;
 
@@ -63,7 +63,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     [SerializeField] private float finalBossDamage;
     [SerializeField] private float finalNormalDamage;
     [SerializeField] private float finalDamageMult;
-    [SerializeField] private float finalTrait;
+    [SerializeField] private float finalAttribute;
 
     [SerializeField] public bool TableLoad = false;
 
@@ -84,6 +84,9 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
             equipmentHandler.SetMyEquipOnStart(testSaveData.weaponId, testSaveData.helmetId, testSaveData.gloveId, testSaveData.armorId, testSaveData.bootsId, testSaveData.unlockEquipmentDict);
         }
 
+        //테스트용 골드
+        CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, 1000);
+
         TableLoad = true;
     }
     public CharacterBaseStat BaseStat { get { return baseStat; } }
@@ -96,7 +99,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     public StatUpgrade CritStatUpgrade {  get { return critStatUpgrade; } }
     public StatUpgrade CritMultStatUpgrade { get { return critMultStatUpgrade; } }
     public StatUpgrade BossDamageStatUpgrade { get { return bossDamageStatUpgrade; } }
-    public StatUpgrade TraitStatUpgrade {  get { return traitStatUpgrade; } }
+    //public StatUpgrade TraitStatUpgrade {  get { return traitStatUpgrade; } }
 
     public PlayerLevel LevelBonus { get { return levelBonus; } }
 
@@ -129,7 +132,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     public float FinalBossDamage {  get { return finalBossDamage; } }
     public float FinalNormalDamage {  get { return finalNormalDamage; } }
     public float FinalDamageMult {  get { return finalDamageMult; } }
-    public float FinalTrait { get { return finalTrait; } }
+    public float FinalAttribute { get { return finalAttribute; } }
 
     public float NormalPower { get { return normalPower; } }
 
@@ -140,7 +143,34 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     private void OnEnable()
     {
     }
+    public void EventSet()
+    {
+        attackStatUpgrade.UpgradeStat += FinalStat;
+        mpStatUpgrade.UpgradeStat += FinalStat;
+        mpRegenStatUpgrade.UpgradeStat += FinalStat;
+        hpStatUpgrade.UpgradeStat += FinalStat;
+        hpRegenStatUpgrade.UpgradeStat += FinalStat;
+        critStatUpgrade.UpgradeStat += FinalStat;
+        critMultStatUpgrade.UpgradeStat += FinalStat;
+        bossDamageStatUpgrade.UpgradeStat += FinalStat;
+        //traitStatUpgrade.UpgradeStat += FinalStat;
 
+        attackTrait.UpgradeTrait += FinalStat;
+        mpTrait.UpgradeTrait += FinalStat;
+        hpTrait.UpgradeTrait += FinalStat;
+        attackSpeedTrait.UpgradeTrait += FinalStat;
+        critTrait.UpgradeTrait += FinalStat;
+        critMultTrait.UpgradeTrait += FinalStat;
+        bossDamageTrait.UpgradeTrait += FinalStat;
+        coolDownTrait.UpgradeTrait += FinalStat;
+        damageMultTrait.UpgradeTrait += FinalStat;
+
+        GameEventManager.OnCurrencyChanged += levelBonus.ExpCheck;
+
+        levelBonus.OnLevelUp += AllUpdate;
+
+        playerSlot.OnSlotUpdate += AllUpdate;
+    }
     private void OnDisable()
     {
         attackStatUpgrade.UpgradeStat -= FinalStat;
@@ -151,7 +181,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         critStatUpgrade.UpgradeStat -= FinalStat;
         critMultStatUpgrade.UpgradeStat -= FinalStat;
         bossDamageStatUpgrade.UpgradeStat -= FinalStat;
-        traitStatUpgrade.UpgradeStat -= FinalStat;
+        //traitStatUpgrade.UpgradeStat -= FinalStat;
 
         attackTrait.UpgradeTrait -= FinalStat;
         mpTrait.UpgradeTrait -= FinalStat;
@@ -162,9 +192,13 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         bossDamageTrait.UpgradeTrait -= FinalStat;
         coolDownTrait.UpgradeTrait -= FinalStat;
         damageMultTrait.UpgradeTrait -= FinalStat;
-    }
 
-    
+        GameEventManager.OnCurrencyChanged -= levelBonus.ExpCheck;
+
+        levelBonus.OnLevelUp -= AllUpdate;
+
+        playerSlot.OnSlotUpdate -= AllUpdate;
+    }
 
     public void LoadTable()
     {
@@ -178,7 +212,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         critStatUpgrade = new StatUpgrade(1010006, PlayerStatType.CRIT_CHANCE);
         critMultStatUpgrade = new StatUpgrade(1010007, PlayerStatType.CRIT_MULT);
         bossDamageStatUpgrade = new StatUpgrade(1010008, PlayerStatType.BOSS_DMG);
-        traitStatUpgrade = new StatUpgrade(1010009, PlayerStatType.TRIAT);
+        //traitStatUpgrade = new StatUpgrade(1010009, PlayerStatType.TRIAT);
 
         levelBonus = new PlayerLevel(level);
 
@@ -222,7 +256,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
                 finalATK = FinalStatAdd(PlayerStatType.ATK, baseStat.Attack, attackStatUpgrade.Stat, levelBonus.BonusAttack, attackTrait.CurrentStat);
                 break;
             case PlayerStatType.ATK_SPEED:
-                finalATKSpeed = FinalStatAdd(PlayerStatType.ATK_SPEED, baseStat.AttackSpeed, 0, 0, attackSpeedTrait.CurrentStat);
+                finalATKSpeed = Math.Min(FinalStatAdd(PlayerStatType.ATK_SPEED, baseStat.AttackSpeed, 0, 0, attackSpeedTrait.CurrentStat), 3);
                 break;
             case PlayerStatType.PHYS_DEF:
                 finalPhysDEF = FinalStatAdd(PlayerStatType.PHYS_DEF, baseStat.PhysicsResist, 0, 0, 0);
@@ -257,13 +291,13 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
             case PlayerStatType.DMG_MULT:
                 finalDamageMult = FinalStatAdd(PlayerStatType.DMG_MULT, baseStat.DamageMult, 0, 0, DamageMultTrait.CurrentStat);
                 break;
-            case PlayerStatType.TRIAT:
-                finalTrait = FinalStatAdd(PlayerStatType.TRIAT, 0, traitStatUpgrade.Stat, 0, 0);
+            case PlayerStatType.Attribute:
+                finalAttribute = FinalStatAdd(PlayerStatType.Attribute, 0, 0, 0, 0);
                 break;
         }
 
         expectedCrit = 1 + (finalCritChance * (finalCritMult - 1));
-        normalPower = (finalATK * finalATKSpeed * expectedCrit) * (1 + finalTrait) * (1 + finalDamageMult) * (1 + finalNormalDamage);
+        normalPower = (finalATK * finalATKSpeed * expectedCrit) * (1 + finalAttribute) * (1 + finalDamageMult) * (1 + finalNormalDamage);
         StatUpdate?.Invoke();
     }
 
@@ -318,6 +352,14 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         }
     }
 
+    public void AllUpdate()
+    {
+        foreach(PlayerStatType statType in Enum.GetValues(typeof(PlayerStatType)))
+        {
+            FinalStat(statType);
+        }
+    }
+
     public void Upgrade(StatUpgrade statUpgrade)
     {
         statUpgrade.Upgrade();
@@ -354,29 +396,6 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         }
     }
 
-    public void EventSet()
-    {
-        attackStatUpgrade.UpgradeStat += FinalStat;
-        mpStatUpgrade.UpgradeStat += FinalStat;
-        mpRegenStatUpgrade.UpgradeStat += FinalStat;
-        hpStatUpgrade.UpgradeStat += FinalStat;
-        hpRegenStatUpgrade.UpgradeStat += FinalStat;
-        critStatUpgrade.UpgradeStat += FinalStat;
-        critMultStatUpgrade.UpgradeStat += FinalStat;
-        bossDamageStatUpgrade.UpgradeStat += FinalStat;
-        traitStatUpgrade.UpgradeStat += FinalStat;
-
-        attackTrait.UpgradeTrait += FinalStat;
-        mpTrait.UpgradeTrait += FinalStat;
-        hpTrait.UpgradeTrait += FinalStat;
-        attackSpeedTrait.UpgradeTrait += FinalStat;
-        critTrait.UpgradeTrait += FinalStat;
-        critMultTrait.UpgradeTrait += FinalStat;
-        bossDamageTrait.UpgradeTrait += FinalStat;
-        coolDownTrait.UpgradeTrait += FinalStat;
-        damageMultTrait.UpgradeTrait += FinalStat;
-    }
-
     public StatUpgrade GetUpgradeTable(PlayerStatType playerStatType)
     {
         switch (playerStatType)
@@ -397,8 +416,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
                 return critMultStatUpgrade;
             case PlayerStatType.BOSS_DMG:
                 return bossDamageStatUpgrade;
-            case PlayerStatType.TRIAT:
-                return traitStatUpgrade;
+            //case PlayerStatType.TRIAT:
+            //    return traitStatUpgrade;
             default:
                 Debug.Log($"[CharcterStatManager] 현재 {playerStatType} 타입의 업그레이드가 없습니다");
                 return null;
@@ -412,4 +431,6 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         testSaveData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
         JSONService.Save(testSaveData);
     }
+
+
 }
