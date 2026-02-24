@@ -8,7 +8,7 @@ public class PlayerStatPresenter : MonoBehaviour
 
     public CharacterStatManager PlayerStat {  get { return playerStat; } }
 
-    private void Start()
+    private void Awake()
     {
         playerStat=CharacterStatManager.Instance;
     }
