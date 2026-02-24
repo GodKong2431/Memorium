@@ -1,6 +1,4 @@
-using UnityEditor.Build.Pipeline;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
 
 public static class RarityColor
 {

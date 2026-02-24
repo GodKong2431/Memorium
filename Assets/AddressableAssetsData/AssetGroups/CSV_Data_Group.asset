@@ -21,12 +21,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 0886d5df7e1884f4583be5e69543fe59
-    m_Address: PassiveBalance
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - CSV_Data
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0f4acb79cb4e8234a978f28e0701a87a
     m_Address: MonsterBasestatTable
     m_ReadOnly: 0
@@ -51,14 +45,14 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 1e08d8120b809db4f934fe0af2980835
-    m_Address: StatUpgradeTable
+  - m_GUID: 1cd691cb3983edd40888acdc90915670
+    m_Address: PassiveInfoTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 33ed320cee15cf34ba53888c1f5a2f24
-    m_Address: MonsterStringTable
+  - m_GUID: 1e08d8120b809db4f934fe0af2980835
+    m_Address: StatUpgradeTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -75,8 +69,14 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 3848f24f1ee340b4d850eb77f5ac1d8b
-    m_Address: PassiveInfoTable
+  - m_GUID: 384deb54f8a1283428cdb304f1958d61
+    m_Address: PassiveSetTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CSV_Data
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3dc07a1ebbdd1f94ab7f0ab1ee5c5176
+    m_Address: PassiveBalance
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -89,12 +89,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 41add335c8a679a4b90bb3f2ef8c8d3f
     m_Address: EquipArmorTable
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - CSV_Data
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 43ed93b0511750b4192b61c3d30e9318
-    m_Address: PassiveGrowthTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -159,6 +153,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9c34a6a9fc63dbe49911811e6d98a611
+    m_Address: PassiveGrowthTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CSV_Data
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a518955020c187f46b2cdd889821dfe1
     m_Address: EquipWeaponTable
     m_ReadOnly: 0
@@ -173,6 +173,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a78e3f50f9c5585479d4181682b715cd
     m_Address: FairyStatTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CSV_Data
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a9f8adad1dfb0e74ba8f1a3bb377ee77
+    m_Address: StringTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -195,14 +201,14 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: bc7a45be959cc554589c441cd55fae54
-    m_Address: PassiveSetTable
+  - m_GUID: bced216e7beebc14b9835038fb92ef3f
+    m_Address: SkillModule3Table
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: bced216e7beebc14b9835038fb92ef3f
-    m_Address: SkillModule3Table
+  - m_GUID: cc93977f20f34624fac0e02f796ce072
+    m_Address: ItemInfoTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -219,20 +225,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: d46420d5781ef1c468b598ad39978ae5
-    m_Address: ItemInfoTable
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - CSV_Data
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d9de6d203d0f1d645ad2ed720d08db94
     m_Address: LineQuestTable
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - CSV_Data
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: dc4cb23f73e173645838990c0a770eef
-    m_Address: EnemyGrowthTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
@@ -243,8 +237,20 @@ MonoBehaviour:
     m_SerializedLabels:
     - CSV_Data
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e509e59d52de7a5469bd01e76e179317
+    m_Address: BerserkmodeManageTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CSV_Data
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e7e82a2025d655b489ddc733bf5448e6
     m_Address: EquipmentDropTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - CSV_Data
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f149e9311c932a64d9874475b24ec2fd
+    m_Address: MonsterGrowthTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - CSV_Data
