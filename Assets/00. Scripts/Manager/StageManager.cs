@@ -33,7 +33,7 @@ public class StageManager : Singleton<StageManager>
     //[SerializeField] TextMeshProUGUI curStageAndFloorText;
     //[SerializeField] TextMeshProUGUI curMonsterKillCountText;
     //[SerializeField] Image curMonsterGuage;
-
+    [SerializeField] StageType curStageType;
 
     private IEnumerator Start()
     {
@@ -59,8 +59,18 @@ public class StageManager : Singleton<StageManager>
     }
     private void Init()
     {
-        stageKeyList = DataManager.Instance.StageManageDict.Keys.ToList<int>();
-        stageKeyList.Sort();
+        List<int> keyList= DataManager.Instance.StageManageDict.Keys.ToList<int>();
+        keyList.Sort();
+        stageKeyList= new List<int>();
+        foreach (int key in keyList)
+        {
+            if (DataManager.Instance.StageManageDict[key].stageType == curStageType)
+            {
+                stageKeyList.Add(key);
+            }
+        }
+        //stageKeyList = DataManager.Instance.StageManageDict.Keys.ToList<int>();
+        //stageKeyList.Sort();
     }
     public void OnClickBossSummonButtonClick()
     {
@@ -117,7 +127,8 @@ public class StageManager : Singleton<StageManager>
 
     public void StageClear()
     {
-        curStage++;
+        if(stageKeyList.Count<curStage-1)
+            curStage++;
         SetReward();
         SetKillCount();
         infinityMap.MapReset();
