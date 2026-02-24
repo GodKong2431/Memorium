@@ -65,7 +65,13 @@ public class PlayerInventory : MonoBehaviour
                 {
                     slotContainer.slot[j - i].ownerShipImage.gameObject.SetActive(false);
                     slotContainer.slot[j - i].equipmentCountSlider.value = equipmentCount[index];
-                    slotContainer.slot[j - i].equipmentCountText.text = equipmentCount[index] + " / 3";
+                    //slotContainer.slot[j - i].equipmentCountText.text = equipmentCount[index] + " / 3";
+
+                    string itemCount;
+                    if (equipmentCount[index] > 99)
+                        itemCount = 99 + "+";
+                    else itemCount = equipmentCount[index].ToString();
+                    slotContainer.slot[j - i].equipmentCountText.text = itemCount + " / 3";
                 }
             }
 
@@ -272,14 +278,25 @@ public class PlayerInventory : MonoBehaviour
         {
             equipmentCount[itemNum] += count;
             allEquipmentComponents[itemNum].equipmentCountSlider.value = equipmentCount[itemNum];
-            allEquipmentComponents[itemNum].equipmentCountText.text = equipmentCount[itemNum] + " / 3";
+            string itemCount;
+            if (equipmentCount[itemNum] > 99)
+                itemCount = 99 + "+";
+            else itemCount = equipmentCount[itemNum].ToString();
+            //allEquipmentComponents[itemNum].equipmentCountText.text = equipmentCount[itemNum] + " / 3";
+            allEquipmentComponents[itemNum].equipmentCountText.text = itemCount + " / 3";
         }
         else
         {
             equipmentCount[itemNum] = count;
             allEquipmentComponents[itemNum].ownerShipImage.SetActive(false);
             allEquipmentComponents[itemNum].equipmentCountSlider.value = count;
-            allEquipmentComponents[itemNum].equipmentCountText.text = count + " / 3";
+            //allEquipmentComponents[itemNum].equipmentCountText.text = count + " / 3";
+            string itemCount;
+            if (equipmentCount[itemNum] > 99)
+                itemCount = 99 + "+";
+            else itemCount = equipmentCount[itemNum].ToString();
+            //allEquipmentComponents[itemNum].equipmentCountText.text = equipmentCount[itemNum] + " / 3";
+            allEquipmentComponents[itemNum].equipmentCountText.text = itemCount + " / 3";
         }
 
         CheckAutoMerge();
