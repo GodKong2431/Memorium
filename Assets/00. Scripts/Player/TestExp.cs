@@ -29,16 +29,19 @@ public class TestExp : MonoBehaviour
     [SerializeField] PlayerInventory playerInventory;
     [SerializeField] Button buttont;
 
-
+    [SerializeField] EquipmentType equipmentType;
     [SerializeField] private EquipmentID ID;
     [Range(1,5)]
     [SerializeField] int eId;
     
     [SerializeField] int eAmount;
 
+    
 
-
-    [SerializeField] EquipmentType equipmentType;
+    [Space(10)]
+    [SerializeField] Button killConutButton;
+    [Range(1, 100)]
+    [SerializeField] int count;
 
     private Dictionary<EquipmentType, int> equipmentKeyDict = new Dictionary<EquipmentType, int>()
 {
@@ -57,5 +60,7 @@ public class TestExp : MonoBehaviour
         buttone.onClick.AddListener(() => CharacterStatManager.Instance.FinalStat(playerStatType));
 
         buttont.onClick.AddListener(() => playerInventory.IncreaseEquipment((equipmentKeyDict[equipmentType] + ((int)ID) + (eId)), eAmount));
+
+        killConutButton.onClick.AddListener(() => EnemyKillRewardDispatcher.TotalKillCountUp(count));
     }
 }

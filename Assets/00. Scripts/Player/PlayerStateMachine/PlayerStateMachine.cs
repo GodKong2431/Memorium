@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -23,7 +24,9 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
     private StateMachine<PlayerStateContext, IPlayerState, PlayerStateType> playerStateMachine;
 
-    private void Awake()
+    bool IsComplete = false;
+
+    private void init()
     {
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<PlayerStatPresenter>();
@@ -55,8 +58,12 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
     }
 
-    private void Start()
+    IEnumerator Start()
     {
+        yield return new WaitUntil(() => CharacterStatManager.Instance != null);
+        yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
+
+        init();
         CharacterStatManager playerStat = _ctx.StatPresenter?.PlayerStat;
 
         PlayerStatView statView = FindAnyObjectByType<PlayerStatView>();
@@ -80,6 +87,8 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         }
         // 스폰되면 바로 chase 상태로 전환
         playerStateMachine.ChangeState(PlayerStateType.Idle);
+
+        IsComplete = true;
     }
     private void OnDataLoaded()
     {
@@ -88,6 +97,11 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     }
     private void Update()
     {
+        if (!IsComplete)
+        {
+            return;
+        }
+
         CurrentType = playerStateMachine.CurrentStateType;
         if (playerStateMachine.Current == null) return;
         playerStateMachine.Current.OnUpdate(_ctx);
