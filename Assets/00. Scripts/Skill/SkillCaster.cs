@@ -144,7 +144,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     }
 
     /// <summary>
-    /// 모듈 3 시퀀스, 모듈 2는 모듈3에 종속되어있어서 따로 시퀀스 나누지않음
+    /// 모듈 3 시퀀스, 모듈2는 모듈3에 종속되어있어서 따로 시퀀스 나누지않음
     /// </summary>
     /// <param name="dataContext"></param>
     /// <returns></returns>
