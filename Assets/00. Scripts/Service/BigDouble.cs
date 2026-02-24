@@ -113,6 +113,15 @@ public struct BigDouble : IComparable<BigDouble>, IEquatable<BigDouble>
         double showValue = mantissa * Math.Pow(10, exponent % 3);
         return $"{showValue.ToString(format)}{GetSuffix(unitIndex)}";
     }
+    public double ToDouble()
+    {
+        return mantissa * Math.Pow(10, exponent);
+    }
+
+    public float ToFloat()
+    {
+        return (float)ToDouble();
+    }
 
     private string GetSuffix(long index)
     {
