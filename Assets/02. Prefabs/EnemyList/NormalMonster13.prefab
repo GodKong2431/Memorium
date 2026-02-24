@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: -2519339963218082479}
   - component: {fileID: 1647506360405476230}
   m_Layer: 6
-  m_Name: Stage01Boss 4
+  m_Name: NormalMonster13
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -72,7 +72,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 26202f2d3daa2f3498f62ed2d9cd64c9, type: 2}
+  - {fileID: 2100000, guid: 7612b12fcd8d3e142a0a7ac59e43fe87, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -129,8 +129,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a3af68a6d5ca364e9fdec187c11d870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStatPresenter
-  setting: {fileID: 11400000, guid: d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6, type: 2}
-  monsterIdFromDataManager: 2020002
+  setting: {fileID: 11400000, guid: 0c0926b023e5e284bab89de6065489b4, type: 2}
+  monsterIdFromDataManager: 2010013
 --- !u!195 &5198204872264942134
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -167,7 +167,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStateMachine
   playerTransformOverride: {fileID: 0}
   animator: {fileID: 0}
-  isBoss: 1
+  isBoss: 0
   attackEffectPrefab: {fileID: 3616685332895339214, guid: 82a7b746be35c0b499c26ecf818e1ea4, type: 3}
 --- !u!54 &-2519339963218082479
 Rigidbody:

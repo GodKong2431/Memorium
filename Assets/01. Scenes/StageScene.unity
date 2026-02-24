@@ -4845,23 +4845,9 @@ MonoBehaviour:
       mantissa: 0
       exponent: 0
     statType: 0
-  traitStatUpgrade:
-    statName: 
-    upgradeCount: 0
-    statInCrease: 0
-    baseCost: 0
-    costMultiplyRate: 0
-    stat: 0
-    currentCost:
-      mantissa: 0
-      exponent: 0
-    statType: 0
   levelBonus:
     CurrentLevel: 0
     RequiredExp:
-      mantissa: 0
-      exponent: 0
-    CurrentExp:
       mantissa: 0
       exponent: 0
     BonusAttack: 0
@@ -5027,7 +5013,7 @@ MonoBehaviour:
   finalBossDamage: 0
   finalNormalDamage: 0
   finalDamageMult: 0
-  finalTrait: 0
+  finalAttribute: 0
   TableLoad: 0
   normalPower: 0
   expectedCrit: 0
@@ -24113,24 +24099,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyListManager
   enemyList:
-  - {fileID: 2313836269413093444, guid: 4da7d307a82ba0349bed8a82a9b87d1d, type: 3}
+  - {fileID: 2313836269413093444, guid: 304844cf73f01af47863fdbcc53d8eae, type: 3}
+  - {fileID: 2313836269413093444, guid: 20d367d04a5bbc44db05d0437b3c8367, type: 3}
+  - {fileID: 2313836269413093444, guid: 1273988889f2a94489c36d594c230bb0, type: 3}
+  - {fileID: 2313836269413093444, guid: 65b70a81eaed8f0428d43f7a7e3f1dd0, type: 3}
   - {fileID: 2313836269413093444, guid: 373601a86858c69468665206af4017dc, type: 3}
-  - {fileID: 2313836269413093444, guid: e0da57bb4b5d97243ac511508f642771, type: 3}
+  - {fileID: 2313836269413093444, guid: b5d2da68b921c8d4f8a99b13a3e53c5f, type: 3}
   - {fileID: 2313836269413093444, guid: 3594ea00ee46f8646aa8c8d97daf01f1, type: 3}
   - {fileID: 2313836269413093444, guid: 521c3a2de85b76747bcb0a2f3139ac55, type: 3}
   - {fileID: 2313836269413093444, guid: 0f3116306bee90d458b4a5c3d9fa19f1, type: 3}
+  - {fileID: 2313836269413093444, guid: e0da57bb4b5d97243ac511508f642771, type: 3}
+  - {fileID: 2313836269413093444, guid: 4da7d307a82ba0349bed8a82a9b87d1d, type: 3}
+  - {fileID: 2313836269413093444, guid: de1e17e6014c28647886778678adcdd2, type: 3}
   - {fileID: 2313836269413093444, guid: e268a13463b836543ac04980619397cb, type: 3}
   - {fileID: 2313836269413093444, guid: 1b56e5774c076514cabf9ba8294f98d5, type: 3}
   - {fileID: 2313836269413093444, guid: db91ecbb260dee8498128c4545540b0d, type: 3}
   - {fileID: 2313836269413093444, guid: ae4f272df66b42f43b67fbb4d6a9bd07, type: 3}
   - {fileID: 2313836269413093444, guid: ffe5c33b691490b4cab5525c2ae6890b, type: 3}
-  - {fileID: 2313836269413093444, guid: de1e17e6014c28647886778678adcdd2, type: 3}
   - {fileID: 2313836269413093444, guid: d97e0f952afa1c640b4af079092cc35e, type: 3}
-  - {fileID: 2313836269413093444, guid: 65b70a81eaed8f0428d43f7a7e3f1dd0, type: 3}
-  - {fileID: 2313836269413093444, guid: b5d2da68b921c8d4f8a99b13a3e53c5f, type: 3}
-  - {fileID: 2313836269413093444, guid: 304844cf73f01af47863fdbcc53d8eae, type: 3}
-  - {fileID: 2313836269413093444, guid: 20d367d04a5bbc44db05d0437b3c8367, type: 3}
-  - {fileID: 2313836269413093444, guid: 1273988889f2a94489c36d594c230bb0, type: 3}
 --- !u!4 &1757004720
 Transform:
   m_ObjectHideFlags: 0
