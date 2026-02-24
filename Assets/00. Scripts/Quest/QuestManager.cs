@@ -45,9 +45,10 @@ public class QuestManager : Singleton<QuestManager>
     /// </summary>
     private void HandleQuestAction(QuestType type, int amount)
     {
+        Debug.Log($"퀘스트 행동 업데이트: {type}, 양: {amount}");
         var questData = CurrentQuestData;
         if (questData == null || IsCurrentQuestComplete) return;
-
+        Debug.Log($"현재 퀘스트: {questData}, 진행도: {currentProgress}/{questData.reqCount}");
         // 발생한 행동이 현재 퀘스트의 요구와 맞으면
         if (questData.questType == type)
         {
