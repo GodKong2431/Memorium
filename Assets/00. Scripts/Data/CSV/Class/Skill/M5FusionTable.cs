@@ -4,8 +4,8 @@ using System.Collections.Generic;
 [System.Serializable]
 public class M5FusionTable : TableBase
 {
-    public string m5IDA;
-    public string m5IDB;
+    public int m5IDA;
+    public int m5IDB;
     public string fusionName;
     public ApplyType applyType;
     public float duration;

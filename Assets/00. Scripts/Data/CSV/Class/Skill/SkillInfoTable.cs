@@ -7,6 +7,7 @@ public class SkillInfoTable : TableBase
     public int m1ID;
     public int m2ID;
     public int m3ID;
+    public float manaCost;
     public float skillDamage;
     public float skillDamageValue;
     public string skillName;

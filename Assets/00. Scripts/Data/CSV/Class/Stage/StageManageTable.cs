@@ -4,6 +4,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class StageManageTable : TableBase
 {
+    public string desc;
     public StageType stageType;
     public int stageLevel;
     public int floorNumber;

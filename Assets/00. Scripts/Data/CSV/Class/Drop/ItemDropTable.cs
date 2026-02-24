@@ -4,7 +4,8 @@ using System.Collections.Generic;
 [System.Serializable]
 public class ItemDropTable : TableBase
 {
-    public int dropGold;
+    public int stageLevel;
+    public BigDouble dropGold;
     public int equipmentDropID;
     public float equipmentRate;
     public float fairyPieceRate;

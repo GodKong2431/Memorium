@@ -21,13 +21,12 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, BossManageTable> BossManageDict;
     public Dictionary<int, MonsterBasestatTable> MonsterBasestatDict;
     public Dictionary<int, MonsterGroupTable> MonsterGroupDict;
-    public Dictionary<int, MonsterStringTable> MonsterStringDict;
+    public Dictionary<int, MonsterGrowthTable> EnemyGrowthDict;
 
     // 아이템 테이블
     public Dictionary<int, ItemInfoTable> ItemInfoDict;
 
     // 장비 테이블
-    public Dictionary<int, EnemyGrowthTable> EnemyGrowthDict;
     public Dictionary<int, EquipArmorTable> EquipArmorDict;
     public Dictionary<int, EquipBootsTable> EquipBootsDict;
     public Dictionary<int, EquipWeaponTable> EquipWeaponDict;
@@ -48,6 +47,7 @@ public class DataManager : Singleton<DataManager>
 
     // 플레이어 데이터
     public Dictionary<int, CharacterBaseStatInfoTable> CharacterBaseStatInfoDict;
+    public Dictionary<int, BerserkmodeManageTable> BerserkmodeManageDict;
     public Dictionary<int, CharacterTable> CharacterDict;
     public Dictionary<int, LevelbonusTable> LevelbonusDict;
     public Dictionary<int, PlayerExpTable> PlayerLevelDict;
@@ -72,6 +72,9 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, PassiveGrowthTable> PassiveGrowthDict;
     public Dictionary<int, PassiveInfoTable> PassiveInfoDict;
     public Dictionary<int, PassiveSetTable> PassiveSetDict;
+
+    // 기타 데이터
+    public Dictionary<int, StringTable> StringDict;
 
     #endregion
 
@@ -206,7 +209,6 @@ public class DataManager : Singleton<DataManager>
             else Debug.LogWarning($"[DataManager] {keyName} - ID: {data.ID} 중복됨");
         }
 
-        // 2. 변수 주입
         // 필드와 프로퍼티 모두 검색하도록 설정
         var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
         bool injected = false;
