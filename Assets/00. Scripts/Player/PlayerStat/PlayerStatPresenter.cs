@@ -10,7 +10,7 @@ public class PlayerStatPresenter : MonoBehaviour
 
     private void Start()
     {
-
+        playerStat=CharacterStatManager.Instance;
     }
 
     private void OnEnable()

@@ -14,10 +14,10 @@ public class QuestUIController : MonoBehaviour
     public Image imageProgressBar;
     public Button btnClaimReward;
 
-    IEnumerator Start()
+    public void Start()
     {
-        yield return new WaitUntil(() => DataManager.Instance != null);
-        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        //yield return new WaitUntil(() => DataManager.Instance != null);
+        //yield return new WaitUntil(() => DataManager.Instance.DataLoad);
 
         // 화면 갱신 이벤트 구독
         GameEventManager.OnQuestProgressChanged += UpdateUI;
@@ -47,7 +47,7 @@ public class QuestUIController : MonoBehaviour
     {
         var data = QuestManager.Instance.CurrentQuestData;
         int currentCount = QuestManager.Instance.currentProgress;
-
+        Debug.Log($"Updating Quest UI: {data?.questTitle ?? "No Quest"}, Progress: {currentCount}/{data?.reqCount ?? 0}");
         // 모든 퀘스트 완료 시 예외 처리
         if (data == null)
         {
