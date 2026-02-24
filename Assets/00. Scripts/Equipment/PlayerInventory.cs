@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UI;
@@ -36,6 +37,8 @@ public class PlayerInventory : MonoBehaviour
     //
     public GameObject prefabEquipTierGroup;
 
+    public List<int> finalEquipment;
+
     public void SetMyEquipmentInventory()
     {
         allEquipmentListKeys = DataManager.Instance.EquipListDict.Keys.ToList();
@@ -69,9 +72,47 @@ public class PlayerInventory : MonoBehaviour
         }
 
     }
-    private void Start()
+
+    public void FindFinalEquipment()
     {
 
+        //int equipmentTier = 0;
+        //int finalEquipmentIndex = 0;
+
+        int count = Enum.GetNames(typeof(EquipmentType)).Length;
+        int[] equipmentTierArr = new int[count];
+        int[] finalEquipmentIndexArr = new int[count];
+        //int finalEquipmentIndex = 0;
+
+        foreach (int index in allEquipmentListKeys)
+        {
+            int itemTypeIndex = (int)DataManager.Instance.EquipListDict[index].equipmentType - (int)EquipmentType.Weapon;
+            if (DataManager.Instance.EquipListDict[index].equipmentTier > equipmentTierArr[itemTypeIndex])
+            {
+                equipmentTierArr[itemTypeIndex] = DataManager.Instance.EquipListDict[index].equipmentTier;
+                finalEquipmentIndexArr[itemTypeIndex] = index;
+            }
+        }
+
+        foreach (var index in finalEquipmentIndexArr)
+        {
+            finalEquipment.Add(index);
+        }
+
+        //foreach (EquipmentType t in Enum.GetValues(typeof(EquipmentType)))
+        //{
+        //    foreach (var dict in DataManager.Instance.EquipListDict)
+        //    {
+        //        if (dict.Value.equipmentType == t)
+        //        {
+        //            if (dict.Value.equipmentTier > equipmentTier)
+        //            {
+        //                finalEquipmentIndex = dict.Value.ID;
+        //            }
+        //        }
+        //        finalEquipment.Add(finalEquipmentIndex);
+        //    }
+        //}
     }
     public void SetMyEquipmentCountDictionary(Dictionary<int, int> dict)
     {
@@ -149,6 +190,9 @@ public class PlayerInventory : MonoBehaviour
             //해당 키값을 가지고 있지 않으면(해금하지 않았으면 넘긴다)
             if (!equipmentCount.ContainsKey(key))
                 continue;
+            //최종 티어 장비면 다음으로 넘긴다
+            if (finalEquipment.Contains(key))
+                continue ;
             if (equipmentCount[key] >= 3)
             {
                 //키값의 인덱스를 찾고 1을 추가하여 다음 단계의 아이템 인덱스를 가지고 온다
@@ -206,9 +250,14 @@ public class PlayerInventory : MonoBehaviour
         if(equipmentHandler.autoMerge.interactable)
             return;
 
-        foreach (int count in equipmentCount.Values)
+        foreach (var count in equipmentCount)
         {
-            if ((count>=3))
+            if (finalEquipment.Contains(count.Key))
+            {
+                Debug.Log($"[PlayerInventory] 최종 등급 장비는 합성이 불가능 합니다.");
+                continue;
+            }
+            if ((count.Value>=3))
             {
                 //equipmentHandler.autoMerge.gameObject.SetActive(true);
                 equipmentHandler.autoMerge.interactable = true;

@@ -14,10 +14,10 @@ public class QuestUIController : MonoBehaviour
     public Image imageProgressBar;
     public Button btnClaimReward;
 
-    public void Start()
+    IEnumerator Start()
     {
-        //yield return new WaitUntil(() => DataManager.Instance != null);
-        //yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        yield return new WaitUntil(() => DataManager.Instance != null);
+        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
 
         // 화면 갱신 이벤트 구독
         GameEventManager.OnQuestProgressChanged += UpdateUI;
