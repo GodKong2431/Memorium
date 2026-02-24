@@ -18,6 +18,7 @@ public class JumpMove : ISkillMovementStrategy
         Vector3 endPos = startPos + (direction * data.m1Scale); 
         if (NavMesh.SamplePosition(endPos, out var navHit, SkillConstants.NAV_SEARCH_RADIUS, NavMesh.AllAreas))
             endPos = navHit.position;
+        endPos.y = subject.Position.y;
 
         float jumpHeight = data.m1Scale * 0.3f;
         
