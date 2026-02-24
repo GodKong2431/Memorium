@@ -73,7 +73,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 176d73ffb31e4ba4e96fd4436780ae37, type: 2}
+  - {fileID: 2100000, guid: 6a6fe43c90551804db6ef73d02b40520, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStatPresenter
   setting: {fileID: 11400000, guid: 400a7936ee4706a478f2e19cbf3aa04a, type: 2}
-  monsterIdFromDataManager: 0
+  monsterIdFromDataManager: 2010012
 --- !u!195 &5198204872264942134
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -289,7 +289,7 @@ MonoBehaviour:
       sound: 
       m5VFX: 
       desc: 
-  projectilePrefab: {fileID: 0}
-  deployPrefab: {fileID: 0}
-  shadowPrepab: {fileID: 0}
-  isTestContextOn: 0
+  projectilePrefab: {fileID: 1604259860813359153, guid: cc27048a1a6486843887c6285dab2d36, type: 3}
+  deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
+  shadowPrepab: {fileID: 9106158446547060106, guid: ad334d366ce436447a3b287029a8541f, type: 3}
+  isTestContextOn: 1
