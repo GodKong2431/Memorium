@@ -1,3 +1,4 @@
+using System;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -12,8 +13,13 @@ public interface ISkillTargetProvider
 {
     Transform GetTarget();
 }
+public interface ISkillCooldownProvider
+{
+    float GetCooldownRemain(int index);
+    float GetCooldownMax(int index);
+}
 
-public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTargetProvider
+public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTargetProvider
 {
     private SkillCaster skillCaster;
     //private CharacterStatManager characterStatManager;
@@ -29,18 +35,18 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
         //characterStatManager = GetComponent<CharacterStatManager>();
         playerStateMachine = GetComponent<PlayerStateMachine>();
     }
-    public void Init(int[] skillIDs, int[] m4IDs =null, int[] m5IDs=null )
+    public void Init(int[] skillIDs, int[] m4IDs = null, int[] m5IDs = null)
     {
         skilldataContexts = new SkillDataContext[skillIDs.Length];
         cooldownTimers = new float[skillIDs.Length];
-        for(int i=0; i< skillIDs.Length; i++)
+        for (int i = 0; i < skillIDs.Length; i++)
         {
             skilldataContexts[i] = new SkillDataContext(skillIDs[i], m4IDs?[i] ?? -1, m5IDs?[i] ?? -1);
             Debug.Log($"슬롯{i}: skillData={skilldataContexts[i].skillData != null}, table={skilldataContexts[i].skillData?.skillTable != null}");
             cooldownTimers[i] = 0;
-           
+
         }
-        skillCaster.Init(this,this,SetInvincible);
+        skillCaster.Init(this, this, SetInvincible);
 
     }
     public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5ID = -1)
@@ -57,7 +63,7 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
 
     private void CooldownLoop()
     {
-        if(skilldataContexts == null) return;
+        if (skilldataContexts == null) return;
         if (cooldownTimers == null) return;
         float deltaTime = Time.deltaTime;
         for (int i = 0; i < skilldataContexts.Length; i++)
@@ -69,27 +75,6 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
         }
     }
 
-    private bool CheckCooldown(int index)
-    {
-        if (cooldownTimers == null) return false;
-        return cooldownTimers[index] <= 0f;
-    }
-
-    private bool CheckRange(int index, float dist)
-    {
-        if (skilldataContexts[index]?.skillData?.skillTable == null) return false;
-        return dist <= skilldataContexts[index].skillData.skillTable.skillRange;
-    }
-
-    private bool CheckMana(int index)
-    {
-        return true;// 마나 테이블없어서 임시
-        if (skilldataContexts[index]?.skillData?.skillTable == null) return false;
-        //float cost = playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
-        //return playerStateMachine._ctx.CurrentMana >= cost;
-
-        //마나 테이블없어서 주석
-    }
     public bool AutoCast()
     {
         if (skilldataContexts == null) return false;
@@ -109,14 +94,13 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
     public bool TryCastSkill(int index, float distToTarget)
     {
         if (skilldataContexts == null) return false;
-        if (index < 0 || index >= skilldataContexts.Length) return false; 
+        if (index < 0 || index >= skilldataContexts.Length) return false;
         if (!ReadySkill(index, distToTarget)) return false;
 
-        //playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
-        //마나 테이블없어서 주석
+        playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
         skillCaster.CastSkill(skilldataContexts[index]);
         //float cooldownReduce = characterStatManager.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE); 
-        float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE); 
+        float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE);
         cooldownTimers[index] = Mathf.Max(0f, skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f));
         return true;
     }
@@ -125,7 +109,7 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
         if (skilldataContexts == null) return false;
         for (int i = 0; i < skilldataContexts.Length; i++)
         {
-            if (CheckCooldown(i) && CheckRange(i, dist) && CheckMana(i))
+            if (ReadySkill(i, dist))
                 return true;
         }
         return false;
@@ -134,7 +118,47 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
     {
         return CheckCooldown(index) && CheckRange(index, dist) && CheckMana(index);
     }
+    private bool CheckCooldown(int index)
+    {
+        if (cooldownTimers == null) return false;
+        return cooldownTimers[index] <= 0f;
+    }
 
+    private bool CheckRange(int index, float dist)
+    {
+        if (skilldataContexts[index]?.skillData?.skillTable == null) return false;
+        return dist <= skilldataContexts[index].skillData.skillTable.skillRange;
+    }
+
+    private bool CheckMana(int index)
+    {
+        if (skilldataContexts[index]?.skillData?.skillTable == null) return false;
+        float cost = skilldataContexts[index].skillData.skillTable.manaCost;
+        Debug.Log($"스킬 소모량 : {cost} / 현재 마나량 : {playerStateMachine._ctx.CurrentMana} / 성공 여부 : {playerStateMachine._ctx.CurrentMana >= cost}");
+        return playerStateMachine._ctx.CurrentMana >= cost;
+
+    }
+
+    #region ISkillCooldownProvider
+
+    public float GetCooldownRemain(int index)
+    {
+        if (cooldownTimers == null || index < 0 || index >= cooldownTimers.Length) return 0f;
+        return cooldownTimers[index];
+    }
+
+    public float GetCooldownMax(int index)
+    {
+        if (skilldataContexts == null || index < 0 || index >= skilldataContexts.Length) return 0f;
+        if (skilldataContexts[index]?.skillData?.skillTable == null) return 0f;
+        float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE);
+        return skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f);
+    }
+
+    #endregion
+
+
+    #region ISkillStatProvider
     //public float GetAttack() =>characterStatManager.GetFinalStat(PlayerStatType.ATK);
     public float GetAttack() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.ATK);
 
@@ -143,6 +167,7 @@ public class PlayerSkillHandler :MonoBehaviour, ISkillStatProvider, ISkillTarget
 
     //public float GetCriticalMulti() => characterStatManager.GetFinalStat(PlayerStatType.CRIT_MULT);
     public float GetCriticalMulti() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.CRIT_MULT);
+    #endregion
 
 
     public Transform GetTarget()
