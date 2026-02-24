@@ -65,6 +65,10 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     [SerializeField] private float finalDamageMult;
     [SerializeField] private float finalAttribute;
 
+    [SerializeField] private float normalBasicDamage;
+    [SerializeField] private float bossBasicDamage;
+
+
     [SerializeField] public bool TableLoad = false;
 
     [SerializeField] private float normalPower;
@@ -306,6 +310,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         float equipStat = playerSlot.GetStat(playerStatType);
         float complate = baseStat + upgradeStat + levelUP + traitStat + equipStat;
 
+        Debug.Log($"{baseStat} {upgradeStat} {levelUP} {traitStat} {equipStat}");
+
         return complate;
     }
 
@@ -422,6 +428,11 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
                 Debug.Log($"[CharcterStatManager] 현재 {playerStatType} 타입의 업그레이드가 없습니다");
                 return null;
         }
+    }
+
+    public float GatBasicDamage(float damageMult, float monsterDef)
+    {
+        return finalATK * (1 + damageMult) * (1 + finalDamageMult) * (1 - monsterDef / 100);
     }
     
     protected override void OnApplicationQuit()

@@ -13,6 +13,9 @@ public class PlayerStateContext : BaseStateContext
     public float CurrentHealth { get; private set; }
     public float CurrentMana { get; private set; }
 
+    public float CurrentCritMult { get; private set; }
+
+    public float CurrentMoveSpeed => StatPresenter?.PlayerStat?.FinalMoveSpeed ?? 9f;
 
     public bool isGoal = false;
 
@@ -20,7 +23,7 @@ public class PlayerStateContext : BaseStateContext
     public float MaxMana => StatPresenter?.PlayerStat?.FinalMP ?? 100f;
 
     // 일반공격 사거리
-    public float AttackRange => 1.5f;
+    public float AttackRange => 2f;
     
     // 스킬공격 사거리
     public float FirstSkillRange => 2.5f;
@@ -36,12 +39,14 @@ public class PlayerStateContext : BaseStateContext
     public void Initialize(float? startHealth = null)
     {
         CurrentHealth = startHealth ?? MaxHealth;
+        StatPresenter.PlayerStat.StatUpdate += SetSpeed;
     }
 
     public void SetStateChangeCallback(Action<PlayerStateType> callback)
     {
         _requestStateChange = callback;
     }
+
     public void TakeDamage(float damage, DamageType damageType)
     {
         if (IsInvincible) return;
@@ -95,4 +100,13 @@ public class PlayerStateContext : BaseStateContext
         }
     }
 
+    public void SetSpeed()
+    {
+        Agent.speed = CurrentMoveSpeed;
+    }
+
+    public void SetCritMult(float critMult)
+    {
+        CurrentCritMult = critMult;
+    }
 }
