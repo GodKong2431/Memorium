@@ -4,7 +4,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class DungeonReqTable : TableBase
 {
-    public DungeonType dungeonType;
+    public StageType stageType;
     public int ItemID;
     public int stageID01;
 }

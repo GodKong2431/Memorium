@@ -47,7 +47,6 @@ public class QuestManager : Singleton<QuestManager>
     {
         var questData = CurrentQuestData;
         if (questData == null || IsCurrentQuestComplete) return;
-
         // 발생한 행동이 현재 퀘스트의 요구와 맞으면
         if (questData.questType == type)
         {

@@ -36,6 +36,7 @@ public class EquipmentHandler : MonoBehaviour
         playerInventory.equipmentHandler=this;
         playerInventory.SetMyEquipmentCountDictionary(equipCountDict);
         playerInventory.SetMyEquipmentInventory();
+        playerInventory.FindFinalEquipment();
 
         autoMerge.onClick.AddListener(playerInventory.AutoMerge);
         autoEquip.onClick.AddListener(AutoEquip);

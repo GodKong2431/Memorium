@@ -61,6 +61,11 @@ public class EnemyStatPresenter : MonoBehaviour
     }
 
     /// <summary>
+    /// 스킬 공격형 몬스터용 스킬 ID. EnemyStatSetting.skillId. 0이면 기본값(4000001) 사용.
+    /// </summary>
+    public int SkillId => setting?.skillId ?? 0;
+
+    /// <summary>
     /// 보스 몬스터 여부. DataManager 데이터 사용 시 자동 판별.
     /// </summary>
     public bool IsBoss => monsterIdFromDataManager != 0
