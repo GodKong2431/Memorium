@@ -9,7 +9,7 @@ public class DungeonListItem : MonoBehaviour
     public TextMeshProUGUI textDungeonName;
     public Button btnSelect;
 
-    private DungeonType myDungeonType;
+    private StageType myDungeonType;
 
     public void Setup(DungeonInfoData data)
     {

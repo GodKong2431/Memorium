@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class StageManager : Singleton<StageManager>
@@ -34,6 +35,7 @@ public class StageManager : Singleton<StageManager>
     //[SerializeField] TextMeshProUGUI curMonsterKillCountText;
     //[SerializeField] Image curMonsterGuage;
     [SerializeField] StageType curStageType;
+    public int normalStage = 0;
 
     private IEnumerator Start()
     {
@@ -49,6 +51,7 @@ public class StageManager : Singleton<StageManager>
         
         EnemyKillRewardDispatcher.OnBossKilled += StageClear;
         GameEventManager.OnSummonBossClicked += OnClickBossSummonButtonClick;
+        SceneManager.sceneLoaded += OnSceneLoaded;
         //bossSpawnBtn.onClick.AddListener(() => 
         //{ 
         //    isReadyToBossSpawn = !isReadyToBossSpawn;
@@ -61,7 +64,10 @@ public class StageManager : Singleton<StageManager>
     {
         List<int> keyList= DataManager.Instance.StageManageDict.Keys.ToList<int>();
         keyList.Sort();
-        stageKeyList= new List<int>();
+        if (stageKeyList == null)
+            stageKeyList = new List<int>();
+        stageKeyList.Clear();
+
         foreach (int key in keyList)
         {
             if (DataManager.Instance.StageManageDict[key].stageType == curStageType)
@@ -69,11 +75,16 @@ public class StageManager : Singleton<StageManager>
                 stageKeyList.Add(key);
             }
         }
+        if (monsterSpawner == null)
+            monsterSpawner = GameObject.FindFirstObjectByType<MonsterSpawner>();
+        if (infinityMap == null)
+            infinityMap = GameObject.FindFirstObjectByType<InfinityMap>();
         //stageKeyList = DataManager.Instance.StageManageDict.Keys.ToList<int>();
         //stageKeyList.Sort();
     }
     public void OnClickBossSummonButtonClick()
     {
+        Debug.Log("[StageManager] 보스 소환 버튼 클릭");
         isReadyToBossSpawn = !isReadyToBossSpawn;
         //BossSpawnBtn.SetActive(false);
         bossSpawnBtn.interactable = false;
@@ -82,20 +93,17 @@ public class StageManager : Singleton<StageManager>
     public void CheckBossEnemySpawn()
     {
         curMonsterKillCount++;
-        //curMonsterGuage.fillAmount = (float)curMonsterKillCount / (float)maxMonsterKillCount;
-        //curMonsterKillCountText.text = curMonsterKillCount.ToString();
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
         //여기에 현재 몇 마리 잡았는지 UI로 보여주는 코드도 추가
         //if (maxMonsterKillCount <= EnemyKillRewardDispatcher.TotalKillCount)
-        if (maxMonsterKillCount <= curMonsterKillCount)
-        {
-            //if (!BossSpawnBtn.activeSelf)
-            //{
-            //    BossSpawnBtn.SetActive(true);
-            //}
-            if(!onClickBossSpawnBtn)
-                bossSpawnBtn.interactable = true;
-        }
+        //if (maxMonsterKillCount <= curMonsterKillCount)
+        //{
+        //    if (!onClickBossSpawnBtn)
+        //    {
+        //        Debug.Log("[StageManager] 보스 소환 버튼 활성화");
+        //        bossSpawnBtn.interactable = true;
+        //    }
+        //}
     }
 
 
@@ -141,10 +149,39 @@ public class StageManager : Singleton<StageManager>
 
     public void StageClear()
     {
-        if(stageKeyList.Count>curStage-1)
-            curStage++;
+        //if (stageKeyList.Count > curStage - 1)
+        //    curStage++;
+
+        if (curStageType == StageType.NormalStage)
+        {
+            if (stageKeyList.Count > curStage - 1)
+                curStage++;
+            normalStage = curStage;
+            SetReward();
+            SetKillCount();
+            infinityMap.MapReset();
+        }
+        //일반 스테이지가 아닌 던전 클리어 시
+        //
+        else
+        {
+
+        }
+    }
+
+    public void SetStageType(StageType dungeonType, int level)
+    {
+        monsterSpawner = null;
+        curStage = level;
+        curStageType = dungeonType;
+    }
+
+    public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        //아래 값들은 씬을 넘어간 다음에 작성을 진행해야 할 것
+        //스테이지 타입 전용 스테이지 키 리스트 설정
+        Init();
+        //해당 스테이지에 걸맞는 드롭 및 몬스터 세팅 <- 이거 몬스터 세팅 시점을 잘 설정해야 할 것 같음, 씬 넘어가도 유지되려면 몬스터 스포너를 싱글톤으로 만들거나 해당 정보를 유지할 필요가 있음
         SetReward();
-        SetKillCount();
-        infinityMap.MapReset();
     }
 }

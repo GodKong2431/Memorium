@@ -41,7 +41,7 @@ public class DungeonListUI : MonoBehaviour
         }
     }
 
-    public void OnSelectDungeon(DungeonType selectedType)
+    public void OnSelectDungeon(StageType selectedType)
     {
         Debug.Log($"[DungeonListUI] {selectedType} 선택 레벨 선택창으로 넘어감");
 

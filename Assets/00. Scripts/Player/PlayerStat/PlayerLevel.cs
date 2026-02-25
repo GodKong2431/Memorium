@@ -92,8 +92,8 @@ public class PlayerLevel
             RequiredExp = playerExpTable.reqExp;
 
             CurrentLevel++;
-        }
 
-        OnLevelUp?.Invoke();
+            OnLevelUp?.Invoke();
+        }
     }
 }
