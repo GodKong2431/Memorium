@@ -87,7 +87,7 @@ public class StageManager : Singleton<StageManager>
         Debug.Log("[StageManager] 보스 소환 버튼 클릭");
         isReadyToBossSpawn = !isReadyToBossSpawn;
         //BossSpawnBtn.SetActive(false);
-        bossSpawnBtn.interactable = false;
+        //bossSpawnBtn.interactable = false;
         onClickBossSpawnBtn = true;
     }
     public void CheckBossEnemySpawn()
@@ -130,21 +130,12 @@ public class StageManager : Singleton<StageManager>
         }
 
         GameEventManager.OnStageChanged?.Invoke(curFloor, DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].sceneNumber);
-        //if (curStage % 20 == 0)
-        //{
-        //    GameEventManager.OnStageChanged?.Invoke(curFloor, 20);
-        //}
-        //else
-        //{
-        //    GameEventManager.OnStageChanged?.Invoke(curFloor, curStage % 20);
-        //}
     }
     public void SetKillCount()
     {
         curMonsterKillCount = 0;
         maxMonsterKillCount = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].monsterKillCount;
-        //curMonsterKillCountText.text = curMonsterKillCount + "/" + maxMonsterKillCount;
-        //curMonsterGuage.fillAmount = 0;
+        Debug.Log($"[StageManager] MaxKillCount = {maxMonsterKillCount} 씬 넘버 = {stageKeyList[curStage - 1]}");
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
     }
 
@@ -166,7 +157,8 @@ public class StageManager : Singleton<StageManager>
         //
         else
         {
-
+            SetStageType(StageType.NormalStage, normalStage);
+            SceneController.Instance.LoadScene(SceneType.StageScene);
         }
     }
 
@@ -179,10 +171,12 @@ public class StageManager : Singleton<StageManager>
 
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        Debug.Log("[StageManager] 씬 넘어감으로 인해 값 초기화");
         //아래 값들은 씬을 넘어간 다음에 작성을 진행해야 할 것
         //스테이지 타입 전용 스테이지 키 리스트 설정
         Init();
         //해당 스테이지에 걸맞는 드롭 및 몬스터 세팅 <- 이거 몬스터 세팅 시점을 잘 설정해야 할 것 같음, 씬 넘어가도 유지되려면 몬스터 스포너를 싱글톤으로 만들거나 해당 정보를 유지할 필요가 있음
         SetReward();
+        SetKillCount();
     }
 }
