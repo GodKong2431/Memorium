@@ -7,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public static class ItemDropLogic
 {
-    private static readonly EquipmentType[] EquipmentTypes = { EquipmentType.Weapon, EquipmentType.Helmet, EquipmentType.Gloves, EquipmentType.Armor, EquipmentType.Boots };
+    private static readonly EquipmentType[] EquipmentTypes = { EquipmentType.Weapon, EquipmentType.Helmet, EquipmentType.Glove, EquipmentType.Armor, EquipmentType.Boots };
 
     /// <summary>기준 파워 = ((stageLevel-1)/stageGap)*100 + startIP</summary>
     public static int GetBaseEquipmentPower(ItemDropSettings settings, int stageLevel)

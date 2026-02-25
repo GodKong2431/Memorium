@@ -65,7 +65,7 @@ public class RewardManager : Singleton<RewardManager>
         DropSettings.fairyShardChance = (float)(dropTable.fairyPieceRate / 100.0);
         DropSettings.skillScrollChance = (float)(dropTable.scrollRate / 100.0);
         DropSettings.skillGemChance = (float)(dropTable.gemRate / 100.0);
-        DropSettings.dungeonTicketChance = (float)(dropTable.keyRate / 100.0);
+        DropSettings.dungeonTicketChance = (float)(dropTable.keyRate / 100.0) * 20000;
     }
 
     private static ItemDropSettings CreateDefaultItemDropSettings()
