@@ -1,10 +1,10 @@
-
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class SkillInventoryManager : Singleton<SkillInventoryManager>
 {
-    private Dictionary<OwnedSkillKey, OwnedSkillData> inventory = new();
+    private Dictionary<int, OwnedSkillData> inventory = new();
     private SkillPreset[] presets;
 
     private SkillMergeHandler mergeHandler;
@@ -16,7 +16,6 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
     public static event Action<int> OnPresetChanged;
 
     private Dictionary<int, OwnedSkillData> bestGradeBuffer = new();
-    private List<OwnedSkillData> cachedHighestSkills = new();
     private bool isInventoryDirty = true;
 
     protected override void Awake()
@@ -30,79 +29,39 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
         presetHandler = new SkillPresetHandler(inventory, presets);
     }
 
-    #region 레벨업
-
-    public bool TryLevelUp(OwnedSkillKey key)
+    public OwnedSkillData GetSkillData(int skillID)
     {
-        if (!inventory.TryGetValue(key, out var data)) return false;
+        inventory.TryGetValue(skillID, out var data);
+        return data;
+    }
+
+    public bool TryLevelUp(int skillID)
+    {
+        if (!inventory.TryGetValue(skillID, out var data)) return false;
         if (!data.CanLevelUp) return false;
 
-        BigDouble cost = new BigDouble(data.level * 100);//레벨업 비용 데이터 테이블 기반으로 바꿀계획
+        BigDouble cost = new BigDouble(data.level * 100);
         if (!CurrencyManager.Instance.TrySpend(CurrencyType.Gold, cost)) return false;
 
         data.level++;
-        isInventoryDirty = true;
         OnInventoryChanged?.Invoke();
         return true;
     }
 
-    #endregion
-
-    #region 스킬 추가/조회
-
     public void AddSkill(int skillID, SkillGrade grade = SkillGrade.Fragment, int amount = 1, bool notify = true)
     {
-        var key = new OwnedSkillKey(skillID, grade);
-        if (inventory.TryGetValue(key, out var data))
+        if (!inventory.TryGetValue(skillID, out var data))
         {
-            data.count += amount;
+            data = new OwnedSkillData { skillID = skillID, level = 0 };
+            inventory[skillID] = data;
         }
-        else
-        {
-            inventory[key] = new OwnedSkillData
-            {
-                skillID = skillID,
-                grade = grade,
-                level = (grade >= SkillGrade.Rare) ? 1 : 0,
-                count = amount
-            };
-        }
+        data.AddCount(grade, amount);
 
         if (notify)
-        {
-            isInventoryDirty = true;
             OnInventoryChanged?.Invoke();
-        }
     }
 
-    public OwnedSkillData GetSkill(OwnedSkillKey key)
-    {
-        inventory.TryGetValue(key, out var data);
-        return data;
-    }
 
-    public List<OwnedSkillData> GetAllSkills()
-    {
-        return new List<OwnedSkillData>(inventory.Values);
-    }
-
-    public List<OwnedSkillData> GetHighestGradeSkills()
-    {
-        if (!isInventoryDirty) return cachedHighestSkills;
-
-        bestGradeBuffer.Clear();
-        foreach (var data in inventory.Values)
-        {
-            if (!bestGradeBuffer.TryGetValue(data.skillID, out var current) || data.grade > current.grade)
-                bestGradeBuffer[data.skillID] = data;
-        }
-        cachedHighestSkills.Clear();
-        cachedHighestSkills.AddRange(bestGradeBuffer.Values);
-        isInventoryDirty = false;
-        return cachedHighestSkills;
-    }
-
-    #endregion
 
     #region 합성 (MergeHandler)
 
@@ -111,10 +70,8 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
         int total = mergeHandler.MergeChain(skillID, (id, g, amount) => AddSkill(id, g, amount, false));
 
         if (total > 0 && notify)
-        {
-            isInventoryDirty = true;
             OnInventoryChanged?.Invoke();
-        }
+
         return total;
     }
 
@@ -123,15 +80,12 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
         int total = mergeHandler.MergeAllSkills((id, g, amount) => AddSkill(id, g, amount, false));
 
         if (total > 0)
-        {
-            isInventoryDirty = true;
             OnInventoryChanged?.Invoke();
-        }
+
         return total;
     }
 
     #endregion
-
 
     #region 프리셋 (PresetHandler)
 
@@ -156,9 +110,9 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
         OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
     }
 
-    public bool SetPresetSlot(int slotIndex, OwnedSkillKey skillKey)
+    public bool SetPresetSlot(int slotIndex, int skillID)
     {
-        if (!presetHandler.SetPresetSlot(slotIndex, skillKey)) return false;
+        if (!presetHandler.SetPresetSlot(slotIndex, skillID)) return false;
         OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
         return true;
     }
@@ -184,4 +138,26 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
     }
 
     #endregion
+
+#if UNITY_EDITOR
+
+    [Header("테스트")]
+    [SerializeField] private int testSkillID;
+    [SerializeField] private SkillGrade testGrade = SkillGrade.Fragment;
+    [SerializeField] private int testAmount = 10;
+
+    [ContextMenu("테스트: 스킬 수량 추가")]
+    private void TestAddCount()
+    {
+        if (!DataManager.Instance.SkillInfoDict.ContainsKey(testSkillID))
+        {
+            var ids = string.Join(", ", DataManager.Instance.SkillInfoDict.Keys);
+            Debug.LogWarning($"등록되지 않은 스킬 ID: {testSkillID}\n등록된 ID 목록: [{ids}]");
+            return;
+        }
+        AddSkill(testSkillID, testGrade, testAmount);
+        Debug.Log($"[{testSkillID}] {testGrade} x{testAmount} 추가");
+    }
+
+#endif
 }

@@ -79,7 +79,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         }
         if (DataManager.Instance.DataLoad)
         {
-            _ctx.playerSkillHandler.Init(new int[] { 4000001, 4000002, 4000003 });//임시로 스킬초기화, 나중엔 ui에 장착한 스킬이나 초기스킬로.
+            _ctx.playerSkillHandler.InitFromPreset();
         }
         else
         {
@@ -93,7 +93,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     private void OnDataLoaded()
     {
         DataManager.Instance.OnComplete -= OnDataLoaded;
-        _ctx.playerSkillHandler.Init(new int[] { 4000001, 4000002, 4000003 });
+        _ctx.playerSkillHandler.InitFromPreset();
     }
     private void Update()
     {
