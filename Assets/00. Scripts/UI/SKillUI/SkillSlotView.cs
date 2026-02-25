@@ -86,7 +86,7 @@ public class SkillSlotItem : MonoBehaviour
 
     private void SetLocked()
     {
-        gradeText.SetText("");
+        gradeText.SetText("None");
         //countText.SetText("");
         levelText.SetText("");
         skillIcon.color = new Color(0.2f, 0.2f, 0.2f, 0.5f);
