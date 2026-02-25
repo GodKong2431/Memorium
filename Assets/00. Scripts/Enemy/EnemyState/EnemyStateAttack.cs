@@ -6,6 +6,7 @@ using UnityEngine.AI;
 /// 스킬 공격형: SkillCaster로 스킬 시전 (예: 어스 위저드 - 지면에서 암석 소환)
 /// 일반형: 근접 공격 애니메이션 + 이펙트
 /// 플레이어 사망 시 Idle, 몬스터 사망 시 Dead, 피격 시 Onhit으로 전환.
+/// 공격 타이밍에 플레이어가 사거리 내에 있으면 TakeDamage 호출.
 /// </summary>
 public class EnemyStateAttack : IEnemyState
 {
@@ -13,6 +14,7 @@ public class EnemyStateAttack : IEnemyState
     private bool _attackInProgress;
     private GameObject _currentAttackEffect;
     private bool _isSkillAttack;
+    private bool _damageApplied;
 
     public EnemyStateType Type => EnemyStateType.Attack;
 
@@ -39,6 +41,7 @@ public class EnemyStateAttack : IEnemyState
         }
         else
         {
+            _damageApplied = false;
             float attackSpeed = ctx.StatPresenter?.Data?.monsterAttackspeed ?? 1f;
             float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
             _attackEndTime = Time.time + delay;
@@ -82,6 +85,24 @@ public class EnemyStateAttack : IEnemyState
         }
         else if (_attackInProgress && Time.time >= _attackEndTime)
         {
+            // 공격 타이밍에 플레이어가 사거리 내에 있으면 TakeDamage 호출
+            if (!_damageApplied && ctx.PlayerTransform != null)
+            {
+                float dist = Vector3.Distance(ctx.EnemyTransform.position, ctx.PlayerTransform.position);
+                if (dist <= ctx.AttackRange)
+                {
+                    var damageable = ctx.PlayerTransform.GetComponent<IDamageable>();
+                    if (damageable != null)
+                    {
+                        float damage = ctx.StatPresenter?.Data?.monsterAttackpoint ?? 10f;
+                        if (ctx.SkillHandler != null)
+                            damage = ctx.SkillHandler.GetAttack();
+                        Debug.Log($"[EnemyStateAttack] damage={damage}");
+                        damageable.TakeDamage(damage, DamageType.Physical);
+                        _damageApplied = true;
+                    }
+                }
+            }
             _attackInProgress = false;
             ClearAttackEffect();
             ctx.RequestState(EnemyStateType.Chase);
