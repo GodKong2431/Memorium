@@ -49,12 +49,28 @@ public class PlayerStateAttack : IPlayerState
         enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position).transform;
         float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
 
+        Vector3 dir = enemy.position - ctx.PlayerTransform.position;
 
+        dir.y = 0f;
+
+        Quaternion targetQuat = Quaternion.LookRotation(dir.normalized, Vector3.up);
+
+        float angle = Quaternion.Angle(ctx.PlayerTransform.rotation, targetQuat);
+
+        float perSec = angle / Mathf.Max(0.0001f, ctx.AngularTime);
+
+        ctx.PlayerTransform.rotation = Quaternion.RotateTowards(
+            ctx.PlayerTransform.rotation,
+            targetQuat,
+            perSec * Time.deltaTime
+            );
+
+        // 치명타
         var critmult = CritCheck(ctx.StatPresenter.PlayerStat.FinalCritChance) ? ctx.StatPresenter.PlayerStat.FinalCritMult : 1f;
 
         ctx.SetCritMult(critmult);
 
-        if (/*!ctx.playerSkillHandler.AutoCast() && */dist <= ctx.AttackRange && !IsDelayAttack)
+        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && !IsDelayAttack)
         {
             if (enemy.TryGetComponent<EnemyStateMachine>(out var target))
             {
@@ -88,6 +104,8 @@ public class PlayerStateAttack : IPlayerState
         {
             var normal = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalNormalDamage, 0);
             var boss = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalBossDamage, 0);
+
+            Debug.Log(statPresenter.IsBoss);
 
             var finalDamage = statPresenter.IsBoss ? boss : normal;
 
