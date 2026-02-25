@@ -17,7 +17,8 @@ public class DungeonLevelSelectUI : MonoBehaviour
     public Button btnStartDungeon;
     public Button btnBack;
 
-    private DungeonType currentDungeonType;
+    //private DungeonType currentDungeonType;
+    private StageType currentDungeonType;
     private int currentLevel = 1;
     private int maxUnlockedLevel = 1;
 
@@ -37,7 +38,7 @@ public class DungeonLevelSelectUI : MonoBehaviour
         if (btnBack != null) btnBack.onClick.AddListener(OnClickBackToList);
     }
 
-    public void SetupDungeonType(DungeonType type)
+    public void SetupDungeonType(StageType type)
     {
         currentDungeonType = type;
         if (textTitle != null) textTitle.text = $"{type}";
@@ -131,33 +132,37 @@ public class DungeonLevelSelectUI : MonoBehaviour
         GlobalPopupManager.Instance.OpenPopupMode(PopupMode.DungeonList);
     }
 
-    private int GetTargetDungeonID(DungeonType type, int level)
+    private int GetTargetDungeonID(StageType type, int level)
     {
         int baseID = 0;
         switch (type)
         {
-            case DungeonType.dungeonGold: baseID = 6021000; break;
-            case DungeonType.dungeonExp: baseID = 6022000; break;
-            case DungeonType.dungeonScroll: baseID = 6023000; break;
-            case DungeonType.dungeonEquip: baseID = 6024000; break;
+            //case StageType.dungeonGold: baseID = 6021000; break;
+            //case StageType.dungeonExp: baseID = 6022000; break;
+            //case StageType.dungeonScroll: baseID = 6023000; break;
+            //case StageType.dungeonEquip: baseID = 6024000; break;
+            case StageType.GuardianTaxVault: baseID = 6021000; break;
+            case StageType.HallOfTraining: baseID = 6022000; break;
+            case StageType.CelestiAlchemyWorkshop: baseID = 6023000; break;
+            case StageType.EidosTreasureVault: baseID = 6024000; break;
         }
         return baseID + level;
     }
 
-    private CurrencyType GetTicketCurrencyType(DungeonType type)
+    private CurrencyType GetTicketCurrencyType(StageType type)
     {
         switch (type)
         {
-            case DungeonType.dungeonGold:
+            case StageType.GuardianTaxVault:
                 return CurrencyType.DungeonTicket;
 
-            case DungeonType.dungeonExp:
+            case StageType.HallOfTraining:
                 return CurrencyType.DungeonTicket;
 
-            case DungeonType.dungeonScroll:
+            case StageType.CelestiAlchemyWorkshop:
                 return CurrencyType.DungeonTicket;
 
-            case DungeonType.dungeonEquip:
+            case StageType.EidosTreasureVault:
                 return CurrencyType.DungeonTicket;
 
             default:

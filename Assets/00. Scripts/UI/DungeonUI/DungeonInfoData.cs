@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class DungeonInfoData
 {
-    public DungeonType dungeonType;
+    public StageType dungeonType;
     public string dungeonName;
     public Sprite bgImage;
 }
