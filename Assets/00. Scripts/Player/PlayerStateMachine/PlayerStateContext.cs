@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -128,6 +128,15 @@ public class PlayerStateContext : BaseStateContext
     {
         if (CurrentHealth > MaxHealth) CurrentHealth = MaxHealth;
         if (CurrentMana > MaxMana) CurrentMana = MaxMana;
+    }
+
+    /// <summary>최대치가 증가했을 때(예: 버서커 모드 시작) 현재 HP/MP를 새 최대값으로 채움.</summary>
+    public void SetHealthAndManaToMax()
+    {
+        CurrentHealth = MaxHealth;
+        CurrentMana = MaxMana;
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
 
     public void SetSpeed()

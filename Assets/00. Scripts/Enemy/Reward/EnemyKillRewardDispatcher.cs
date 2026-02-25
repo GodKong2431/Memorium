@@ -123,9 +123,12 @@ public static class EnemyKillRewardDispatcher
             }
         }
 
-        // 버서커 오브: 일반 1개, 보스 10개 (PlayerBerserkerOrb 구독)
-        int berserkerOrb = isBoss ? 10 : 1;
-        OnBerserkerOrbEarned?.Invoke(berserkerOrb);
+        // 버서커 오브: 일반 1개, 보스 10개 (PlayerBerserkerOrb 구독). 버서커 모드 중에는 수집 안 함.
+        if (BerserkerModeController.Instance == null || !BerserkerModeController.Instance.IsActive)
+        {
+            int berserkerOrb = isBoss ? 10 : 1;
+            OnBerserkerOrbEarned?.Invoke(berserkerOrb);
+        }
 
         if (isBoss)
         {
