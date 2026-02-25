@@ -4,12 +4,7 @@ using System.Globalization;
 
 
 
-/// <summary>
-/// 방치형 게임용 무한 수치 구조체 (BigDouble)
-/// 가수(Mantissa)와 지수(Exponent)를 분리하여 저장
-/// 1230 -> 1.23 * 10^3 (1.23a)
-/// 표기법: a(10^3), b(10^6)... aa, ab 순으로 표기
-/// </summary>
+
 [System.Serializable]
 public struct BigDouble : IComparable<BigDouble>, IEquatable<BigDouble>
 {
@@ -89,7 +84,6 @@ public struct BigDouble : IComparable<BigDouble>, IEquatable<BigDouble>
         return new BigDouble(numValue, extraExponent);
     }
 
-    // 단위 문자열(a, b, aa...)을 지수값으로 변환
     private static long ParseSuffix(string suffix)
     {
         if (string.IsNullOrEmpty(suffix)) return 0;
