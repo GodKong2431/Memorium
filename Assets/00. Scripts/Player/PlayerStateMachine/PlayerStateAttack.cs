@@ -54,7 +54,7 @@ public class PlayerStateAttack : IPlayerState
 
         ctx.SetCritMult(critmult);
 
-        if (/*!ctx.playerSkillHandler.AutoCast() && */dist <= ctx.AttackRange && !IsDelayAttack)
+        if (!ctx.playerSkillHandler.AutoCast() &&dist <= ctx.AttackRange && !IsDelayAttack)
         {
             if (enemy.TryGetComponent<EnemyStateMachine>(out var target))
             {
