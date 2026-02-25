@@ -79,6 +79,7 @@ public class PlayerStateContext : BaseStateContext
         damage *= (1f - resistance * 0.01f);
 
         CurrentHealth -= damage;
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         if (CurrentHealth <= 0)
         {
             CurrentHealth = 0;
