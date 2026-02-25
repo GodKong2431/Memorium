@@ -56,6 +56,10 @@ public class PlayerStateContext : BaseStateContext
         StatPresenter.PlayerStat.StatUpdate += SetSpeed;
     }
 
+    public void ObjDisable()
+    {
+        StatPresenter.PlayerStat.StatUpdate -= SetSpeed;
+    }
     public void SetStateChangeCallback(Action<PlayerStateType> callback)
     {
         _requestStateChange = callback;
