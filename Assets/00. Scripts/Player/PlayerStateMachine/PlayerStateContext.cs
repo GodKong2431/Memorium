@@ -42,7 +42,9 @@ public class PlayerStateContext : BaseStateContext
     public GameObject AttackEffectPrefab { get; set; }
 
     public PlayerSkillHandler playerSkillHandler;
-
+    //초당 회복
+    private float regenTimer = 0f;
+    private const float REGEN_INTERVAL = 1f;
     public void Initialize(float? startHealth = null, float? startMana = null)
     {
         CurrentHealth = startHealth ?? MaxHealth;
@@ -132,5 +134,19 @@ public class PlayerStateContext : BaseStateContext
     public void SetCritMult(float critMult)
     {
         CurrentCritMult = critMult;
+    }
+    public void UpdateRegen(float deltaTime)
+    {
+        regenTimer += deltaTime;
+        if (regenTimer >= REGEN_INTERVAL)
+        {
+            regenTimer -= REGEN_INTERVAL;
+
+            float hpRegen = StatPresenter?.PlayerStat?.FinalHPRegen ?? 0f;
+            float mpRegen = StatPresenter?.PlayerStat?.FinalMPRegen ?? 0f;
+
+            Heal(hpRegen);
+            RestoreMana(mpRegen);
+        }
     }
 }

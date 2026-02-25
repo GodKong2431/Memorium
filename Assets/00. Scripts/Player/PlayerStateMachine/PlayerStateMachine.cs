@@ -108,6 +108,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
         CurrentType = playerStateMachine.CurrentStateType;
         if (playerStateMachine.Current == null) return;
+        _ctx.UpdateRegen(Time.deltaTime);
         playerStateMachine.Current.OnUpdate(_ctx);
     }
 

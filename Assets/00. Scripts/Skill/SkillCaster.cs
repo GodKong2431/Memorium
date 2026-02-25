@@ -144,7 +144,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     }
 
     /// <summary>
-    /// 모듈 3 시퀀스, 모듈 2는 모듈3에 종속되어있어서 따로 시퀀스 나누지않음
+    /// 모듈 3 시퀀스, 모듈2는 모듈3에 종속되어있어서 따로 시퀀스 나누지않음
     /// </summary>
     /// <param name="dataContext"></param>
     /// <returns></returns>
@@ -177,7 +177,6 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         isCasting = false;
         OnSkillEnd?.Invoke();
     }
-
     private void OnDrawGizmos()
     {
         if (debugLastSkillData == null) return;
@@ -226,7 +225,7 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         {
             if (hitBuffer[i].TryGetComponent<EnemyStateMachine>(out var target))
             {
-                target.TakeDamage(skillDataContext.skillData.skillTable.skillDamage);
+                target.TakeDamage(statProvider.GetAttack());
 
                 if (m4Strategy is ISkillHitAddon hitAddon)
                 {
