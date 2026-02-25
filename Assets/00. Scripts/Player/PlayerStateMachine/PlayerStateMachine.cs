@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -49,6 +49,9 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);
+
+        BerserkerModeController.OnBerserkerModeStarted += OnBerserkerModeStarted;
+        BerserkerModeController.OnBerserkerModeEnded += OnBerserkerModeEnded;
 
         _states = new Dictionary<PlayerStateType, IPlayerState>
         {
@@ -115,6 +118,24 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     private void OnRequestStateChange(PlayerStateType next)
     {
         playerStateMachine.ChangeState(next);
+    }
+
+    private void OnBerserkerModeStarted()
+    {
+        if (_ctx != null)
+            _ctx.SetHealthAndManaToMax();
+    }
+
+    private void OnBerserkerModeEnded()
+    {
+        if (_ctx != null)
+            _ctx.RefreshMaxStats();
+    }
+
+    private void OnDestroy()
+    {
+        BerserkerModeController.OnBerserkerModeStarted -= OnBerserkerModeStarted;
+        BerserkerModeController.OnBerserkerModeEnded -= OnBerserkerModeEnded;
     }
 
     public void TakeDamage(float damage, DamageType damageType)

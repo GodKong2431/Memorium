@@ -119,26 +119,27 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     public PlayerTrait CoolDownTrait { get { return coolDownTrait; } }
     public PlayerTrait DamageMultTrait { get { return damageMultTrait; } }
 
-    public float FinalHP { get { return finalHP; } }
-    public float FinalHPRegen { get { return finalHPRegen; } }
-    public float FinalMP { get { return finalMP; } }
-    public float FinalMPRegen { get { return finalMPRegen; } }
-    public float FinalATK { get { return finalATK; } }
-    public float FinalATKSpeed { get { return finalATKSpeed; } }
-    public float FinalPhysDEF { get { return finalPhysDEF; } }
-    public float FinalMagicDEF { get { return finalMagicDEF; } }
-    public float FinalCritChance { get { return finalCritChance; } }
-    public float FinalCritMult { get { return finalCritMult; } }
-    public float FinalMoveSpeed { get { return finalMoveSpeed; } }
-    public float FinalCoolDownReduce { get { return finalCoolDownReduce; } }
-    public float FinalGoldGain { get { return finalGoldGain; } }
-    public float FinalExpGain { get { return finalExpGain; } }
-    public float FinalBossDamage { get { return finalBossDamage; } }
-    public float FinalNormalDamage { get { return finalNormalDamage; } }
-    public float FinalDamageMult { get { return finalDamageMult; } }
-    public float FinalAttribute { get { return finalAttribute; } }
+    public float FinalHP => GetFinalStat(PlayerStatType.HP);
+    public float FinalHPRegen => GetFinalStat(PlayerStatType.HP_REGEN);
+    public float FinalMP => GetFinalStat(PlayerStatType.MP);
+    public float FinalMPRegen => GetFinalStat(PlayerStatType.MP_REGEN);
+    public float FinalATK => GetFinalStat(PlayerStatType.ATK);
+    public float FinalATKSpeed => GetFinalStat(PlayerStatType.ATK_SPEED);
+    public float FinalPhysDEF => GetFinalStat(PlayerStatType.PHYS_DEF);
+    public float FinalMagicDEF => GetFinalStat(PlayerStatType.MAGIC_DEF);
+    public float FinalCritChance => GetFinalStat(PlayerStatType.CRIT_CHANCE);
+    public float FinalCritMult => GetFinalStat(PlayerStatType.CRIT_MULT);
+    public float FinalMoveSpeed => GetFinalStat(PlayerStatType.MOVE_SPEED);
+    public float FinalCoolDownReduce => GetFinalStat(PlayerStatType.COOLDOWN_REDUCE);
+    public float FinalGoldGain => GetFinalStat(PlayerStatType.GOLD_GAIN);
+    public float FinalExpGain => GetFinalStat(PlayerStatType.EXP_GAIN);
+    public float FinalBossDamage => GetFinalStat(PlayerStatType.BOSS_DMG);
+    public float FinalNormalDamage => GetFinalStat(PlayerStatType.NORMAL_DMG);
+    public float FinalDamageMult => GetFinalStat(PlayerStatType.DMG_MULT);
+    public float FinalAttribute => GetFinalStat(PlayerStatType.Attribute);
 
-    public float NormalPower { get { return normalPower; } }
+    /// <summary>버서커 모드 포함한 전투력. normalPower 기반에 버서커 배율 적용.</summary>
+    public float NormalPower => GetNormalPowerWithBerserker();
 
     public event Action StatUpdate;
 
@@ -171,7 +172,16 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         levelBonus.OnLevelUp += AllUpdate;
 
         playerSlot.OnSlotUpdate += AllUpdate;
+
+        BerserkerModeController.OnBerserkerModeStarted += OnBerserkerModeChanged;
+        BerserkerModeController.OnBerserkerModeEnded += OnBerserkerModeChanged;
     }
+
+    private void OnBerserkerModeChanged()
+    {
+        StatUpdate?.Invoke();
+    }
+
     private void OnDisable()
     {
         attackStatUpgrade.UpgradeStat -= FinalStat;
@@ -199,6 +209,9 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         levelBonus.OnLevelUp -= AllUpdate;
 
         playerSlot.OnSlotUpdate -= AllUpdate;
+
+        BerserkerModeController.OnBerserkerModeStarted -= OnBerserkerModeChanged;
+        BerserkerModeController.OnBerserkerModeEnded -= OnBerserkerModeChanged;
     }
 
     public void LoadTable()
@@ -331,9 +344,10 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
             PlayerStatType.BOSS_DMG => finalBossDamage,
             PlayerStatType.NORMAL_DMG => finalNormalDamage,
             PlayerStatType.DMG_MULT => finalDamageMult,
+            PlayerStatType.Attribute => finalAttribute,
             _ => 0f
         };
-        return baseValue;
+        return ApplyBerserkerMultiplier(statType, baseValue);
     }
 
     public void AllUpdate()
@@ -424,6 +438,19 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     #region 버서커 모드 Berserker Mode
     private const float BerserkerStatMultiplier = 2f;
 
+    private float GetNormalPowerWithBerserker()
+    {
+        float atk = GetFinalStat(PlayerStatType.ATK);
+        float atkSpeed = GetFinalStat(PlayerStatType.ATK_SPEED);
+        float critChance = GetFinalStat(PlayerStatType.CRIT_CHANCE);
+        float critMult = GetFinalStat(PlayerStatType.CRIT_MULT);
+        float expectedCrit = 1f + (critChance * (critMult - 1f));
+        float attr = GetFinalStat(PlayerStatType.Attribute);
+        float dmgMult = GetFinalStat(PlayerStatType.DMG_MULT);
+        float normalDmg = GetFinalStat(PlayerStatType.NORMAL_DMG);
+        return (atk * atkSpeed * expectedCrit) * (1f + attr) * (1f + dmgMult) * (1f + normalDmg);
+    }
+
     /// <summary>버서커 모드 활성 시 baseValue 2배 반환. 공격속도(ATK_SPEED)는 제외.</summary>
     public float ApplyBerserkerMultiplier(PlayerStatType statType, float baseValue)
     {
@@ -432,8 +459,5 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
             return baseValue * BerserkerStatMultiplier;
         return baseValue;
     }
-
-    /// <summary>GetFinalStat 결과에 버서커 배율 적용. 버서커 모드 시 2배 (공속 제외).</summary>
-    public float GetFinalStatWithBerserker(PlayerStatType statType) => ApplyBerserkerMultiplier(statType, GetFinalStat(statType));
     #endregion
 }
