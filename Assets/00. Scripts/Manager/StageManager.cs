@@ -130,22 +130,12 @@ public class StageManager : Singleton<StageManager>
         }
 
         GameEventManager.OnStageChanged?.Invoke(curFloor, DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].sceneNumber);
-        //if (curStage % 20 == 0)
-        //{
-        //    GameEventManager.OnStageChanged?.Invoke(curFloor, 20);
-        //}
-        //else
-        //{
-        //    GameEventManager.OnStageChanged?.Invoke(curFloor, curStage % 20);
-        //}
     }
     public void SetKillCount()
     {
         curMonsterKillCount = 0;
         maxMonsterKillCount = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].monsterKillCount;
         Debug.Log($"[StageManager] MaxKillCount = {maxMonsterKillCount} 씬 넘버 = {stageKeyList[curStage - 1]}");
-        //curMonsterKillCountText.text = curMonsterKillCount + "/" + maxMonsterKillCount;
-        //curMonsterGuage.fillAmount = 0;
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
     }
 
