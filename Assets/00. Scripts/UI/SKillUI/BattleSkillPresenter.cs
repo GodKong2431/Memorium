@@ -75,7 +75,7 @@ public class BattleSkillPresenter : MonoBehaviour
     {
         var btn = slotViews[index].SlotButton;
         var colors = btn.colors;
-        Color color = selected ? new Color(0.6f, 0.6f, 0.6f) : Color.white;
+        Color color = selected ? Color.gold : Color.white;
         colors.normalColor = color;
         colors.highlightedColor = color;
         colors.selectedColor = color;

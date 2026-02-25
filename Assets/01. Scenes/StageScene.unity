@@ -1589,6 +1589,53 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!1 &1023790325
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1023790327}
+  - component: {fileID: 1023790326}
+  m_Layer: 0
+  m_Name: SkillInvetoryManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1023790326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023790325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05189f3700d8e254fa3dc93994acb5c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkillInventoryManager
+  testSkillID: 0
+  testGrade: 0
+  testAmount: 10
+--- !u!4 &1023790327
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023790325}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 531.1085, y: -0.00003, z: 986.0521}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1044715719
 GameObject:
   m_ObjectHideFlags: 0
@@ -1668,6 +1715,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 243e36e4b3d4d3b48a990ae1b2bf5c6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinalStatUIItem
+--- !u!114 &1166894198 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2595832455350642301, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+  m_PrefabInstance: {fileID: 1653203491896044730}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2af20bb74e7f0d4696a8b814a5f5d9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleSkillPresenter
 --- !u!1 &1177680287
 GameObject:
   m_ObjectHideFlags: 0
@@ -4091,6 +4149,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7974186276384983028, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+      propertyPath: battleSkillPresenter
+      value: 
+      objectReference: {fileID: 1166894198}
     - target: {fileID: 9152824637824272664, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_Name
       value: BottomSheetPanel
@@ -4755,3 +4817,4 @@ SceneRoots:
   - {fileID: 957228332}
   - {fileID: 1988957295}
   - {fileID: 1795495639}
+  - {fileID: 1023790327}
