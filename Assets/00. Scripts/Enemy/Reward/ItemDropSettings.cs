@@ -68,29 +68,6 @@ public class ItemDropSettings : ScriptableObject
         public int weight;
     }
 
-    /// <summary>전역 설정. 씬에서 설정하거나 Resources/ItemDropSettings 로드.</summary>
-    public static ItemDropSettings Instance { get; set; }
-    //드롭 테이블을 설정하는 메서드
-    public void SetDropTable(ItemDropTable dropTable)
-    {
-        equipmentDropRate.Clear();
-        dropGold = dropTable.dropGold;
-        //베이스 스탯 및 각 아이템 드랍 확률 계산
-        EquipmentDropTable equipmentDropTable = DataManager.Instance.EquipmentDropDict[dropTable.equipmentDropID];
-        baseEquipmentTier = equipmentDropTable.BaseEquipmentTier;
-        int fullRate = equipmentDropTable.EquipmentTierWeight01 + equipmentDropTable.EquipmentTierWeight02 + equipmentDropTable.EquipmentTierWeight03
-            + equipmentDropTable.EquipmentTierWeight04;
-        //0에는 base 등급 이후 1씩 증가하며 각 아이템 드랍 확률 계산
-        equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight01 / (float)fullRate);
-        equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight02 / (float)fullRate);
-        equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight03 / (float)fullRate);
-        equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight04 / (float)fullRate);
-
-        equipmentChance = dropTable.equipmentRate;
-        fairyShardChance = dropTable.fairyPieceRate;
-        skillScrollChance = dropTable.scrollRate;
-        skillGemChance = dropTable.gemRate;
-        dungeonTicketChance = dropTable.keyRate;
-    }
+    /// <summary>ItemDropSettings는 RewardManager.DropSettings를 통해서만 접근. SetDropTable은 RewardManager에서 처리.</summary>
 }
 

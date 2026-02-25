@@ -3,23 +3,25 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// 버서커 모드 발동 시 플레이어에 빨간 라이트 적용, 지속시간 후 자동 해제.
-/// 현재는 스탯 변경 없음.
+/// 버서커 모드 발동 시 플레이어 중심에 전기 VFX 적용, 지속시간 후 자동 해제.
 /// </summary>
 public class BerserkerModeController : MonoBehaviour
 {
+    public static event Action OnBerserkerModeStarted;
     public static event Action OnBerserkerModeEnded;
     public static BerserkerModeController Instance { get; private set; }
 
+    private const string VfxResourcePath = "vfx_Electricity_01";
+
     [Header("설정")]
     [SerializeField] private float durationSeconds = 60f;
-    [SerializeField] private Color lightColor = new Color(1f, 0.2f, 0.2f);
-    [SerializeField] private float lightIntensity = 2f;
-    [SerializeField] private float lightRange = 5f;
+    [Tooltip("비워두면 이 컴포넌트의 transform 사용. VFX 위치용 (플레이어 루트 등).")]
+    [SerializeField] private Transform vfxParent;
 
     public bool IsActive { get; private set; }
 
-    private Light _berserkerLight;
+    private Transform VfxParent => vfxParent != null ? vfxParent : transform;
+    private GameObject _berserkerVfx;
     private Coroutine _durationCoroutine;
 
     private void Awake()
@@ -38,7 +40,7 @@ public class BerserkerModeController : MonoBehaviour
         {
             if (_durationCoroutine != null)
                 StopCoroutine(_durationCoroutine);
-            RemoveLight();
+            RemoveVfx();
             Instance = null;
         }
     }
@@ -49,30 +51,39 @@ public class BerserkerModeController : MonoBehaviour
         if (IsActive) return;
 
         IsActive = true;
-        AddLight();
+        AddVfx();
+        OnBerserkerModeStarted?.Invoke();
 
         if (_durationCoroutine != null)
             StopCoroutine(_durationCoroutine);
         _durationCoroutine = StartCoroutine(DurationRoutine());
     }
 
-    private void AddLight()
+    private void AddVfx()
     {
-        if (_berserkerLight != null) return;
+        if (_berserkerVfx == null)
+        {
+            var prefab = Resources.Load<GameObject>(VfxResourcePath);
+            if (prefab == null)
+            {
+                Debug.LogWarning($"[BerserkerModeController] Resources/{VfxResourcePath} 프리팹을 찾을 수 없습니다.");
+                return;
+            }
+            _berserkerVfx = Instantiate(prefab, VfxParent);
+            _berserkerVfx.transform.localPosition = Vector3.zero;
+            _berserkerVfx.name = "BerserkerVfx";
+        }
 
-        _berserkerLight = gameObject.AddComponent<Light>();
-        _berserkerLight.type = LightType.Point;
-        _berserkerLight.color = lightColor;
-        _berserkerLight.intensity = lightIntensity;
-        _berserkerLight.range = lightRange;
+        _berserkerVfx.SetActive(true);
+        foreach (var ps in _berserkerVfx.GetComponentsInChildren<ParticleSystem>())
+            ps.Play();
     }
 
-    private void RemoveLight()
+    private void RemoveVfx()
     {
-        if (_berserkerLight != null)
+        if (_berserkerVfx != null)
         {
-            Destroy(_berserkerLight);
-            _berserkerLight = null;
+            _berserkerVfx.SetActive(false);
         }
         if (IsActive)
         {
@@ -84,7 +95,7 @@ public class BerserkerModeController : MonoBehaviour
     private IEnumerator DurationRoutine()
     {
         yield return new WaitForSeconds(durationSeconds);
-        RemoveLight();
+        RemoveVfx();
         _durationCoroutine = null;
     }
 }
