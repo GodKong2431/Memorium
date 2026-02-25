@@ -62,6 +62,11 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
     }
 
+    private void OnDisable()
+    {
+        _ctx.ObjDisable();
+    }
+
     IEnumerator Start()
     {
         yield return new WaitUntil(() => CharacterStatManager.Instance != null);
