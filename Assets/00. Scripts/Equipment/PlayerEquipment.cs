@@ -49,7 +49,7 @@ public class PlayerEquipment : MonoBehaviour
                 CharacterStatManager.Instance.PlayerSlot.SetSlot(itemId, SlotType.Helmet);
 
                 break;
-            case EquipmentType.Gloves:
+            case EquipmentType.Glove:
                 glove = DataManager.Instance.EquipGloveDict[itemId];
                 CharacterStatManager.Instance.PlayerSlot.SetSlot(itemId, SlotType.Glove);
 
@@ -79,7 +79,7 @@ public class PlayerEquipment : MonoBehaviour
             case EquipmentType.Helmet:
                 itemId = helmet.ID;
                 break;
-            case EquipmentType.Gloves:
+            case EquipmentType.Glove:
                 itemId = glove.ID;
                 break;
             case EquipmentType.Armor:

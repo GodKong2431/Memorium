@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,9 +12,15 @@ public class CurrencyManager : Singleton<CurrencyManager>
     {
         base.Awake();
         currencies = new Dictionary<CurrencyType, BigDouble>();
-        for (int i = 0; i < (int)CurrencyType.Count; i++)
+
+        //for (int i = 0; i < (int)CurrencyType.Count; i++)
+        //{
+        //    currencies[(CurrencyType)i] = new BigDouble(0);
+        //}
+
+        foreach (CurrencyType type in Enum.GetValues(typeof(CurrencyType)))
         {
-            currencies[(CurrencyType)i] = new BigDouble(0);
+            currencies[type] = new BigDouble(0);
         }
     }
 

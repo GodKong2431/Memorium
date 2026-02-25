@@ -144,7 +144,7 @@ public class PlayerInventory : MonoBehaviour
             case EquipmentType.Helmet:
                 myEquipmentListKeys = DataManager.Instance.EquipHelmetDict.Keys.ToList<int>();
                 break;
-            case EquipmentType.Gloves:
+            case EquipmentType.Glove:
                 myEquipmentListKeys = DataManager.Instance.EquipGloveDict.Keys.ToList<int>();
                 break;
             case EquipmentType.Armor:
