@@ -24,9 +24,10 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     private SkillCaster skillCaster;
     private SkillDataContext[] skilldataContexts;
     private float[] cooldownTimers;
+    private float[] cooldownTimeMax;
     private PlayerStateMachine playerStateMachine;
 
-    public int SkillCount => skilldataContexts.Length;
+    public int SkillCount => skilldataContexts?.Length ?? 0;
 
     private void Awake()
     {
@@ -37,12 +38,12 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     {
         skilldataContexts = new SkillDataContext[skillIDs.Length];
         cooldownTimers = new float[skillIDs.Length];
+        cooldownTimeMax = new float[skillIDs.Length];
         for (int i = 0; i < skillIDs.Length; i++)
         {
             skilldataContexts[i] = new SkillDataContext(skillIDs[i], m4IDs?[i] ?? -1, m5IDs?[i] ?? -1);
-            Debug.Log($"슬롯{i}: skillData={skilldataContexts[i].skillData != null}, table={skilldataContexts[i].skillData?.skillTable != null}");
             cooldownTimers[i] = 0;
-
+            cooldownTimeMax[i] = 0;
         }
         skillCaster.Init(this, this, SetInvincible);
 
@@ -52,6 +53,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         if (index < 0 || index >= skilldataContexts.Length) return;
         skilldataContexts[index] = new SkillDataContext(skillID, m4ID, m5ID);
         cooldownTimers[index] = 0;
+        cooldownTimeMax[index] = 0;
     }
 
     private void Update()
@@ -98,7 +100,9 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
         skillCaster.CastSkill(skilldataContexts[index]);
         float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE);
-        cooldownTimers[index] = Mathf.Max(0f, skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f));
+        float maxCooldown = Mathf.Max(0f, skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f));
+        cooldownTimers[index] = maxCooldown;
+        cooldownTimeMax[index] = maxCooldown;
         return true;
     }
     public bool ReadySkill(float dist)
@@ -106,8 +110,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         if (skilldataContexts == null) return false;
         for (int i = 0; i < skilldataContexts.Length; i++)
         {
-            if (ReadySkill(i, dist))
-                return true;
+            if (ReadySkill(i, dist)) return true;
         }
         return false;
     }
@@ -131,7 +134,6 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     {
         if (skilldataContexts[index]?.skillData?.skillTable == null) return false;
         float cost = skilldataContexts[index].skillData.skillTable.manaCost;
-        Debug.Log($"스킬 소모량 : {cost} / 현재 마나량 : {playerStateMachine._ctx.CurrentMana} / 성공 여부 : {playerStateMachine._ctx.CurrentMana >= cost}");
         return playerStateMachine._ctx.CurrentMana >= cost;
 
     }
@@ -146,10 +148,8 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
     public float GetCooldownMax(int index)
     {
-        if (skilldataContexts == null || index < 0 || index >= skilldataContexts.Length) return 0f;
-        if (skilldataContexts[index]?.skillData?.skillTable == null) return 0f;
-        float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE);
-        return skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f);
+        if (cooldownTimeMax == null || index < 0 || index >= cooldownTimeMax.Length) return 0f;
+        return cooldownTimeMax[index];
     }
 
     #endregion
@@ -164,11 +164,13 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     #endregion
 
 
+    #region ISkillTargetProvider
     public Transform GetTarget()
     {
         var enemy = EnemyTarget.GetTarget(transform.position);
         return enemy != null ? enemy.transform : null;
     }
+    #endregion
 
     public void SetInvincible(bool active)
     {
