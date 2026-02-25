@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -130,12 +130,21 @@ public static class EnemyKillRewardDispatcher
         else
         {
             // 전역 몬스터 처치 카운트 (일반 몬스터만)
-            TotalKillCount++;
-            OnKillCountChanged?.Invoke(TotalKillCount);
-            OnNormalEnemyKilled?.Invoke();
+            //TotalKillCount++;
+            //OnKillCountChanged?.Invoke(TotalKillCount);
+            //OnNormalEnemyKilled?.Invoke();
+
+            TotalKillCountUp(TotalKillCount++);
 
             GameEventManager.OnQuestActionUpdated?.Invoke(QuestType.questElimination, 1); //몬스터 죽었을 때 호출
         }
+    }
+
+    public static void TotalKillCountUp(int count)
+    {
+        TotalKillCount = count;
+        OnKillCountChanged?.Invoke(TotalKillCount);
+        OnNormalEnemyKilled?.Invoke();
     }
 
     private static ItemDropSettings CreateDefaultItemDropSettings()

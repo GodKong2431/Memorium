@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
+using static UnityEngine.GraphicsBuffer;
 
 public class PlayerStateAttack : IPlayerState
 {
     private float _attackEndTime;
     private bool _attackInProgress;
     private GameObject _currentAttackEffect;
+
+    private bool IsDelayAttack = false;
 
     public PlayerStateType Type => PlayerStateType.Attack;
 
@@ -46,18 +50,23 @@ public class PlayerStateAttack : IPlayerState
         float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
 
 
+        var critmult = CritCheck(ctx.StatPresenter.PlayerStat.FinalCritChance) ? ctx.StatPresenter.PlayerStat.FinalCritMult : 1f;
 
-        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange)
+        ctx.SetCritMult(critmult);
+
+        if (/*!ctx.playerSkillHandler.AutoCast() && */dist <= ctx.AttackRange && !IsDelayAttack)
         {
             if (enemy.TryGetComponent<EnemyStateMachine>(out var target))
             {
-                target.TakeDamage(ctx.StatPresenter.PlayerStat.FinalATK);
+                BossChecker(target, ctx);
             }
-        }
 
+            IsDelayAttack = true;
+        }
 
         if (_attackInProgress && Time.time >= _attackEndTime)
         {
+            IsDelayAttack = false;
             _attackInProgress = false;
             ClearAttackEffect();
             ctx.RequestState(PlayerStateType.Chase);
@@ -71,6 +80,31 @@ public class PlayerStateAttack : IPlayerState
             Object.Destroy(_currentAttackEffect);
             _currentAttackEffect = null;
         }
+    }
+
+    private void BossChecker(EnemyStateMachine target, PlayerStateContext ctx)
+    {
+        if (target.TryGetComponent<EnemyStatPresenter>(out var statPresenter))
+        {
+            var normal = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalNormalDamage, 0);
+            var boss = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalBossDamage, 0);
+
+            var finalDamage = statPresenter.IsBoss ? boss : normal;
+
+            target.TakeDamage(finalDamage * ctx.CurrentCritMult);
+        }
+    }
+
+    private bool CritCheck(float crit)
+    {
+        var random = Random.Range(0f, 1f);
+
+        if (random < crit)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private static void SetAnimatorTrigger(PlayerStateContext ctx, string trigger)

@@ -56,8 +56,8 @@ public class MonsterSpawner : MonoBehaviour
                     Vector3 randZ = Random.Range(-randomRange, randomRange) * Vector3.forward;
                     Instantiate(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
                     
-                    GameObject testWizardEnemy = EnemyListManager.Instance.enemyMap[2010012];
-                    Instantiate(testWizardEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+                    //GameObject testWizardEnemy = EnemyListManager.Instance.enemyMap[2010012];
+                    //Instantiate(testWizardEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
                 }
 
             }

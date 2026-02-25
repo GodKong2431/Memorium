@@ -31,6 +31,7 @@ public class PlayerStatView : MonoBehaviour
     private PlayerStateContext playerContext;
     [SerializeField] private GaugeUI hpGauge;
     [SerializeField] private GaugeUI mpGauge;
+    [SerializeField] private GaugeUI expGauge;
 
     public struct TraitUI
     {
@@ -82,6 +83,11 @@ public class PlayerStatView : MonoBehaviour
                 statUpgrade.UpgradeStat += SetStat;
             }
         }
+
+        GameEventManager.OnCurrencyChanged += UpdateExpFromEvent;
+
+        BigDouble currentExp = CurrencyManager.Instance.GetAmount(CurrencyType.Exp);
+        UpdateExpUI(currentExp);
     }
 
     public void InitContext(PlayerStateContext context)
@@ -92,7 +98,7 @@ public class PlayerStatView : MonoBehaviour
         {
             playerContext.OnHealthChanged += UpdateHealthUI;
             playerContext.OnManaChanged += UpdateManaUI;
-
+            
             UpdateHealthUI(playerContext.CurrentHealth, playerContext.MaxHealth);
             UpdateManaUI(playerContext.CurrentMana, playerContext.MaxMana);
         }
@@ -186,7 +192,37 @@ public class PlayerStatView : MonoBehaviour
         if (mpGauge.valueText != null)
             mpGauge.valueText.text = $"{Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
     }
+    private void UpdateExpFromEvent(CurrencyType type, BigDouble amount)
+    {
+        if (type == CurrencyType.Exp)
+        {
+            UpdateExpUI(amount);
+        }
+    }
 
+    private void UpdateExpUI(BigDouble currentExp)
+    {
+        BigDouble requiredExp = CharacterStatManager.Instance.LevelBonus.RequiredExp;
+
+        if (expGauge.fillImage != null)
+        {
+            if (requiredExp > 0)
+            {
+                float fillRatio = (currentExp / requiredExp).ToFloat();
+                expGauge.fillImage.fillAmount = Mathf.Clamp01(fillRatio);
+            }
+            else
+            {
+                expGauge.fillImage.fillAmount = 0f;
+            }
+        }
+
+        if (expGauge.valueText != null)
+        {
+            // "현재경험치 / 필요경험치" 형태로 표시
+            expGauge.valueText.text = $"{currentExp.ToString()} / {requiredExp.ToString()}";
+        }
+    }
     private void OnDestroy()
     {
         if (CharacterStatManager.Instance != null)
@@ -201,6 +237,7 @@ public class PlayerStatView : MonoBehaviour
         {
             playerContext.OnHealthChanged -= UpdateHealthUI;
             playerContext.OnManaChanged -= UpdateManaUI;
+            GameEventManager.OnCurrencyChanged -= UpdateExpFromEvent;
         }
     }
 }

@@ -13,6 +13,9 @@ public class PlayerStateContext : BaseStateContext
     public float CurrentHealth { get; private set; }
     public float CurrentMana { get; private set; }
 
+    public float CurrentCritMult { get; private set; }
+
+    public float CurrentMoveSpeed => StatPresenter?.PlayerStat?.FinalMoveSpeed ?? 9f;
 
     public bool isGoal = false;
 
@@ -20,7 +23,7 @@ public class PlayerStateContext : BaseStateContext
     public float MaxMana => StatPresenter?.PlayerStat?.FinalMP ?? 100f;
 
     // 일반공격 사거리
-    public float AttackRange => 1.5f;
+    public float AttackRange => 2f;
     
     // 스킬공격 사거리
     public float FirstSkillRange => 2.5f;
@@ -28,6 +31,7 @@ public class PlayerStateContext : BaseStateContext
     public float ThirdSkillRange => 3.0f;
 
     private Action<PlayerStateType> _requestStateChange;
+
     public event Action<float, float> OnHealthChanged;
     public event Action<float, float> OnManaChanged;
 
@@ -44,12 +48,15 @@ public class PlayerStateContext : BaseStateContext
 
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         OnManaChanged?.Invoke(CurrentMana, MaxMana);
+
+        StatPresenter.PlayerStat.StatUpdate += SetSpeed;
     }
 
     public void SetStateChangeCallback(Action<PlayerStateType> callback)
     {
         _requestStateChange = callback;
     }
+
     public void TakeDamage(float damage, DamageType damageType)
     {
         if (IsInvincible) return;
@@ -69,15 +76,13 @@ public class PlayerStateContext : BaseStateContext
             CurrentHealth = 0;
             RequestState(PlayerStateType.Die);
         }
-
-        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
     public void ConsumeMana(float amount)
     {
         CurrentMana -= amount;
         if (CurrentMana < 0) CurrentMana = 0;
 
-        OnManaChanged?.Invoke(CurrentMana, MaxMana);
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
     }
     public void RequestState(PlayerStateType next)
     {
@@ -111,14 +116,20 @@ public class PlayerStateContext : BaseStateContext
         OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
 
-
     public void RefreshMaxStats()
     {
         if (CurrentHealth > MaxHealth) CurrentHealth = MaxHealth;
         if (CurrentMana > MaxMana) CurrentMana = MaxMana;
+    }
 
-        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
-        OnManaChanged?.Invoke(CurrentMana, MaxMana);
+    public void SetSpeed()
+    {
+        Agent.speed = CurrentMoveSpeed;
+    }
+
+    public void SetCritMult(float critMult)
+    {
+        CurrentCritMult = critMult;
     }
     public void UpdateRegen(float deltaTime)
     {
