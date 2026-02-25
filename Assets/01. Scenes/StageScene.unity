@@ -3581,8 +3581,32 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5881274944224777180, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1809314726550293721}
   m_SourcePrefab: {fileID: 100100000, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+--- !u!1 &1809314726550293720 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5881274944224777180, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+  m_PrefabInstance: {fileID: 1809314726550293719}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1809314726550293721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809314726550293720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45dcfdb7a3eb76942b2f64fbd05fd78d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HoldAcceleratorAddon
+  holdDelay: 1
+  accelerationDuration: 3
+  minTicksPerSecond: 2
+  maxTicksPerSecond: 20
 --- !u!1001 &2978566113804833860
 PrefabInstance:
   m_ObjectHideFlags: 0

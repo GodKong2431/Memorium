@@ -9,6 +9,10 @@ public class PlayerStateContext : BaseStateContext
     public NavMeshAgent Agent { get; set; }
     public PlayerStatPresenter StatPresenter { get; set; }
     public Animator Animator { get; set; }
+
+    public float AngularTime { get; set; }
+    public float StopAngle { get; set; }
+
     public bool IsInvincible { get; private set; }
     public float CurrentHealth { get; private set; }
     public float CurrentMana { get; private set; }

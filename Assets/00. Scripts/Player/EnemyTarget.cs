@@ -21,7 +21,6 @@ public static class EnemyTarget
             {
                 shorDist = dist;
                 target = enemy;
-                target.transform.name = "currentTarget";
             }
         }
 
