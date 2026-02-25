@@ -66,6 +66,9 @@ public class DropItemController : MonoBehaviour
         else
         {
             EnemyKillRewardDispatcher.RaiseItemCollected(_itemId, _count, isEquipment: false);
+            ItemInfoTable item = DataManager.Instance.ItemInfoDict[_itemId];
+            int itemType = (int)item.itemType;
+            CurrencyManager.Instance.AddCurrency((CurrencyType)itemType, 1);
         }
 
         Destroy(gameObject);

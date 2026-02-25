@@ -40,6 +40,19 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     {
         if (battleSkillPresenter == null)
             battleSkillPresenter = FindAnyObjectByType<BattleSkillPresenter>();
+        if (DataManager.Instance.DataLoad)
+        {
+            InitFromPreset();
+        }
+        else
+        {
+            DataManager.Instance.OnComplete += OnDataLoaded;
+        }
+    }
+    private void OnDataLoaded()
+    {
+        DataManager.Instance.OnComplete -= OnDataLoaded;
+        InitFromPreset();
     }
     public void Init(int[] skillIDs, int[] m4IDs = null, int[] m5IDs = null)
     {
@@ -57,6 +70,35 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         if (battleSkillPresenter != null)
             battleSkillPresenter.Init(this);
 
+    }
+    private void OnEnable()
+    {
+        SkillInventoryManager.OnPresetChanged += OnPresetChanged;
+    }
+
+    private void OnDisable()
+    {
+        SkillInventoryManager.OnPresetChanged -= OnPresetChanged;
+    }
+
+    private void OnPresetChanged(int presetIndex)
+    {
+        InitFromPreset();
+    }
+    public void InitFromPreset()
+    {
+        var preset = SkillInventoryManager.Instance.GetCurrentPreset();
+        int[] skillIDs = new int[preset.slots.Length];
+        int[] m4IDs = new int[preset.slots.Length];
+        int[] m5IDs = new int[preset.slots.Length];
+
+        for (int i = 0; i < preset.slots.Length; i++)
+        {
+            skillIDs[i] = preset.slots[i].skillID;
+            m4IDs[i] = preset.slots[i].m4JemID;
+            m5IDs[i] = preset.slots[i].m5JemIDs[0];
+        }
+        Init(skillIDs, m4IDs, m5IDs);
     }
     public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5ID = -1)
     {

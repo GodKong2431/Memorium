@@ -47,7 +47,7 @@ public class TestExp : MonoBehaviour
 {
     { EquipmentType.Boots, 3150000 },
     { EquipmentType.Armor, 3140000 },
-    { EquipmentType.Gloves, 3130000 },
+    { EquipmentType.Glove, 3130000 },
     { EquipmentType.Helmet, 3120000 },
     { EquipmentType.Weapon, 3110000 },
 };

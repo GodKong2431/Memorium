@@ -1,11 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using System;
 
 public class BattleSkillPresenter : MonoBehaviour
 {
     [SerializeField] private BattleSkillSlotView[] slotViews;
-
+    public int SlotCount => slotViews.Length;
     private ISkillCooldownProvider cooldownProvider;
 
 
@@ -66,5 +65,20 @@ public class BattleSkillPresenter : MonoBehaviour
             }
             // 아이콘 확정시 스킬 id에 따른 아이콘 변경함수 추가
         }
+    }
+    public void SetSlotClickListener(int index, Action callback)
+    {
+        slotViews[index].SlotButton.onClick.AddListener(() => callback());
+    }
+
+    public void SetSlotHighlight(int index, bool selected)
+    {
+        var btn = slotViews[index].SlotButton;
+        var colors = btn.colors;
+        Color color = selected ? Color.gold : Color.white;
+        colors.normalColor = color;
+        colors.highlightedColor = color;
+        colors.selectedColor = color;
+        btn.colors = colors;
     }
 }

@@ -8,6 +8,13 @@ public class BattleSkillSlotView : MonoBehaviour
     [SerializeField] private Image cooldownFill;
     [SerializeField] private TMP_Text cooldownText;
 
+    private Button slotButton;
+    public Button SlotButton => slotButton;
+
+    private void Awake()
+    {
+        slotButton = GetComponent<Button>();
+    }
     public void UpdateCooldown(float fillAmount, float remainTime)
     {
         bool onCooldown = fillAmount > 0;
@@ -22,7 +29,7 @@ public class BattleSkillSlotView : MonoBehaviour
     public void UpdateIcon(Sprite icon)
     {
         skillIcon.sprite = icon;
-        skillIcon.color = icon != null ? Color.white : new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        skillIcon.color = icon != null ? Color.white : Color.gray;
     }
     public void SetEmpty()
     {
