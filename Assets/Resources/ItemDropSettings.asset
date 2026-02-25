@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a2d119b2cc40374c85cc524c92710d6, type: 3}
+  m_Name: ItemDropSettings
+  m_EditorClassIdentifier: Assembly-CSharp::ItemDropSettings
+  dropGold:
+    mantissa: 1
+    exponent: 1
+  baseEquipmentTier: 1
+  equipmentDropRate: []
+  equipmentChance: 0.05
+  fairyShardChance: 0.0001
+  skillScrollChance: 0.00005
+  skillGemChance: 0.00001
+  dungeonTicketChance: 0.00001
+  stageGap: 3
+  startIP: 100
+  offsetTable:
+  - offset: 0
+    weight: 800
+  - offset: 100
+    weight: 150
+  - offset: 200
+    weight: 40
+  - offset: 300
+    weight: 10
+  equipmentIds: 
+  fairyShardIds: b1813200
+  skillScrollIds: 11fb3000
+  skillGemIds: 21223100
+  dungeonTicketIds: d9743a00
