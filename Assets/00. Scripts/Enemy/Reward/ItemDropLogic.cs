@@ -57,11 +57,9 @@ public static class ItemDropLogic
     {
         if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.EquipListDict == null)
             return 0;
-        int typeNum = (int)type - (int)EquipmentType.Weapon;
-        return EquipmentManager.Instance.equipmentByTierDict[tier][typeNum];
-        //var match = DataManager.Instance.EquipListDict.Values
-        //    .FirstOrDefault(e => e.equipmentType == type && e.equipmentTier == tier);
-        //return match != null ? match.ID : 0;
+        var match = DataManager.Instance.EquipListDict.Values
+            .FirstOrDefault(e => e.equipmentType == type && e.equipmentTier == tier);
+        return match != null ? match.ID : 0;
     }
 
     /// <summary>각 카테고리 독립 롤, itemId = EquipListTable/ItemInfoTable ID</summary>

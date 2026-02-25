@@ -103,9 +103,9 @@ public class MonsterSpawner : MonoBehaviour
         if (StageManager.Instance != null) 
         { 
             int prevSpawnGroup = curSpawnGroup;
-        curSpawnGroup = DataManager.Instance.StageManageDict[StageManager.Instance.stageKeyList[StageManager.Instance.curStage - 1]].monsterSpawnGroup;
-        if (curSpawnGroup == prevSpawnGroup)
-            return;
+            curSpawnGroup = DataManager.Instance.StageManageDict[StageManager.Instance.stageKeyList[StageManager.Instance.curStage - 1]].monsterSpawnGroup;
+            if (curSpawnGroup == prevSpawnGroup)
+                return;
         }
         curSpawnGroupMonsterTable.Clear();
         //curSpawnGroupBossMonsterTable.Clear();

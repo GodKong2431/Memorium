@@ -17,7 +17,7 @@ public class EnemyListManager : Singleton<EnemyListManager>
         foreach (var enemy in enemyList)
         {
 
-            Debug.Log($"[EnemyListManager] 몬스터 ID {enemy.monsterIdFromDataManager}");
+            //Debug.Log($"[EnemyListManager] 몬스터 ID {enemy.monsterIdFromDataManager}");
             enemyMap[enemy.monsterIdFromDataManager]=enemy.gameObject;
             //enemyRewardMap[enemy.monsterIdFromDataManager] = enemy.RewardData;
         }

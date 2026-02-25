@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,6 +9,10 @@ public class PlayerStateContext : BaseStateContext
     public NavMeshAgent Agent { get; set; }
     public PlayerStatPresenter StatPresenter { get; set; }
     public Animator Animator { get; set; }
+
+    public float AngularTime { get; set; }
+    public float StopAngle { get; set; }
+
     public bool IsInvincible { get; private set; }
     public float CurrentHealth { get; private set; }
     public float CurrentMana { get; private set; }
@@ -52,6 +56,10 @@ public class PlayerStateContext : BaseStateContext
         StatPresenter.PlayerStat.StatUpdate += SetSpeed;
     }
 
+    public void ObjDisable()
+    {
+        StatPresenter.PlayerStat.StatUpdate -= SetSpeed;
+    }
     public void SetStateChangeCallback(Action<PlayerStateType> callback)
     {
         _requestStateChange = callback;
@@ -71,6 +79,7 @@ public class PlayerStateContext : BaseStateContext
         damage *= (1f - resistance * 0.01f);
 
         CurrentHealth -= damage;
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         if (CurrentHealth <= 0)
         {
             CurrentHealth = 0;
@@ -120,6 +129,15 @@ public class PlayerStateContext : BaseStateContext
     {
         if (CurrentHealth > MaxHealth) CurrentHealth = MaxHealth;
         if (CurrentMana > MaxMana) CurrentMana = MaxMana;
+    }
+
+    /// <summary>최대치가 증가했을 때(예: 버서커 모드 시작) 현재 HP/MP를 새 최대값으로 채움.</summary>
+    public void SetHealthAndManaToMax()
+    {
+        CurrentHealth = MaxHealth;
+        CurrentMana = MaxMana;
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
 
     public void SetSpeed()

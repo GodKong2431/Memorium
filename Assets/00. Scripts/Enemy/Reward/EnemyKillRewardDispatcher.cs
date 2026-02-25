@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -59,36 +59,44 @@ public static class EnemyKillRewardDispatcher
         OnKillCountChanged?.Invoke(0);
     }
 
-    /// <summary>한 번에 골드·경험치·아이템 계산 후 이벤트 발송.</summary>
+    /// <summary>한 번에 골드·경험치·아이템 계산 후 이벤트 발송. 골드/경험치는 StageManager.SetReward()에서 세팅한 값 사용.</summary>
     public static void GrantRewards(EnemyRewardData rewardData, bool isBoss = false, int stageLevel = -1, Vector3 worldPosition = default)
     {
         if (rewardData == null) return;
 
         int stage = stageLevel >= 1 ? stageLevel : CurrentStageLevel;
 
-        // 골드 100%
-        int gold = EnemyRewardCalculator.CalculateGold(rewardData, stage);
-        if (gold > 0)
+        // 골드: RewardManager.DropSettings.dropGold (StageManager.SetReward → SetDropTable에서 세팅)
+        var dropSettings = RewardManager.Instance?.DropSettings;
+        if (dropSettings != null)
         {
-            if (CurrencyManager.Instance != null)
-                CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, gold);
-            OnGoldEarned?.Invoke(gold);
-            Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{gold}");
+            var baseGold = dropSettings.dropGold;
+            if (baseGold > 0)
+            {
+                var goldMult = 1.0 + (double)CharacterStatManager.Instance.FinalGoldGain;
+                var finalGold = baseGold * goldMult;
+                if (CurrencyManager.Instance != null)
+                    CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, finalGold);
+                Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{finalGold}");
+            }
         }
 
-        // 경험치 (스테이지에서 계산된 expBase를 그대로 사용)
+        // 경험치: StageManager가 expBase에 세팅한 값 사용
         int exp = rewardData.expBase;
+        if (StageManager.Instance != null)
+        {
+            var reward = isBoss ? StageManager.Instance.bossEnemyReward : StageManager.Instance.normalEnemyReward;
+            if (reward != null) exp = reward.expBase;
+        }
         if (exp > 0)
         {
+            var finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.FinalExpGain));
             if (CurrencyManager.Instance != null)
-                CurrencyManager.Instance.AddCurrency(CurrencyType.Exp, exp);
-            OnExpEarned?.Invoke(exp);
-            Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{exp}");
+                CurrencyManager.Instance.AddCurrency(CurrencyType.Exp, finalExp);
+            Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{finalExp}");
         }
 
-        // 아이템: 카테고리별 독립 확률 규칙 (장비·수호요정·스킬주문서·스킬잼·던전입장권)
-        var dropSettings = ItemDropSettings.Instance ?? Resources.Load<ItemDropSettings>("ItemDropSettings")
-            ?? CreateDefaultItemDropSettings();
+        // 아이템: RewardManager를 통해서만 ItemDropSettings 사용
         if (dropSettings != null)
         {
             ItemDropLogic.RollAll(dropSettings, stage, isBoss, _itemDropBuffer);
@@ -115,10 +123,12 @@ public static class EnemyKillRewardDispatcher
             }
         }
 
-        // 버서커 오브: 일반 1개, 보스 10개
-        int berserkerOrb = isBoss ? 10 : 1;
-        OnBerserkerOrbEarned?.Invoke(berserkerOrb);
-        Debug.Log($"[EnemyKillRewardDispatcher] 버서커 오브 +{berserkerOrb}");
+        // 버서커 오브: 일반 1개, 보스 10개 (PlayerBerserkerOrb 구독). 버서커 모드 중에는 수집 안 함.
+        if (BerserkerModeController.Instance == null || !BerserkerModeController.Instance.IsActive)
+        {
+            int berserkerOrb = isBoss ? 10 : 1;
+            OnBerserkerOrbEarned?.Invoke(berserkerOrb);
+        }
 
         if (isBoss)
         {
@@ -130,11 +140,9 @@ public static class EnemyKillRewardDispatcher
         else
         {
             // 전역 몬스터 처치 카운트 (일반 몬스터만)
-            //TotalKillCount++;
-            //OnKillCountChanged?.Invoke(TotalKillCount);
-            //OnNormalEnemyKilled?.Invoke();
-
-            TotalKillCountUp(TotalKillCount++);
+            TotalKillCount++;
+            OnKillCountChanged?.Invoke(TotalKillCount);
+            OnNormalEnemyKilled?.Invoke();
 
             GameEventManager.OnQuestActionUpdated?.Invoke(QuestType.questElimination, 1); //몬스터 죽었을 때 호출
         }
@@ -143,32 +151,7 @@ public static class EnemyKillRewardDispatcher
     public static void TotalKillCountUp(int count)
     {
         TotalKillCount = count;
-        OnKillCountChanged?.Invoke(TotalKillCount);
+        OnKillCountChanged?.Invoke(count);
         OnNormalEnemyKilled?.Invoke();
-    }
-
-    private static ItemDropSettings CreateDefaultItemDropSettings()
-    {
-        var s = ScriptableObject.CreateInstance<ItemDropSettings>();
-        s.equipmentChance = 0.05f;
-        s.fairyShardChance = 0.0001f;
-        s.skillScrollChance = 0.00005f;
-        s.skillGemChance = 0.00001f;
-        s.dungeonTicketChance = 0.00001f;
-        s.stageGap = 3;
-        s.startIP = 100;
-        s.offsetTable = new ItemDropSettings.EquipmentOffsetEntry[]
-        {
-            new() { offset = 0, weight = 800 },
-            new() { offset = 100, weight = 150 },
-            new() { offset = 200, weight = 40 },
-            new() { offset = 300, weight = 10 }
-        };
-        s.equipmentIds = Array.Empty<int>();
-        s.fairyShardIds = new[] { 3310001 };
-        s.skillScrollIds = new[] { 3210001 };
-        s.skillGemIds = new[] { 3220001 };
-        s.dungeonTicketIds = new[] { 3831001 };
-        return s;
     }
 }
