@@ -46,7 +46,14 @@ public class PlayerStateAttack : IPlayerState
             ctx.RequestState(PlayerStateType.Idle);
             return;
         }
-        enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position).transform;
+
+        if (enemy == null)
+        {
+            enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position).transform;
+        }
+
+        //enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position).transform;
+
         float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
 
         Vector3 dir = enemy.position - ctx.PlayerTransform.position;

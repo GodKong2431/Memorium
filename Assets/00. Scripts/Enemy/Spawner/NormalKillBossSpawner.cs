@@ -28,7 +28,7 @@ public class NormalKillBossSpawner : MonoBehaviour
         _normalKillCount++;
         if (_normalKillCount >= killThreshold)
         {
-            SpawnBoss();
+            // SpawnBoss();
             _normalKillCount = 0;
         }
     }
