@@ -219,6 +219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1f90f35de5715949b82d1bf7ffd75b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillHandler
+  battleSkillPresenter: {fileID: 0}
 --- !u!114 &209201028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,6 +319,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine
   animator: {fileID: 0}
   attackEffectPrefab: {fileID: 0}
+  angularTime: 0
+  stopAngle: 0
   CurrentType: 0
 --- !u!114 &209201030
 MonoBehaviour:
@@ -331,7 +334,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe7d81c7d4fb6ed4c89deff66bfe4076, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStatPresenter
-  playerStat: {fileID: 1572103956}
+  playerStat: {fileID: 0}
   view: {fileID: 0}
 --- !u!195 &209201031
 NavMeshAgent:
@@ -616,7 +619,8 @@ MonoBehaviour:
   monsterSpawner: {fileID: 659872534}
   isReadyToBossSpawn: 0
   bossSpawnBtn: {fileID: 1882254219}
-  curStageType: 1
+  curStageType: 2
+  normalStage: 0
 --- !u!4 &252669900
 Transform:
   m_ObjectHideFlags: 0
@@ -1278,17 +1282,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: af7578229c8bad64da173077f2c458f9, type: 3}
---- !u!114 &745671976 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 9024416283694585423, guid: af7578229c8bad64da173077f2c458f9, type: 3}
-  m_PrefabInstance: {fileID: 745671975}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!224 &745671977 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7240568227787856270, guid: af7578229c8bad64da173077f2c458f9, type: 3}
@@ -1418,47 +1411,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f77828cab708b44a89e027bc8c20ef4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StatUI
---- !u!224 &745671992 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 7299898667444658462, guid: af7578229c8bad64da173077f2c458f9, type: 3}
-  m_PrefabInstance: {fileID: 745671975}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &745671993 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 4481555355216655879, guid: af7578229c8bad64da173077f2c458f9, type: 3}
-  m_PrefabInstance: {fileID: 745671975}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &745671994 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 4233080737588155224, guid: af7578229c8bad64da173077f2c458f9, type: 3}
-  m_PrefabInstance: {fileID: 745671975}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &745671995 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2287573653316533120, guid: af7578229c8bad64da173077f2c458f9, type: 3}
-  m_PrefabInstance: {fileID: 745671975}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &745671996 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 6623214355675527273, guid: af7578229c8bad64da173077f2c458f9, type: 3}
-  m_PrefabInstance: {fileID: 745671975}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &745671997 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4058926787874402101, guid: af7578229c8bad64da173077f2c458f9, type: 3}
   m_PrefabInstance: {fileID: 745671975}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &745671998 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4842560167536193957, guid: af7578229c8bad64da173077f2c458f9, type: 3}
-  m_PrefabInstance: {fileID: 745671975}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!1 &786364375
 GameObject:
   m_ObjectHideFlags: 0
@@ -1919,6 +1876,51 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 955286393471800036, guid: 0a1301f5860bc8e4f90006c0e7421a72, type: 3}
   m_PrefabInstance: {fileID: 1068267088}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1122382867
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1122382869}
+  - component: {fileID: 1122382868}
+  m_Layer: 0
+  m_Name: SceneController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1122382868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122382867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cddca852b37b0c4baf13c302f350968, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneController
+  loadingUI: {fileID: 0}
+--- !u!4 &1122382869
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122382867}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 255.56639, y: 0, z: 3.04824}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1201667921
 GameObject:
   m_ObjectHideFlags: 0
@@ -2017,344 +2019,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1572103955
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1572103957}
-  - component: {fileID: 1572103956}
-  m_Layer: 0
-  m_Name: CharacterStatManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1572103956
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1572103955}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39159c08c7c95f94f8cdd42b0ddf3ab8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterStatManager
-  characterBaseKey: 1000001
-  characterTableKey: 1030001
-  level: 1
-  testSaveData:
-    weaponId: -1
-    helmetId: 0
-    gloveId: 0
-    armorId: 0
-    bootsId: 0
-    unLockEquipmentKey: 
-    unLockEquipmentValue: 
-  equipmentHandler: {fileID: 1838459384}
-  traitManager: {fileID: 0}
-  baseStat:
-    classType: 0
-    baseHealthPoint: 0
-    baseHpRegeneration: 0
-    baseAttack: 0
-    baseAttackSpeed: 0
-    basePhysicalResist: 0
-    baseMagicResist: 0
-    baseMana: 0
-    baseManaRegeneration: 0
-    baseCriticalChance: 0
-    baseCriticalMultiplier: 0
-    baseCoolDown: 0
-    baseMoveSpeed: 0
-    baseGoldGain: 0
-    baseExpGain: 0
-    baseBossDamage: 0
-    baseNormalDamage: 0
-    baseDamageMult: 0
-  attackStatUpgrade:
-    statName: 
-    upgradeCount: 0
-    statInCrease: 0
-    baseCost: 0
-    costMultiplyRate: 0
-    stat: 0
-    currentCost:
-      mantissa: 0
-      exponent: 0
-    statType: 4
-  mpStatUpgrade:
-    statName: 
-    upgradeCount: 0
-    statInCrease: 0
-    baseCost: 0
-    costMultiplyRate: 0
-    stat: 0
-    currentCost:
-      mantissa: 0
-      exponent: 0
-    statType: 2
-  mpRegenStatUpgrade:
-    statName: 
-    upgradeCount: 0
-    statInCrease: 0
-    baseCost: 0
-    costMultiplyRate: 0
-    stat: 0
-    currentCost:
-      mantissa: 0
-      exponent: 0
-    statType: 3
-  hpStatUpgrade:
-    statName: 
-    upgradeCount: 0
-    statInCrease: 0
-    baseCost: 0
-    costMultiplyRate: 0
-    stat: 0
-    currentCost:
-      mantissa: 0
-      exponent: 0
-    statType: 0
-  hpRegenStatUpgrade:
-    statName: 
-    upgradeCount: 0
-    statInCrease: 0
-    baseCost: 0
-    costMultiplyRate: 0
-    stat: 0
-    currentCost:
-      mantissa: 0
-      exponent: 0
-    statType: 1
-  critStatUpgrade:
-    statName: 
-    upgradeCount: 0
-    statInCrease: 0
-    baseCost: 0
-    costMultiplyRate: 0
-    stat: 0
-    currentCost:
-      mantissa: 0
-      exponent: 0
-    statType: 8
-  critMultStatUpgrade:
-    statName: 
-    upgradeCount: 0
-    statInCrease: 0
-    baseCost: 0
-    costMultiplyRate: 0
-    stat: 0
-    currentCost:
-      mantissa: 0
-      exponent: 0
-    statType: 0
-  bossDamageStatUpgrade:
-    statName: 
-    upgradeCount: 0
-    statInCrease: 0
-    baseCost: 0
-    costMultiplyRate: 0
-    stat: 0
-    currentCost:
-      mantissa: 0
-      exponent: 0
-    statType: 0
-  levelBonus:
-    CurrentLevel: 0
-    RequiredExp:
-      mantissa: 0
-      exponent: 0
-    BonusAttack: 0
-    BonusMP: 0
-    BonusMPRegen: 0
-    BonusHP: 0
-    BonusHPRegen: 0
-    BonusCriticalDamage: 0
-    BonusBossDamage: 0
-    BonusNormalDamage: 0
-    BonusCristal: 0
-  playerSlot:
-    CharacterStatID: 0
-    SkillSlot1: 0
-    SkillSlot2: 0
-    SkillSlot3: 0
-    WeaponSlot: 0
-    HelmetSlot: 0
-    ArmorSlot: 0
-    GloveSlot: 0
-    BootsSlot: 0
-    FairySlot: 0
-  attackTrait:
-    ID: 0
-    TraitTier: 
-    TraitName: 
-    TraitUPStatName: 
-    StatUP: 0
-    MinLevel: 0
-    MaxLevel: 0
-    DecreasePoint: 0
-    NeedTrait: 
-    CurrentLevel: 0
-    unlock: 0
-    statType: 0
-    CurrentStat: 0
-  mpTrait:
-    ID: 0
-    TraitTier: 
-    TraitName: 
-    TraitUPStatName: 
-    StatUP: 0
-    MinLevel: 0
-    MaxLevel: 0
-    DecreasePoint: 0
-    NeedTrait: 
-    CurrentLevel: 0
-    unlock: 0
-    statType: 0
-    CurrentStat: 0
-  hpTrait:
-    ID: 0
-    TraitTier: 
-    TraitName: 
-    TraitUPStatName: 
-    StatUP: 0
-    MinLevel: 0
-    MaxLevel: 0
-    DecreasePoint: 0
-    NeedTrait: 
-    CurrentLevel: 0
-    unlock: 0
-    statType: 0
-    CurrentStat: 0
-  attackSpeedTrait:
-    ID: 0
-    TraitTier: 
-    TraitName: 
-    TraitUPStatName: 
-    StatUP: 0
-    MinLevel: 0
-    MaxLevel: 0
-    DecreasePoint: 0
-    NeedTrait: 
-    CurrentLevel: 0
-    unlock: 0
-    statType: 0
-    CurrentStat: 0
-  critTrait:
-    ID: 0
-    TraitTier: 
-    TraitName: 
-    TraitUPStatName: 
-    StatUP: 0
-    MinLevel: 0
-    MaxLevel: 0
-    DecreasePoint: 0
-    NeedTrait: 
-    CurrentLevel: 0
-    unlock: 0
-    statType: 0
-    CurrentStat: 0
-  critMultTrait:
-    ID: 0
-    TraitTier: 
-    TraitName: 
-    TraitUPStatName: 
-    StatUP: 0
-    MinLevel: 0
-    MaxLevel: 0
-    DecreasePoint: 0
-    NeedTrait: 
-    CurrentLevel: 0
-    unlock: 0
-    statType: 0
-    CurrentStat: 0
-  bossDamageTrait:
-    ID: 0
-    TraitTier: 
-    TraitName: 
-    TraitUPStatName: 
-    StatUP: 0
-    MinLevel: 0
-    MaxLevel: 0
-    DecreasePoint: 0
-    NeedTrait: 
-    CurrentLevel: 0
-    unlock: 0
-    statType: 0
-    CurrentStat: 0
-  coolDownTrait:
-    ID: 0
-    TraitTier: 
-    TraitName: 
-    TraitUPStatName: 
-    StatUP: 0
-    MinLevel: 0
-    MaxLevel: 0
-    DecreasePoint: 0
-    NeedTrait: 
-    CurrentLevel: 0
-    unlock: 0
-    statType: 0
-    CurrentStat: 0
-  damageMultTrait:
-    ID: 0
-    TraitTier: 
-    TraitName: 
-    TraitUPStatName: 
-    StatUP: 0
-    MinLevel: 0
-    MaxLevel: 0
-    DecreasePoint: 0
-    NeedTrait: 
-    CurrentLevel: 0
-    unlock: 0
-    statType: 0
-    CurrentStat: 0
-  finalHP: 0
-  finalHPRegen: 0
-  finalMP: 0
-  finalMPRegen: 0
-  finalATK: 0
-  finalATKSpeed: 0
-  finalPhysDEF: 0
-  finalMagicDEF: 0
-  finalCritChance: 0
-  finalCritMult: 0
-  finalMoveSpeed: 0
-  finalCoolDownReduce: 0
-  finalGoldGain: 0
-  finalExpGain: 0
-  finalBossDamage: 0
-  finalNormalDamage: 0
-  finalDamageMult: 0
-  finalAttribute: 0
-  normalBasicDamage: 0
-  bossBasicDamage: 0
-  TableLoad: 0
-  normalPower: 0
-  expectedCrit: 0
---- !u!4 &1572103957
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1572103955}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 720, y: 266.66663, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1641419275
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2363,6 +2027,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2067324453}
     m_Modifications:
+    - target: {fileID: 1339240112719414337, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339240112719414337, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339240112719414337, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339240112719414337, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1721422229519436301, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -2376,6 +2056,22 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1721422229519436301, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3916501516601404848, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3916501516601404848, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3916501516601404848, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3916501516601404848, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
@@ -2494,6 +2190,22 @@ PrefabInstance:
     - target: {fileID: 8083166019008821808, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
       propertyPath: m_Name
       value: SkillPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242522890142581747, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242522890142581747, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242522890142581747, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8242522890142581747, guid: f268df6ea53c05a42bcee3a2faecceb3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2637,121 +2349,6 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 171.93507, y: 2349.9653, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1838459383
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1838459387}
-  - component: {fileID: 1838459384}
-  - component: {fileID: 1838459386}
-  - component: {fileID: 1838459385}
-  m_Layer: 0
-  m_Name: PlayerEquipment
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1838459384
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1838459383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 551c746b7ff50af408a200ea26a04325, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EquipmentHandler
-  playerEquipment: {fileID: 1838459386}
-  playerInventory: {fileID: 1838459385}
-  autoMerge: {fileID: 745671998}
-  autoEquip: {fileID: 745671976}
---- !u!114 &1838459385
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1838459383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a6f9d66f9d903743942bd905f1002f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  myEquipmentListKeys: 
-  myEquipmentCountKeys: 
-  allEquipmentListKeys: 
-  uIPage:
-  - {fileID: 745671996}
-  - {fileID: 745671995}
-  - {fileID: 745671994}
-  - {fileID: 745671993}
-  - {fileID: 745671992}
-  equipmentHandler: {fileID: 0}
-  testInventory: {fileID: 0}
-  prefabEquipTierGroup: {fileID: 5220201577418046666, guid: 8f63ba79ee934b546b385f5b2142c2d7, type: 3}
-  finalEquipment: 
---- !u!114 &1838459386
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1838459383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bda4481c6bb6c174a99326de34c814ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerEquipment
-  weapon:
-    ID: 0
-    description: 
-    attackPower: 0
-    attackSpeed: 0
-  helmet:
-    ID: 0
-    description: 
-    defense: 0
-  glove:
-    ID: 0
-    description: 
-    magicDefense: 0
-  armor:
-    ID: 0
-    description: 
-    hp: 0
-  boots:
-    ID: 0
-    description: 
-    moveSpeed: 0
-  onEquipmentUI:
-  - {fileID: 1936738559}
-  - {fileID: 1936738555}
-  - {fileID: 1936738558}
-  - {fileID: 1936738554}
-  - {fileID: 1936738557}
-  equipmentHandler: {fileID: 0}
---- !u!4 &1838459387
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1838459383}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3416,16 +3013,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 243e36e4b3d4d3b48a990ae1b2bf5c6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinalStatUIItem
---- !u!1 &1936738554 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6430674138065223218, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
-  m_PrefabInstance: {fileID: 1936738530}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1936738555 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1179536029532551347, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
-  m_PrefabInstance: {fileID: 1936738530}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1936738556 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 164153465714452868, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
@@ -3437,21 +3024,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
---- !u!1 &1936738557 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4439362585711045395, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
-  m_PrefabInstance: {fileID: 1936738530}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1936738558 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1585865821095141623, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
-  m_PrefabInstance: {fileID: 1936738530}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1936738559 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7361908848419173315, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
-  m_PrefabInstance: {fileID: 1936738530}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1936738560 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7296128549775531241, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
@@ -4184,7 +3756,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 2071517323}
   - {fileID: 547217389}
-  - {fileID: 1838459387}
   - {fileID: 2127124094}
   - {fileID: 1318353695}
   - {fileID: 209201026}
@@ -4195,4 +3766,4 @@ SceneRoots:
   - {fileID: 51108157}
   - {fileID: 659872535}
   - {fileID: 1201667922}
-  - {fileID: 1572103957}
+  - {fileID: 1122382869}

@@ -35,7 +35,7 @@ public class StageManager : Singleton<StageManager>
     //[SerializeField] TextMeshProUGUI curMonsterKillCountText;
     //[SerializeField] Image curMonsterGuage;
     [SerializeField] StageType curStageType;
-    public int normalStage = 0;
+    public int normalStage = 1;
 
     private IEnumerator Start()
     {
@@ -129,14 +129,15 @@ public class StageManager : Singleton<StageManager>
             RewardManager.Instance.SetDropTable(dropTable);
         }
 
-        if (curStage % 20 == 0)
-        {
-            GameEventManager.OnStageChanged?.Invoke(curFloor, 20);
-        }
-        else
-        {
-            GameEventManager.OnStageChanged?.Invoke(curFloor, curStage % 20);
-        }
+        GameEventManager.OnStageChanged?.Invoke(curFloor, DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].sceneNumber);
+        //if (curStage % 20 == 0)
+        //{
+        //    GameEventManager.OnStageChanged?.Invoke(curFloor, 20);
+        //}
+        //else
+        //{
+        //    GameEventManager.OnStageChanged?.Invoke(curFloor, curStage % 20);
+        //}
     }
     public void SetKillCount()
     {

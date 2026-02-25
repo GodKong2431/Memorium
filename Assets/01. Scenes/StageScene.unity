@@ -1630,6 +1630,7 @@ MonoBehaviour:
   isReadyToBossSpawn: 0
   bossSpawnBtn: {fileID: 145356661}
   curStageType: 1
+  normalStage: 1
 --- !u!4 &1044715721
 Transform:
   m_ObjectHideFlags: 0
@@ -3205,7 +3206,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1988957291}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4114,6 +4115,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: PopupLayer
       objectReference: {fileID: 0}
+    - target: {fileID: 8872314297078269687, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
+      propertyPath: dungeonDatas.Array.data[0].dungeonType
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8872314297078269687, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
+      propertyPath: dungeonDatas.Array.data[1].dungeonType
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8872314297078269687, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
+      propertyPath: dungeonDatas.Array.data[2].dungeonType
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8872314297078269687, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
+      propertyPath: dungeonDatas.Array.data[3].dungeonType
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4623,7 +4640,6 @@ SceneRoots:
   - {fileID: 1418028766}
   - {fileID: 930009148}
   - {fileID: 326619662}
-  - {fileID: 1988957295}
   - {fileID: 2028473163}
   - {fileID: 1592395658}
   - {fileID: 569953091}
@@ -4632,3 +4648,4 @@ SceneRoots:
   - {fileID: 738237842}
   - {fileID: 1044715721}
   - {fileID: 957228332}
+  - {fileID: 1988957295}

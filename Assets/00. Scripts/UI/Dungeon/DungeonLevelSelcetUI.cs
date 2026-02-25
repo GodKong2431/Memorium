@@ -119,6 +119,7 @@ public class DungeonLevelSelectUI : MonoBehaviour
 
             DungeonManager.Instance.currentDungeonID = currentSelectedDungeonID;
             GlobalPopupManager.Instance.ClosePopup();
+            StageManager.Instance.SetStageType(currentDungeonType, currentLevel);
             SceneController.Instance.LoadScene(SceneType.DungeonScene);
         }
         else
@@ -141,10 +142,10 @@ public class DungeonLevelSelectUI : MonoBehaviour
             //case StageType.dungeonExp: baseID = 6022000; break;
             //case StageType.dungeonScroll: baseID = 6023000; break;
             //case StageType.dungeonEquip: baseID = 6024000; break;
-            case StageType.GuardianTaxVault: baseID = 6021000; break;
-            case StageType.HallOfTraining: baseID = 6022000; break;
-            case StageType.CelestiAlchemyWorkshop: baseID = 6023000; break;
-            case StageType.EidosTreasureVault: baseID = 6024000; break;
+            case StageType.GuardianTaxVault: baseID = 6110100; break;
+            case StageType.HallOfTraining: baseID = 6110200; break;
+            case StageType.CelestiAlchemyWorkshop: baseID = 6110300; break;
+            case StageType.EidosTreasureVault: baseID = 6110400; break;
         }
         return baseID + level;
     }
