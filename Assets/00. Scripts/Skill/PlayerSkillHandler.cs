@@ -19,7 +19,7 @@ public interface ISkillCooldownProvider
     float GetCooldownMax(int index);
 }
 
-public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTargetProvider
+public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTargetProvider, ISkillCooldownProvider
 {
     private SkillCaster skillCaster;
     private SkillDataContext[] skilldataContexts;
@@ -28,11 +28,18 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     private PlayerStateMachine playerStateMachine;
 
     public int SkillCount => skilldataContexts?.Length ?? 0;
+    [SerializeField] private BattleSkillPresenter battleSkillPresenter;
 
     private void Awake()
     {
         skillCaster = GetComponent<SkillCaster>();
         playerStateMachine = GetComponent<PlayerStateMachine>();
+    }
+
+    private void Start()
+    {
+        if (battleSkillPresenter == null)
+            battleSkillPresenter = FindAnyObjectByType<BattleSkillPresenter>();
     }
     public void Init(int[] skillIDs, int[] m4IDs = null, int[] m5IDs = null)
     {
@@ -46,6 +53,9 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
             cooldownTimeMax[i] = 0;
         }
         skillCaster.Init(this, this, SetInvincible);
+
+        if (battleSkillPresenter != null)
+            battleSkillPresenter.Init(this);
 
     }
     public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5ID = -1)

@@ -310,8 +310,6 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         float equipStat = playerSlot.GetStat(playerStatType);
         float complate = baseStat + upgradeStat + levelUP + traitStat + equipStat;
 
-        Debug.Log($"{baseStat} {upgradeStat} {levelUP} {traitStat} {equipStat}");
-
         return complate;
     }
 

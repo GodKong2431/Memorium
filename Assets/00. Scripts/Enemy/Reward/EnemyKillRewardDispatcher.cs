@@ -70,20 +70,22 @@ public static class EnemyKillRewardDispatcher
         int gold = EnemyRewardCalculator.CalculateGold(rewardData, stage);
         if (gold > 0)
         {
+            var finalGold = gold * (1 + CharacterStatManager.Instance.FinalGoldGain);
             if (CurrencyManager.Instance != null)
-                CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, gold);
-            OnGoldEarned?.Invoke(gold);
-            Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{gold}");
+                CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, finalGold);
+            //OnGoldEarned?.Invoke(finalGold);
+            Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{finalGold}");
         }
 
         // 경험치 (스테이지에서 계산된 expBase를 그대로 사용)
         int exp = rewardData.expBase;
         if (exp > 0)
         {
+            var finalExp = exp * (1 + CharacterStatManager.Instance.FinalExpGain);
             if (CurrencyManager.Instance != null)
-                CurrencyManager.Instance.AddCurrency(CurrencyType.Exp, exp);
-            OnExpEarned?.Invoke(exp);
-            Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{exp}");
+                CurrencyManager.Instance.AddCurrency(CurrencyType.Exp, finalExp);
+            //OnExpEarned?.Invoke(exp);
+            Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{finalExp}");
         }
 
         // 아이템: 카테고리별 독립 확률 규칙 (장비·수호요정·스킬주문서·스킬잼·던전입장권)
@@ -130,11 +132,9 @@ public static class EnemyKillRewardDispatcher
         else
         {
             // 전역 몬스터 처치 카운트 (일반 몬스터만)
-            //TotalKillCount++;
-            //OnKillCountChanged?.Invoke(TotalKillCount);
-            //OnNormalEnemyKilled?.Invoke();
-
-            TotalKillCountUp(TotalKillCount++);
+            TotalKillCount++;
+            OnKillCountChanged?.Invoke(TotalKillCount);
+            OnNormalEnemyKilled?.Invoke();
 
             GameEventManager.OnQuestActionUpdated?.Invoke(QuestType.questElimination, 1); //몬스터 죽었을 때 호출
         }
@@ -143,7 +143,7 @@ public static class EnemyKillRewardDispatcher
     public static void TotalKillCountUp(int count)
     {
         TotalKillCount = count;
-        OnKillCountChanged?.Invoke(TotalKillCount);
+        OnKillCountChanged?.Invoke(count);
         OnNormalEnemyKilled?.Invoke();
     }
 

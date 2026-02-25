@@ -15,6 +15,9 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     [Tooltip("공격 시 나타나는 이펙트 프리팹입니다.")]
     private GameObject attackEffectPrefab;
 
+    [SerializeField] private float angularTime;
+    [SerializeField] private float stopAngle;
+
     public PlayerStateContext _ctx { get; private set; }
     private Dictionary<PlayerStateType, IPlayerState> _states;
     //private IPlayerState _current;
@@ -40,8 +43,9 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
             StatPresenter = statPresenter,
             Animator = animator,
             AttackEffectPrefab = attackEffectPrefab,
-            playerSkillHandler = _playerSkillHandler
-
+            playerSkillHandler = _playerSkillHandler,
+            AngularTime = angularTime,
+            StopAngle = stopAngle,
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);
