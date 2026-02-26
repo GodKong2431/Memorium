@@ -15,8 +15,6 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
     public static event Action OnInventoryChanged;
     public static event Action<int> OnPresetChanged;
 
-    private Dictionary<int, OwnedSkillData> bestGradeBuffer = new();
-    private bool isInventoryDirty = true;
 
     protected override void Awake()
     {
