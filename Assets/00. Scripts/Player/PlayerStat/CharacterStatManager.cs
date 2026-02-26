@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -365,7 +365,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
     public void TraitUpgrade (PlayerTrait playerTrait)
     {
-        playerTrait.Upgrade(ref traitManager.StatPoints);
+        playerTrait.Upgrade();
         TraitUpdate?.Invoke(playerTrait.ID, playerTrait.CurrentLevel, playerTrait.MaxLevel);
     }
 
@@ -381,6 +381,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
                 return hpTrait;
             case PlayerStatType.ATK_SPEED:
                 return attackSpeedTrait;
+            case PlayerStatType.CRIT_CHANCE:
+                return critTrait;
             case PlayerStatType.CRIT_MULT:
                 return critMultTrait;
             case PlayerStatType.BOSS_DMG:
@@ -431,8 +433,11 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     {
         base.OnApplicationQuit();
         PlayerEquipment playerEquipment = equipmentHandler.playerEquipment;
-        testSaveData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
-        JSONService.Save(testSaveData);
+        if (equipmentHandler.dataLoad)
+        {
+            testSaveData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
+            JSONService.Save(testSaveData);
+        }
     }
 
     #region 버서커 모드 Berserker Mode

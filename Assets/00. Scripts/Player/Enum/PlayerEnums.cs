@@ -1,4 +1,6 @@
-﻿public enum ClassType
+﻿using System.Collections.Generic;
+
+public enum ClassType
 {
     Assassin = 0,
     Warrior = 1,
@@ -23,3 +25,20 @@ public enum SlotType
     Weapon, Helmet, Armor, Glove, Boots,
     Fairy
 }
+
+public static class StatGroups
+{
+    public static readonly HashSet<PlayerStatType> MultTypes = new HashSet<PlayerStatType>
+    {
+        PlayerStatType.CRIT_CHANCE,
+        PlayerStatType.CRIT_MULT,
+        PlayerStatType.NORMAL_DMG,
+        PlayerStatType.BOSS_DMG,
+        PlayerStatType.DMG_MULT,
+        PlayerStatType.EXP_GAIN,
+        PlayerStatType.GOLD_GAIN,
+        PlayerStatType.COOLDOWN_REDUCE,
+    };
+}
+
+

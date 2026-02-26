@@ -11,6 +11,7 @@ public class EquipmentHandler : MonoBehaviour
 
     public Button autoMerge;
     public Button autoEquip;
+    public bool dataLoad=false;
     ////종류별 장비 데이터를 참조하기 위한 딕셔너리
     //public Dictionary<EquipmentType, Dictionary<int, TableBase>> equipmentTableDict;
 
@@ -38,6 +39,8 @@ public class EquipmentHandler : MonoBehaviour
         playerInventory.SetMyEquipmentInventory();
         playerInventory.FindFinalEquipment();
 
+        //데이터 불러오기 성공
+        dataLoad = true;
         autoMerge.onClick.AddListener(playerInventory.AutoMerge);
         autoEquip.onClick.AddListener(AutoEquip);
 

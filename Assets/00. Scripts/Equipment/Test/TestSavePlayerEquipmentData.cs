@@ -33,7 +33,7 @@ public class TestSavePlayerEquipmentData
     {
         if (weaponId == -1)
         {
-            Debug.Log("$[TestSavePlayerEquipmentData] 테이블이 비었다");
+            //Debug.Log("$[TestSavePlayerEquipmentData] 테이블이 비었다");
             weaponId = FirstDictionaryKey(DataManager.Instance.EquipWeaponDict);
             helmetId = FirstDictionaryKey(DataManager.Instance.EquipHelmetDict);
             gloveId = FirstDictionaryKey(DataManager.Instance.EquipGloveDict);
@@ -65,7 +65,7 @@ public class TestSavePlayerEquipmentData
         {
             //해당 리스트 기반으로 딕셔너리 제작
             unlockEquipmentDict[unLockEquipmentKey[i]] = unLockEquipmentValue[i];
-            Debug.Log($"[TestSavePlayerEquipmentData] 아이디 : {unLockEquipmentKey[i]} 값 : {unLockEquipmentValue[i]}");
+            //Debug.Log($"[TestSavePlayerEquipmentData] 아이디 : {unLockEquipmentKey[i]} 값 : {unLockEquipmentValue[i]}");
         }
 
     }
@@ -74,6 +74,9 @@ public class TestSavePlayerEquipmentData
     //딕셔너리는 얕은 참조 이므로 주소값만 복사하여 자동을 동기화가 이루어짐
     public void SaveBeforeQuit(int weaponId, int helmetId, int gloveId, int armorId, int bootsId)
     {
+        //해당 값이 0이면 사실상 게임을 껐다가 바로 끄는 경우 이다. 이러할 경우 데이터를 저장하지 않는다(이전 데이터 사용)
+        if (weaponId == 0)
+            return;
         this.weaponId= weaponId;
         this.helmetId = helmetId;
         this.gloveId=gloveId;

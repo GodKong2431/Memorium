@@ -40,9 +40,9 @@ public class PlayerTrait
         this.statType = statType;
     }
 
-    public bool Upgrade(ref int point)
+    public bool Upgrade()
     {
-        if (!PointCheck(ref point))
+        if (!CurrencyManager.Instance.TrySpend(CurrencyType.TraitPoint, DecreasePoint))
         {
             return false;
         }
@@ -51,7 +51,6 @@ public class PlayerTrait
         {
             return false;
         }
-        point -= DecreasePoint;
         CurrentLevel++;
         CurrentStat = CurrentLevel * StatUP;
         UpgradeTrait?.Invoke(statType);

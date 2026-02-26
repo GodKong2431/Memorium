@@ -17,7 +17,6 @@ public class EnemyStateDead : IEnemyState
     {
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = true;
-
         SetAnimatorTrigger(ctx, "Dead");
         _destroyTime = Time.time + DestroyDelay;
         _destroyScheduled = false;

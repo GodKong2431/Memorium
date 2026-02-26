@@ -103,32 +103,17 @@ public class PlayerInventory : MonoBehaviour
         {
             finalEquipment.Add(index);
         }
-
-        //foreach (EquipmentType t in Enum.GetValues(typeof(EquipmentType)))
-        //{
-        //    foreach (var dict in DataManager.Instance.EquipListDict)
-        //    {
-        //        if (dict.Value.equipmentType == t)
-        //        {
-        //            if (dict.Value.equipmentTier > equipmentTier)
-        //            {
-        //                finalEquipmentIndex = dict.Value.ID;
-        //            }
-        //        }
-        //        finalEquipment.Add(finalEquipmentIndex);
-        //    }
-        //}
     }
     public void SetMyEquipmentCountDictionary(Dictionary<int, int> dict)
     {
-        Debug.Log($"[PlayerInventory] 아이디와 갯수 가져오기");
+        //Debug.Log($"[PlayerInventory] 아이디와 갯수 가져오기");
         equipmentCount = dict;
 
         //테스트용 출력
-        foreach (var k in dict)
-        {
-            Debug.Log($"[PlayerInventory] 아이디 : {k.Key} 갯수 : {k.Value}");
-        }
+        //foreach (var k in dict)
+        //{
+        //    Debug.Log($"[PlayerInventory] 아이디 : {k.Key} 갯수 : {k.Value}");
+        //}
     }
 
     //각 부위별 보유중인 장비의 가장 최상의 부위 반환
@@ -174,18 +159,10 @@ public class PlayerInventory : MonoBehaviour
 
     public void AutoMerge()
     {
-        //모든 장비 테이블의 키를 가져와서 저장 <- 합성 시 다음 테이블 키의 값을 올리기 위함 
-        //if (myEquipmentCountKeys.Count <= 0)
-        //{
-        //    myEquipmentListKeys = DataManager.Instance.EquipListDict.Keys.ToList<int>();
-        //    myEquipmentListKeys.Sort();
-        //}
         //현재 소유중인 아이템의 키값들 전부 가져옴
         myEquipmentCountKeys.Clear();
         myEquipmentCountKeys = equipmentCount.Keys.ToList<int>();
         myEquipmentCountKeys.Sort();
-
-        //Dictionary<EquipmentType, int> mergeItemByType= new Dictionary<EquipmentType, int>();
 
         mergeItemByType.Clear();
 
@@ -201,22 +178,11 @@ public class PlayerInventory : MonoBehaviour
             if (equipmentCount[key] >= 3)
             {
                 //키값의 인덱스를 찾고 1을 추가하여 다음 단계의 아이템 인덱스를 가지고 온다
-                Debug.Log($"[PlayerInventory] 아이템 합성 : {key} 인덱스 {allEquipmentListKeys.IndexOf(key)}");
+                //Debug.Log($"[PlayerInventory] 아이템 합성 : {key} 인덱스 {allEquipmentListKeys.IndexOf(key)}");
                 int nextIndex = allEquipmentListKeys[allEquipmentListKeys.IndexOf(key) + 1];
-                Debug.Log("[PlayerInventory] 아이템 합성 성공");
-                //만약 다음 단계의 아이템이 락 상태면 해금 시킨다
-                //if (!equipmentCount.ContainsKey(nextIndex))
-                //{
-                //    equipmentCount[nextIndex] = 0;
-                //    //equipmentUnlock[nextIndex] = true;
-                //}
-                //다음 단계의 아이템 인덱스의 갯수를 증가시킨다
-                //equipmentCount[nextIndex] += equipmentCount[key] / 3;
-                //원래 단계의 아이템은 3개씩 나눈 나머지를 가진다
-                //equipmentCount[key] %= 3;
-
                 int plusCount = DivideEquipment(key, 3);
                 IncreaseEquipment(nextIndex, plusCount);
+                //Debug.Log("[PlayerInventory] 아이템 합성 성공");
 
                 //합성 이펙트 출력
                 //합성 사운드 출력
@@ -226,12 +192,11 @@ public class PlayerInventory : MonoBehaviour
         }
 
         //여기서 타입에따라 가장 높은 티어 장비의 합성 결과 인덱스 불러오기 가능
-        foreach (var dic in mergeItemByType)
-        {
-            Debug.Log($"아이템 타입 : {dic.Key} 아이템 번호 : {dic.Value}");
-        }
-        //ShowMyInventory();
-        //equipmentHandler.autoMerge.gameObject.SetActive(false);
+        //foreach (var dic in mergeItemByType)
+        //{
+        //    Debug.Log($"아이템 타입 : {dic.Key} 아이템 번호 : {dic.Value}");
+        //}
+
         equipmentHandler.autoMerge.interactable = false;
         //일괄합성 버튼 비활성화 <- 다음에 아이템 얻을 경우마다 체크 후 출력
         equipmentHandler.CheckAutoEquip();
@@ -249,9 +214,6 @@ public class PlayerInventory : MonoBehaviour
 
     public void CheckAutoMerge()
     {
-        //if(equipmentHandler.autoMerge.gameObject.activeSelf)
-        //    return;
-
         if(equipmentHandler.autoMerge.interactable)
             return;
 
@@ -259,12 +221,11 @@ public class PlayerInventory : MonoBehaviour
         {
             if (finalEquipment.Contains(count.Key))
             {
-                Debug.Log($"[PlayerInventory] 최종 등급 장비는 합성이 불가능 합니다.");
+                //Debug.Log($"[PlayerInventory] 최종 등급 장비는 합성이 불가능 합니다.");
                 continue;
             }
             if ((count.Value>=3))
             {
-                //equipmentHandler.autoMerge.gameObject.SetActive(true);
                 equipmentHandler.autoMerge.interactable = true;
                 break;
             }
@@ -281,7 +242,6 @@ public class PlayerInventory : MonoBehaviour
             if (equipmentCount[itemNum] > 99)
                 itemCount = 99 + "+";
             else itemCount = equipmentCount[itemNum].ToString();
-            //allEquipmentComponents[itemNum].equipmentCountText.text = equipmentCount[itemNum] + " / 3";
             allEquipmentComponents[itemNum].equipmentCountText.text = itemCount + " / 3";
         }
         else
@@ -289,12 +249,10 @@ public class PlayerInventory : MonoBehaviour
             equipmentCount[itemNum] = count;
             allEquipmentComponents[itemNum].ownerShipImage.SetActive(false);
             allEquipmentComponents[itemNum].equipmentCountSlider.value = count;
-            //allEquipmentComponents[itemNum].equipmentCountText.text = count + " / 3";
             string itemCount;
             if (equipmentCount[itemNum] > 99)
                 itemCount = 99 + "+";
             else itemCount = equipmentCount[itemNum].ToString();
-            //allEquipmentComponents[itemNum].equipmentCountText.text = equipmentCount[itemNum] + " / 3";
             allEquipmentComponents[itemNum].equipmentCountText.text = itemCount + " / 3";
         }
 
@@ -305,7 +263,7 @@ public class PlayerInventory : MonoBehaviour
     {
         if (!equipmentCount.ContainsKey(itemNum))
         {
-            Debug.Log($"[PlayerInventory] 해당 아이템 [{itemNum}]을 보유하고 있지 않습니다");
+            //Debug.Log($"[PlayerInventory] 해당 아이템 [{itemNum}]을 보유하고 있지 않습니다");
             return;
         }
         equipmentCount[itemNum] -= count;
@@ -317,7 +275,7 @@ public class PlayerInventory : MonoBehaviour
     {
         if (!equipmentCount.ContainsKey(itemNum))
         {
-            Debug.Log($"[PlayerInventory] 해당 아이템 [{itemNum}]을 보유하고 있지 않습니다");
+            //Debug.Log($"[PlayerInventory] 해당 아이템 [{itemNum}]을 보유하고 있지 않습니다");
             return -1;
         }
         int returnCount = equipmentCount[itemNum] / divid;

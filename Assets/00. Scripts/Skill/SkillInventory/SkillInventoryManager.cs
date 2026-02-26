@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class SkillInventoryManager : Singleton<SkillInventoryManager>
 {
@@ -15,6 +17,27 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
     public static event Action OnInventoryChanged;
     public static event Action<int> OnPresetChanged;
 
+
+    public Dictionary<int, int> skillScrollIdToSkillIdDict;
+
+    IEnumerator Start()
+    {
+        yield return new WaitUntil(() => DataManager.Instance != null);
+        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+
+        //스킬 스크롤 ID : 스킬 ID 딕셔너리 생성
+        skillScrollIdToSkillIdDict= new Dictionary<int, int>();
+        foreach (var skill in DataManager.Instance.SkillInfoDict)
+        {
+            skillScrollIdToSkillIdDict[skill.Value.skillScrollID] = skill.Key;
+            //Debug.Log($"[SkillInventoryManager] 스킬 스크롤 아이디 목록 : {skill.Value.skillScrollID} 스킬 아이디 목록 : {skill.Key}");
+        }
+        //foreach (var id in skillScrollIdToSkillIdDict)
+        //{
+
+        //    Debug.Log($"[SkillInventoryManager] 결과>> 스킬 스크롤 아이디 목록 : {id.Key} 스킬 아이디 목록 : {id.Value}");
+        //}
+    }
 
     protected override void Awake()
     {

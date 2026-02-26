@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -45,18 +46,30 @@ public class PlayerStatView : MonoBehaviour
 
     [SerializeField] TextMeshProUGUI normalPowerText;
 
+    //private static readonly HashSet<PlayerStatType> MultTypes = new HashSet<PlayerStatType>
+    //{
+    //    PlayerStatType.CRIT_CHANCE,
+    //    PlayerStatType.CRIT_MULT,
+    //    PlayerStatType.NORMAL_DMG,
+    //    PlayerStatType.BOSS_DMG,
+    //    PlayerStatType.DMG_MULT,
+    //    PlayerStatType.EXP_GAIN,
+    //    PlayerStatType.GOLD_GAIN,
+    //    PlayerStatType.COOLDOWN_REDUCE,
+    //};
+
     IEnumerator Start()
     {
         yield return new WaitUntil(() => CharacterStatManager.Instance != null);
         yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
 
 
-        foreach (var finalStatUI in finalStatUIs)
-        {
-            BigDouble value = CharacterStatManager.Instance.GetFinalStat(finalStatUI.type);
-            finalStatUI.statUIItem.FinalStatValue.text = value.ToString();
-            finalStatUI.statUIItem.FinalStatName.text = finalStatUI.statName;
-        }
+        //foreach (var finalStatUI in finalStatUIs)
+        //{
+        //    BigDouble value = CharacterStatManager.Instance.GetFinalStat(finalStatUI.type);
+        //    finalStatUI.statUIItem.FinalStatValue.text = value.ToString();
+        //    finalStatUI.statUIItem.FinalStatName.text = finalStatUI.statName;
+        //}
 
         SetFinalStat();
         GetNormalPowerStat();
@@ -74,7 +87,14 @@ public class PlayerStatView : MonoBehaviour
             {
                 BigDouble value = statUpgrade.Stat;
 
-                upgradeStatUI.statUIItem.StatValue.text = value.ToString();
+                if (StatGroups.MultTypes.Contains(upgradeStatUI.type))
+                {
+                    upgradeStatUI.statUIItem.StatValue.text = $"{value * 100f}%" ;
+                }
+                else
+                {
+                    upgradeStatUI.statUIItem.StatValue.text = value.ToString();
+                }
                 upgradeStatUI.statUIItem.StatDescription.text = $"{statUpgrade.StatName} Enchance";
                 upgradeStatUI.statUIItem.StatLevel.text = $"Lv {statUpgrade.UpgradeCount.ToString()}";
                 upgradeStatUI.statUIItem.UpgradeCost.text = $"{statUpgrade.CurrentCost.ToString()}";
@@ -109,7 +129,16 @@ public class PlayerStatView : MonoBehaviour
         foreach (var finalStatUI in finalStatUIs)
         {
             BigDouble value = CharacterStatManager.Instance.GetFinalStat(finalStatUI.type);
-            finalStatUI.statUIItem.FinalStatValue.text = value.ToString();
+
+            if (StatGroups.MultTypes.Contains(finalStatUI.type))
+            {
+                finalStatUI.statUIItem.FinalStatValue.text = $"{value * 100f}%";
+            }
+            else
+            {
+                finalStatUI.statUIItem.FinalStatValue.text = value.ToString();
+            }
+
             finalStatUI.statUIItem.FinalStatName.text = finalStatUI.statName;
         }
     }
@@ -130,7 +159,14 @@ public class PlayerStatView : MonoBehaviour
                 Debug.Log("스탯 호출");
                 BigDouble value = statUpgrade.Stat;
 
-                statui.statUIItem.StatValue.text = value.ToString();
+                if (StatGroups.MultTypes.Contains(statui.type))
+                {
+                    statui.statUIItem.StatValue.text = $"{value * 100f}%";
+                }
+                else
+                {
+                    statui.statUIItem.StatValue.text = value.ToString();
+                }
                 statui.statUIItem.StatDescription.text = $"{statUpgrade.StatName} Enchance";
                 statui.statUIItem.StatLevel.text = $"Lv {statUpgrade.UpgradeCount.ToString()}";
                 statui.statUIItem.UpgradeCost.text = $"{statUpgrade.CurrentCost.ToString()}";

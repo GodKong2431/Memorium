@@ -15,10 +15,10 @@ public class PlayerEquipment : MonoBehaviour
     public EquipmentHandler equipmentHandler;
     public void OnEqipItem(int itemId)
     {
-        Debug.Log($"[PlayerEquipment] ID : {itemId} 착용 시도");
+        //Debug.Log($"[PlayerEquipment] ID : {itemId} 착용 시도");
         if (!DataManager.Instance.EquipListDict.ContainsKey(itemId))
         {
-            Debug.Log($"[PlayerEquipment] 아이템 번호 : {itemId}가 존재하지 않습니다.");
+            //Debug.Log($"[PlayerEquipment] 아이템 번호 : {itemId}가 존재하지 않습니다.");
             return;
         }
         EquipListTable equipment = DataManager.Instance.EquipListDict[itemId];
@@ -65,7 +65,7 @@ public class PlayerEquipment : MonoBehaviour
                 break;
         }
         ChangeOnEquipmentUIImage(equipment.equipmentType, itemId);
-        Debug.Log($"[PlayerEquipment] 아이템 장착 : ${equipment.equipmentName}");
+        //Debug.Log($"[PlayerEquipment] 아이템 장착 : ${equipment.equipmentName}");
     }
 
     public int ReturnItemNum(EquipmentType equipmentType)
