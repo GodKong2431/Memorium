@@ -64,7 +64,8 @@ public class EnemyStateAttack : IEnemyState
 
     public void OnUpdate(EnemyStateContext ctx)
     {
-        if (!ctx.IsPlayerAlive())
+        var playerStateMachine = ctx.PlayerTransform?.GetComponent<PlayerStateMachine>();
+        if (playerStateMachine == null || playerStateMachine._ctx.CurrentHealth <= 0f)
         {
             ctx.RequestState(EnemyStateType.Idle);
             return;

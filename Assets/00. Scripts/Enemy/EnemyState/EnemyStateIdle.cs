@@ -12,7 +12,10 @@ public class EnemyStateIdle : IEnemyState
     public void OnEnter(EnemyStateContext ctx)
     {
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
+        {
             ctx.Agent.isStopped = true;
+            ctx.Agent.ResetPath();
+        }
         SetAnimatorTrigger(ctx, "Idle");
     }
 
