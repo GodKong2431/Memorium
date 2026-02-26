@@ -431,8 +431,11 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     {
         base.OnApplicationQuit();
         PlayerEquipment playerEquipment = equipmentHandler.playerEquipment;
-        testSaveData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
-        JSONService.Save(testSaveData);
+        if (equipmentHandler.dataLoad)
+        {
+            testSaveData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
+            JSONService.Save(testSaveData);
+        }
     }
 
     #region 버서커 모드 Berserker Mode

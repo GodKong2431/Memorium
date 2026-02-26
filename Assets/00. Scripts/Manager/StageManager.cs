@@ -144,7 +144,7 @@ public class StageManager : Singleton<StageManager>
         onBossStage=false;
         curMonsterKillCount = 0;
         maxMonsterKillCount = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].monsterKillCount;
-        Debug.Log($"[StageManager] MaxKillCount = {maxMonsterKillCount} 씬 넘버 = {stageKeyList[curStage - 1]}");
+        //Debug.Log($"[StageManager] MaxKillCount = {maxMonsterKillCount} 씬 넘버 = {stageKeyList[curStage - 1]}");
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
     }
 
