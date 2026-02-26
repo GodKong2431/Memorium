@@ -64,6 +64,8 @@ public class MonsterSpawner : MonoBehaviour
         }
         else
         {
+            //보스 스테이지 진입
+            StageManager.Instance.onBossStage = true;
             GameObject spawnBoss = EnemyListManager.Instance.enemyMap[curSpawnGroupBossMonsterTable.MonsterID];
             Instantiate(spawnBoss, spawnPos[spawnPos.Length-1].position, spawnPos[spawnPos.Length - 1].rotation);
             EnemyKillRewardDispatcher.ResetKillCount();

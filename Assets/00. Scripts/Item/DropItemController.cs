@@ -1,3 +1,6 @@
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -69,6 +72,20 @@ public class DropItemController : MonoBehaviour
             ItemInfoTable item = DataManager.Instance.ItemInfoDict[_itemId];
             int itemType = (int)item.itemType;
             CurrencyManager.Instance.AddCurrency((CurrencyType)itemType, 1);
+
+            switch (item.itemType)
+            {
+                case ItemType.SkillScroll:
+                    List<int> scrollValues = SkillInventoryManager.Instance.skillScrollIdToSkillIdDict.Values.ToList<int>();
+                    //foreach (int value in scrollValues)
+                    //{
+                    //    Debug.Log($"[DropItemController] 스킬 아이디 목록 : {value}");
+                    //}
+                    int skillId = scrollValues[Random.Range(0, scrollValues.Count)];
+                    Debug.Log($"[DropItemController] 스킬 아이디 : {skillId}");
+                    SkillInventoryManager.Instance.AddSkill(skillId);
+                    break;
+            }
         }
 
         Destroy(gameObject);
