@@ -9,6 +9,17 @@ public static class ItemDropLogic
 {
     private static readonly EquipmentType[] EquipmentTypes = { EquipmentType.Weapon, EquipmentType.Helmet, EquipmentType.Glove, EquipmentType.Armor, EquipmentType.Boots };
 
+    /// <summary>ItemCategory → CurrencyType 매핑 (Currency로 처리되는 카테고리만)</summary>
+    private static readonly Dictionary<ItemCategory, CurrencyType> CategoryToCurrency = new()
+    {
+        { ItemCategory.PixieFragment, CurrencyType.PixieFragment },
+        { ItemCategory.DungeonTicket, CurrencyType.DungeonTicket },
+        { ItemCategory.SkillScroll, CurrencyType.SkillScroll },
+    };
+
+    public static bool TryGetCurrencyType(ItemCategory category, out CurrencyType currencyType) =>
+        CategoryToCurrency.TryGetValue(category, out currencyType);
+
     /// <summary>기준 파워 = ((stageLevel-1)/stageGap)*100 + startIP</summary>
     public static int GetBaseEquipmentPower(ItemDropSettings settings, int stageLevel)
     {
@@ -98,10 +109,10 @@ public static class ItemDropLogic
                 results.Add(new ItemDropResult { itemId = equipmentId, count = 1, category = ItemCategory.Equipment });
         }
 
-        if (RollChance(settings.fairyShardChance, isBoss))
+        if (RollChance(settings.pixieFragmentChance, isBoss))
         {
-            int id = PickRandom(settings.fairyShardIds);
-            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.FairyShard }); Debug.Log($"[드랍] 수호요정조각 ID={id} (확률 {settings.fairyShardChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
+            int id = PickRandom(settings.pixieFragmentIds);
+            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.PixieFragment }); Debug.Log($"[드랍] 수호요정조각 ID={id} (확률 {settings.pixieFragmentChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
         }
         if (RollChance(settings.skillScrollChance, isBoss))
         {
@@ -130,7 +141,7 @@ public static class ItemDropLogic
     public enum ItemCategory
     {
         Equipment,
-        FairyShard,
+        PixieFragment,
         SkillScroll,
         SkillGem,
         DungeonTicket

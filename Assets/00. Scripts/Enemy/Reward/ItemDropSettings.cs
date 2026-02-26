@@ -24,7 +24,7 @@ public class ItemDropSettings : ScriptableObject
 
     [Tooltip("수호요정 조각 0.01%")]
     [Range(0f, 1f)]
-    public float fairyShardChance = 0.0001f;
+    public float pixieFragmentChance = 0.0001f;
 
     [Tooltip("스킬 주문서 0.005%")]
     [Range(0f, 1f)]
@@ -56,7 +56,7 @@ public class ItemDropSettings : ScriptableObject
     [Header("아이템 테이블 (EquipListTable/ItemInfoTable ID, 동일 확률)")]
     [Tooltip("장비: 비어있으면 DataManager.EquipListDict에서 EquipmentType+티어로 선택")]
     public int[] equipmentIds = Array.Empty<int>();
-    public int[] fairyShardIds = { 3310001 };
+    public int[] pixieFragmentIds = { 3310001 };
     public int[] skillScrollIds = { 3210001 };
     public int[] skillGemIds = { 3220001 };
     public int[] dungeonTicketIds = { 3831001 };
