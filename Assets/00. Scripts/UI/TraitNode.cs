@@ -109,7 +109,7 @@ public class TraitNode : MonoBehaviour
     {
         if (!IsMaxed)
         {
-            trait.Upgrade(ref manager.StatPoints);
+            trait.Upgrade();
             UpdateVisuals();
         }
     }

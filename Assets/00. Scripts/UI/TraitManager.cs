@@ -25,6 +25,8 @@ public class TraitManager : MonoBehaviour
         yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
 
         InitializeSystem();
+
+        GameEventManager.OnCurrencyChanged += RefreshPointsUI;
     }
 
     /// <summary>
@@ -44,17 +46,22 @@ public class TraitManager : MonoBehaviour
             if (node != null) node.Initialize(this);
         }
 
-        RefreshPointsUI();
+        RefreshPointsUI(CurrencyType.TraitPoint, CurrencyManager.Instance.GetAmount(CurrencyType.TraitPoint));
     }
 
     /// <summary>
     /// 상단 보유 포인트 UI 텍스트를 갱신
     /// </summary>
-    private void RefreshPointsUI()
+    private void RefreshPointsUI(CurrencyType type, BigDouble currentValue)
     {
+        if (type != CurrencyType.TraitPoint)
+        {
+            return;
+        }
+
         if (textStatPoints != null)
         {
-            textStatPoints.text = $"{StatPoints}";
+            textStatPoints.text = $"{currentValue}";
         }
     }
 
@@ -70,7 +77,7 @@ public class TraitManager : MonoBehaviour
         float currentStat = node.trait.CurrentLevel * node.trait.StatUP;
         float nextStat = (node.trait.CurrentLevel + 1) * node.trait.StatUP;
 
-        bool hasEnoughPoints = StatPoints >= 1;
+        bool hasEnoughPoints = CurrencyManager.Instance.GetAmount(CurrencyType.TraitPoint) >= 1;
 
         popupController.OpenPopup(
             nodeIcon: node.iconImage.sprite,
@@ -80,7 +87,8 @@ public class TraitManager : MonoBehaviour
             currentStat: currentStat,
             nextStat: nextStat,
             canUnlock: node.CanUnlock(),
-            hasEnoughPoints: hasEnoughPoints
+            hasEnoughPoints: hasEnoughPoints,
+            type: node.statType
         );
     }
 
@@ -90,12 +98,12 @@ public class TraitManager : MonoBehaviour
     private void OnUpgradeButtonClicked()
     {
         // 만렙이 아니며, 조건/비용을 모두 만족할 때만 실행
-        if (selectedNode != null && !selectedNode.IsMaxed && selectedNode.CanUnlock() && StatPoints >= 1)
+        if (selectedNode != null && !selectedNode.IsMaxed && selectedNode.CanUnlock() && CurrencyManager.Instance.GetAmount(CurrencyType.TraitPoint) >= 1)
         {
 
             selectedNode.LevelUp();
 
-            RefreshPointsUI();
+            RefreshPointsUI(CurrencyType.TraitPoint, CurrencyManager.Instance.GetAmount(CurrencyType.TraitPoint));
             // 전체 노드 상태 갱신
             foreach (var node in allNodes)
             {

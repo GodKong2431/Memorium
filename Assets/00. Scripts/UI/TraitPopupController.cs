@@ -29,16 +29,25 @@ public class TraitPopupController : MonoBehaviour
     /// <summary>
     /// 전달받은 노드 데이터를 기반으로 팝업 UI를 갱신하고 화면에 표시
     /// </summary>
-    public void OpenPopup(Sprite nodeIcon, int currentLevel, int maxLevel, string statName, float currentStat, float nextStat, bool canUnlock, bool hasEnoughPoints)
+    public void OpenPopup(Sprite nodeIcon, int currentLevel, int maxLevel, string statName, float currentStat, float nextStat, bool canUnlock, bool hasEnoughPoints, PlayerStatType type)
     {
         gameObject.SetActive(true);
 
         // 노드 외형 복사
         if (displayIcon != null) displayIcon.sprite = nodeIcon;
         if (displayLevelText != null) displayLevelText.text = $"{statName} ({currentLevel}/{maxLevel})";
-
         // 현재 스탯 텍스트 갱신
-        if (textCurrentStat != null) textCurrentStat.text = $"{statName} +{currentStat}";
+        if (textCurrentStat != null)
+        {
+            if (StatGroups.MultTypes.Contains(type))
+            {
+                textCurrentStat.text = $"{statName} + {currentStat * 100} %";
+            }
+            else
+            {
+                textCurrentStat.text = $"{statName} +{currentStat}";
+            }
+        }
 
         // 다음 스탯 및 버튼 활성화 상태 갱신
         if (currentLevel >= maxLevel)
@@ -48,7 +57,17 @@ public class TraitPopupController : MonoBehaviour
         }
         else
         {
-            if (textNextStat != null) textNextStat.text = $"{statName} +{nextStat}";
+            if (textNextStat != null)
+            {
+                if (StatGroups.MultTypes.Contains(type))
+                {
+                    textNextStat.text = $"{statName} + {nextStat * 100} %";
+                }
+                else
+                {
+                    textNextStat.text = $"{statName} +{nextStat}";
+                }
+            }
 
             if (btnUpgrade != null) btnUpgrade.interactable = canUnlock && hasEnoughPoints;
         }
