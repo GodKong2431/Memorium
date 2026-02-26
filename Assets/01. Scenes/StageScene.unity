@@ -1676,8 +1676,10 @@ MonoBehaviour:
   monsterSpawner: {fileID: 738237841}
   isReadyToBossSpawn: 0
   bossSpawnBtn: {fileID: 145356661}
+  onBossStage: 0
   curStageType: 1
   normalStage: 1
+  onFailedStage: 0
 --- !u!4 &1044715721
 Transform:
   m_ObjectHideFlags: 0
@@ -2465,6 +2467,7 @@ MonoBehaviour:
     skillData:
       skillTable:
         ID: 0
+        skillScrollID: 0
         m1ID: 0
         m2ID: 0
         m3ID: 0
@@ -2545,7 +2548,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStateMachine
   animator: {fileID: 0}
   attackEffectPrefab: {fileID: 0}
-  angularTime: 0
+  angularTime: 0.15
   stopAngle: 0
   CurrentType: 0
 --- !u!114 &1652796887
