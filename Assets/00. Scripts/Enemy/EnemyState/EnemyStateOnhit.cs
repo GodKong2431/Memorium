@@ -13,7 +13,7 @@ public class EnemyStateOnhit : IEnemyState
     public void OnEnter(EnemyStateContext ctx)
     {
         _endTime = Time.time + OnhitDuration;
-        SetAnimatorTrigger(ctx, "Onhit");
+        ctx.SetAnimatorTrigger("Onhit");
         // 피격 이펙트 출력은 여기서 또는 이벤트로 처리
     }
 
@@ -31,11 +31,5 @@ public class EnemyStateOnhit : IEnemyState
 
     public void OnExit(EnemyStateContext ctx)
     {
-    }
-
-    private static void SetAnimatorTrigger(EnemyStateContext ctx, string trigger)
-    {
-        if (ctx.Animator != null && !string.IsNullOrEmpty(trigger))
-            ctx.Animator.SetTrigger(trigger);
     }
 }

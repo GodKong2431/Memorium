@@ -16,7 +16,7 @@ public class EnemyStateIdle : IEnemyState
             ctx.Agent.isStopped = true;
             ctx.Agent.ResetPath();
         }
-        SetAnimatorTrigger(ctx, "Idle");
+        ctx.SetAnimatorTrigger("Idle");
     }
 
     public void OnUpdate(EnemyStateContext ctx)
@@ -26,11 +26,5 @@ public class EnemyStateIdle : IEnemyState
 
     public void OnExit(EnemyStateContext ctx)
     {
-    }
-
-    private static void SetAnimatorTrigger(EnemyStateContext ctx, string trigger)
-    {
-        if (ctx.Animator != null && !string.IsNullOrEmpty(trigger))
-            ctx.Animator.SetTrigger(trigger);
     }
 }

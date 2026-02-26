@@ -31,7 +31,7 @@ public class EnemyStateAttack : IEnemyState
             {
                 _attackInProgress = true;
                 _attackEndTime = float.MaxValue;
-                SetAnimatorTrigger(ctx, "Attack");
+                ctx.SetAnimatorTrigger("Attack");
             }
             else
             {
@@ -48,9 +48,9 @@ public class EnemyStateAttack : IEnemyState
             _attackInProgress = true;
 
             if (ctx.IsBoss)
-                SetAnimatorTrigger(ctx, "AttackBoss");
+                ctx.SetAnimatorTrigger("AttackBoss");
             else
-                SetAnimatorTrigger(ctx, "Attack");
+                ctx.SetAnimatorTrigger("Attack");
 
             if (ctx.AttackEffectPrefab != null)
             {
@@ -122,11 +122,5 @@ public class EnemyStateAttack : IEnemyState
             Object.Destroy(_currentAttackEffect);
             _currentAttackEffect = null;
         }
-    }
-
-    private static void SetAnimatorTrigger(EnemyStateContext ctx, string trigger)
-    {
-        if (ctx.Animator != null && !string.IsNullOrEmpty(trigger))
-            ctx.Animator.SetTrigger(trigger);
     }
 }

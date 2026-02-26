@@ -81,4 +81,13 @@ public class EnemyStateContext
         if (PlayerTransform == null) return false;
         return true;
     }
+
+    /// <summary>
+    /// 애니메이터 트리거 설정. Animator가 있고 trigger가 유효할 때만 호출.
+    /// </summary>
+    public void SetAnimatorTrigger(string trigger)
+    {
+        if (Animator != null && !string.IsNullOrEmpty(trigger))
+            Animator.SetTrigger(trigger);
+    }
 }

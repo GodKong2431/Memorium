@@ -18,7 +18,7 @@ public class EnemyStateChase : IEnemyState
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = false;
         _lastDestinationTime = -DestinationRefreshInterval;
-        SetAnimatorTrigger(ctx, "Chase");
+        ctx.SetAnimatorTrigger("Chase");
     }
 
     public void OnUpdate(EnemyStateContext ctx)
@@ -50,11 +50,5 @@ public class EnemyStateChase : IEnemyState
 
     public void OnExit(EnemyStateContext ctx)
     {
-    }
-
-    private static void SetAnimatorTrigger(EnemyStateContext ctx, string trigger)
-    {
-        if (ctx.Animator != null && !string.IsNullOrEmpty(trigger))
-            ctx.Animator.SetTrigger(trigger);
     }
 }
