@@ -33,9 +33,6 @@ public class StageManager : Singleton<StageManager>
     //보스 스테이지 진입 여부
     public bool onBossStage=false;
 
-    //[SerializeField] TextMeshProUGUI curStageAndFloorText;
-    //[SerializeField] TextMeshProUGUI curMonsterKillCountText;
-    //[SerializeField] Image curMonsterGuage;
     [SerializeField] StageType curStageType;
     public int normalStage = 1;
 
@@ -189,7 +186,6 @@ public class StageManager : Singleton<StageManager>
             infinityMap.MapReset();
         }
         //일반 스테이지가 아닌 던전 클리어 시
-        //
         else
         {
             SetStageType(StageType.NormalStage, normalStage);

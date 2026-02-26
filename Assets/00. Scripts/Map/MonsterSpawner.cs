@@ -22,22 +22,38 @@ public class MonsterSpawner : MonoBehaviour
 
     [SerializeField] float randomRange=4f;
 
-    [SerializeField] Transform[] maps;
+    [SerializeField] List<GameObject> maps;
+    [SerializeField] private GameObject[] mapGroups;
     private int curSpawnerPos = 0;
     Vector3 originPos;
+
 
     //??? ??? ?????? ??????? ??????? ????????? ????? ??????δ°? ???? ???????
     IEnumerator Start()
     {
-        ChangeParent(maps[curSpawnerPos]);
+        //yield return new WaitUntil(() => InfinityMap.Instance !=null);
+        //yield return new WaitUntil(() => InfinityMap.Instance.firstMapSetting);
+
+        //if (maps == null)
+        //    maps = new List<GameObject>();
+        //maps.Clear();
+        //for (int i = 0; i < mapGroups[0].transform.childCount; i++)
+        //{
+        //    maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
+        //}
+
+        SetMap(1);
+
+        //Debug.Log("초기 맵 세팅 완료");
+        //MapChange();
+
         yield return new WaitUntil(() => DataManager.Instance != null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
         yield return new WaitUntil(() => EnemyListManager.Instance.DataLoad);
 
         SetMonster();
+
     }
-
-
 
     private void OnTriggerEnter(Collider other)
     {
@@ -70,22 +86,12 @@ public class MonsterSpawner : MonoBehaviour
             Instantiate(spawnBoss, spawnPos[spawnPos.Length-1].position, spawnPos[spawnPos.Length - 1].rotation);
             EnemyKillRewardDispatcher.ResetKillCount();
             StageManager.Instance.isReadyToBossSpawn = false;
-            //for (int i = 0; i < spawnPos.Length; i++)
-            //{
-            //    GameObject spawnEnemy = EnemyListManager.Instance.enemyMap[curS];
-            //    for (int j = 0; j < curSpawnGroupMonsterTable[i].monsterSpawnCount; j++)
-            //    {
-            //        Vector3 randX = Random.Range(randomRange, randomRange) * Vector3.right;
-            //        Vector3 randZ = Random.Range(randomRange, randomRange) * Vector3.forward;
-            //        Instantiate(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
-            //    }
-            //}
         }
 
         curSpawnerPos++;
-        if(curSpawnerPos >=maps.Length)
+        if(curSpawnerPos >=maps.Count)
             curSpawnerPos = 0;
-        ChangeParent(maps[curSpawnerPos]);
+        ChangeParent(maps[curSpawnerPos].transform);
     }
 
     private void ChangeParent(Transform parent)
@@ -100,7 +106,11 @@ public class MonsterSpawner : MonoBehaviour
     {
 
         curSpawnerPos = 0;
-        ChangeParent(maps[curSpawnerPos]);
+        if (maps.Count <= 0)
+        {
+            SetMap(1);
+        }
+        ChangeParent(maps[curSpawnerPos].transform);
 
         if (StageManager.Instance != null) 
         { 
@@ -110,7 +120,6 @@ public class MonsterSpawner : MonoBehaviour
                 return;
         }
         curSpawnGroupMonsterTable.Clear();
-        //curSpawnGroupBossMonsterTable.Clear();
         enemyPrefab.Clear();
 
         int i = 0;
@@ -142,4 +151,25 @@ public class MonsterSpawner : MonoBehaviour
             }
         }
     }
+
+    public void MapChange()
+    {
+        //curSpawnerPos = 0;
+        //Debug.Log("[MonsterSpawner] 맵 갯수 "+InfinityMap.Instance.maps.Count);
+        //maps = InfinityMap.Instance.maps;
+        //ChangeParent(maps[curSpawnerPos].transform);
+    }
+
+    //curFloor-1 맵을 불러와 맵을 바꾸는 것을 목적으로 함
+    public void SetMap(int curFloor)
+    {
+        if (maps == null)
+            maps = new List<GameObject>();
+        maps.Clear();
+        for (int i = 0; i < mapGroups[0].transform.childCount; i++)
+        {
+            maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
+        }
+    }
+
 }
