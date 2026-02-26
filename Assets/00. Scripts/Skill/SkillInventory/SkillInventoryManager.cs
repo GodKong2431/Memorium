@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 public class SkillInventoryManager : Singleton<SkillInventoryManager>
 {
@@ -48,9 +47,7 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
 
         mergeHandler = new SkillMergeHandler(inventory);
         presetHandler = new SkillPresetHandler(inventory, presets);
-    }
-    private void Start()
-    {
+
 #if UNITY_EDITOR
         testStartAdd();
 #endif
