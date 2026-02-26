@@ -1621,6 +1621,72 @@ MonoBehaviour:
   testSkillID: 0
   testGrade: 0
   testAmount: 10
+  testContext:
+    skillData:
+      skillTable:
+        ID: 1
+        m1ID: 1
+        m2ID: 1
+        m3ID: 1
+        manaCost: 1
+        skillDamage: 1
+        skillDamageValue: 1
+        skillName: 
+        skillDesc: 
+        skillRange: 1
+        skillCooldown: 1
+        skillType: 0
+        skillVFX: 
+        skillSound: 
+        desc: 
+        skillIcon: 
+      m1Data:
+        ID: 1
+        m1Type: 1
+        m1Delay: 0
+        m1Scale: 20
+        m1Duration: 0.5
+        desc: 
+      m2Data:
+        ID: 1
+        m2Type: 0
+        m2Delay: 0
+        m2S1: 5
+        m2S2: 5
+        m2Distance: 0
+        m2Duration: 0
+        desc: 
+      m3Data:
+        ID: 1
+        m3Type: 0
+        m3Delay: 0
+        m3Scale: 0
+        m3Distance: 0
+        m3Duration: 0
+        m3TickInterval: 0
+        desc: 
+    m4Data:
+      ID: 1
+      m4Type: 2
+      m4Delay: 0
+      m4Distance: 0
+      m4Duration: 0
+      m4Sound: 
+      m4VFX: 
+      desc: 
+    m5Data:
+      ID: 0
+      skillID: 0
+      m5Type: 0
+      damage: 0
+      applyType: 0
+      duration: 0
+      maxStack: 0
+      defDown: 0
+      icon: 
+      sound: 
+      m5VFX: 
+      desc: 
 --- !u!4 &1023790327
 Transform:
   m_ObjectHideFlags: 0
@@ -2529,7 +2595,7 @@ MonoBehaviour:
       desc: 
   projectilePrefab: {fileID: 1604259860813359153, guid: cc27048a1a6486843887c6285dab2d36, type: 3}
   deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
-  shadowPrepab: {fileID: 0}
+  shadowPrepab: {fileID: 9106158446547060106, guid: ad334d366ce436447a3b287029a8541f, type: 3}
   isTestContextOn: 0
 --- !u!114 &1652796886
 MonoBehaviour:

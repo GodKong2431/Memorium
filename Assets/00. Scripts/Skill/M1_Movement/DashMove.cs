@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 public class DashMove : ISkillMovementStrategy
 {
-    public IEnumerator SkillMove(ISkillMovementTarget subject, Vector3 target, SkillModule1Table data)
+    public IEnumerator SkillMove(ISkillCasterMovement subject, Vector3 target, SkillModule1Table data)
     {
         Vector3 direction = (target - subject.Position);
         direction.y = 0;

@@ -49,6 +49,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
             DataManager.Instance.OnComplete += OnDataLoaded;
         }
     }
+    
     private void OnDataLoaded()
     {
         DataManager.Instance.OnComplete -= OnDataLoaded;
@@ -69,7 +70,6 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
         if (battleSkillPresenter != null)
             battleSkillPresenter.Init(this);
-
     }
     private void OnEnable()
     {

@@ -26,7 +26,12 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
         mergeHandler = new SkillMergeHandler(inventory);
         presetHandler = new SkillPresetHandler(inventory, presets);
     }
-
+    private void Start()
+    {
+#if UNITY_EDITOR
+        testStartAdd();
+#endif
+    }
     public OwnedSkillData GetSkillData(int skillID)
     {
         inventory.TryGetValue(skillID, out var data);
@@ -143,18 +148,75 @@ public class SkillInventoryManager : Singleton<SkillInventoryManager>
     [SerializeField] private int testSkillID;
     [SerializeField] private SkillGrade testGrade = SkillGrade.Fragment;
     [SerializeField] private int testAmount = 10;
+    [Header("테스트 스킬")]
+    [SerializeField] private SkillDataContext testContext;
 
-    [ContextMenu("테스트: 스킬 수량 추가")]
+    [ContextMenu("스킬 수량 추가")]
     private void TestAddCount()
     {
-        if (!DataManager.Instance.SkillInfoDict.ContainsKey(testSkillID))
+        int _id = testSkillID;
+        if (!DataManager.Instance.SkillInfoDict.ContainsKey(_id))
         {
             var ids = string.Join(", ", DataManager.Instance.SkillInfoDict.Keys);
             Debug.LogWarning($"등록되지 않은 스킬 ID: {testSkillID}\n등록된 ID 목록: [{ids}]");
             return;
         }
-        AddSkill(testSkillID, testGrade, testAmount);
-        Debug.Log($"[{testSkillID}] {testGrade} x{testAmount} 추가");
+        AddSkill(_id, testGrade, testAmount);
+    }
+
+    private int[] testIDs = { 4000001, 4000002, 4000003 };
+    private void testStartAdd()
+    {
+        for (int i = 0; i < testIDs.Length; i++)
+        {
+            AddSkill(testIDs[i], testGrade, testAmount);
+        }
+    }
+
+    [ContextMenu("테스트 스킬 등록 및 장착")]
+    private void TestRegister()
+    {
+        var info = testContext.skillData.skillTable;
+        if (info == null || info.ID == 0)
+        {
+            return;
+        }
+
+        int id = info.ID;
+
+        DataManager.Instance.SkillInfoDict[id] = info;
+        if (testContext.skillData.m1Data != null)
+            DataManager.Instance.SkillModule1Dict[info.m1ID] = testContext.skillData.m1Data;
+        if (testContext.skillData.m2Data != null)
+            DataManager.Instance.SkillModule2Dict[info.m2ID] = testContext.skillData.m2Data;
+        if (testContext.skillData.m3Data != null)
+            DataManager.Instance.SkillModule3Dict[info.m3ID] = testContext.skillData.m3Data;
+        if (testContext.m4Data != null)
+            DataManager.Instance.SkillModule4Dict[testContext.m4Data.ID] = testContext.m4Data;
+        if (testContext.m5Data != null)
+            DataManager.Instance.SkillModule5Dict[testContext.m5Data.ID] = testContext.m5Data;
+
+        AddSkill(id, SkillGrade.Common, 1);
+
+        var data = GetSkillData(id);
+        if (data != null)
+            data.level = 500;
+
+        var preset = GetCurrentPreset();
+        for (int i = 0; i < preset.slots.Length; i++)
+        {
+            if (preset.slots[i].IsEmpty)
+            {
+                SetPresetSlot(i, id);
+
+                if (testContext.m4Data != null)
+                    SetM4Jem(i, testContext.m4Data.ID);
+
+                if (testContext.m5Data != null)
+                    SetM5Jem(i, 0, testContext.m5Data.ID);
+                return;
+            }
+        }
     }
 
 #endif

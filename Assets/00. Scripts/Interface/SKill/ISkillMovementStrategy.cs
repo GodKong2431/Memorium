@@ -6,5 +6,5 @@ using System.Collections;
 /// </summary>
 public interface ISkillMovementStrategy
 {
-    IEnumerator SkillMove(ISkillMovementTarget subject, Vector3 target, SkillModule1Table module1data);
+    IEnumerator SkillMove(ISkillCasterMovement subject, Vector3 target, SkillModule1Table module1data);
 }

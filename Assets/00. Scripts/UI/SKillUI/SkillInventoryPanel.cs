@@ -139,7 +139,6 @@ public class SkillInventoryPanel : MonoBehaviour
 
     private void OnEquipSkillClicked(int skillID)
     {
-        Debug.Log($"장착 클릭: skillID={skillID}, selectedSlot={selectedPresetSlot}");
         int targetSlot = selectedPresetSlot;
 
         if (targetSlot < 0)
@@ -147,7 +146,6 @@ public class SkillInventoryPanel : MonoBehaviour
             targetSlot = FindEmptyPresetSlot();
             if (targetSlot < 0)
             {
-                Debug.Log("빈 프리셋 슬롯이 없습니다. 슬롯을 먼저 선택하세요.");
                 return;
             }
         }

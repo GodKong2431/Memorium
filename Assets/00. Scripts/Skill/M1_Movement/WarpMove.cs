@@ -4,7 +4,7 @@ using UnityEngine.AI;
 
 public class WarpMove : ISkillMovementStrategy
 {
-    public IEnumerator SkillMove(ISkillMovementTarget subject, Vector3 target, SkillModule1Table data)
+    public IEnumerator SkillMove(ISkillCasterMovement subject, Vector3 target, SkillModule1Table data)
     {
         Debug.Log("À¯´Ö »ç¶óÁü");
         if (data.m1Duration > 0)
