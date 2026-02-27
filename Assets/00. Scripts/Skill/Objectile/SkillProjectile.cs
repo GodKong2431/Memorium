@@ -3,7 +3,6 @@ using UnityEngine;
 public class SkillProjectile : SkillObjectileBase
 {
     [SerializeField] private float speed = 20f;
-    [SerializeField] private float maxLifeTime = 5f;
 
 
     private void Update()

@@ -93,6 +93,11 @@ public class PlayerLevel
 
             CurrentLevel++;
 
+            if (CurrentLevel > 30)
+            {
+                CurrencyManager.Instance.AddCurrency(CurrencyType.TraitPoint, 1);
+            }
+
             OnLevelUp?.Invoke();
         }
     }

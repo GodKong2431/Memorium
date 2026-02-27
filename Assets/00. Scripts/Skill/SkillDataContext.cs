@@ -44,5 +44,16 @@ public class SkillDataContext
         m4Data = DataManager.Instance.SkillModule4Dict.GetValueOrDefault(m4ID);
         m5Data = DataManager.Instance.SkillModule5Dict.GetValueOrDefault(m5ID);
     }
+    public void Reset(int skillID, int m4ID = -1, int m5ID = -1)
+    {
+        if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table)) return;
+        if (skillData == null) skillData = new SkillData();
+        skillData.skillTable = table;
+        skillData.m1Data = DataManager.Instance.SkillModule1Dict.GetValueOrDefault(table.m1ID);
+        skillData.m2Data = DataManager.Instance.SkillModule2Dict.GetValueOrDefault(table.m2ID);
+        skillData.m3Data = DataManager.Instance.SkillModule3Dict.GetValueOrDefault(table.m3ID);
 
+        m4Data = DataManager.Instance.SkillModule4Dict.GetValueOrDefault(m4ID);
+        m5Data = DataManager.Instance.SkillModule5Dict.GetValueOrDefault(m5ID);
+    }
 }

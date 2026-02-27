@@ -30,12 +30,13 @@ public class StageManager : Singleton<StageManager>
     //[SerializeField] GameObject BossSpawnBtn;
     [SerializeField] Button bossSpawnBtn;
     bool onClickBossSpawnBtn=false;
+    //보스 스테이지 진입 여부
+    public bool onBossStage=false;
 
-    //[SerializeField] TextMeshProUGUI curStageAndFloorText;
-    //[SerializeField] TextMeshProUGUI curMonsterKillCountText;
-    //[SerializeField] Image curMonsterGuage;
     [SerializeField] StageType curStageType;
     public int normalStage = 1;
+
+    public bool onFailedStage=false;
 
     private IEnumerator Start()
     {
@@ -94,6 +95,10 @@ public class StageManager : Singleton<StageManager>
     {
         curMonsterKillCount++;
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
+
+        //if(!onFailedStage)
+        //    OnClickBossSummonButtonClick();
+
         //여기에 현재 몇 마리 잡았는지 UI로 보여주는 코드도 추가
         //if (maxMonsterKillCount <= EnemyKillRewardDispatcher.TotalKillCount)
         //if (maxMonsterKillCount <= curMonsterKillCount)
@@ -133,9 +138,10 @@ public class StageManager : Singleton<StageManager>
     }
     public void SetKillCount()
     {
+        onBossStage=false;
         curMonsterKillCount = 0;
         maxMonsterKillCount = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].monsterKillCount;
-        Debug.Log($"[StageManager] MaxKillCount = {maxMonsterKillCount} 씬 넘버 = {stageKeyList[curStage - 1]}");
+        //Debug.Log($"[StageManager] MaxKillCount = {maxMonsterKillCount} 씬 넘버 = {stageKeyList[curStage - 1]}");
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
     }
 
@@ -146,6 +152,7 @@ public class StageManager : Singleton<StageManager>
 
         if (curStageType == StageType.NormalStage)
         {
+            onFailedStage = false;
             if (stageKeyList.Count > curStage - 1)
                 curStage++;
             normalStage = curStage;
@@ -155,6 +162,30 @@ public class StageManager : Singleton<StageManager>
         }
         //일반 스테이지가 아닌 던전 클리어 시
         //
+        else
+        {
+            SetStageType(StageType.NormalStage, normalStage);
+            SceneController.Instance.LoadScene(SceneType.StageScene);
+        }
+    }
+
+    public void StageFailed()
+    {
+        //if (stageKeyList.Count > curStage - 1)
+        //    curStage++;
+
+        if (curStageType == StageType.NormalStage)
+        {
+            onFailedStage = true;
+            //보스 스테이지에서 패배한 게 아니면 스테이지 감소
+            if (curStage - 2>=0 && !onBossStage)
+                curStage--;
+            normalStage = curStage;
+            SetReward();
+            SetKillCount();
+            infinityMap.MapReset();
+        }
+        //일반 스테이지가 아닌 던전 클리어 시
         else
         {
             SetStageType(StageType.NormalStage, normalStage);

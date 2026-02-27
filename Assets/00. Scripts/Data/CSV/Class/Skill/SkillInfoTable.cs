@@ -4,6 +4,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class SkillInfoTable : TableBase
 {
+    public int skillScrollID;
     public int m1ID;
     public int m2ID;
     public int m3ID;

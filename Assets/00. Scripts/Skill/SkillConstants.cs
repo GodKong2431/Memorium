@@ -14,7 +14,4 @@ public static class SkillConstants
     // 분신 시간
     public const float SHADOW_CAST_DELAY = 0.6f;
 
-    // 기즈모
-    public const float GIZMO_BOX_HEIGHT = 4f;
-    public const int GIZMO_SECTOR_SEGMENTS = 10;
 }

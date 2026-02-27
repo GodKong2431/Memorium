@@ -2,14 +2,12 @@
 [System.Serializable]
 public class SkillPresetSlot
 {
-    public int skillID;
-    public int[] m5JemIDs = { -1, -1 };
+    public int skillID=-1;
+    public int[] m5JemIDs = {-1,-1 };
     public int m4JemID = -1;
     public SkillPresetSlot()
     {
-        skillID = -1;
-        m5JemIDs = new int[] { -1, -1 };
-        m4JemID = -1;
+        Clear();
     }
 
     public bool IsEmpty

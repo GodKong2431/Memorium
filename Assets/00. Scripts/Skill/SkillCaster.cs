@@ -5,7 +5,7 @@ using System;
 /// <summary>
 /// 스킬 실행하는 컴포넌트, 플레이어/몬스터/분신 어디든 붙여도 나가도록
 /// </summary>
-public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler, ISkillDetectable
+public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler, ISkillDetectable
 {
     private ISkillStatProvider statProvider;
     private ISkillTargetProvider targetProvider;
@@ -14,14 +14,11 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     [SerializeField] private LayerMask targetLayer; 
 
     [Header("테스트")]
-    [SerializeField] private SkillDataContext testskillDataContext;
     [SerializeField] SkillProjectile projectilePrefab;
     [SerializeField] SkillDeploy deployPrefab;
     [SerializeField] GameObject shadowPrepab;
-    [SerializeField] private bool isTestContextOn = false;
 
     private SkillDataContext skillDataContext;
-
     private bool isCasting = false;
     public bool IsCasting => isCasting;
     private Coroutine currentSkillRoutine;
@@ -35,6 +32,11 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     private Vector3 debugLastCastPos;
     private Vector3 debugLastCastDir;
 
+    private Vector3 castPostion;
+    private Vector3 castDirection;
+
+    public Vector3 CastPosition => castPostion;//스킬 시전 위치 저장용
+    public Vector3 CastDirection => castDirection;//스킬 시전 방향 저장용
     public Vector3 Position => transform.position;
     public event Action OnSkillEnd;
 
@@ -82,32 +84,41 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
         }
         return transform.forward;
     }
+
+    public SkillDataContext ResetContext(int skillID, int m4ID = -1, int m5ID = -1)
+    {
+        if (skillDataContext == null)
+            skillDataContext = new SkillDataContext(skillID, m4ID, m5ID);
+        else
+            skillDataContext.Reset(skillID, m4ID, m5ID);
+        return skillDataContext;
+    }
     public void CastSkill(SkillDataContext dataContext, float extraDelay = 0, bool applyAddon = true)
     {
         if (isCasting) return;
-        if (isTestContextOn)
-        {
-            skillDataContext = testskillDataContext;
-        }
         else
         {
             skillDataContext= dataContext;
         }
        
-        if (applyAddon&& skillDataContext.m4Data != null)
-        {
-            var m4Strategy = SkillStrategyContainer.GetAddon(skillDataContext.m4Data.m4Type);
-            if (m4Strategy is ISkillCastAddon castAddon)
-            {
-                castAddon.OnCast(this, skillDataContext, shadowPrepab); 
-            }
-
-        }
         if (currentSkillRoutine != null)
             StopCoroutine(currentSkillRoutine);
+#if UNITY_EDITOR
+        Debug.Log($"스킬 시전: {skillDataContext.skillData.skillTable.ID}");
+#endif
+        CacheCastState();
         currentSkillRoutine = StartCoroutine(SkillSequence(skillDataContext, extraDelay));
     }
 
+
+    /// <summary>
+    ///  시전위치 방향정보 저장, Shadow에 사용
+    /// </summary>
+    private void CacheCastState()
+    {
+        castPostion = transform.position;
+        castDirection = GetTargetDirection();
+    }
     private IEnumerator SkillSequence(SkillDataContext dataContext, float extraDelay = 0)
     {
 
@@ -215,10 +226,21 @@ public class SkillCaster : MonoBehaviour, ISkillMovementTarget, ISkillHitHandler
     }
     private void ProcessHit(int hitCount, SkillDataContext data, Collider[] hitBuffer, bool applyAddon)
     {
+        if (hitCount == 0) return;
+
         ISkillAddonStrategy m4Strategy = null;
+#if UNITY_EDITOR
+        if(data.m4Data != null)
+            Debug.Log($"애드 온: {data.m4Data.ID}_{data.m4Data.m4Type}");
+#endif
         if (applyAddon && data.m4Data != null)
         {
             m4Strategy = SkillStrategyContainer.GetAddon(data.m4Data.m4Type);
+        }
+
+        if (m4Strategy is ISkillCastAddon castAddon)
+        {
+            castAddon.OnCast(this,this,statProvider,targetProvider, skillDataContext, shadowPrepab);
         }
 
         for (int i = 0; i < hitCount; i++)

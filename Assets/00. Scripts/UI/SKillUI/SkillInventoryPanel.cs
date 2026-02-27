@@ -139,7 +139,6 @@ public class SkillInventoryPanel : MonoBehaviour
 
     private void OnEquipSkillClicked(int skillID)
     {
-        Debug.Log($"ÀåÂø Å¬¸¯: skillID={skillID}, selectedSlot={selectedPresetSlot}");
         int targetSlot = selectedPresetSlot;
 
         if (targetSlot < 0)

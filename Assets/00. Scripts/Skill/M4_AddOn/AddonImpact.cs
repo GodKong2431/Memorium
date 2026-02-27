@@ -9,20 +9,23 @@ public class AddonImpact : ISkillHitAddon
         
         SkillModule2Table tempM2Data = new SkillModule2Table{m2Type = M2Type.circle,m2S1 = dataContext.m4Data.m4Distance};
 
-        ISkillDetectable provider = owner as ISkillDetectable;
 
-        int count = detectStrategy.Detect(target.transform.position,Vector3.zero,tempM2Data,provider,targetLayer);
-
-        if (count > 0 && provider != null)
+        if (owner is ISkillDetectable provider)
         {
-            owner.HandleAddonHit(count, dataContext, provider.GetBuffer());
-        }
+            int count = detectStrategy.Detect(target.transform.position, Vector3.zero, tempM2Data, provider, targetLayer);
 
-        var targets = provider.GetBuffer();
+            if (count > 0)
+            {
+                owner.HandleAddonHit(count, dataContext, provider.GetBuffer());
+            }
+            var targets = provider.GetBuffer();
 
-        for (int i = 0; i < count; i++)
-        {
-            Debug.Log($"{targets[i].name} 스플래시");
+            for (int i = 0; i < count; i++)
+            {
+#if UNITY_EDITOR
+                Debug.Log($"{targets[i].name} 스플래시");
+#endif
+            }
         }
     }
 }

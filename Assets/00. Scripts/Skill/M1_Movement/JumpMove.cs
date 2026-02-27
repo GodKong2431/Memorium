@@ -5,7 +5,7 @@ using UnityEngine.AI;
 //벽에 막히는 기능추가
 public class JumpMove : ISkillMovementStrategy
 {
-    public IEnumerator SkillMove(ISkillMovementTarget subject, Vector3 target, SkillModule1Table data)
+    public IEnumerator SkillMove(ISkillCasterMovement subject, Vector3 target, SkillModule1Table data)
     {
         subject.SetInvincible(true);
 
