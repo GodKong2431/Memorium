@@ -26,9 +26,9 @@ public class EnemyStateContext
 
     public float MaxHealth => StatPresenter?.Data?.monsterHealth ?? 100f;
     public float AttackRange => StatPresenter?.Data?.attackRange ?? 1.5f;
-    /// <summary>StatPresenter.IsBoss 우선 (DataManager 연동). 없으면 인스펙터 fallback.</summary>
+    /// <summary>StatPresenter.IsBoss 또는 인스펙터 isBoss 중 하나라도 true면 보스. (인스펙터 명시적 설정 우선)</summary>
     private bool _isBossFallback;
-    public bool IsBoss { get => StatPresenter?.IsBoss ?? _isBossFallback; set => _isBossFallback = value; }
+    public bool IsBoss { get => (StatPresenter?.IsBoss ?? false) || _isBossFallback; set => _isBossFallback = value; }
 
     /// <summary>
     /// 공격 시 생성할 이펙트 프리팹. EnemyStateMachine에서 설정
@@ -80,5 +80,14 @@ public class EnemyStateContext
         // 현재는 플레이어 존재 여부만 체크
         if (PlayerTransform == null) return false;
         return true;
+    }
+
+    /// <summary>
+    /// 애니메이터 트리거 설정. Animator가 있고 trigger가 유효할 때만 호출.
+    /// </summary>
+    public void SetAnimatorTrigger(string trigger)
+    {
+        if (Animator != null && !string.IsNullOrEmpty(trigger))
+            Animator.SetTrigger(trigger);
     }
 }

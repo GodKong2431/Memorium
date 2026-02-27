@@ -17,7 +17,7 @@ public class EnemyStateDead : IEnemyState
     {
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = true;
-        SetAnimatorTrigger(ctx, "Dead");
+        ctx.SetAnimatorTrigger("Dead");
         _destroyTime = Time.time + DestroyDelay;
         _destroyScheduled = false;
 
@@ -47,11 +47,5 @@ public class EnemyStateDead : IEnemyState
     public void OnExit(EnemyStateContext ctx)
     {
         // 보상은 OnEnter에서 이미 지급됨
-    }
-
-    private static void SetAnimatorTrigger(EnemyStateContext ctx, string trigger)
-    {
-        if (ctx.Animator != null && !string.IsNullOrEmpty(trigger))
-            ctx.Animator.SetTrigger(trigger);
     }
 }

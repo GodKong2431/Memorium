@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -9,24 +9,24 @@ using System.Reflection;
 
 public class DataManager : Singleton<DataManager>
 {
-    #region µ¥ÀÌÅÍ ¸Ê
-    // µå¶ø Å×ÀÌºí
+    #region ë°ì´í„° ë§µ
+    // ë“œë í…Œì´ë¸”
     public Dictionary<int, EquipmentDropTable> EquipmentDropDict;
     public Dictionary<int, ItemDropTable> ItemDropDict;
-    
-    // ´øÀü Å×ÀÌºí
+
+    // ë˜ì „ í…Œì´ë¸”
     public Dictionary<int, DungeonReqTable> DungeonReqDict;
 
-    // Àû Å×ÀÌºí
+    // ì  í…Œì´ë¸”
     public Dictionary<int, BossManageTable> BossManageDict;
     public Dictionary<int, MonsterBasestatTable> MonsterBasestatDict;
     public Dictionary<int, MonsterGroupTable> MonsterGroupDict;
     public Dictionary<int, MonsterGrowthTable> EnemyGrowthDict;
 
-    // ¾ÆÀÌÅÛ Å×ÀÌºí
+    // ì•„ì´í…œ í…Œì´ë¸”
     public Dictionary<int, ItemInfoTable> ItemInfoDict;
 
-    // Àåºñ Å×ÀÌºí
+    // ì¥ë¹„ í…Œì´ë¸”
     public Dictionary<int, EquipArmorTable> EquipArmorDict;
     public Dictionary<int, EquipBootsTable> EquipBootsDict;
     public Dictionary<int, EquipWeaponTable> EquipWeaponDict;
@@ -34,7 +34,7 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, EquipHelmetTable> EquipHelmetDict;
     public Dictionary<int, EquipListTable> EquipListDict;
 
-    // Æä¾î¸® Å×ÀÌºí
+    // í˜ì–´ë¦¬ í…Œì´ë¸”
     public Dictionary<int, FairyStatTable> FairyStatDict;
     public Dictionary<int, FairyEffectTable> FairyEffectDict;
     public Dictionary<int, FairyGradeTable> FairyGradeDict;
@@ -42,10 +42,10 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, FairyInfoTable> FairyInfoDict;
     public Dictionary<int, TriggerInfoTable> TriggerInfoDict;
 
-    // ½ºÅ×ÀÌÁö Å×ÀÌºí
+    // ìŠ¤í…Œì´ì§€ í…Œì´ë¸”
     public Dictionary<int, StageManageTable> StageManageDict;
 
-    // ÇÃ·¹ÀÌ¾î µ¥ÀÌÅÍ
+    // í”Œë ˆì´ì–´ ë°ì´í„°
     public Dictionary<int, CharacterBaseStatInfoTable> CharacterBaseStatInfoDict;
     public Dictionary<int, BerserkmodeManageTable> BerserkmodeManageDict;
     public Dictionary<int, CharacterTable> CharacterDict;
@@ -53,12 +53,12 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, PlayerExpTable> PlayerLevelDict;
     public Dictionary<int, StatUpgradeTable> StatUpgradeDict;
     public Dictionary<int, TraitInfoTable> TraitInfoDict;
-    
-    // Äù½ºÆ® Å×ÀÌºí
+
+    // í€˜ìŠ¤íŠ¸ í…Œì´ë¸”
     public Dictionary<int, LineQuestTable> LineQuestDict;
     public Dictionary<int, QuestRewardsTable> QuestRewardsDict;
 
-    // ½ºÅ³ µ¥ÀÌÅÍ
+    // ìŠ¤í‚¬ ë°ì´í„°
     public Dictionary<int, SkillInfoTable> SkillInfoDict;
     public Dictionary<int, SkillModule1Table> SkillModule1Dict;
     public Dictionary<int, SkillModule2Table> SkillModule2Dict;
@@ -67,25 +67,25 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, SkillModule5Table> SkillModule5Dict;
     public Dictionary<int, M5FusionTable> M5FusionDict;
 
-    // ÆĞ½Ãºê µ¥ÀÌÅÍ
+    // íŒ¨ì‹œë¸Œ ë°ì´í„°
     public Dictionary<int, PassiveBalance> PassiveBalanceDict;
     public Dictionary<int, PassiveGrowthTable> PassiveGrowthDict;
     public Dictionary<int, PassiveInfoTable> PassiveInfoDict;
     public Dictionary<int, PassiveSetTable> PassiveSetDict;
 
-    // ±âÅ¸ µ¥ÀÌÅÍ
+    // ê¸°íƒ€ ë°ì´í„°
     public Dictionary<int, StringTable> StringDict;
 
     #endregion
 
-    // (ÇöÀç°³¼ö, ÃÑ°³¼ö, ÇöÀçÀÛ¾÷ÁßÀÎÆÄÀÏ)
+    // (í˜„ì¬ê°œìˆ˜, ì´ê°œìˆ˜, í˜„ì¬ì‘ì—…ì¤‘ì¸íŒŒì¼)
     public event Action<int, int, string> OnProgress;
     public event Action OnComplete;
 
-    // AutoAddressableImporter¿¡¼­ ¼³Á¤ÇÑ ¶óº§ ÀÌ¸§
+    // AutoAddressableImporterì—ì„œ ì„¤ì •í•œ ë¼ë²¨ ì´ë¦„
     private const string LABEL_TO_LOAD = "CSV_Data";
 
-    //µ¥ÀÌÅÍ ·Îµå ¿Ï·áÇß´ÂÁö Ã¼Å©ÇÏ´Â bool°ª
+    //ë°ì´í„° ë¡œë“œ ì™„ë£Œí–ˆëŠ”ì§€ ì²´í¬í•˜ëŠ” boolê°’
     public bool DataLoad = false;
 
     protected override void Awake()
@@ -99,48 +99,48 @@ public class DataManager : Singleton<DataManager>
         StartCoroutine(LoadByLabel());
     }
 
-    // ¶óº§ ±â¹İ µ¥ÀÌÅÍ ·Îµå ÄÚ·çÆ¾
+    // ë¼ë²¨ ê¸°ë°˜ ë°ì´í„° ë¡œë“œ ì½”ë£¨í‹´
     private IEnumerator LoadByLabel()
     {
-        Debug.Log($"[DataManager] ¶óº§ '{LABEL_TO_LOAD}' ±â¹İ µ¥ÀÌÅÍ ·Îµå ½ÃÀÛ");
+        Debug.Log($"[DataManager] ë¼ë²¨ '{LABEL_TO_LOAD}' ê¸°ë°˜ ë°ì´í„° ë¡œë“œ ì‹œì‘");
 
-        // ·Îµù¹Ù Ç¥½Ã¿ë ÃÑ °³¼ö ±¸ÇÏ±â
+        // ë¡œë”©ë°” í‘œì‹œìš© ì´ ê°œìˆ˜ êµ¬í•˜ê¸°
         var locationHandle = Addressables.LoadResourceLocationsAsync(LABEL_TO_LOAD);
         yield return locationHandle;
 
         if (locationHandle.Status != AsyncOperationStatus.Succeeded)
         {
-            Debug.LogError($"[DataManager] ¶óº§ '{LABEL_TO_LOAD}'À» Ã£À» ¼ö ¾ø½À´Ï´Ù. (Addressables Group ¼³Á¤À» È®ÀÎÇØ¾ßµÊ)");
+            Debug.LogError($"[DataManager] ë¼ë²¨ '{LABEL_TO_LOAD}'ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. (Addressables Group ì„¤ì •ì„ í™•ì¸í•´ì•¼ë¨)");
             yield break;
         }
 
         int totalCount = locationHandle.Result.Count;
         int currentCount = 0;
 
-        Debug.Log($"[DataManager] ·Îµå ´ë»ó ¹ß°ß: {totalCount}°³");
-        OnProgress?.Invoke(0, totalCount, "·Îµù ÁØºñ Áß");
+        Debug.Log($"[DataManager] ë¡œë“œ ëŒ€ìƒ ë°œê²¬: {totalCount}ê°œ");
+        OnProgress?.Invoke(0, totalCount, "ë¡œë”© ì¤€ë¹„ ì¤‘");
 
-        // ÇÚµéÀ» ÅëÇØ¼­ ¸®½ºÆ®¸¦ ÅëÀ¸·Î ¹Ş¾Æ¿È
+        // í•¸ë“¤ì„ í†µí•´ì„œ ë¦¬ìŠ¤íŠ¸ë¥¼ í†µìœ¼ë¡œ ë°›ì•„ì˜´
         var loadHandle = Addressables.LoadAssetsAsync<TextAsset>(LABEL_TO_LOAD, null);
 
-        // ·Îµå°¡ µÉ ¶§±îÁö ´ë±â
+        // ë¡œë“œê°€ ë  ë•Œê¹Œì§€ ëŒ€ê¸°
         yield return loadHandle;
 
-        // ·Îµå ¿Ï·á ÈÄ Ã³¸®
+        // ë¡œë“œ ì™„ë£Œ í›„ ì²˜ë¦¬
         if (loadHandle.Status == AsyncOperationStatus.Succeeded)
         {
             IList<TextAsset> assets = loadHandle.Result;
-            Debug.Log($"[DataManager] ÆÄÀÏ ´Ù¿î·Îµå ¿Ï·á / ÆÄ½Ì ½ÃÀÛ (ÆÄÀÏ °³¼ö: {assets.Count})");
+            Debug.Log($"[DataManager] íŒŒì¼ ë‹¤ìš´ë¡œë“œ ì™„ë£Œ / íŒŒì‹± ì‹œì‘ (íŒŒì¼ ê°œìˆ˜: {assets.Count})");
 
-            // ¸®½ºÆ® ¼øÈ¸ÇÏ¸é¼­ ÇÏ³ª¾¿ Ã³¸®
+            // ë¦¬ìŠ¤íŠ¸ ìˆœíšŒí•˜ë©´ì„œ í•˜ë‚˜ì”© ì²˜ë¦¬
             foreach (TextAsset textAsset in assets)
             {
                 if (textAsset != null)
                 {
-                    //ÆÄ½Ì ¹× ÁÖÀÔ ½Ãµµ
+                    //íŒŒì‹± ë° ì£¼ì… ì‹œë„
                     bool isSuccess = ProcessTextAsset(textAsset);
 
-                    // ÁøÇàµµ ¾÷µ¥ÀÌÆ®
+                    // ì§„í–‰ë„ ì—…ë°ì´íŠ¸
                     if (isSuccess)
                     {
                         currentCount++;
@@ -149,31 +149,31 @@ public class DataManager : Singleton<DataManager>
                 }
             }
 
-            // ÃÖÁ¾ ¿Ï·á Ã³¸®
-            OnProgress?.Invoke(totalCount, totalCount, "¿Ï·á");
+            // ìµœì¢… ì™„ë£Œ ì²˜ë¦¬
+            OnProgress?.Invoke(totalCount, totalCount, "ì™„ë£Œ");
 
-            // ¿Ï·á ÈÄ ´ë±â ½Ã°£
-            yield return new WaitForSeconds(0.5f); 
+            // ì™„ë£Œ í›„ ëŒ€ê¸° ì‹œê°„
+            yield return new WaitForSeconds(0.5f);
 
-            // ¿Ï·á ÀÌº¥Æ® È£Ãâ
+            // ì™„ë£Œ ì´ë²¤íŠ¸ í˜¸ì¶œ
             OnComplete?.Invoke();
-            Debug.Log($"[DataManager] ÃÖÁ¾ ¿Ï·á (¼º°ø: {currentCount} / ÃÑ: {totalCount})");
+            Debug.Log($"[DataManager] ìµœì¢… ì™„ë£Œ (ì„±ê³µ: {currentCount} / ì´: {totalCount})");
 
-            // ·ÎµåµÇ¾îÀÖ´ø CSV 
+            // ë¡œë“œë˜ì–´ìˆë˜ CSV 
             Addressables.Release(loadHandle);
 
             DataLoad = true;
         }
         else
         {
-            Debug.LogError("[DataManager] µ¥ÀÌÅÍ ´Ù¿î·Îµå ½ÇÆĞ");
+            Debug.LogError("[DataManager] ë°ì´í„° ë‹¤ìš´ë¡œë“œ ì‹¤íŒ¨");
             Addressables.Release(loadHandle);
         }
 
         Addressables.Release(locationHandle);
     }
 
-    // ÅØ½ºÆ® ¿¡¼Â Ã³¸® ÇÔ¼ö
+    // í…ìŠ¤íŠ¸ ì—ì…‹ ì²˜ë¦¬ í•¨ìˆ˜
     private bool ProcessTextAsset(TextAsset textAsset)
     {
         string className = textAsset.name;
@@ -183,51 +183,51 @@ public class DataManager : Singleton<DataManager>
 
         if (tableType == null)
         {
-            Debug.LogWarning($"[DataManager] Å¬·¡½º¸¦ Ã£À» ¼ö ¾øÀ½: {className}.cs (ÆÄÀÏ¸í°ú Å¬·¡½º¸íÀÌ °°ÀºÁö È®ÀÎÇØ¾ßµÊ)");
+            Debug.LogWarning($"[DataManager] í´ë˜ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŒ: {className}.cs (íŒŒì¼ëª…ê³¼ í´ë˜ìŠ¤ëª…ì´ ê°™ì€ì§€ í™•ì¸í•´ì•¼ë¨)");
             return false;
         }
 
-        // Á¦³×¸¯ ¸Ş¼­µå ParseAndInject µ¿Àû È£Ãâ
+        // ì œë„¤ë¦­ ë©”ì„œë“œ ParseAndInject ë™ì  í˜¸ì¶œ
         MethodInfo method = typeof(DataManager).GetMethod("ParseAndInject", BindingFlags.NonPublic | BindingFlags.Instance);
         MethodInfo genericMethod = method.MakeGenericMethod(tableType);
 
-        // È£Ãâ °á°ú ¹İÈ¯
+        // í˜¸ì¶œ ê²°ê³¼ ë°˜í™˜
         object result = genericMethod.Invoke(this, new object[] { textAsset.text, className });
         return (bool)result;
     }
 
-    // Á¦³×¸¯ ÆÄ½Ì ¹× ÁÖÀÔ ÇÔ¼ö (¸®ÇÃ·º¼ÇÀ¸·Î È£Ãâ)
+    // ì œë„¤ë¦­ íŒŒì‹± ë° ì£¼ì… í•¨ìˆ˜ (ë¦¬í”Œë ‰ì…˜ìœ¼ë¡œ í˜¸ì¶œ)
     private bool ParseAndInject<T>(string csvContent, string keyName) where T : TableBase, new()
     {
-        // ÆÄ½Ì
+        // íŒŒì‹±
         List<T> list = CSVHelper.ParseCSVData<T>(csvContent);
         Dictionary<int, T> dict = new Dictionary<int, T>();
 
         foreach (T data in list)
         {
             if (!dict.ContainsKey(data.ID)) dict.Add(data.ID, data);
-            else Debug.LogWarning($"[DataManager] {keyName} - ID: {data.ID} Áßº¹µÊ");
+            else Debug.LogWarning($"[DataManager] {keyName} - ID: {data.ID} ì¤‘ë³µë¨");
         }
 
-        // ÇÊµå¿Í ÇÁ·ÎÆÛÆ¼ ¸ğµÎ °Ë»öÇÏµµ·Ï ¼³Á¤
+        // í•„ë“œì™€ í”„ë¡œí¼í‹° ëª¨ë‘ ê²€ìƒ‰í•˜ë„ë¡ ì„¤ì •
         var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
         bool injected = false;
-        Type dictType = typeof(Dictionary<int, T>); // ¿ì¸®°¡ Ã£¾Æ¾ß ÇÒ Å¸ÀÔ
+        Type dictType = typeof(Dictionary<int, T>); // ìš°ë¦¬ê°€ ì°¾ì•„ì•¼ í•  íƒ€ì…
 
-        // ÇÊµå °Ë»ö
+        // í•„ë“œ ê²€ìƒ‰
         var fields = this.GetType().GetFields(flags);
         foreach (var field in fields)
         {
             if (field.FieldType == dictType)
             {
-                field.SetValue(this, dict); // °ª ÁÖÀÔ
+                field.SetValue(this, dict); // ê°’ ì£¼ì…
                 injected = true;
                 Debug.Log($"[DataManager] {keyName} -> Field: {field.Name}");
                 break;
             }
         }
 
-        // ÇÁ·ÎÆÛÆ¼ ({ get; set; }) °Ë»ö  (ÇÊµå¿¡¼­ ¸ø Ã£¾ÒÀ» °æ¿ì)
+        // í”„ë¡œí¼í‹° ({ get; set; }) ê²€ìƒ‰  (í•„ë“œì—ì„œ ëª» ì°¾ì•˜ì„ ê²½ìš°)
         if (!injected)
         {
             var properties = this.GetType().GetProperties(flags);
@@ -245,8 +245,8 @@ public class DataManager : Singleton<DataManager>
 
         if (!injected)
         {
-            // ÁÖÀÔ ½ÇÆĞ ·Î±×
-            Debug.LogError($"[DataManager] º¯¼ö ¾øÀ½: {keyName} (Dictionary<int, {typeof(T).Name}> Å¸ÀÔÀÇ º¯¼ö¸¦ ¼±¾ğÇØ¾ßµÊ)");
+            // ì£¼ì… ì‹¤íŒ¨ ë¡œê·¸
+            Debug.LogError($"[DataManager] ë³€ìˆ˜ ì—†ìŒ: {keyName} (Dictionary<int, {typeof(T).Name}> íƒ€ì…ì˜ ë³€ìˆ˜ë¥¼ ì„ ì–¸í•´ì•¼ë¨)");
             return false;
         }
 

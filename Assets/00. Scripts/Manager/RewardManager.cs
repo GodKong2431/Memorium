@@ -62,17 +62,17 @@ public class RewardManager : Singleton<RewardManager>
         }
         // ItemDropTable CSV 확률은 % 단위 (5=5%, 0.01=0.01%) → 0~1로 변환
         DropSettings.equipmentChance = (float)(dropTable.equipmentRate / 100.0);
-        DropSettings.fairyShardChance = (float)(dropTable.fairyPieceRate / 100.0);
+        DropSettings.pixieFragmentChance = (float)(dropTable.fairyPieceRate / 100.0);
         DropSettings.skillScrollChance = (float)(dropTable.scrollRate / 100.0 * 20000);
         DropSettings.skillGemChance = (float)(dropTable.gemRate / 100.0);
-        DropSettings.dungeonTicketChance = (float)(dropTable.keyRate / 100.0) * 20000;
+        DropSettings.dungeonTicketChance = (float)(dropTable.keyRate / 100.0) * 20000; // 테스트를 위해 임시로 확률 증가
     }
 
     private static ItemDropSettings CreateDefaultItemDropSettings()
     {
         var s = ScriptableObject.CreateInstance<ItemDropSettings>();
         s.equipmentChance = 0.05f;
-        s.fairyShardChance = 0.0001f;
+        s.pixieFragmentChance = 0.0001f;
         s.skillScrollChance = 0.00005f;
         s.skillGemChance = 0.00001f;
         s.dungeonTicketChance = 0.00001f;
@@ -86,7 +86,7 @@ public class RewardManager : Singleton<RewardManager>
             new() { offset = 300, weight = 10 }
         };
         s.equipmentIds = System.Array.Empty<int>();
-        s.fairyShardIds = new[] { 3310001 };
+        s.pixieFragmentIds = new[] { 3310001 };
         s.skillScrollIds = new[] { 3210001 };
         s.skillGemIds = new[] { 3220001 };
         s.dungeonTicketIds = new[] { 3831001 };
