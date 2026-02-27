@@ -7,6 +7,7 @@ using UnityEngine;
 public class CurrencyManager : Singleton<CurrencyManager>
 {
     private Dictionary<CurrencyType, BigDouble> currencies;
+    public event Action<CurrencyType, BigDouble> OnCurrencyChanged; // 재화 시스템 전용 변경 이벤트.
 
     protected override void Awake()
     {
@@ -45,6 +46,7 @@ public class CurrencyManager : Singleton<CurrencyManager>
 
         }
         currencies[type] = currencies[type] - cost;
+        OnCurrencyChanged?.Invoke(type, currencies[type]);
         GameEventManager.OnCurrencyChanged?.Invoke(type, currencies[type]);
         return true;
     }
@@ -52,6 +54,7 @@ public class CurrencyManager : Singleton<CurrencyManager>
     public void AddCurrency(CurrencyType type, BigDouble amount)
     {
         currencies[type] = GetAmount(type) + amount;
+        OnCurrencyChanged?.Invoke(type, currencies[type]);
         GameEventManager.OnCurrencyChanged?.Invoke(type, currencies[type]);
     }
 

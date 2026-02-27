@@ -1283,7 +1283,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DungeonLevelSelectUI
   textTitle: {fileID: 8981758738091025516}
   textCurrentLevel: {fileID: 5949795897347460811}
-  textTicketInfo: {fileID: 4461033382170827799}
   btnPrevLevel: {fileID: 22689950677908564}
   btnNextLevel: {fileID: 9010842930940898231}
   btnStartDungeon: {fileID: 6080035634381357567}
@@ -4665,6 +4664,8 @@ GameObject:
   - component: {fileID: 3718447277323307075}
   - component: {fileID: 4335907305891935011}
   - component: {fileID: 4461033382170827799}
+  - component: {fileID: 912345678901234567}
+  - component: {fileID: 912345678901234568}
   m_Layer: 0
   m_Name: DungeonTicket
   m_TagString: Untagged
@@ -4791,6 +4792,33 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &912345678901234567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8491040379666218985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f3a4c5978d4b68b2f4c9d7a1e5f203, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonTicketUIView
+  ticketText: {fileID: 4461033382170827799}
+--- !u!114 &912345678901234568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8491040379666218985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2b5d84e1f7a4b3c9d6e0a1248f95b61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonTicketUIController
+  view: {fileID: 912345678901234567}
+  dungeonLevelSelectUI: {fileID: 332989619626945042}
 --- !u!1001 &640270572970966764
 PrefabInstance:
   m_ObjectHideFlags: 0
