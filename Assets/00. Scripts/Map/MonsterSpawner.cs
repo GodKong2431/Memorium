@@ -31,27 +31,32 @@ public class MonsterSpawner : MonoBehaviour
     //??? ??? ?????? ??????? ??????? ????????? ????? ??????δ°? ???? ???????
     IEnumerator Start()
     {
-        //yield return new WaitUntil(() => InfinityMap.Instance !=null);
-        //yield return new WaitUntil(() => InfinityMap.Instance.firstMapSetting);
+        ////yield return new WaitUntil(() => InfinityMap.Instance !=null);
+        ////yield return new WaitUntil(() => InfinityMap.Instance.firstMapSetting);
 
-        //if (maps == null)
-        //    maps = new List<GameObject>();
-        //maps.Clear();
-        //for (int i = 0; i < mapGroups[0].transform.childCount; i++)
-        //{
-        //    maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
-        //}
+        ////if (maps == null)
+        ////    maps = new List<GameObject>();
+        ////maps.Clear();
+        ////for (int i = 0; i < mapGroups[0].transform.childCount; i++)
+        ////{
+        ////    maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
+        ////}
 
-        SetMap(1);
+        //SetMap(1);
+        yield return new WaitUntil(() => MapManager.Instance != null);
+        yield return new WaitUntil(() => MapManager.Instance.mapSetting);
 
+        //매니저에 있는 맵 참조<- 주소를 참조하여 이후에도 동기화 진행
+        //if(maps==null)
+        maps = MapManager.Instance.maps;
         //Debug.Log("초기 맵 세팅 완료");
         //MapChange();
 
-        yield return new WaitUntil(() => DataManager.Instance != null);
-        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
-        yield return new WaitUntil(() => EnemyListManager.Instance.DataLoad);
+        //yield return new WaitUntil(() => DataManager.Instance != null);
+        //yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        //yield return new WaitUntil(() => EnemyListManager.Instance.DataLoad);
 
-        SetMonster();
+        //SetMonster();
 
     }
 
@@ -104,12 +109,13 @@ public class MonsterSpawner : MonoBehaviour
     //???????? ???? stage +1 ??? ??? ????? ?????? ?? <- ???????? ???? ????? ???????
     public void SetMonster()
     {
-
-        curSpawnerPos = 0;
         if (maps.Count <= 0)
-        {
-            SetMap(1);
-        }
+            maps = MapManager.Instance.maps;
+        curSpawnerPos = 0;
+        //if (maps.Count <= 0)
+        //{
+        //    SetMap(1);
+        //}
         ChangeParent(maps[curSpawnerPos].transform);
 
         if (StageManager.Instance != null) 
@@ -154,22 +160,20 @@ public class MonsterSpawner : MonoBehaviour
 
     public void MapChange()
     {
-        //curSpawnerPos = 0;
-        //Debug.Log("[MonsterSpawner] 맵 갯수 "+InfinityMap.Instance.maps.Count);
-        //maps = InfinityMap.Instance.maps;
-        //ChangeParent(maps[curSpawnerPos].transform);
+        curSpawnerPos = 0;
+        ChangeParent(maps[curSpawnerPos].transform);
     }
 
     //curFloor-1 맵을 불러와 맵을 바꾸는 것을 목적으로 함
-    public void SetMap(int curFloor)
-    {
-        if (maps == null)
-            maps = new List<GameObject>();
-        maps.Clear();
-        for (int i = 0; i < mapGroups[0].transform.childCount; i++)
-        {
-            maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
-        }
-    }
+    //public void SetMap(int curFloor)
+    //{
+    //    if (maps == null)
+    //        maps = new List<GameObject>();
+    //    maps.Clear();
+    //    for (int i = 0; i < mapGroups[0].transform.childCount; i++)
+    //    {
+    //        maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
+    //    }
+    //}
 
 }

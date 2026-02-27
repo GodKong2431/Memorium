@@ -873,8 +873,7 @@ MonoBehaviour:
     monsterSpawnCount: 0
   randomRange: 4
   maps: []
-  mapGroups:
-  - {fileID: 1420010593}
+  mapGroups: []
 --- !u!4 &738237842
 Transform:
   m_ObjectHideFlags: 0
@@ -1010,7 +1009,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 5436534838482941180}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -2005,11 +2004,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fd94e61b4b77f9f4fb894783cf1de583, type: 3}
---- !u!1 &1420010593 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 935202585718438857, guid: fd94e61b4b77f9f4fb894783cf1de583, type: 3}
-  m_PrefabInstance: {fileID: 1420010592}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1431806454 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6430674138065223218, guid: afbcce189a8bdab469c57e0dc944a847, type: 3}
@@ -2987,16 +2981,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a00f20aefd2af7e4f9cae6c607c7b7b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InfinityMap
-  maps: []
   mapMoveTrigger: {fileID: 1858335845}
   curMapIndex: 1
   originPlayerPos: {x: 0, y: 0, z: 0}
   goal: {fileID: 1592395658}
   player: {fileID: 1652796882}
-  mapGroupsPrefab:
-  - {fileID: 935202585718438857, guid: fd94e61b4b77f9f4fb894783cf1de583, type: 3}
-  mapGroups:
-  - {fileID: 1420010593}
+  mapGroupsPrefab: []
+  mapGroups: []
+  maps: []
   firstMapSetting: 0
 --- !u!114 &1882437775 stripped
 MonoBehaviour:
@@ -3009,6 +3001,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 243e36e4b3d4d3b48a990ae1b2bf5c6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinalStatUIItem
+--- !u!1 &1977900079
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1977900081}
+  - component: {fileID: 1977900080}
+  m_Layer: 0
+  m_Name: MapManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1977900080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1977900079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5230677f0e7cffc4b809b5fe89360f74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapManager
+  normalMapGroupsPrefab:
+  - {fileID: 935202585718438857, guid: fd94e61b4b77f9f4fb894783cf1de583, type: 3}
+  goldDungeonMapGroupPrefab:
+  - {fileID: 935202585718438857, guid: e92898fe875af0d489def596a7fc5176, type: 3}
+  expDungeonMapGroupPrefab: []
+  itemFarmingDungeonMapGroupPrefab: []
+  rareItemDungeonMapGroupPrefab: []
+  mapSetting: 0
+  maps: []
+--- !u!4 &1977900081
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1977900079}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.42821, y: 0, z: -2.45585}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1988957291
 GameObject:
   m_ObjectHideFlags: 0
@@ -6841,3 +6886,4 @@ SceneRoots:
   - {fileID: 1858335846}
   - {fileID: 738237842}
   - {fileID: 1420010592}
+  - {fileID: 1977900081}
