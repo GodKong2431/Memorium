@@ -4260,6 +4260,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 2067324453}
     m_Modifications:
     - target: {fileID: 1798963004576021501, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: amountText
+      value: 
+      objectReference: {fileID: 1882254221}
+    - target: {fileID: 1798963004576021501, guid: 687a5526d94404140a128184003b4ad4, type: 3}
       propertyPath: targetCurrency
       value: 81
       objectReference: {fileID: 0}
@@ -4311,6 +4315,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6335113025110621809, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: amountText
+      value: 
+      objectReference: {fileID: 1882254220}
     - target: {fileID: 6335113025110621809, guid: 687a5526d94404140a128184003b4ad4, type: 3}
       propertyPath: targetCurrency
       value: 82
@@ -4582,6 +4590,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+--- !u!114 &1882254220 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2575861108239226674, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+  m_PrefabInstance: {fileID: 1882254215}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &1882254221 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 170268522584377209, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+  m_PrefabInstance: {fileID: 1882254215}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1001 &1936738530
 PrefabInstance:
   m_ObjectHideFlags: 0
