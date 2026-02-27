@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AYellowpaper.SerializedCollections;
+using Mono.Cecil.Cil;
+using System;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 
@@ -15,15 +17,20 @@ public class PlayerLevel
 
     public BigDouble RequiredExp;
 
-    public int BonusAttack;
-    public int BonusMP;
-    public int BonusMPRegen;
-    public int BonusHP;
-    public int BonusHPRegen;
-    public float BonusCriticalDamage;
-    public float BonusBossDamage;
-    public float BonusNormalDamage;
     public int BonusCristal;
+
+    public SerializedDictionary<PlayerStatType, float> BonusValues = new SerializedDictionary<PlayerStatType, float>
+    {
+        {PlayerStatType.HP, 0f},
+        {PlayerStatType.MP, 0f},
+        {PlayerStatType.HP_REGEN, 0f},
+        {PlayerStatType.MP_REGEN, 0f},
+        {PlayerStatType.ATK, 0f},
+        {PlayerStatType.CRIT_MULT, 0f},
+        {PlayerStatType.BOSS_DMG, 0f},
+        {PlayerStatType.NORMAL_DMG, 0f},
+    };
+
 
     public event Action OnLevelUp;
     public PlayerLevel(int level)
@@ -32,14 +39,15 @@ public class PlayerLevel
         {
             DataManager.Instance.LevelbonusDict.TryGetValue(levelKey+i, out var value);
 
-            BonusAttack += value.bonusAttack;
-            BonusMP += value.bonusMP;
-            BonusMPRegen += value.bonusMPRegen;
-            BonusHP += value.bonusHP;
-            BonusHPRegen += value.bonusHPRegen;
-            BonusCriticalDamage += value.bonusCriticalDamage;
-            BonusBossDamage += value.bonusBossDamage;
-            BonusNormalDamage += value.bonusNormalDamage;
+            BonusValues[PlayerStatType.ATK] += value.bonusAttack;
+            BonusValues[PlayerStatType.MP] += value.bonusMP;
+            BonusValues[PlayerStatType.MP_REGEN] += value.bonusMPRegen;
+            BonusValues[PlayerStatType.HP] += value.bonusHP;
+            BonusValues[PlayerStatType.HP_REGEN] += value.bonusHPRegen;
+            BonusValues[PlayerStatType.CRIT_MULT] += value.bonusCriticalDamage;
+            BonusValues[PlayerStatType.BOSS_DMG] += value.bonusBossDamage;
+            BonusValues[PlayerStatType.NORMAL_DMG] += value.bonusNormalDamage;
+
             BonusCristal += value.bonusCristal;
         }
 
@@ -75,14 +83,14 @@ public class PlayerLevel
                 break;
             }
 
-            BonusAttack += value.bonusAttack;
-            BonusMP += value.bonusMP;
-            BonusMPRegen += value.bonusMPRegen;
-            BonusHP += value.bonusHP;
-            BonusHPRegen += value.bonusHPRegen;
-            BonusCriticalDamage += value.bonusCriticalDamage;
-            BonusBossDamage += value.bonusBossDamage;
-            BonusNormalDamage += value.bonusNormalDamage;
+            BonusValues[PlayerStatType.ATK] += value.bonusAttack;
+            BonusValues[PlayerStatType.MP] += value.bonusMP;
+            BonusValues[PlayerStatType.MP_REGEN] += value.bonusMPRegen;
+            BonusValues[PlayerStatType.HP] += value.bonusHP;
+            BonusValues[PlayerStatType.HP_REGEN] += value.bonusHPRegen;
+            BonusValues[PlayerStatType.CRIT_MULT] += value.bonusCriticalDamage;
+            BonusValues[PlayerStatType.BOSS_DMG] += value.bonusBossDamage;
+            BonusValues[PlayerStatType.NORMAL_DMG] += value.bonusNormalDamage;
             BonusCristal += value.bonusCristal;
 
             playerExpKey++;

@@ -44,7 +44,7 @@ public class StageManager : Singleton<StageManager>
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
         Init();
         //나중에 데이터 연동하면 여기서 내가 진행중인 스테이지 가져와서 그거 기반으로 키 검색하고 진행 현재 스테이지 가져옴
-
+        //MapManager.Instance.MapSetting(curFloor);
         SetReward();
         SetKillCount();
         //킬 카운트 변경 시 스테이지 매니저의 킬 카운트도 증가 <- 나중에는 그냥 디스패쳐에 있는거 그냥 사용
@@ -94,10 +94,13 @@ public class StageManager : Singleton<StageManager>
     public void CheckBossEnemySpawn()
     {
         curMonsterKillCount++;
+        //만약에 보스가 소환 안되어 있으면 소환하지 않는다
+
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
 
-        //if(!onFailedStage)
-        //    OnClickBossSummonButtonClick();
+        ////실패한 스테이지 상태가 아닐 경우 혹은 던전일 경우 바로 보스 소환
+        if (maxMonsterKillCount <= curMonsterKillCount&&(!onFailedStage || curStageType != StageType.NormalStage))
+            OnClickBossSummonButtonClick();
 
         //여기에 현재 몇 마리 잡았는지 UI로 보여주는 코드도 추가
         //if (maxMonsterKillCount <= EnemyKillRewardDispatcher.TotalKillCount)
@@ -117,6 +120,10 @@ public class StageManager : Singleton<StageManager>
     {
         int prevCurFloor=curFloor;
         curFloor = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].floorNumber;
+        if(curStageType == StageType.NormalStage)
+            MapManager.Instance.MapSetting(curStageType,curFloor);
+        else
+            MapManager.Instance.MapSetting(curStageType, curStage);
         monsterSpawner.SetMonster();
 
         //노말, 보스 몬스터 경험치 세팅
@@ -147,9 +154,6 @@ public class StageManager : Singleton<StageManager>
 
     public void StageClear()
     {
-        //if (stageKeyList.Count > curStage - 1)
-        //    curStage++;
-
         if (curStageType == StageType.NormalStage)
         {
             onFailedStage = false;
@@ -206,6 +210,7 @@ public class StageManager : Singleton<StageManager>
         //아래 값들은 씬을 넘어간 다음에 작성을 진행해야 할 것
         //스테이지 타입 전용 스테이지 키 리스트 설정
         Init();
+        //MapManager.Instance.MapSetting(curFloor);
         //해당 스테이지에 걸맞는 드롭 및 몬스터 세팅 <- 이거 몬스터 세팅 시점을 잘 설정해야 할 것 같음, 씬 넘어가도 유지되려면 몬스터 스포너를 싱글톤으로 만들거나 해당 정보를 유지할 필요가 있음
         SetReward();
         SetKillCount();

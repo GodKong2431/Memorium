@@ -4,6 +4,7 @@ using UnityEngine;
 [System.Serializable]
 public class StatUpgrade
 {
+    [SerializeField] private int id;
     [SerializeField] private string statName;
     [SerializeField] private int upgradeCount;
     [SerializeField] private float statInCrease;
@@ -13,8 +14,11 @@ public class StatUpgrade
     [SerializeField] private BigDouble currentCost;
     [SerializeField] private PlayerStatType statType;
 
+    private CharacterStatManager mgr;
+
     public event Action<PlayerStatType> UpgradeStat;
 
+    public int ID {get {return id;}}
     public string StatName {  get { return statName; } }
     public int UpgradeCount { get { return upgradeCount; } }
 
@@ -28,16 +32,24 @@ public class StatUpgrade
 
     public BigDouble CurrentCost { get { return currentCost; } }
 
-    public StatUpgrade(int key, PlayerStatType type)
+    public PlayerStatType StatType {get {return statType;}}
+
+    public void LoadUpgrade()
     {
-        DataManager.Instance.StatUpgradeDict.TryGetValue(key, out StatUpgradeTable statUpgradeTable);
+        DataManager.Instance.StatUpgradeDict.TryGetValue(ID, out StatUpgradeTable statUpgradeTable);
         statName = statUpgradeTable.statName;
         statInCrease = statUpgradeTable.statInCrease;
         baseCost = statUpgradeTable.baseCost;
         costMultiplyRate = statUpgradeTable.costMultiplyRate;
         stat = upgradeCount * statInCrease;
         currentCost = statUpgradeTable.baseCost;
-        statType = type;
+        mgr = CharacterStatManager.Instance;
+        UpgradeStat += mgr.FinalStat;
+    }
+
+    public void DisableEvent()
+    {
+        UpgradeStat -= mgr.FinalStat;
     }
 
     public void Upgrade()

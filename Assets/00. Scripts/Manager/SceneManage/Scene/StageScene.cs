@@ -5,7 +5,7 @@ public class StageScene : SceneBase
 {
     public override IEnumerator EnterScene()
     {
-        Debug.Log("╫╨евюлаЖ ╬ю ╥наВ аЬют");
+        Debug.Log("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫");
 
         // GameEventManager.OnQuestProgressChanged?.Invoke();
 
@@ -14,6 +14,6 @@ public class StageScene : SceneBase
 
     public override void ExitScene()
     {
-        Debug.Log("╫╨евюлаЖ ╬ю ╥наВ а╬╥А");
+        Debug.Log("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫");
     }
 }

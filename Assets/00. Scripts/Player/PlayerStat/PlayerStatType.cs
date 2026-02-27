@@ -1,4 +1,4 @@
-﻿public enum PlayerStatType
+public enum PlayerStatType
 {
     HP, HP_REGEN,
     MP, MP_REGEN,
@@ -9,6 +9,5 @@
     COOLDOWN_REDUCE,
     GOLD_GAIN, EXP_GAIN,
     BOSS_DMG, NORMAL_DMG,
-    Attribute,
     DMG_MULT
 }

@@ -24,11 +24,12 @@ public class PlayerTrait
 
     public float CurrentStat;
 
-    public PlayerTrait(int key, PlayerStatType statType)
-    {
-        DataManager.Instance.TraitInfoDict.TryGetValue(key, out var value);
+    private CharacterStatManager mgr;
 
-        ID = value.ID;
+    public void LoadTrait()
+    {
+        DataManager.Instance.TraitInfoDict.TryGetValue(ID, out var value);
+
         TraitTier = value.traitTier;
         TraitName = value.traitName;
         TraitUPStatName = value.traitUPStatName;
@@ -37,7 +38,15 @@ public class PlayerTrait
         MaxLevel = value.maxLevel;
         DecreasePoint = value.decreasePoint;
         NeedTrait = value.needTrait;
-        this.statType = statType;
+
+        mgr = CharacterStatManager.Instance;
+
+        UpgradeTrait += mgr.FinalStat;
+    }
+
+    public void DisableEvent()
+    {
+        UpgradeTrait -= mgr.FinalStat;
     }
 
     public bool Upgrade()

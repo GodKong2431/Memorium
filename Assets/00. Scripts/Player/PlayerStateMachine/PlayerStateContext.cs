@@ -19,12 +19,12 @@ public class PlayerStateContext : BaseStateContext
 
     public float CurrentCritMult { get; private set; }
 
-    public float CurrentMoveSpeed => StatPresenter?.PlayerStat?.FinalMoveSpeed ?? 9f;
+    public float CurrentMoveSpeed => StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.MOVE_SPEED].finalStat ?? 9f;
 
     public bool isGoal = false;
 
-    public float MaxHealth => StatPresenter?.PlayerStat?.FinalHP ?? 100f;
-    public float MaxMana => StatPresenter?.PlayerStat?.FinalMP ?? 100f;
+    public float MaxHealth => StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.HP].finalStat ?? 100f;
+    public float MaxMana => StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.MP].finalStat ?? 100f;
 
     // 일반공격 사거리
     public float AttackRange => 2f;
@@ -71,9 +71,9 @@ public class PlayerStateContext : BaseStateContext
 
         float resistance = 0f;
         if (damageType == DamageType.Physical)
-            resistance = StatPresenter?.PlayerStat?.FinalPhysDEF ?? 0f;
+            resistance = StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.PHYS_DEF].finalStat ?? 0f;
         else if (damageType == DamageType.Magic)
-            resistance = StatPresenter?.PlayerStat?.FinalMagicDEF ?? 0f;
+            resistance = StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.MAGIC_DEF].finalStat ?? 0f;
 
         resistance = Mathf.Clamp(resistance, 0f, 70f);
         damage *= (1f - resistance * 0.01f);
@@ -156,8 +156,8 @@ public class PlayerStateContext : BaseStateContext
         {
             regenTimer -= REGEN_INTERVAL;
 
-            float hpRegen = StatPresenter?.PlayerStat?.FinalHPRegen ?? 0f;
-            float mpRegen = StatPresenter?.PlayerStat?.FinalMPRegen ?? 0f;
+            float hpRegen = StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.HP_REGEN].finalStat ?? 0f;
+            float mpRegen = StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.MP_REGEN].finalStat ?? 0f;
 
             Heal(hpRegen);
             RestoreMana(mpRegen);

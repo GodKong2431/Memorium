@@ -1,0 +1,39 @@
+using UnityEngine;
+
+[System.Serializable]
+public class FinalStat
+{
+    public float finalStat;
+
+    public PlayerStatType playerStatType;
+
+    public FinalStat(PlayerStatType statType)
+    {
+        playerStatType = statType;
+    }
+
+    public float FinalStatCalculate()
+    {
+        // 베이스 스탯
+        float baseStatValue = CharacterStatManager.Instance.BaseStat.baseStatValues.TryGetValue(playerStatType, out var baseValue) ? baseValue : 0f;
+
+        // 업그레이드 스탯
+        var upgradeStat = CharacterStatManager.Instance.Upgrades.TryGetValue(playerStatType, out var upgrade) ? upgrade : null;
+        float upgradeStatValue = upgradeStat?.Stat ?? 0f;
+
+        // 레벨업 스탯
+        float levelBonus = CharacterStatManager.Instance.LevelBonus.BonusValues.TryGetValue(playerStatType, out var levelBonusValue) ? levelBonusValue : 0f;
+
+        // 특성 스탯
+        var traitStat = CharacterStatManager.Instance.Traits.TryGetValue(playerStatType, out var trait) ? trait : null;
+        float traitValue = traitStat?.CurrentStat ?? 0f;
+
+        // 장비 스탯
+        float equipStat = CharacterStatManager.Instance.PlayerSlot.GetStat(playerStatType);
+        
+        finalStat = baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat;
+
+        return finalStat;
+    }
+
+}
