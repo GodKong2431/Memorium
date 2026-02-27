@@ -453,6 +453,7 @@ GameObject:
   - component: {fileID: 7840302979545021459}
   - component: {fileID: 5951862957295710945}
   - component: {fileID: 6335113025110621809}
+  - component: {fileID: 7140011111111111111}
   m_Layer: 5
   m_Name: Crystal
   m_TagString: Untagged
@@ -528,11 +529,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 1408235966037267786}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d1e0288b47ee684db51b845ca8fd664, type: 3}
+  m_Script: {fileID: 11500000, guid: 4b92dccfb4d1a184eac7cbbf56a31389, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CurrencyUI
+  m_EditorClassIdentifier: Assembly-CSharp::CurrencyUIView
   targetCurrency: 1
   textAmount: {fileID: 2575861108239226674}
+--- !u!114 &7140011111111111111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1408235966037267786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6614ae1b868aac5458d757815981016f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CurrencyUIController
+  view: {fileID: 6335113025110621809}
 --- !u!1 &2010178066411490286
 GameObject:
   m_ObjectHideFlags: 0
@@ -2802,6 +2816,7 @@ GameObject:
   - component: {fileID: 751111759268464084}
   - component: {fileID: 6339401419754540150}
   - component: {fileID: 1798963004576021501}
+  - component: {fileID: 7140011111111111112}
   m_Layer: 5
   m_Name: Gold
   m_TagString: Untagged
@@ -2877,11 +2892,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 6422096393727661024}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d1e0288b47ee684db51b845ca8fd664, type: 3}
+  m_Script: {fileID: 11500000, guid: 4b92dccfb4d1a184eac7cbbf56a31389, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CurrencyUI
+  m_EditorClassIdentifier: Assembly-CSharp::CurrencyUIView
   targetCurrency: 0
   textAmount: {fileID: 170268522584377209}
+--- !u!114 &7140011111111111112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6422096393727661024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6614ae1b868aac5458d757815981016f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CurrencyUIController
+  view: {fileID: 1798963004576021501}
 --- !u!1 &6427879443986196017
 GameObject:
   m_ObjectHideFlags: 0
