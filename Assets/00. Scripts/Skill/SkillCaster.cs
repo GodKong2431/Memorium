@@ -251,7 +251,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
                 if (m4Strategy is ISkillHitAddon hitAddon)
                 {
-                    hitAddon.OnHit(this, target.gameObject, data, targetLayer);
+                    hitAddon.OnHit(this, target.transform, data, targetLayer);
                 }
             }
         }

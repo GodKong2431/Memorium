@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class AddonPush : ISkillHitAddon
 {
-    public void OnHit(ISkillHitHandler caster, GameObject target, SkillDataContext dataContext, LayerMask targetLayer, GameObject prefab = null)
+    public void OnHit(ISkillHitHandler caster, Transform target, SkillDataContext dataContext, LayerMask targetLayer, GameObject prefab = null)
     {
         Transform casterTransform = caster.transform;
 

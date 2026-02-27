@@ -14,5 +14,5 @@ public interface ISkillCastAddon : ISkillAddonStrategy
 //타격 시 발동하는 애드온 (넉백, 스플래시)
 public interface ISkillHitAddon : ISkillAddonStrategy
 {
-    void OnHit(ISkillHitHandler caster, GameObject target, SkillDataContext dataContext, LayerMask targetLayer, GameObject prefab = null);
+    void OnHit(ISkillHitHandler caster, Transform target, SkillDataContext dataContext, LayerMask targetLayer, GameObject prefab = null);
 }

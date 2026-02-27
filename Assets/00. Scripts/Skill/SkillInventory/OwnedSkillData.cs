@@ -7,7 +7,6 @@ public class OwnedSkillData
     public int level;
     private Dictionary<SkillGrade, int> gradeCountMap = new();
 
-
     public int GetCount(SkillGrade grade)
     {
         return gradeCountMap.TryGetValue(grade, out var count) ? count : 0;
