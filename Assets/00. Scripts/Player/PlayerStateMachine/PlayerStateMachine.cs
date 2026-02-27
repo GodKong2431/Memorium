@@ -86,7 +86,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
         if (playerStat != null && _ctx.Agent != null)
         {
-            _ctx.Agent.speed = playerStat.FinalMoveSpeed;
+            _ctx.Agent.speed = playerStat.FinalStats[PlayerStatType.MOVE_SPEED].finalStat;
             _ctx.Agent.stoppingDistance = 1.5f;
         }
         if (DataManager.Instance.DataLoad)

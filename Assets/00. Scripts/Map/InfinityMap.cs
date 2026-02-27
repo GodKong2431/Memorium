@@ -4,11 +4,8 @@ using UnityEngine;
 using UnityEngine.AI;
 
 public class InfinityMap : MonoBehaviour
-{
-    public static InfinityMap Instance { get; private set; }
+{ 
 
-    //반복할 맵
-    public List<GameObject> maps = new List<GameObject>();
     //플레이어와 충돌 시 맵을 이동시키는 트리거
     [SerializeField] private GameObject mapMoveTrigger;
     private List<Renderer> mapsRenderer = new List<Renderer>();
@@ -28,20 +25,27 @@ public class InfinityMap : MonoBehaviour
     //key == Floor
     //Dictionary<int, GameObject> mapGroups= new Dictionary<int, GameObject>();
     public List<GameObject> mapGroups;
-    
+    public List<GameObject> maps;
     public bool firstMapSetting=false;
 
-    private void Awake()
+    IEnumerator Start()
     {
-        Instance = this;
+        yield return new WaitUntil(() => MapManager.Instance != null);
+        yield return new WaitUntil(() => MapManager.Instance.mapSetting);
+        
+        //매니저에 있는 맵 참조<- 주소를 참조하여 이후에도 동기화 진행
+        maps=MapManager.Instance.maps;
         //현재는 MVP 단계이므로 1을 직접적으로 넣으나 나중엔 데이터매니저에서든 아니면 플레이어 세이브데이터에서든 저장한 단계의 Floor 불러옴
-        SetMap(1);
+        //SetMap(1);
         MapInit();
-        firstMapSetting = true;
+
+        yield return new WaitUntil(() => StageManager.Instance != null);
+        StageManager.Instance.infinityMap = this;
     }
 
     public void MapInit()
     {
+        mapsRenderer.Clear();
         curMapIndex = 1;
         //바운드 가져오기 위해 맵 렌더러 미리 모두 가져오기
         for (int i = 0; i < maps.Count; i++)
@@ -65,19 +69,12 @@ public class InfinityMap : MonoBehaviour
         originPlayerPos = player.position;
     }
 
-    private IEnumerator Start()
-    {
-        yield return new WaitUntil(() => StageManager.Instance != null);
-        StageManager.Instance.infinityMap = this;
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player"))
             return;
         MapMove();
     }
-
 
     public void MapMove()
     {
@@ -113,7 +110,6 @@ public class InfinityMap : MonoBehaviour
 
     public void MapReset()
     {
-
         for (int i = 0; i < maps.Count; i++)
         {
             maps[i].transform.position = originMapPos[i];
@@ -128,39 +124,36 @@ public class InfinityMap : MonoBehaviour
         agent.enabled = false;
         player.position = originPlayerPos;
         agent.enabled = true;
-        //agent.Warp(originPlayerPos);
-
     }
 
 
-    //curFloor-1 맵을 불러와 맵을 바꾸는 것을 목적으로 함
-    public void SetMap(int curFloor)
-    {
-        if (maps == null)
-            maps = new List<GameObject>();
-        maps.Clear();
-        for (int i = 0; i < mapGroups[0].transform.childCount; i++)
-        {
-            maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
-        }
+    ////curFloor-1 맵을 불러와 맵을 바꾸는 것을 목적으로 함
+    //public void SetMap(int curFloor)
+    //{
+    //    if (maps == null)
+    //        maps = new List<GameObject>();
+    //    maps.Clear();
+    //    for (int i = 0; i < mapGroups[0].transform.childCount; i++)
+    //    {
+    //        maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
+    //    }
 
-        //프리팹 받아 와서 하려고 하였으나, 현재 던전 입장 시 오류가 발생하여 일단 보류
-        //if (maps == null)
-        //    maps = new List<GameObject>();
-        ////층이 올라가거나 내려가는 것 모두 대비
-        //if (!mapGroups.ContainsKey(curFloor))
-        //    mapGroups[curFloor] = Instantiate(mapGroupsPrefab[curFloor-1]);
-        //maps.Clear();
-        //for (int i = 0; i < mapGroups[curFloor].transform.childCount; i++)
-        //{
-        //    maps.Add(mapGroups[curFloor].transform.GetChild(i).gameObject);
-        //}
-    }
+    //    //프리팹 받아 와서 하려고 하였으나, 현재 던전 입장 시 오류가 발생하여 일단 보류
+    //    //if (maps == null)
+    //    //    maps = new List<GameObject>();
+    //    ////층이 올라가거나 내려가는 것 모두 대비
+    //    //if (!mapGroups.ContainsKey(curFloor))
+    //    //    mapGroups[curFloor] = Instantiate(mapGroupsPrefab[curFloor-1]);
+    //    //maps.Clear();
+    //    //for (int i = 0; i < mapGroups[curFloor].transform.childCount; i++)
+    //    //{
+    //    //    maps.Add(mapGroups[curFloor].transform.GetChild(i).gameObject);
+    //    //}
+    //}
 
     //플로어 변경 시 infinitymap.mapChange 후 monsterSpawner.mapChange
     public void MapChange(int curFloor)
     {
-        SetMap(curFloor);
         MapInit();
         MapReset();
     }
