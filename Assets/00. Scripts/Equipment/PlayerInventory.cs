@@ -1,287 +1,145 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UI;
 
 public class PlayerInventory : MonoBehaviour
 {
-    //°ÔÀÓ Á¾·á ½Ã È¤Àº Æ¯Á¤ »óÈ²¿¡¼­ ¾ÆÀÌµğº° º¸À¯ °¹¼ö¿Í ÇØ±İ ¿©ºÎ¸¦ ÀúÀåÇÒ ÄÚµå
-    //Ã³À½¿¡ csv¿¡¼­ µ¥ÀÌÅÍ¸¦ ¹Ş¾Æ¿Ã ÄÚµå
+    [SerializeField] private GameObject prefabEquipTierGroup; // ì¥ë¹„ í‹°ì–´ ê·¸ë£¹ UI í”„ë¦¬íŒ¹.
+    [SerializeField] private Transform[] uIPage; // ì¥ë¹„ íƒ€ì…ë³„ UI ë£¨íŠ¸.
+    [SerializeField] private Text testInventory; // ë””ë²„ê·¸ìš© ì¸ë²¤í† ë¦¬ í…ìŠ¤íŠ¸.
 
-    //ÇØ´ç ¾ÆÀÌÅÛÀÇ ÇØ±İ ¿©ºÎ <- ÇØ±İ ¿©ºÎ´Â ¾Æ·¡ ¸®½ºÆ®¸¸À¸·Î °¡´É
-    //public Dictionary<int, bool> equipmentUnlock;
-    //ÇØ´ç ¾ÆÀÌÅÛÀÇ ¼ÒÀ¯ °³¼ö <- ÇØ´ç °ª¿¡´Â ÇØ±İµÈ ¾ÆÀÌÅÛ¸¸ ¾ÆÀÌµğ °ªÀ¸·Î ¹Ş´Â´Ù
-    public Dictionary<int, int> equipmentCount;
-    public List<int> myEquipmentListKeys = new List<int>();
-    public List<int> myEquipmentCountKeys = new List<int>();
+    private readonly Dictionary<int, EquipmentSlotComponent> slotByItemId = new Dictionary<int, EquipmentSlotComponent>(); // ì¥ë¹„ IDì™€ ìŠ¬ë¡¯ ì»´í¬ë„ŒíŠ¸ ë§¤í•‘.
+    private readonly List<GameObject> spawnedGroups = new List<GameObject>(); // ëŸ°íƒ€ì„ì— ìƒì„±ëœ ì¥ë¹„ ê·¸ë£¹ UI ëª©ë¡.
 
-    public List<int> allEquipmentListKeys;
-
-    [SerializeField] private Transform[] uIPage;
-
-    public EquipmentHandler equipmentHandler;
-
-    [SerializeField] Text testInventory;
-    Dictionary<EquipmentType, int> mergeItemByType = new Dictionary<EquipmentType, int>();
-
-    Dictionary<int, EquipmentSlotComponent> allEquipmentComponents = new Dictionary<int, EquipmentSlotComponent>();
-
-    //»ç½Ç»ó Å×ÀÌºí °ª ÀüÃ¼¸¦ °¡Áö°í ¿Í¾ßÇÒ µí ÇÔ
-    //°¡Á®¿Â Å×ÀÌºíÀ» ¼ø¼­´ë·Î ¹èÄ¡ ÈÄ °¡Á®¿À´Â ½ÃÁ¡¿¡¼­ ÇØ´ç ¾ÆÀÌµğ °ªÀÌ ÀÎº¥Åä¸® ³»¿¡ Á¸ÀçÇÏ´ÂÁö È®ÀÎ -> »ö º¯È¯
-    //¾øÀ¸¸é È¸»öÀ¸·Î ÀÖÀ¸¸é °¢ µî±Ş¿¡ ¸Âµµ·Ï »öÀ» ¹Ù²ÙÀÚ
-
-    //
-    public GameObject prefabEquipTierGroup;
-
-    public List<int> finalEquipment;
-
-    public void SetMyEquipmentInventory()
+    // ì¥ë¹„ ëª©ë¡ê³¼ ë³´ìœ  ìˆ˜ëŸ‰ìœ¼ë¡œ ì¥ë¹„ UIë¥¼ ìƒˆë¡œ êµ¬ì„±í•œë‹¤.
+    public void BuildEquipmentInventory(IReadOnlyList<int> sortedEquipmentItemIds, IReadOnlyDictionary<int, int> countByItemId)
     {
-        allEquipmentListKeys = DataManager.Instance.EquipListDict.Keys.ToList();
-        allEquipmentListKeys.Sort();
+        ClearSpawnedGroups();
+        slotByItemId.Clear();
 
-        //ÇÑ ¹ø¿¡ ³ÖÀ» °ª : ÇöÀç´Â ÀÏ¹İ, Èñ±Í, ·¹¾î, Àü¼³, ½ÅÈ­·Î ÀÖ¾î ÃÑ 5°³
-        int count = prefabEquipTierGroup.GetComponent<EquipmentSlotContainer>().slot.Count;
-        for (int i = 0; i < allEquipmentListKeys.Count; i+=5)
+        if (sortedEquipmentItemIds == null || sortedEquipmentItemIds.Count == 0)
+            return;
+        if (DataManager.Instance == null || DataManager.Instance.EquipListDict == null)
+            return;
+        if (prefabEquipTierGroup == null || uIPage == null || uIPage.Length == 0)
+            return;
+
+        EquipmentSlotContainer templateContainer = prefabEquipTierGroup.GetComponent<EquipmentSlotContainer>();
+        if (templateContainer == null || templateContainer.slot == null || templateContainer.slot.Count == 0)
+            return;
+
+        int groupSize = templateContainer.slot.Count;
+        for (int i = 0; i < sortedEquipmentItemIds.Count; i += groupSize)
         {
-            //1 = ¹«±â 2 = Åõ±¸ 3 = Àå°© 4 = °©¿Ê 5 = ½Å¹ß
-            int equipType = allEquipmentListKeys[i] / 10000 % 10;
-            GameObject equipmentUIGroup = Instantiate(prefabEquipTierGroup, uIPage[equipType-1]);
-            EquipmentSlotContainer slotContainer = equipmentUIGroup.GetComponent<EquipmentSlotContainer>();
-            for (int j = i; j < i + 5; j++)
+            int itemId = sortedEquipmentItemIds[i];
+            int equipType = itemId / 10000 % 10;
+            int pageIndex = equipType - 1;
+            if (pageIndex < 0 || pageIndex >= uIPage.Length || uIPage[pageIndex] == null)
+                continue;
+
+            GameObject groupObject = Instantiate(prefabEquipTierGroup, uIPage[pageIndex]);
+            spawnedGroups.Add(groupObject);
+
+            EquipmentSlotContainer slotContainer = groupObject.GetComponent<EquipmentSlotContainer>();
+            if (slotContainer == null || slotContainer.slot == null || slotContainer.slot.Count == 0)
+                continue;
+
+            int maxIndex = Mathf.Min(i + groupSize, sortedEquipmentItemIds.Count);
+            for (int j = i; j < maxIndex; j++)
             {
-                int index = allEquipmentListKeys[j];
+                int localIndex = j - i;
+                if (localIndex < 0 || localIndex >= slotContainer.slot.Count)
+                    break;
+
+                int currentItemId = sortedEquipmentItemIds[j];
+                if (!DataManager.Instance.EquipListDict.TryGetValue(currentItemId, out var equipInfo))
+                    continue;
+
                 if (string.IsNullOrEmpty(slotContainer.gradeText.text))
-                {
-                    slotContainer.gradeText.text = DataManager.Instance.EquipListDict[index].grade+"";
-                }
-                allEquipmentComponents[index] = slotContainer.slot[j-i];
-                //slotContainer.slot[index].slotImage =  <= ³ªÁß¿¡ ÀÌ¹ÌÁö ³ÖÀ»¶§ »ç¿ë
-                if (equipmentCount.ContainsKey(index))
-                {
-                    slotContainer.slot[j - i].ownerShipImage.gameObject.SetActive(false);
-                    slotContainer.slot[j - i].equipmentCountSlider.value = equipmentCount[index];
-                    //slotContainer.slot[j - i].equipmentCountText.text = equipmentCount[index] + " / 3";
+                    slotContainer.gradeText.text = equipInfo.grade.ToString();
 
-                    string itemCount;
-                    if (equipmentCount[index] > 99)
-                        itemCount = 99 + "+";
-                    else itemCount = equipmentCount[index].ToString();
-                    slotContainer.slot[j - i].equipmentCountText.text = itemCount + " / 3";
-                }
-            }
+                EquipmentSlotComponent slotComponent = slotContainer.slot[localIndex];
+                slotByItemId[currentItemId] = slotComponent;
 
-        }
+                int ownedCount = 0;
+                if (countByItemId != null)
+                    countByItemId.TryGetValue(currentItemId, out ownedCount);
 
-    }
-
-    public void FindFinalEquipment()
-    {
-
-        //int equipmentTier = 0;
-        //int finalEquipmentIndex = 0;
-
-        int count = Enum.GetNames(typeof(EquipmentType)).Length;
-        int[] equipmentTierArr = new int[count];
-        int[] finalEquipmentIndexArr = new int[count];
-        //int finalEquipmentIndex = 0;
-
-        foreach (int index in allEquipmentListKeys)
-        {
-            int itemTypeIndex = (int)DataManager.Instance.EquipListDict[index].equipmentType - (int)EquipmentType.Weapon;
-            if (DataManager.Instance.EquipListDict[index].equipmentTier > equipmentTierArr[itemTypeIndex])
-            {
-                equipmentTierArr[itemTypeIndex] = DataManager.Instance.EquipListDict[index].equipmentTier;
-                finalEquipmentIndexArr[itemTypeIndex] = index;
+                ApplySlotOwned(slotComponent, ownedCount > 0);
+                ApplySlotCount(slotComponent, ownedCount);
             }
         }
 
-        foreach (var index in finalEquipmentIndexArr)
-        {
-            finalEquipment.Add(index);
-        }
-    }
-    public void SetMyEquipmentCountDictionary(Dictionary<int, int> dict)
-    {
-        //Debug.Log($"[PlayerInventory] ¾ÆÀÌµğ¿Í °¹¼ö °¡Á®¿À±â");
-        equipmentCount = dict;
-
-        //Å×½ºÆ®¿ë Ãâ·Â
-        //foreach (var k in dict)
-        //{
-        //    Debug.Log($"[PlayerInventory] ¾ÆÀÌµğ : {k.Key} °¹¼ö : {k.Value}");
-        //}
+        ShowInventoryText(countByItemId);
     }
 
-    //°¢ ºÎÀ§º° º¸À¯ÁßÀÎ ÀåºñÀÇ °¡Àå ÃÖ»óÀÇ ºÎÀ§ ¹İÈ¯
-    public int FindBestEquipment(EquipmentType equipmentType)
+    // ì¥ë¹„ í•˜ë‚˜ì˜ ë³´ìœ  ìˆ˜ëŸ‰ì„ ê°±ì‹ í•œë‹¤.
+    public void UpdateEquipmentCount(int itemId, int count)
     {
-        int itemId = 0;
-
-        switch (equipmentType)
-        {
-            case EquipmentType.Weapon:
-                myEquipmentListKeys = DataManager.Instance.EquipWeaponDict.Keys.ToList<int>();
-                break;
-            case EquipmentType.Helmet:
-                myEquipmentListKeys = DataManager.Instance.EquipHelmetDict.Keys.ToList<int>();
-                break;
-            case EquipmentType.Glove:
-                myEquipmentListKeys = DataManager.Instance.EquipGloveDict.Keys.ToList<int>();
-                break;
-            case EquipmentType.Armor:
-                myEquipmentListKeys = DataManager.Instance.EquipArmorDict.Keys.ToList<int>();
-                break;
-            case EquipmentType.Boots:
-                myEquipmentListKeys = DataManager.Instance.EquipBootsDict.Keys.ToList<int>();
-                break;
-        }
-
-
-        myEquipmentListKeys.Sort();
-        myEquipmentListKeys.Reverse();
-
-        foreach (int key in myEquipmentListKeys)
-        {
-            if (equipmentCount.ContainsKey(key))
-            {
-                itemId = key;
-                break;
-            }
-        }
-        myEquipmentListKeys.Clear();
-        return itemId;
-    }
-
-
-    public void AutoMerge()
-    {
-        //ÇöÀç ¼ÒÀ¯ÁßÀÎ ¾ÆÀÌÅÛÀÇ Å°°ªµé ÀüºÎ °¡Á®¿È
-        myEquipmentCountKeys.Clear();
-        myEquipmentCountKeys = equipmentCount.Keys.ToList<int>();
-        myEquipmentCountKeys.Sort();
-
-        mergeItemByType.Clear();
-
-        //»ı°¢ÇØº¸´Ï ÇØ±İ ¾ÈµÈ °Íµéµµ ÇÕ¼º °úÁ¤¿¡¼­ ÇØ±İ µÇ´Â °æ¿ì°¡ ÀÖ¾î¼­ ¸ğµç itemListKeys ºÁ¾ß °Ú´Ù
-        foreach (int key in allEquipmentListKeys)
-        {
-            //ÇØ´ç Å°°ªÀ» °¡Áö°í ÀÖÁö ¾ÊÀ¸¸é(ÇØ±İÇÏÁö ¾Ê¾ÒÀ¸¸é ³Ñ±ä´Ù)
-            if (!equipmentCount.ContainsKey(key))
-                continue;
-            //ÃÖÁ¾ Æ¼¾î Àåºñ¸é ´ÙÀ½À¸·Î ³Ñ±ä´Ù
-            if (finalEquipment.Contains(key))
-                continue ;
-            if (equipmentCount[key] >= 3)
-            {
-                //Å°°ªÀÇ ÀÎµ¦½º¸¦ Ã£°í 1À» Ãß°¡ÇÏ¿© ´ÙÀ½ ´Ü°èÀÇ ¾ÆÀÌÅÛ ÀÎµ¦½º¸¦ °¡Áö°í ¿Â´Ù
-                //Debug.Log($"[PlayerInventory] ¾ÆÀÌÅÛ ÇÕ¼º : {key} ÀÎµ¦½º {allEquipmentListKeys.IndexOf(key)}");
-                int nextIndex = allEquipmentListKeys[allEquipmentListKeys.IndexOf(key) + 1];
-                int plusCount = DivideEquipment(key, 3);
-                IncreaseEquipment(nextIndex, plusCount);
-                //Debug.Log("[PlayerInventory] ¾ÆÀÌÅÛ ÇÕ¼º ¼º°ø");
-
-                //ÇÕ¼º ÀÌÆåÆ® Ãâ·Â
-                //ÇÕ¼º »ç¿îµå Ãâ·Â
-
-                mergeItemByType[DataManager.Instance.EquipListDict[nextIndex].equipmentType] = nextIndex;
-            }
-        }
-
-        //¿©±â¼­ Å¸ÀÔ¿¡µû¶ó °¡Àå ³ôÀº Æ¼¾î ÀåºñÀÇ ÇÕ¼º °á°ú ÀÎµ¦½º ºÒ·¯¿À±â °¡´É
-        //foreach (var dic in mergeItemByType)
-        //{
-        //    Debug.Log($"¾ÆÀÌÅÛ Å¸ÀÔ : {dic.Key} ¾ÆÀÌÅÛ ¹øÈ£ : {dic.Value}");
-        //}
-
-        equipmentHandler.autoMerge.interactable = false;
-        //ÀÏ°ıÇÕ¼º ¹öÆ° ºñÈ°¼ºÈ­ <- ´ÙÀ½¿¡ ¾ÆÀÌÅÛ ¾òÀ» °æ¿ì¸¶´Ù Ã¼Å© ÈÄ Ãâ·Â
-        equipmentHandler.CheckAutoEquip();
-    }
-
-    public void ShowMyInventory()
-    {
-        StringBuilder stringBuilder = new StringBuilder();
-        foreach (var dic in equipmentCount)
-        {
-            stringBuilder.AppendLine("ID : "+dic.Key + " ÀÌ¸§ : "+ DataManager.Instance.EquipListDict[dic.Key] +" °¹¼ö : "+dic.Value);
-        }
-        testInventory.text =stringBuilder.ToString();
-    }
-
-    public void CheckAutoMerge()
-    {
-        if(equipmentHandler.autoMerge.interactable)
+        if (!slotByItemId.TryGetValue(itemId, out var slotComponent) || slotComponent == null)
             return;
 
-        foreach (var count in equipmentCount)
-        {
-            if (finalEquipment.Contains(count.Key))
-            {
-                //Debug.Log($"[PlayerInventory] ÃÖÁ¾ µî±Ş Àåºñ´Â ÇÕ¼ºÀÌ ºÒ°¡´É ÇÕ´Ï´Ù.");
-                continue;
-            }
-            if ((count.Value>=3))
-            {
-                equipmentHandler.autoMerge.interactable = true;
-                break;
-            }
-        }
+        int clamped = Mathf.Max(0, count);
+        ApplySlotOwned(slotComponent, clamped > 0);
+        ApplySlotCount(slotComponent, clamped);
     }
 
-    public void IncreaseEquipment(int itemNum, int count)
+    // ì¸ë²¤í† ë¦¬ ë””ë²„ê·¸ í…ìŠ¤íŠ¸ë¥¼ ìµœì‹  ìƒíƒœë¡œ ê°±ì‹ í•œë‹¤.
+    public void ShowInventoryText(IReadOnlyDictionary<int, int> countByItemId)
     {
-        if (equipmentCount.ContainsKey(itemNum))
-        {
-            equipmentCount[itemNum] += count;
-            allEquipmentComponents[itemNum].equipmentCountSlider.value = equipmentCount[itemNum];
-            string itemCount;
-            if (equipmentCount[itemNum] > 99)
-                itemCount = 99 + "+";
-            else itemCount = equipmentCount[itemNum].ToString();
-            allEquipmentComponents[itemNum].equipmentCountText.text = itemCount + " / 3";
-        }
-        else
-        {
-            equipmentCount[itemNum] = count;
-            allEquipmentComponents[itemNum].ownerShipImage.SetActive(false);
-            allEquipmentComponents[itemNum].equipmentCountSlider.value = count;
-            string itemCount;
-            if (equipmentCount[itemNum] > 99)
-                itemCount = 99 + "+";
-            else itemCount = equipmentCount[itemNum].ToString();
-            allEquipmentComponents[itemNum].equipmentCountText.text = itemCount + " / 3";
-        }
+        if (testInventory == null)
+            return;
 
-        CheckAutoMerge();
-        equipmentHandler.CheckAutoEquip();
-    }
-    public void DecreaseEquipment(int itemNum, int count)
-    {
-        if (!equipmentCount.ContainsKey(itemNum))
+        if (countByItemId == null || countByItemId.Count == 0)
         {
-            //Debug.Log($"[PlayerInventory] ÇØ´ç ¾ÆÀÌÅÛ [{itemNum}]À» º¸À¯ÇÏ°í ÀÖÁö ¾Ê½À´Ï´Ù");
+            testInventory.text = string.Empty;
             return;
         }
-        equipmentCount[itemNum] -= count;
-        allEquipmentComponents[itemNum].equipmentCountSlider.value = equipmentCount[itemNum];
-        allEquipmentComponents[itemNum].equipmentCountText.text = equipmentCount[itemNum] + " / 3";
+
+        StringBuilder builder = new StringBuilder();
+        foreach (var pair in countByItemId)
+            builder.AppendLine($"ID : {pair.Key} ê°¯ìˆ˜ : {pair.Value}");
+
+        testInventory.text = builder.ToString();
     }
 
-    public int DivideEquipment(int itemNum, int divid)
+    // ì´ì „ì— ìƒì„±í•œ ì¥ë¹„ ê·¸ë£¹ UIë¥¼ ì œê±°í•œë‹¤.
+    private void ClearSpawnedGroups()
     {
-        if (!equipmentCount.ContainsKey(itemNum))
+        for (int i = 0; i < spawnedGroups.Count; i++)
         {
-            //Debug.Log($"[PlayerInventory] ÇØ´ç ¾ÆÀÌÅÛ [{itemNum}]À» º¸À¯ÇÏ°í ÀÖÁö ¾Ê½À´Ï´Ù");
-            return -1;
+            if (spawnedGroups[i] == null)
+                continue;
+
+            Destroy(spawnedGroups[i]);
         }
-        int returnCount = equipmentCount[itemNum] / divid;
-        equipmentCount[itemNum] = equipmentCount[itemNum] % divid;
-        allEquipmentComponents[itemNum].equipmentCountSlider.value = equipmentCount[itemNum];
-        allEquipmentComponents[itemNum].equipmentCountText.text = equipmentCount[itemNum] + " / 3";
-        return returnCount;
+
+        spawnedGroups.Clear();
+    }
+
+    // ìŠ¬ë¡¯ì˜ ë³´ìœ  ì—¬ë¶€ í‘œì‹œë¥¼ ê°±ì‹ í•œë‹¤.
+    private static void ApplySlotOwned(EquipmentSlotComponent slotComponent, bool isOwned)
+    {
+        if (slotComponent.ownerShipImage != null)
+            slotComponent.ownerShipImage.SetActive(!isOwned);
+    }
+
+    // ìŠ¬ë¡¯ì˜ ìˆ˜ëŸ‰ UIë¥¼ ê°±ì‹ í•œë‹¤.
+    private static void ApplySlotCount(EquipmentSlotComponent slotComponent, int count)
+    {
+        int clamped = Mathf.Max(0, count);
+
+        if (slotComponent.equipmentCountSlider != null)
+            slotComponent.equipmentCountSlider.value = clamped;
+        if (slotComponent.equipmentCountText != null)
+            slotComponent.equipmentCountText.text = FormatCountText(clamped);
+    }
+
+    // ì¥ë¹„ ìˆ˜ëŸ‰ í‘œê¸° í˜•ì‹ì„ í†µì¼í•œë‹¤.
+    private static string FormatCountText(int count)
+    {
+        string itemCount = count > 99 ? "99+" : count.ToString();
+        return itemCount + " / 3";
     }
 }

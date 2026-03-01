@@ -72,7 +72,13 @@ public class PlayerLevel
             return;
         }
 
-        while (CurrencyManager.Instance.TrySpendSlience(CurrencyType.Exp, RequiredExp))
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currencyModule == null)
+            return;
+
+        while (currencyModule.TrySpendSilent(CurrencyType.Exp, RequiredExp))
         {
             levelKey++;
 
@@ -103,7 +109,7 @@ public class PlayerLevel
 
             if (CurrentLevel > 30)
             {
-                CurrencyManager.Instance.AddCurrency(CurrencyType.TraitPoint, 1);
+                currencyModule.AddCurrency(CurrencyType.TraitPoint, 1);
             }
 
             OnLevelUp?.Invoke();

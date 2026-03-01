@@ -6,6 +6,7 @@ public struct BigDouble : IComparable<BigDouble>, IEquatable<BigDouble>
 {
     public double mantissa; // 유효숫자. 항상 1.0 <= |mantissa| < 10.0 범위를 유지한다(0 제외).
     public long exponent;   // 10의 지수. 실제 값은 mantissa * 10^exponent.
+    public static readonly BigDouble Zero = new BigDouble(0); // 공통 0 값.
 
     // 접미사 문자(a~z, A~Z)
     private static readonly string Alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"; // a,b,c... 접미사 표현용 문자 집합.

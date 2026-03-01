@@ -108,7 +108,11 @@ public class DungeonLevelSelectUI : MonoBehaviour
         }
 
         requiredTicketCount = new BigDouble(1);
-        bool hasEnough = CurrencyManager.Instance.HasEnough(CurrentTicketType, requiredTicketCount);
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        bool hasEnough = currencyModule != null &&
+                         currencyModule.HasEnough(CurrentTicketType, requiredTicketCount);
 
         if (btnStartDungeon != null)
             btnStartDungeon.interactable = hasEnough && isDataValid;
@@ -121,7 +125,11 @@ public class DungeonLevelSelectUI : MonoBehaviour
         if (currentSelectedDungeonID == 0)
             return;
 
-        if (CurrencyManager.Instance.TrySpend(CurrentTicketType, requiredTicketCount))
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currencyModule != null &&
+            currencyModule.TrySpend(CurrentTicketType, requiredTicketCount))
         {
             Debug.Log($"[DungeonLevelSelectUI] 던전 ID:{currentSelectedDungeonID} / {CurrentTicketType} {requiredTicketCount}장 소모");
 

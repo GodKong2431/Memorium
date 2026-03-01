@@ -1,55 +1,69 @@
-
-using System.Collections.Generic;
+Ôªøusing System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SkillInventoryPanel : MonoBehaviour
 {
-    [Header("«¡∏Æº¬ πˆ∆∞")]
-    [SerializeField]
-    private Button[] presetButtons;
+    [Header("ÌîÑÎ¶¨ÏÖã Î≤ÑÌäº")]
+    [SerializeField] private Button[] presetButtons;
 
-
-    [Header("«¡∏Æº¬ Ω∫≈≥ √¢")]
+    [Header("ÌîÑÎ¶¨ÏÖã Ïä§ÌÇ¨ Ï∞Ω")]
     [SerializeField] private BattleSkillPresenter battleSkillPresenter;
 
-    [Header("Ω∫≈©∑—∫‰")]
+    [Header("Ïä§ÌÅ¨Î°§Î∑∞")]
     [SerializeField] private Transform scrollContent;
     [SerializeField] private SkillSlotItem slotPrefab;
 
-    [Header("¿¸√º «’º∫")]
+    [Header("Ï†ÑÏ≤¥ Ìï©ÏÑ±")]
     [SerializeField] private Button mergeAllButton;
 
-
     private int selectedPresetSlot = -1;
-    private List<SkillSlotItem> spawnedSlots = new List<SkillSlotItem>();
-    private bool isDirty = false;
-
+    private readonly List<SkillSlotItem> spawnedSlots = new List<SkillSlotItem>();
+    private bool isDirty;
 
     private void Start()
     {
         if (battleSkillPresenter == null)
             battleSkillPresenter = FindAnyObjectByType<BattleSkillPresenter>();
+
         InitButtons();
     }
+
     private void OnEnable()
     {
-        SkillInventoryManager.OnInventoryChanged += MarkDirty;
-        SkillInventoryManager.OnPresetChanged += OnPresetChanged;
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule != null)
+        {
+            skillModule.OnInventoryChanged += MarkDirty;
+            skillModule.OnPresetChanged += OnPresetChanged;
+        }
+
         isDirty = true;
     }
 
     private void OnDisable()
     {
-        SkillInventoryManager.OnInventoryChanged -= MarkDirty;
-        SkillInventoryManager.OnPresetChanged -= OnPresetChanged;
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule != null)
+        {
+            skillModule.OnInventoryChanged -= MarkDirty;
+            skillModule.OnPresetChanged -= OnPresetChanged;
+        }
     }
+
     private void LateUpdate()
     {
-        if (!isDirty) return;
+        if (!isDirty)
+            return;
+
         isDirty = false;
         RebuildAll();
     }
+
     private void MarkDirty()
     {
         isDirty = true;
@@ -62,17 +76,22 @@ public class SkillInventoryPanel : MonoBehaviour
             int idx = i;
             presetButtons[i].onClick.AddListener(() => OnPresetTabClicked(idx));
         }
+
         for (int i = 0; i < battleSkillPresenter.SlotCount; i++)
         {
             int idx = i;
             battleSkillPresenter.SetSlotClickListener(idx, () => OnPresetSlotClicked(idx));
         }
+
         mergeAllButton.onClick.AddListener(OnMergeAllClicked);
     }
 
     private void OnPresetTabClicked(int index)
     {
-        SkillInventoryManager.Instance.SwitchPreset(index);
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        skillModule?.SwitchPreset(index);
     }
 
     private void OnPresetChanged(int presetIndex)
@@ -83,9 +102,10 @@ public class SkillInventoryPanel : MonoBehaviour
 
     private void OnPresetSlotClicked(int slotIndex)
     {
-        selectedPresetSlot = (selectedPresetSlot == slotIndex) ? -1 : slotIndex;
+        selectedPresetSlot = selectedPresetSlot == slotIndex ? -1 : slotIndex;
         RebuildPresetSlotHighlight();
     }
+
     private void RebuildPresetSlotHighlight()
     {
         for (int i = 0; i < battleSkillPresenter.SlotCount; i++)
@@ -100,11 +120,17 @@ public class SkillInventoryPanel : MonoBehaviour
 
     private void RebuildPresetTabs()
     {
-        int current = SkillInventoryManager.Instance.CurrentPresetIndex;
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule == null)
+            return;
+
+        int current = skillModule.CurrentPresetIndex;
         for (int i = 0; i < presetButtons.Length; i++)
         {
             var colors = presetButtons[i].colors;
-            Color color = (i == current) ? Color.lightSkyBlue : Color.white;
+            Color color = i == current ? Color.lightSkyBlue : Color.white;
             colors.normalColor = color;
             colors.highlightedColor = color;
             colors.selectedColor = color;
@@ -114,6 +140,9 @@ public class SkillInventoryPanel : MonoBehaviour
 
     private void RebuildSkillList()
     {
+        if (DataManager.Instance == null || DataManager.Instance.SkillInfoDict == null)
+            return;
+
         var allSkills = DataManager.Instance.SkillInfoDict;
 
         while (spawnedSlots.Count < allSkills.Count)
@@ -131,14 +160,17 @@ public class SkillInventoryPanel : MonoBehaviour
         }
 
         for (int i = index; i < spawnedSlots.Count; i++)
-        {
             spawnedSlots[i].gameObject.SetActive(false);
-        }
     }
 
-
-    private void OnEquipSkillClicked(int skillID)
+    private void OnEquipSkillClicked(int skillId)
     {
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule == null)
+            return;
+
         int targetSlot = selectedPresetSlot;
 
         if (targetSlot < 0)
@@ -146,44 +178,52 @@ public class SkillInventoryPanel : MonoBehaviour
             targetSlot = FindEmptyPresetSlot();
             if (targetSlot < 0)
             {
-                Debug.Log("∫Û «¡∏Æº¬ ΩΩ∑‘¿Ã æ¯Ω¿¥œ¥Ÿ. ΩΩ∑‘¿ª ∏’¿˙ º±≈√«œººø‰.");
+                Debug.Log("Îπà ÌîÑÎ¶¨ÏÖã Ïä¨Î°ØÏù¥ ÏóÜÏäµÎãàÎã§. Ïä¨Î°ØÏùÑ Î®ºÏ†Ä ÏÑ†ÌÉùÌïòÏÑ∏Ïöî.");
                 return;
             }
         }
 
-        var owned = SkillInventoryManager.Instance.GetSkillData(skillID);
-        if (owned == null) return;
+        var owned = skillModule.GetSkillData(skillId);
+        if (owned == null)
+            return;
 
-        var preset = SkillInventoryManager.Instance.GetCurrentPreset();
+        var preset = skillModule.GetCurrentPreset();
         for (int i = 0; i < preset.slots.Length; i++)
         {
-            if (i != targetSlot && preset.slots[i].skillID == skillID)
+            if (i != targetSlot && preset.slots[i].skillID == skillId)
             {
-                Debug.Log("¿ÃπÃ ¿Â¬¯µ» Ω∫≈≥¿‘¥œ¥Ÿ.");
+                Debug.Log("Ïù¥ÎØ∏ Ïû•Ï∞©Îêú Ïä§ÌÇ¨ÏûÖÎãàÎã§.");
                 return;
             }
         }
 
-        SkillInventoryManager.Instance.SetPresetSlot(targetSlot, skillID);
+        skillModule.SetPresetSlot(targetSlot, skillId);
         selectedPresetSlot = -1;
     }
 
     private int FindEmptyPresetSlot()
     {
-        var preset = SkillInventoryManager.Instance.GetCurrentPreset();
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule == null)
+            return -1;
+
+        var preset = skillModule.GetCurrentPreset();
         for (int i = 0; i < preset.slots.Length; i++)
         {
-            if (preset.slots[i].IsEmpty) return i;
+            if (preset.slots[i].IsEmpty)
+                return i;
         }
+
         return -1;
     }
 
-
     private void OnMergeAllClicked()
     {
-        SkillInventoryManager.Instance.MergeAllSkills();
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        skillModule?.MergeAllSkills();
     }
-
-
 }
-

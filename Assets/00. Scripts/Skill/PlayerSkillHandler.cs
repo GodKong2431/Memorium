@@ -73,12 +73,20 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     }
     private void OnEnable()
     {
-        SkillInventoryManager.OnPresetChanged += OnPresetChanged;
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule != null)
+            skillModule.OnPresetChanged += OnPresetChanged;
     }
 
     private void OnDisable()
     {
-        SkillInventoryManager.OnPresetChanged -= OnPresetChanged;
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule != null)
+            skillModule.OnPresetChanged -= OnPresetChanged;
     }
 
     private void OnPresetChanged(int presetIndex)
@@ -87,7 +95,13 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     }
     public void InitFromPreset()
     {
-        var preset = SkillInventoryManager.Instance.GetCurrentPreset();
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule == null)
+            return;
+
+        var preset = skillModule.GetCurrentPreset();
         int[] skillIDs = new int[preset.slots.Length];
         int[] m4IDs = new int[preset.slots.Length];
         int[] m5IDs = new int[preset.slots.Length];

@@ -46,7 +46,11 @@ public class TraitManager : MonoBehaviour
             if (node != null) node.Initialize(this);
         }
 
-        RefreshPointsUI(CurrencyType.TraitPoint, CurrencyManager.Instance.GetAmount(CurrencyType.TraitPoint));
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currencyModule != null)
+            RefreshPointsUI(CurrencyType.TraitPoint, currencyModule.GetAmount(CurrencyType.TraitPoint));
     }
 
     /// <summary>
@@ -77,7 +81,10 @@ public class TraitManager : MonoBehaviour
         float currentStat = node.trait.CurrentLevel * node.trait.StatUP;
         float nextStat = (node.trait.CurrentLevel + 1) * node.trait.StatUP;
 
-        bool hasEnoughPoints = CurrencyManager.Instance.GetAmount(CurrencyType.TraitPoint) >= 1;
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        bool hasEnoughPoints = currencyModule != null && currencyModule.GetAmount(CurrencyType.TraitPoint) >= 1;
 
         popupController.OpenPopup(
             nodeIcon: node.iconImage.sprite,
@@ -98,12 +105,15 @@ public class TraitManager : MonoBehaviour
     private void OnUpgradeButtonClicked()
     {
         // 만렙이 아니며, 조건/비용을 모두 만족할 때만 실행
-        if (selectedNode != null && !selectedNode.IsMaxed && selectedNode.CanUnlock() && CurrencyManager.Instance.GetAmount(CurrencyType.TraitPoint) >= 1)
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (selectedNode != null && !selectedNode.IsMaxed && selectedNode.CanUnlock() && currencyModule != null && currencyModule.GetAmount(CurrencyType.TraitPoint) >= 1)
         {
 
             selectedNode.LevelUp();
 
-            RefreshPointsUI(CurrencyType.TraitPoint, CurrencyManager.Instance.GetAmount(CurrencyType.TraitPoint));
+            RefreshPointsUI(CurrencyType.TraitPoint, currencyModule.GetAmount(CurrencyType.TraitPoint));
             // 전체 노드 상태 갱신
             foreach (var node in allNodes)
             {

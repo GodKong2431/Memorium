@@ -94,6 +94,9 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
     private void OnBerserkerModeChanged()
     {
+        if (!TableLoad || !isActiveAndEnabled)
+            return;
+
         StatUpdate?.Invoke();
     }
 
@@ -220,12 +223,15 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     protected override void OnApplicationQuit()
     {
         base.OnApplicationQuit();
-        PlayerEquipment playerEquipment = equipmentHandler.playerEquipment;
-        if (equipmentHandler.dataLoad)
-        {
-            testSaveData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
-            JSONService.Save(testSaveData);
-        }
+        if (equipmentHandler == null || !equipmentHandler.dataLoad)
+            return;
+        if (!equipmentHandler.TryGetPlayerEquipment(out var playerEquipment))
+            return;
+        if (testSaveData == null)
+            return;
+
+        testSaveData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
+        JSONService.Save(testSaveData);
     }
 
     #region 버서커 모드 Berserker Mode

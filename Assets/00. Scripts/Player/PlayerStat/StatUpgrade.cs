@@ -54,7 +54,11 @@ public class StatUpgrade
 
     public void Upgrade()
     {
-        var currency = CurrencyManager.Instance;
+        var currency = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currency == null)
+            return;
 
         if (!currency.TrySpend(CurrencyType.Gold, currentCost))
         {
@@ -69,7 +73,13 @@ public class StatUpgrade
 
     public bool CheckGold()
     {
-        var gold = CurrencyManager.Instance.GetAmount(CurrencyType.Gold);
+        var currency = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currency == null)
+            return false;
+
+        var gold = currency.GetAmount(CurrencyType.Gold);
 
         if (gold < currentCost)
         {
