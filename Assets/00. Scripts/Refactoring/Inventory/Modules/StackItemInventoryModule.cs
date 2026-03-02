@@ -5,6 +5,7 @@ public sealed class StackItemInventoryModule : IInventoryModule
 {
     private readonly Dictionary<int, BigDouble> amountByItemId = new Dictionary<int, BigDouble>(); // 스택 아이템 ID별 수량.
 
+    #region IInventoryModule
     public string ModuleName => "StackItemInventoryModule"; // 모듈 디버깅 식별 이름.
 
     // 재화/장비/스킬주문서를 제외한 일반 스택형 아이템을 처리한다.
@@ -62,6 +63,7 @@ public sealed class StackItemInventoryModule : IInventoryModule
             ? amount
             : BigDouble.Zero;
     }
+    #endregion
 
     // 키가 없으면 0 수량으로 초기화한다.
     private void EnsureItemKey(int itemId)

@@ -15,8 +15,6 @@ public sealed class SkillInventoryModule : IInventoryModule
 
     private bool isScrollMapReady; // 스크롤 매핑 초기화 여부.
 
-    public string ModuleName => "SkillInventoryModule"; // 모듈 디버깅 식별 이름.
-
     public event Action OnInventoryChanged; // 스킬 인벤토리 변경 이벤트.
     public event Action<int> OnPresetChanged; // 프리셋 변경 이벤트.
 
@@ -30,6 +28,9 @@ public sealed class SkillInventoryModule : IInventoryModule
         mergeHandler = new SkillMergeHandler(skillDataById);
         presetHandler = new SkillPresetHandler(skillDataById, presets);
     }
+
+    #region IInventoryModule
+    public string ModuleName => "SkillInventoryModule"; // 모듈 디버깅 식별 이름.
 
     // 스킬 모듈은 스킬 주문서 타입만 허브 라우팅 대상으로 처리한다.
     public bool CanHandle(ItemType itemType)
@@ -69,6 +70,7 @@ public sealed class SkillInventoryModule : IInventoryModule
     {
         return BigDouble.Zero;
     }
+    #endregion
 
     // 특정 스킬의 보유 데이터를 반환한다.
     public OwnedSkillData GetSkillData(int skillId)

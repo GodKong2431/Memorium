@@ -5,9 +5,7 @@ using UnityEngine;
 public sealed class CurrencyInventoryModule : IInventoryModule
 {
     private readonly Dictionary<CurrencyType, BigDouble> amountByCurrency = new Dictionary<CurrencyType, BigDouble>(); // 재화 타입별 보유량.
-
-    public string ModuleName => "CurrencyInventoryModule"; // 모듈 디버깅 식별 이름.
-
+    
     public event Action<CurrencyType, BigDouble> OnCurrencyChanged; // 재화 변경을 외부 시스템에 전달하는 이벤트.
 
     public CurrencyInventoryModule()
@@ -15,6 +13,9 @@ public sealed class CurrencyInventoryModule : IInventoryModule
         foreach (CurrencyType type in Enum.GetValues(typeof(CurrencyType)))
             amountByCurrency[type] = BigDouble.Zero;
     }
+
+    #region IInventoryModule
+    public string ModuleName => "CurrencyInventoryModule"; // 모듈 디버깅 식별 이름.
 
     // 전달된 ItemType이 이 모듈의 처리 대상인지 확인한다.
     public bool CanHandle(ItemType itemType)
@@ -49,6 +50,7 @@ public sealed class CurrencyInventoryModule : IInventoryModule
 
         return GetAmount(currencyType);
     }
+    #endregion
 
     // CurrencyType 기반 재화 수량을 반환한다.
     public BigDouble GetAmount(CurrencyType currencyType)

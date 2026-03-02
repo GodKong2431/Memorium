@@ -12,6 +12,7 @@ public sealed class EquipmentInventoryModule : IInventoryModule
     private EquipmentHandler equipmentHandler; // 자동합성/자동장착 버튼 제어를 위한 핸들러.
     private PlayerInventory inventoryView; // 장비 인벤토리 UI 렌더링 전용 뷰.
 
+    #region IInventoryModule
     public string ModuleName => "EquipmentInventoryModule"; // 허브에서 모듈 식별 시 사용하는 이름.
 
     // 장비 타입만 이 모듈에서 처리한다.
@@ -68,6 +69,7 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             ? new BigDouble(count)
             : BigDouble.Zero;
     }
+    #endregion
 
     // 장비 핸들러/뷰/초기 보유 데이터를 연결하고 장비 UI를 구성한다.
     public bool Setup(EquipmentHandler handler, PlayerInventory view, Dictionary<int, int> initialCountByItemId)
