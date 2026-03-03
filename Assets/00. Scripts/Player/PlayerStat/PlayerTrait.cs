@@ -51,7 +51,13 @@ public class PlayerTrait
 
     public bool Upgrade()
     {
-        if (!CurrencyManager.Instance.TrySpend(CurrencyType.TraitPoint, DecreasePoint))
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currencyModule == null)
+            return false;
+
+        if (!currencyModule.TrySpend(CurrencyType.TraitPoint, DecreasePoint))
         {
             return false;
         }

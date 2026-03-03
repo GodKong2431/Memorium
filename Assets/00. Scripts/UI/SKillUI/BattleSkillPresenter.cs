@@ -1,12 +1,13 @@
+ï»¿using System;
 using UnityEngine;
-using System;
 
 public class BattleSkillPresenter : MonoBehaviour
 {
     [SerializeField] private BattleSkillSlotView[] slotViews;
-    public int SlotCount => slotViews.Length;
-    private ISkillCooldownProvider cooldownProvider;
 
+    public int SlotCount => slotViews.Length;
+
+    private ISkillCooldownProvider cooldownProvider;
 
     private void Awake()
     {
@@ -14,27 +15,36 @@ public class BattleSkillPresenter : MonoBehaviour
             slotViews = GetComponentsInChildren<BattleSkillSlotView>();
     }
 
-    public void Init(ISkillCooldownProvider _cooldownprovider)
+    public void Init(ISkillCooldownProvider cooldownProvider)
     {
-        cooldownProvider = _cooldownprovider;
+        this.cooldownProvider = cooldownProvider;
         RebuildIcons();
     }
 
     private void OnEnable()
     {
-        SkillInventoryManager.OnPresetChanged += OnPresetChanged;
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule != null)
+            skillModule.OnPresetChanged += OnPresetChanged;
     }
 
     private void OnDisable()
     {
-        SkillInventoryManager.OnPresetChanged -= OnPresetChanged;
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule != null)
+            skillModule.OnPresetChanged -= OnPresetChanged;
     }
 
     private void Update()
     {
-        if (cooldownProvider == null) return;
+        if (cooldownProvider == null)
+            return;
 
-        for(int i = 0; i < slotViews.Length; i++)
+        for (int i = 0; i < slotViews.Length; i++)
         {
             float remain = cooldownProvider.GetCooldownRemain(i);
             float max = cooldownProvider.GetCooldownMax(i);
@@ -45,6 +55,7 @@ public class BattleSkillPresenter : MonoBehaviour
                 slotViews[i].UpdateCooldown(0f, 0f);
         }
     }
+
     private void OnPresetChanged(int presetIndex)
     {
         RebuildIcons();
@@ -52,20 +63,29 @@ public class BattleSkillPresenter : MonoBehaviour
 
     private void RebuildIcons()
     {
-        var preset= SkillInventoryManager.Instance.GetCurrentPreset();
-        if (preset == null) return;
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule == null)
+            return;
+
+        var preset = skillModule.GetCurrentPreset();
+        if (preset == null)
+            return;
 
         for (int i = 0; i < slotViews.Length; i++)
         {
             var slot = preset.slots[i];
-            if(slot.IsEmpty)
+            if (slot.IsEmpty)
             {
                 slotViews[i].SetEmpty();
                 continue;
             }
-            // ¾ÆÀÌÄÜ È®Á¤½Ã ½ºÅ³ id¿¡ µû¸¥ ¾ÆÀÌÄÜ º¯°æÇÔ¼ö Ãß°¡
+
+            // ì•„ì´ì½˜ í™•ì • ì‹œ ìŠ¤í‚¬ IDì— ë§žëŠ” ì•„ì´ì½˜ ë°˜ì˜ ë¡œì§ì„ ì¶”ê°€í•œë‹¤.
         }
     }
+
     public void SetSlotClickListener(int index, Action callback)
     {
         slotViews[index].SlotButton.onClick.AddListener(() => callback());

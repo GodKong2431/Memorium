@@ -105,8 +105,14 @@ public class PlayerStatView : MonoBehaviour
 
         GameEventManager.OnCurrencyChanged += UpdateExpFromEvent;
 
-        BigDouble currentExp = CurrencyManager.Instance.GetAmount(CurrencyType.Exp);
-        UpdateExpUI(currentExp);
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currencyModule != null)
+        {
+            BigDouble currentExp = currencyModule.GetAmount(CurrencyType.Exp);
+            UpdateExpUI(currentExp);
+        }
     }
 
     public void InitContext(PlayerStateContext context)
@@ -125,20 +131,30 @@ public class PlayerStatView : MonoBehaviour
 
     public void SetFinalStat()
     {
+        var statManager = CharacterStatManager.Instance;
+        if (statManager == null || finalStatUIs == null)
+            return;
+
         foreach (var finalStatUI in finalStatUIs)
         {
-            BigDouble value = CharacterStatManager.Instance.GetFinalStat(finalStatUI.type);
+            if (finalStatUI.statUIItem == null)
+                continue;
+
+            BigDouble value = statManager.GetFinalStat(finalStatUI.type);
 
             if (StatGroups.MultTypes.Contains(finalStatUI.type))
             {
-                finalStatUI.statUIItem.FinalStatValue.text = $"{value * 100f}%";
+                if (finalStatUI.statUIItem.FinalStatValue != null)
+                    finalStatUI.statUIItem.FinalStatValue.text = $"{value * 100f}%";
             }
             else
             {
-                finalStatUI.statUIItem.FinalStatValue.text = value.ToString();
+                if (finalStatUI.statUIItem.FinalStatValue != null)
+                    finalStatUI.statUIItem.FinalStatValue.text = value.ToString();
             }
 
-            finalStatUI.statUIItem.FinalStatName.text = finalStatUI.statName;
+            if (finalStatUI.statUIItem.FinalStatName != null)
+                finalStatUI.statUIItem.FinalStatName.text = finalStatUI.statName;
         }
     }
 
@@ -206,7 +222,14 @@ public class PlayerStatView : MonoBehaviour
 
     public void GetNormalPowerStat()
     {
-        BigDouble value = CharacterStatManager.Instance.NormalPower;
+        if (normalPowerText == null)
+            return;
+
+        var statManager = CharacterStatManager.Instance;
+        if (statManager == null)
+            return;
+
+        BigDouble value = statManager.NormalPower;
         normalPowerText.text = value.ToString();
     }
 

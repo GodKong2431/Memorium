@@ -1,17 +1,16 @@
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
-/// 보상·아이템 드랍 전역 관리. ItemDropSettings 인스턴스 생성 및 스테이지별 드롭테이블 적용.
-/// StageManager.SetReward()에서 SetDropTable 호출. EnemyKillRewardDispatcher는 RewardManager.DropSettings 사용.
-/// ItemDropSettings는 RewardManager를 통해서만 접근.
+/// 蹂댁긽쨌?꾩씠???쒕엻 ?꾩뿭 愿由? ItemDropSettings ?몄뒪?댁뒪 ?앹꽦 諛??ㅽ뀒?댁?蹂??쒕∼?뚯씠釉??곸슜.
+/// StageManager.SetReward()?먯꽌 SetDropTable ?몄텧. EnemyKillRewardDispatcher??RewardManager.DropSettings ?ъ슜.
+/// ItemDropSettings??RewardManager瑜??듯빐?쒕쭔 ?묎렐.
 /// </summary>
 //[DefaultExecutionOrder(-100)]
 public class RewardManager : Singleton<RewardManager>
 {
     private const string ItemDropSettingsResourcePath = "ItemDropSettings";
 
-    /// <summary>현재 사용 중인 ItemDropSettings. 항상 Awake에서 초기화됨. (Resources 폴더에 있는 ItemDropSettings을 사용합니다)</summary>
+    /// <summary>?꾩옱 ?ъ슜 以묒씤 ItemDropSettings. ??긽 Awake?먯꽌 珥덇린?붾맖. (Resources ?대뜑???덈뒗 ItemDropSettings???ъ슜?⑸땲??</summary>
     public ItemDropSettings DropSettings { get; private set; }
 
     protected override void Awake()
@@ -20,7 +19,7 @@ public class RewardManager : Singleton<RewardManager>
         EnsureItemDropSettings();
     }
 
-    /// <summary>ItemDropSettings 인스턴스 생성/로드. RewardManager만 사용.</summary>
+    /// <summary>ItemDropSettings ?몄뒪?댁뒪 ?앹꽦/濡쒕뱶. RewardManager留??ъ슜.</summary>
     private void EnsureItemDropSettings()
     {
         var loaded = Resources.Load<ItemDropSettings>(ItemDropSettingsResourcePath);
@@ -30,16 +29,16 @@ public class RewardManager : Singleton<RewardManager>
             return;
         }
 
-        DropSettings = CreateDefaultItemDropSettings(); // 없을시 만드는 건데 나중엔 빼지 않을까 싶네요
-        Debug.Log("[RewardManager] ItemDropSettings를 기본값으로 생성했습니다.");
+        DropSettings = CreateDefaultItemDropSettings(); // ?놁쓣??留뚮뱶??嫄대뜲 ?섏쨷??鍮쇱? ?딆쓣源??띕꽕??
+        Debug.Log("[RewardManager] ItemDropSettings瑜?湲곕낯媛믪쑝濡??앹꽦?덉뒿?덈떎.");
     }
 
-    /// <summary>스테이지별 드롭테이블 적용</summary>
+    /// <summary>?ㅽ뀒?댁?蹂??쒕∼?뚯씠釉??곸슜</summary>
     public void SetDropTable(ItemDropTable dropTable)
     {
         if (dropTable == null)
         {
-            Debug.LogWarning("[RewardManager] dropTable이 null입니다.");
+            Debug.LogWarning("[RewardManager] dropTable??null?낅땲??");
             return;
         }
 
@@ -61,88 +60,40 @@ public class RewardManager : Singleton<RewardManager>
             DropSettings.equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight03 / fullRate);
             DropSettings.equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight04 / fullRate);
         }
-        // ItemDropTable CSV 확률은 % 단위 (5=5%, 0.01=0.01%) → 0~1로 변환
+        // ItemDropTable CSV ?뺣쪧? % ?⑥쐞 (5=5%, 0.01=0.01%) ??0~1濡?蹂??
         DropSettings.equipmentChance = (float)(dropTable.equipmentRate / 100.0);
         DropSettings.pixieFragmentChance = (float)(dropTable.fairyPieceRate / 100.0);
         DropSettings.skillScrollChance = (float)(dropTable.scrollRate / 100.0 * 20000);
         DropSettings.skillGemChance = (float)(dropTable.gemRate / 100.0);
-        DropSettings.dungeonTicketChance = (float)(dropTable.keyRate / 100.0) * 20000; // 테스트를 위해 임시로 확률 증가
+        DropSettings.dungeonTicketChance = (float)(dropTable.keyRate / 100.0) * 20000; // ?뚯뒪?몃? ?꾪빐 ?꾩떆濡??뺣쪧 利앷?
     }
 
     /// <summary>
-    /// 아이템 ID와 수량을 받아 타입별로 인벤토리/재화에 보상 지급
-    /// (임시로 구현해봤는데 뭔가 썩 마음에 들진 않네요)
+    /// ?꾩씠??ID? ?섎웾??諛쏆븘 ??낅퀎濡??몃깽?좊━/?ы솕??蹂댁긽 吏湲?
+    /// (?꾩떆濡?援ы쁽?대뇬?붾뜲 萸붽? ??留덉쓬???ㅼ쭊 ?딅꽕??
     /// </summary>
-    /// <param name="itemId">EquipListDict 또는 ItemInfoDict의 ID</param>
-    /// <param name="count">지급할 수량</param>
-    /// <returns>지급 성공 여부</returns>
+    /// <param name="itemId">EquipListDict ?먮뒗 ItemInfoDict??ID</param>
+    /// <param name="count">吏湲됲븷 ?섎웾</param>
+    /// <returns>吏湲??깃났 ?щ?</returns>
     public bool GrantReward(int itemId, int count)
     {
         if (itemId <= 0 || count <= 0)
         {
-            Debug.LogWarning($"[RewardManager] 잘못된 파라미터: itemId={itemId}, count={count}");
+            Debug.LogWarning($"[RewardManager] ?섎せ???뚮씪誘명꽣: itemId={itemId}, count={count}");
             return false;
         }
 
-        // 장비: EquipListDict에 있으면 PlayerInventory에 추가
-        if (DataManager.Instance?.EquipListDict != null && DataManager.Instance.EquipListDict.ContainsKey(itemId))
+        if (InventoryManager.Instance == null)
         {
-            var inv = UnityEngine.Object.FindFirstObjectByType<PlayerInventory>();
-            if (inv != null)
-            {
-                inv.IncreaseEquipment(itemId, count);
-                Debug.Log($"[RewardManager] 보상 지급: 장비 ID={itemId} x{count}");
-                return true;
-            }
-            Debug.LogWarning($"[RewardManager] PlayerInventory를 찾을 수 없어 장비 보상을 지급할 수 없습니다.");
+            Debug.LogWarning("[RewardManager] InventoryManager가 없어 보상을 지급할 수 없습니다.");
             return false;
         }
 
-        // 아이템: ItemInfoDict에서 조회
-        if (DataManager.Instance?.ItemInfoDict == null || !DataManager.Instance.ItemInfoDict.TryGetValue(itemId, out var itemInfo))
-        {
-            Debug.LogError($"[RewardManager] 아이템 ID {itemId}를 찾을 수 없습니다.");
-            return false;
-        }
+        bool granted = InventoryManager.Instance.AddItem(itemId, count);
+        if (!granted)
+            Debug.LogWarning($"[RewardManager] 보상 지급 실패: itemId={itemId}, count={count}");
 
-        int itemType = (int)itemInfo.itemType;
-
-        // 재화 타입 (Gold=81, Crystal=82, DungeonTicket=83, PixieFragment=31)
-        if (itemType == (int)ItemType.FreeCurrency || itemType == (int)ItemType.PaidCurrency ||
-            itemType == (int)ItemType.Key || itemType == (int)ItemType.PixiePiece)
-        {
-            if (CurrencyManager.Instance != null)
-            {
-                CurrencyManager.Instance.AddCurrency((CurrencyType)itemType, count);
-                Debug.Log($"[RewardManager] 보상 지급: 재화 ID={itemId} x{count}");
-                return true;
-            }
-            return false;
-        }
-
-        // 스킬 주문서
-        if (itemInfo.itemType == ItemType.SkillScroll)
-        {
-            if (SkillInventoryManager.Instance != null &&
-                SkillInventoryManager.Instance.skillScrollIdToSkillIdDict != null)
-            {
-                var scrollValues = SkillInventoryManager.Instance.skillScrollIdToSkillIdDict.Values.ToList();
-                if (scrollValues.Count > 0)
-                {
-                    for (int i = 0; i < count; i++)
-                    {
-                        int skillId = scrollValues[Random.Range(0, scrollValues.Count)];
-                        SkillInventoryManager.Instance.AddSkill(skillId);
-                    }
-                    Debug.Log($"[RewardManager] 보상 지급: 스킬 주문서 x{count}");
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        Debug.LogWarning($"[RewardManager] 미지원 아이템 타입: ID={itemId}, itemType={itemType}");
-        return false;
+        return granted;
     }
 
     private static ItemDropSettings CreateDefaultItemDropSettings()
@@ -170,3 +121,6 @@ public class RewardManager : Singleton<RewardManager>
         return s;
     }
 }
+
+
+

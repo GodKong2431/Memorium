@@ -28,7 +28,13 @@ public class TestPlayerDataManager : Singleton<TestPlayerDataManager>
     protected override void OnApplicationQuit()
     {
         base.OnApplicationQuit();
-        PlayerEquipment playerEquipment = equipmentHandler.playerEquipment;
+        if (equipmentHandler == null)
+            return;
+        if (!equipmentHandler.TryGetPlayerEquipment(out var playerEquipment))
+            return;
+        if (testSaveData == null)
+            return;
+
         testSaveData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
         JSONService.Save(testSaveData);
     }

@@ -75,8 +75,10 @@ public static class EnemyKillRewardDispatcher
             {
                 var goldMult = 1.0 + (double)CharacterStatManager.Instance.FinalStats[PlayerStatType.GOLD_GAIN].finalStat;
                 var finalGold = baseGold * goldMult;
-                if (CurrencyManager.Instance != null)
-                    CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, finalGold);
+                var currencyModule = InventoryManager.Instance != null
+                    ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+                    : null;
+                currencyModule?.AddCurrency(CurrencyType.Gold, finalGold);
                 Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{finalGold}");
             }
         }
@@ -91,8 +93,10 @@ public static class EnemyKillRewardDispatcher
         if (exp > 0)
         {
             var finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.FinalStats[PlayerStatType.EXP_GAIN].finalStat));
-            if (CurrencyManager.Instance != null)
-                CurrencyManager.Instance.AddCurrency(CurrencyType.Exp, finalExp);
+            var currencyModule = InventoryManager.Instance != null
+                ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+                : null;
+            currencyModule?.AddCurrency(CurrencyType.Exp, finalExp);
             Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{finalExp}");
         }
 

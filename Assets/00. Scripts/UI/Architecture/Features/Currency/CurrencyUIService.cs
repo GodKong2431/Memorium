@@ -11,28 +11,35 @@ public sealed class CurrencyUIService : UIServiceBase<CurrencyUIService>
     // 현재 재화 수량을 조회한다.
     public BigDouble GetAmount(CurrencyType type)
     {
-        if (CurrencyManager.Instance == null)
-            return new BigDouble(0);
+        if (InventoryManager.Instance == null)
+            return BigDouble.Zero;
 
-        return CurrencyManager.Instance.GetAmount(type);
+        var currencyModule = InventoryManager.Instance.GetModule<CurrencyInventoryModule>();
+        return currencyModule != null ? currencyModule.GetAmount(type) : BigDouble.Zero;
     }
 
-    // CurrencyManager의 재화 변경 이벤트를 구독한다.
+    // CurrencyInventoryModule의 재화 변경 이벤트를 구독한다.
     protected override void OnBind()
     {
-        if (CurrencyManager.Instance == null)
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currencyModule == null)
             return;
 
-        CurrencyManager.Instance.OnCurrencyChanged += HandleCurrencyChanged;
+        currencyModule.OnCurrencyChanged += HandleCurrencyChanged;
     }
 
-    // CurrencyManager의 재화 변경 이벤트 구독을 해제한다.
+    // CurrencyInventoryModule의 재화 변경 이벤트 구독을 해제한다.
     protected override void OnUnbind()
     {
-        if (CurrencyManager.Instance == null)
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currencyModule == null)
             return;
 
-        CurrencyManager.Instance.OnCurrencyChanged -= HandleCurrencyChanged;
+        currencyModule.OnCurrencyChanged -= HandleCurrencyChanged;
     }
 
     // 매니저에서 받은 이벤트를 UI용 이벤트로 다시 전달한다.

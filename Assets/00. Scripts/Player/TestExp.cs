@@ -26,7 +26,6 @@ public class TestExp : MonoBehaviour
     [SerializeField] private PlayerStatType playerStatType;
 
     [Space(10)]
-    [SerializeField] PlayerInventory playerInventory;
     [SerializeField] Button buttont;
 
     [SerializeField] EquipmentType equipmentType;
@@ -54,12 +53,16 @@ public class TestExp : MonoBehaviour
 
     private void Awake()
     {
-        button.onClick.AddListener(() => CurrencyManager.Instance.AddCurrency(currencyType, amount));
-        button.onClick.AddListener(() => currentAmount = CurrencyManager.Instance.GetAmount(currencyType));
+        button.onClick.AddListener(() => InventoryManager.Instance.GetModule<CurrencyInventoryModule>()?.AddCurrency(currencyType, amount));
+        button.onClick.AddListener(() =>
+        {
+            var currencyModule = InventoryManager.Instance.GetModule<CurrencyInventoryModule>();
+            currentAmount = currencyModule != null ? currencyModule.GetAmount(currencyType) : BigDouble.Zero;
+        });
 
         buttone.onClick.AddListener(() => CharacterStatManager.Instance.FinalStat(playerStatType));
 
-        buttont.onClick.AddListener(() => playerInventory.IncreaseEquipment((equipmentKeyDict[equipmentType] + ((int)ID) + (eId)), eAmount));
+        buttont.onClick.AddListener(() => InventoryManager.Instance.AddItem((equipmentKeyDict[equipmentType] + ((int)ID) + eId), eAmount));
 
         killConutButton.onClick.AddListener(() => EnemyKillRewardDispatcher.TotalKillCountUp(count));
     }
