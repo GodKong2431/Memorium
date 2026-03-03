@@ -13,6 +13,245 @@ MonoBehaviour:
   m_Name: CharacterStatSO
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStatSO
   Upgrades:
-    _serializedList: []
+    _serializedList:
+    - Key: 4
+      Value:
+        id: 1010001
+        statName: "\uFFFD\uFFFD\uFFFD\u0777\uFFFD"
+        upgradeCount: 0
+        statInCrease: 10
+        baseCost: 30
+        costMultiplyRate: 1.08
+        stat: 0
+        currentCost:
+          mantissa: 3
+          exponent: 1
+        statType: 4
+    - Key: 2
+      Value:
+        id: 1010002
+        statName: MP
+        upgradeCount: 0
+        statInCrease: 5
+        baseCost: 30
+        costMultiplyRate: 1.05
+        stat: 0
+        currentCost:
+          mantissa: 3
+          exponent: 1
+        statType: 2
+    - Key: 3
+      Value:
+        id: 1010003
+        statName: "MP \u0238\uFFFD\uFFFD"
+        upgradeCount: 0
+        statInCrease: 4
+        baseCost: 30
+        costMultiplyRate: 1.05
+        stat: 0
+        currentCost:
+          mantissa: 3
+          exponent: 1
+        statType: 3
+    - Key: 0
+      Value:
+        id: 1010004
+        statName: "\xFC\uFFFD\uFFFD"
+        upgradeCount: 0
+        statInCrease: 10
+        baseCost: 30
+        costMultiplyRate: 1.08
+        stat: 0
+        currentCost:
+          mantissa: 3
+          exponent: 1
+        statType: 0
+    - Key: 1
+      Value:
+        id: 1010005
+        statName: "\xFC\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD"
+        upgradeCount: 0
+        statInCrease: 2
+        baseCost: 30
+        costMultiplyRate: 1.05
+        stat: 0
+        currentCost:
+          mantissa: 3
+          exponent: 1
+        statType: 1
+    - Key: 8
+      Value:
+        id: 1010006
+        statName: "\u0121\uFFFD\uFFFD\u0178 \u022E\uFFFD\uFFFD"
+        upgradeCount: 0
+        statInCrease: 0.01
+        baseCost: 30
+        costMultiplyRate: 1.1
+        stat: 0
+        currentCost:
+          mantissa: 3
+          exponent: 1
+        statType: 8
+    - Key: 9
+      Value:
+        id: 1010007
+        statName: "\u0121\uFFFD\uFFFD\u0178 \uFFFD\uFFFD\uFFFD\uFFFD"
+        upgradeCount: 0
+        statInCrease: 0.1
+        baseCost: 50
+        costMultiplyRate: 1.15
+        stat: 0
+        currentCost:
+          mantissa: 5
+          exponent: 1
+        statType: 9
+    - Key: 14
+      Value:
+        id: 1010008
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\u0637\uFFFD"
+        upgradeCount: 0
+        statInCrease: 0.1
+        baseCost: 50
+        costMultiplyRate: 1.15
+        stat: 0
+        currentCost:
+          mantissa: 5
+          exponent: 1
+        statType: 14
   Traits:
-    _serializedList: []
+    _serializedList:
+    - Key: 0
+      Value:
+        ID: 1040011
+        TraitTier: Tier 2
+        TraitName: "\uCCB4\uB825"
+        TraitUPStatName: "\uCCB4\uB825"
+        StatUP: 200
+        MinLevel: 0
+        MaxLevel: 5
+        DecreasePoint: 1
+        NeedTrait: "Tier 1 \uB9C8\uC2A4\uD130"
+        CurrentLevel: 0
+        unlock: 0
+        statType: 0
+        CurrentStat: 0
+    - Key: 2
+      Value:
+        ID: 1040012
+        TraitTier: Tier 2
+        TraitName: MP
+        TraitUPStatName: MP
+        StatUP: 200
+        MinLevel: 0
+        MaxLevel: 5
+        DecreasePoint: 1
+        NeedTrait: "Tier 1 \uB9C8\uC2A4\uD130"
+        CurrentLevel: 0
+        unlock: 0
+        statType: 2
+        CurrentStat: 0
+    - Key: 4
+      Value:
+        ID: 1040001
+        TraitTier: Tier 1
+        TraitName: "\uACF5\uACA9\uB825"
+        TraitUPStatName: "\uACF5\uACA9\uB825"
+        StatUP: 50
+        MinLevel: 0
+        MaxLevel: 5
+        DecreasePoint: 1
+        NeedTrait: "\uC989\uC2DC \uD574\uAE08"
+        CurrentLevel: 0
+        unlock: 0
+        statType: 4
+        CurrentStat: 0
+    - Key: 5
+      Value:
+        ID: 1040013
+        TraitTier: Tier 2
+        TraitName: "\uACF5\uACA9\uC18D\uB3C4"
+        TraitUPStatName: "\uACF5\uACA9\uC18D\uB3C4"
+        StatUP: 0.1
+        MinLevel: 0
+        MaxLevel: 5
+        DecreasePoint: 1
+        NeedTrait: "Tier 1 \uB9C8\uC2A4\uD130"
+        CurrentLevel: 0
+        unlock: 0
+        statType: 5
+        CurrentStat: 0
+    - Key: 8
+      Value:
+        ID: 1040021
+        TraitTier: Tier 3
+        TraitName: "\uCE58\uBA85\uD0C0\uD655\uB960"
+        TraitUPStatName: "\uCE58\uBA85\uD0C0\uD655\uB960"
+        StatUP: 5
+        MinLevel: 0
+        MaxLevel: 5
+        DecreasePoint: 1
+        NeedTrait: "Tier 2 \uB9C8\uC2A4\uD130"
+        CurrentLevel: 0
+        unlock: 0
+        statType: 8
+        CurrentStat: 0
+    - Key: 9
+      Value:
+        ID: 1040032
+        TraitTier: Tier 4
+        TraitName: "\uBCF4\uC2A4 \uBAAC\uC2A4\uD130 \uD53C\uD574\uB7C9"
+        TraitUPStatName: "\uBCF4\uC2A4 \uBAAC\uC2A4\uD130 \uD53C\uD574\uB7C9"
+        StatUP: 5
+        MinLevel: 0
+        MaxLevel: 5
+        DecreasePoint: 1
+        NeedTrait: "Tier 3 \uB9C8\uC2A4\uD130"
+        CurrentLevel: 0
+        unlock: 0
+        statType: 9
+        CurrentStat: 0
+    - Key: 14
+      Value:
+        ID: 1040033
+        TraitTier: Tier 4
+        TraitName: "\uCE58\uBA85\uD0C0 \uBC30\uC728"
+        TraitUPStatName: "\uCE58\uBA85\uD0C0 \uBC30\uC728"
+        StatUP: 5
+        MinLevel: 0
+        MaxLevel: 5
+        DecreasePoint: 1
+        NeedTrait: "Tier 3 \uB9C8\uC2A4\uD130"
+        CurrentLevel: 0
+        unlock: 0
+        statType: 14
+        CurrentStat: 0
+    - Key: 11
+      Value:
+        ID: 1040034
+        TraitTier: Tier 4
+        TraitName: "\uCFE8\uD0C0\uC784 \uAC10\uC18C"
+        TraitUPStatName: "\uCFE8\uD0C0\uC784 \uAC10\uC18C"
+        StatUP: 3
+        MinLevel: 0
+        MaxLevel: 5
+        DecreasePoint: 1
+        NeedTrait: "Tier 3 \uB9C8\uC2A4\uD130"
+        CurrentLevel: 0
+        unlock: 0
+        statType: 11
+        CurrentStat: 0
+    - Key: 16
+      Value:
+        ID: 1040041
+        TraitTier: Tier 5
+        TraitName: "\uB300\uBBF8\uC9C0 \uBC30\uC728"
+        TraitUPStatName: "\uB300\uBBF8\uC9C0 \uBC30\uC728"
+        StatUP: 10
+        MinLevel: 0
+        MaxLevel: 5
+        DecreasePoint: 1
+        NeedTrait: "Tier 4 \uB9C8\uC2A4\uD130"
+        CurrentLevel: 0
+        unlock: 0
+        statType: 16
+        CurrentStat: 0

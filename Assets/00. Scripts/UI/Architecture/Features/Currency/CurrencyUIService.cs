@@ -1,6 +1,6 @@
 ﻿using System;
 
-public sealed class CurrencyUIService : UISharedServiceBase<CurrencyUIService>
+public sealed class CurrencyUIService : UIServiceBase<CurrencyUIService>
 {
     public event Action<CurrencyType, BigDouble> CurrencyChanged; // 재화가 바뀌었을 때 UI에 전달하는 이벤트.
 
