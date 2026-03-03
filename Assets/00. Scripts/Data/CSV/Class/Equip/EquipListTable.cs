@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+
+[System.Serializable]
+public class EquipListTable : TableBase
+{
+    public string description;
+    public EquipmentType equipmentType;
+    public int grade;
+    public RarityType rarityType;
+    public int equipmentTier;
+    public string iconResource;
+    public string equipmentName;
+}
