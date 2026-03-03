@@ -30,8 +30,6 @@ public sealed class SkillInventoryModule : IInventoryModule
     }
 
     #region IInventoryModule
-    public string ModuleName => "SkillInventoryModule"; // 모듈 디버깅 식별 이름.
-
     // 스킬 모듈은 스킬 주문서 타입만 허브 라우팅 대상으로 처리한다.
     public bool CanHandle(ItemType itemType)
     {
