@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneController : Singleton<SceneController>
 {
-    [Header("·Îµù UI ¼³Á¤")]
+    [Header("ï¿½Îµï¿½ UI ï¿½ï¿½ï¿½ï¿½")]
     public LoadingUI loadingUI;
 
     private bool _isLoading;
