@@ -76,6 +76,12 @@ public class DataManager : Singleton<DataManager>
     // 기타 데이터
     public Dictionary<int, StringTable> StringDict;
 
+    // 어빌리티 스톤 데이터
+    public Dictionary<int, StoneTable> StoneDict;
+    public Dictionary<int, StoneStatProbabilityTable> StoneStatProbabilityDict;
+    public Dictionary<int, StoneGradeStatUpTable> StoneGradeStatUpDict;
+    public Dictionary<int, StoneTotalUpBonus> StoneTotalUpBonusDict;
+    
     #endregion
 
     // (현재개수, 총개수, 현재작업중인파일)
