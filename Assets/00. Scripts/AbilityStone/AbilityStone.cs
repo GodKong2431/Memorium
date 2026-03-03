@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [System.Serializable]
-public class AblityStone
+public class AbilityStone
 {
     [SerializeField] private int id;
 

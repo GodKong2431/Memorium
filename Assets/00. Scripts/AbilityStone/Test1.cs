@@ -23,7 +23,7 @@ public class Test1 : MonoBehaviour
         
         ID = stoneID;
         
-        foreach (var test in so.AblityStone)
+        foreach (var test in so.AbilityStone)
         {
             test.Value.LoadStone();
         }

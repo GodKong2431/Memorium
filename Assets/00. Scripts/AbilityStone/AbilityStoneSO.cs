@@ -1,11 +1,11 @@
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "AblityStoneSO", menuName = "Scriptable Objects/AblityStoneSO")]
+[CreateAssetMenu(fileName = "AbilityStoneSO", menuName = "Scriptable Objects/AbilityStoneSO")]
 public class AblityStoneSO : ScriptableObject
 {
     
-    public SerializedDictionary<StoneGrade, AblityStone> AblityStone = new SerializedDictionary<StoneGrade, AblityStone>();
+    public SerializedDictionary<StoneGrade, AbilityStone> AbilityStone = new SerializedDictionary<StoneGrade, AbilityStone>();
 
     public SerializedDictionary<PlayerStatType, StoneStatProbability> StoneStatProbability = new SerializedDictionary<PlayerStatType, StoneStatProbability>();
     
