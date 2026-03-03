@@ -15,8 +15,6 @@ public sealed class CurrencyInventoryModule : IInventoryModule
     }
 
     #region IInventoryModule
-    public string ModuleName => "CurrencyInventoryModule"; // 모듈 디버깅 식별 이름.
-
     // 전달된 ItemType이 이 모듈의 처리 대상인지 확인한다.
     public bool CanHandle(ItemType itemType)
     {
@@ -103,12 +101,6 @@ public sealed class CurrencyInventoryModule : IInventoryModule
         EnsureCurrencyKey(currencyType);
         amountByCurrency[currencyType] = amountByCurrency[currencyType] - cost;
         return true;
-    }
-
-    // 레거시 오타 메서드명을 사용하던 호출부를 위해 동일 동작 메서드를 유지한다.
-    public bool TrySpendSlience(CurrencyType currencyType, BigDouble cost)
-    {
-        return TrySpendSilent(currencyType, cost);
     }
 
     // 딕셔너리에 재화 키가 없으면 0으로 초기화한다.

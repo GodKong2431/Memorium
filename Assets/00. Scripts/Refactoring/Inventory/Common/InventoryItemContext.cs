@@ -8,9 +8,4 @@ public readonly struct InventoryItemContext
         ItemId = itemId;
         ItemType = itemType;
     }
-
-    public override string ToString()
-    {
-        return $"{ItemId} ({ItemType})";
-    }
 }
