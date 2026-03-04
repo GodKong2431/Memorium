@@ -1,12 +1,11 @@
 using UnityEngine;
 using System;
-using System.Data.Common;
 
 [Serializable]
 public class StoneStatProbability
 {
     [SerializeField] private int id;    
-    [SerializeField] private PlayerStatType stoneType;
+    [SerializeField] private StatType stoneType;
     
     [SerializeField] private string statName;
     
@@ -14,7 +13,7 @@ public class StoneStatProbability
     [SerializeField] private float secondSlotProbability;
     [SerializeField] private float thirdSlotProbability;
 
-    public PlayerStatType StoneType {get {return stoneType;}}
+    public StatType StoneType {get {return stoneType;}}
     public string StatName {get {return statName;}}
     public float FirstSlotProbability {get {return firstSlotProbability;}}
     public float SecondSlotProbability {get {return secondSlotProbability;}}
@@ -22,15 +21,14 @@ public class StoneStatProbability
     
 
 
-    public void LoadStone()
+    public void LoadStone(StatType statType)
     {
-        id = Test1.ID;
-        Test1.ID++;
-        
-        Debug.Log(id);
-        
+        id = AbilityStoneManager.ID;
+        AbilityStoneManager.ID++;
+                
         DataManager.Instance.StoneStatProbabilityDict.TryGetValue(id, out StoneStatProbabilityTable Table);
         
+        stoneType = statType;
         statName = Table.stoneRerollStatName;
         firstSlotProbability = Table.stoneFirstSlot;
         secondSlotProbability = Table.stoneSecondSlot;
