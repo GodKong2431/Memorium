@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 [System.Serializable]
@@ -43,7 +43,7 @@ public class StatUpgrade
         costMultiplyRate = statUpgradeTable.costMultiplyRate;
         this.upgradeCount = upgradeCount;
         stat = this.upgradeCount * statInCrease;
-        currentCost = currentCost ?? statUpgradeTable.baseCost;
+        this.currentCost = currentCost ?? statUpgradeTable.baseCost;
         mgr = CharacterStatManager.Instance;
         UpgradeStat += mgr.FinalStat;
     }

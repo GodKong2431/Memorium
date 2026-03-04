@@ -24,7 +24,7 @@ public class SaveCurrencyData
     //int crystalIndex=0;
 
     //public SerializedDictionary<CurrencyType, int> currencyTypeToValue= new SerializedDictionary<CurrencyType, int>();
-    public SerializedDictionary<CurrencyType, int> currencyTypeToKey= new SerializedDictionary<CurrencyType, int>();
+    public SerializedDictionary<CurrencyType, int> currencyTypeToKey = new SerializedDictionary<CurrencyType, int>();
 
     public SaveCurrencyData()
     { }
@@ -77,15 +77,6 @@ public class SaveCurrencyData
                 }
             }
         }
-        //foreach (var item in DataManager.Instance.ItemInfoDict)
-        //{
-        //    if ((int)item.Value.itemType == (int)CurrencyType.Gold)
-        //        currencyTypeToKey[CurrencyType.Gold] = item.Key;
-        //    if ((int)item.Value.itemType == (int)CurrencyType.Crystal)
-        //        currencyTypeToKey[CurrencyType.Crystal] = item.Key;
-        //    //if (item.Value.itemType == ItemType.PaidCurrency)
-        //    //    crystalIndex = item.Key;
-        //}
     }
 
 
@@ -96,21 +87,22 @@ public class SaveCurrencyData
         //값을 찾을 인덱스
         int index = currencyTypes.IndexOf((int)context.ItemType);
         Debug.Log($"[InventoryManager] {context.ItemType}의 인덱스 : {index} 증가량 {amount}");
-        //if (!currencyValues.Contains(index))
-        //    return;
+        currencyValues[index] = amount;
+    }
+    public void Save(CurrencyType type, BigDouble amount)
+    {
+
+        if (!currencyTypes.Contains((int)type))
+            return;
+        //값을 찾을 인덱스
+        int index = currencyTypes.IndexOf((int)type);
+        Debug.Log($"[InventoryManager] {type}의 인덱스 : {index} 증가량 {amount}");
         currencyValues[index] = amount;
     }
 
     //이걸 OnApplicationQuit에서 사용할 거임
     public void SaveBeforeQuit(CurrencyType currencyType, BigDouble amount)
     {
-        //if (gold == null && crystal == null)
-        //    return;
-        ////이마저도 instance를 못 가져온다
-        //gold = InventoryManager.Instance.GetItemAmount(goldIndex);
-        //crystal = InventoryManager.Instance.GetItemAmount(crystalIndex);
-
-
         //값을 찾을 인덱스
         int index = currencyTypes.IndexOf((int)currencyType);
         Debug.Log($"[InventoryManager] {currencyType}의 인덱스 : {index} 증가량 {amount}");
@@ -119,17 +111,28 @@ public class SaveCurrencyData
 
     public void SetData()
     {
-        //InventoryManager.Instance.AddItem(goldIndex, gold);
-        //InventoryManager.Instance.AddItem(crystalIndex, crystal);
-        //InventoryManager.Instance.AddItem(currencyTypeToKey[CurrencyType.Gold], gold);
-        //InventoryManager.Instance.AddItem(currencyTypeToKey[CurrencyType.Crystal], crystal);
-
         foreach (var currencyType in currencyTypes)
         {
-            if (!currencyTypeToKey.ContainsKey((CurrencyType)currencyType))
-                continue;
             int index = currencyTypes.IndexOf((int)currencyType);
-            InventoryManager.Instance.AddItem(currencyTypeToKey[(CurrencyType)currencyType], currencyValues[index]);
+            if (currencyTypeToKey.ContainsKey((CurrencyType)currencyType))
+            {
+                InventoryManager.Instance.AddItem(currencyTypeToKey[(CurrencyType)currencyType], currencyValues[index]);
+            }
+            else
+            {
+                var currencyModule = InventoryManager.Instance != null
+? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+: null;
+                currencyModule?.AddCurrency((CurrencyType)currencyType, currencyValues[index]);
+            }
         }
     }
+
+    //public void SetOtherCurrencyData()
+    //{
+    //    var currencyModule = InventoryManager.Instance != null
+    //? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+    //: null;
+    //    currencyModule?.AddCurrency(CurrencyType.Exp, finalExp);
+    //}
 }

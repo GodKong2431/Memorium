@@ -1,4 +1,4 @@
-﻿using AYellowpaper.SerializedCollections;
+using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,6 +19,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
     [SerializeField] TestSavePlayerEquipmentData testSaveData;
     [SerializeField] EquipmentHandler equipmentHandler;
+    [SerializeField] SavePlayerData savePlayerData;
 
     [SerializeField] private TraitManager traitManager;
 
@@ -50,10 +51,15 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         Upgrades = characterStatSO.Upgrades;
         Traits = characterStatSO.Traits;
-        
+
+
+        savePlayerData = JSONService.Load<SavePlayerData>();
+
+
         LoadTable();
         testSaveData = JSONService.Load<TestSavePlayerEquipmentData>();
         testSaveData.InitPlayerEquipmentData();
+
 
         //불러온 데이터 플레이어 장착 및 데이터 세팅
         if (equipmentHandler != null)
@@ -85,6 +91,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         GameEventManager.OnCurrencyChanged += levelBonus.ExpCheck;
 
         levelBonus.OnLevelUp += AllUpdate;
+        levelBonus.OnLevelUp += savePlayerData.SaveLevel;
 
         playerSlot.OnSlotUpdate += AllUpdate;
 
@@ -131,7 +138,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
             upgrade.LoadUpgrade();
         }
 
-        levelBonus = new PlayerLevel(level);
+        //levelBonus = new PlayerLevel(level);
+        levelBonus = new PlayerLevel(savePlayerData.GetLevel());
 
         playerSlot = new PlayerSlot(characterTableKey);
 
@@ -140,10 +148,13 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
             trait.LoadTrait();
         }
 
+        savePlayerData.InitPlayerData(characterStatSO);
+
         foreach (StatType statType in Enum.GetValues(typeof(StatType)))
         {
             FinalStats.Add(statType, new FinalStat(statType));
         }
+
 
         EventSet();
 
@@ -232,6 +243,10 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         testSaveData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
         JSONService.Save(testSaveData);
+
+
+        savePlayerData.Save();
+        JSONService.Save(savePlayerData);
     }
 
     #region 버서커 모드 Berserker Mode

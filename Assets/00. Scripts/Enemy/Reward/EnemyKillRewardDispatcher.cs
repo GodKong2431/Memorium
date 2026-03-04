@@ -100,6 +100,11 @@ public static class EnemyKillRewardDispatcher
                 : null;
             currencyModule?.AddCurrency(CurrencyType.Exp, finalExp);
             Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{finalExp}");
+
+
+            //경험치 저장
+            InventoryManager.Instance.saveCurrencyData.Save(CurrencyType.Exp,
+                currencyModule.GetAmount(CurrencyType.Exp));
         }
 
         // 아이템: RewardManager를 통해서만 ItemDropSettings 사용
