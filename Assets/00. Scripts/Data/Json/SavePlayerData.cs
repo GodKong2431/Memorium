@@ -80,7 +80,7 @@ public class SavePlayerData
     {
         if (playerLevel <= 0)
         {
-            playerLevel = 1;
+            //playerLevel = 1;
             return 1;
         }
         else
