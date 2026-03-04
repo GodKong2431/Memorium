@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(ToggleGroup))]
-public class BottomPanelToggleController : MonoBehaviour
+public class BottomPanelController : MonoBehaviour
 {
     // 하단 메인 탭 1개에 대한 설정값 묶음.
     [System.Serializable]

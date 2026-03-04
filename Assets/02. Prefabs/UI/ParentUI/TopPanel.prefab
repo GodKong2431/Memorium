@@ -533,7 +533,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencyUIView
   targetCurrency: 1
-  textAmount: {fileID: 2575861108239226674}
+  amountText: {fileID: 2575861108239226674}
 --- !u!114 &7140011111111111111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2721,7 +2721,7 @@ GameObject:
   - component: {fileID: 4756969387693461568}
   - component: {fileID: 1981860794102213805}
   m_Layer: 5
-  m_Name: QuestUI
+  m_Name: "[\uD31D\uC5C5] \uD328\uB110_\uC9C4\uD589 \uD018\uC2A4\uD2B8"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2804,6 +2804,15 @@ MonoBehaviour:
   textQuestProgress: {fileID: 7660431008338219897}
   imageProgressBar: {fileID: 9076277235014146943}
   btnClaimReward: {fileID: 6502655155182726232}
+  rectQuestHandlePanel: {fileID: 2101457659684505692}
+  rectQuestHandleClickArea: {fileID: 2101457659684505692}
+  rectOpenedPoseReference: {fileID: 2101457659684505692}
+  rectClosedPoseReference: {fileID: 0}
+  openedAnchoredPosX: 0
+  closedAnchoredPosX: -320
+  startOpened: 0
+  objProgressStateUI: {fileID: 0}
+  objCompletedStateUI: {fileID: 0}
 --- !u!1 &6422096393727661024
 GameObject:
   m_ObjectHideFlags: 0
@@ -2896,7 +2905,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencyUIView
   targetCurrency: 0
-  textAmount: {fileID: 170268522584377209}
+  amountText: {fileID: 170268522584377209}
 --- !u!114 &7140011111111111112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3630,3 +3639,4 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+

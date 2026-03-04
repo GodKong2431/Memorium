@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SubMenuToggleTabController : MonoBehaviour
+public class SubMenuController : MonoBehaviour
 {
     // 탭 1개와 연결된 콘텐츠/그래픽 설정.
     [Serializable]

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerEquipment : MonoBehaviour
@@ -13,6 +14,7 @@ public class PlayerEquipment : MonoBehaviour
     public GameObject[] onEquipmentUI;
 
     public EquipmentHandler equipmentHandler;
+
     public void OnEqipItem(int itemId)
     {
         //Debug.Log($"[PlayerEquipment] ID : {itemId} 착용 시도");
@@ -21,6 +23,7 @@ public class PlayerEquipment : MonoBehaviour
             //Debug.Log($"[PlayerEquipment] 아이템 번호 : {itemId}가 존재하지 않습니다.");
             return;
         }
+
         EquipListTable equipment = DataManager.Instance.EquipListDict[itemId];
         //플레이어 데이터에서 해당 능력치를 빼고 장착 후 다시 해당 능력치를 추가하는 코드
         //매니저에 해당 id 값을 저장하는 코드
@@ -64,6 +67,7 @@ public class PlayerEquipment : MonoBehaviour
                 CharacterStatManager.Instance.PlayerSlot.SetSlot(itemId, SlotType.Boots);
                 break;
         }
+
         ChangeOnEquipmentUIImage(equipment.equipmentType, itemId);
         //Debug.Log($"[PlayerEquipment] 아이템 장착 : ${equipment.equipmentName}");
     }
@@ -89,14 +93,45 @@ public class PlayerEquipment : MonoBehaviour
                 itemId = boots.ID;
                 break;
         }
+
         return itemId;
     }
 
     public void ChangeOnEquipmentUIImage(EquipmentType type, int itemId)
     {
+        if (onEquipmentUI == null)
+            return;
+
         int indexNum = (int)type - (int)EquipmentType.Weapon;
-        onEquipmentUI[indexNum].GetComponent<Image>().color=
-            RarityColor.ItemGradeColor(DataManager.Instance.EquipListDict[itemId].rarityType);
-        onEquipmentUI[indexNum].GetComponentInChildren<Text>().text = DataManager.Instance.EquipListDict[itemId].description +"\n"+ DataManager.Instance.EquipListDict[itemId].equipmentName;
+        if (indexNum < 0 || indexNum >= onEquipmentUI.Length)
+            return;
+
+        GameObject targetSlot = onEquipmentUI[indexNum];
+        if (targetSlot == null)
+            return;
+
+        if (!DataManager.Instance.EquipListDict.TryGetValue(itemId, out EquipListTable equipInfo))
+            return;
+
+        Image slotImage = targetSlot.GetComponent<Image>();
+        if (slotImage != null)
+        {
+            // Sub menu toggle 슬롯은 선택/비선택 색을 별도 UI 컨트롤러가 관리한다.
+            // 여기서 rarity 색을 덮어쓰면 탭 색상과 충돌하므로 흰색을 유지한다.
+            if (targetSlot.GetComponent<Toggle>() != null)
+                slotImage.color = Color.white;
+            else
+                slotImage.color = RarityColor.ItemGradeColor(equipInfo.rarityType);
+        }
+
+        string label = equipInfo.description + "\n" + equipInfo.equipmentName;
+
+        Text legacyText = targetSlot.GetComponentInChildren<Text>(true);
+        if (legacyText != null)
+            legacyText.text = label;
+
+        TMP_Text tmpText = targetSlot.GetComponentInChildren<TMP_Text>(true);
+        if (tmpText != null)
+            tmpText.text = label;
     }
 }
