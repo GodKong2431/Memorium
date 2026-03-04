@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +11,11 @@ public class InventoryManager : Singleton<InventoryManager>
     public event Action<InventoryItemContext, BigDouble> OnItemAmountChanged; // 공통 아이템 수량 변경 이벤트.
 
     // 런타임 시작 시 기본 모듈을 한 번만 등록한다.
+
+    //재화를 저장할 객체
+    [SerializeField] SaveCurrencyData saveCurrencyData;
+    public bool DataLoad = false;
+
     protected override void Awake()
     {
         base.Awake();
@@ -191,5 +197,43 @@ public class InventoryManager : Singleton<InventoryManager>
         RegisterModule(new SkillInventoryModule());
         RegisterModule(new StackItemInventoryModule());
         RegisterModule(new EquipmentInventoryModule());
+
+        StartCoroutine(LoadData());
     }
+
+    IEnumerator LoadData()
+    {
+        yield return new WaitUntil(() => DataManager.Instance != null);
+        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        saveCurrencyData = JSONService.Load<SaveCurrencyData>();
+        saveCurrencyData.InitCurrencyData();
+        saveCurrencyData.SetData();
+        DataLoad = true;
+        OnItemAmountChanged += saveCurrencyData.Save;
+    }
+    private void OnDisable ()
+    {
+        if (!DataLoad)
+            return;
+
+        JSONService.Save(saveCurrencyData);
+    }
+    //protected override void OnApplicationQuit()
+    //{
+    //    if (!DataLoad)
+    //        return;
+    //    //foreach (CurrencyType currencyType in Enum.GetValues(typeof(CurrencyType)))
+    //    //{
+    //    //    if (!saveCurrencyData.currencyTypeToKey.ContainsKey(currencyType))
+    //    //    {
+    //    //        Debug.Log($"[InventoryManager] 데이터 저장 시도 : {currencyType} 반환");
+    //    //        continue;
+    //    //    }
+    //    //    Debug.Log($"[InventoryManager] 데이터 저장 시도 : {currencyType}");
+    //    //    saveCurrencyData.SaveBeforeQuit(currencyType, GetItemAmount(saveCurrencyData.currencyTypeToKey[currencyType]));
+    //    //}
+    //    //saveCurrencyData.SaveBeforeQuit();
+    //    JSONService.Save(saveCurrencyData);
+
+    //}
 }

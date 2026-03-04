@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Rendering.Universal;
 using UnityEngine;
 
 /// <summary>
@@ -75,10 +76,11 @@ public static class EnemyKillRewardDispatcher
             {
                 var goldMult = 1.0 + (double)CharacterStatManager.Instance.FinalStats[PlayerStatType.GOLD_GAIN].finalStat;
                 var finalGold = baseGold * goldMult;
-                var currencyModule = InventoryManager.Instance != null
-                    ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
-                    : null;
-                currencyModule?.AddCurrency(CurrencyType.Gold, finalGold);
+                //var currencyModule = InventoryManager.Instance != null
+                //    ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+                //    : null;
+                //currencyModule?.AddCurrency(CurrencyType.Gold, finalGold);
+                InventoryManager.Instance.AddItem(TypeToId.ConvertTypeToId(ItemType.FreeCurrency), finalGold);
                 Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{finalGold}");
             }
         }
