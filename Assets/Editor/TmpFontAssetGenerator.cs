@@ -57,6 +57,33 @@ public static class TmpFontAssetGenerator
                 fontAsset = TMP_FontAsset.CreateFontAsset(sourceFont, 90, 9, GlyphRenderMode.SDFAA, 1024, 1024, AtlasPopulationMode.Dynamic, true);
                 fontAsset.name = sourceFont.name + " TMP";
                 AssetDatabase.CreateAsset(fontAsset, outputPath);
+                var atlasTex = (fontAsset.atlasTextures != null && fontAsset.atlasTextures.Length > 0)
+        ? fontAsset.atlasTextures[0]
+        : null;
+
+                var mat = fontAsset.material;
+
+                if (atlasTex != null)
+                {
+                    atlasTex.name = sourceFont.name + "_Atlas";
+                    AssetDatabase.AddObjectToAsset(atlasTex, fontAsset);
+                    EditorUtility.SetDirty(atlasTex);
+                }
+
+                if (mat != null)
+                {
+                    mat.name = sourceFont.name + "_Material";
+                    AssetDatabase.AddObjectToAsset(mat, fontAsset);
+                    EditorUtility.SetDirty(mat);
+                }
+
+                if (mat != null && atlasTex != null)
+                {
+                    mat.mainTexture = atlasTex;
+                    EditorUtility.SetDirty(mat);
+                }
+
+                EditorUtility.SetDirty(fontAsset);
                 createdCount++;
             }
 
