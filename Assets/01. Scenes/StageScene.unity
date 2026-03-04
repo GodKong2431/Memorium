@@ -400,6 +400,13 @@ MonoBehaviour:
     unLockEquipmentKey: 
     unLockEquipmentValue: 
   equipmentHandler: {fileID: 1988957294}
+  savePlayerData:
+    playerLevel: 0
+    playerStatType_GoldUpgrades: 
+    statUpgradeCount_GoldUpgrades: 
+    statUpgradeCost_GoldUpgrades: []
+    playerStatType_Traits: 
+    currentLevel_Traits: 
   traitManager: {fileID: 0}
   baseStat:
     classType: 0
@@ -2612,12 +2619,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a6f9d66f9d903743942bd905f1002f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  myEquipmentListKeys: 
-  myEquipmentCountKeys: 
-  allEquipmentListKeys: 
-  equipmentHandler: {fileID: 0}
   prefabEquipTierGroup: {fileID: 5220201577418046666, guid: 8f63ba79ee934b546b385f5b2142c2d7, type: 3}
-  finalEquipment: 
   uIPage:
   - {fileID: 4823804304834393278}
   - {fileID: 478756183064229719}
@@ -3471,6 +3473,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1377983143376047672, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+      propertyPath: statType
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 1462235012540100461, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3518,6 +3524,14 @@ PrefabInstance:
     - target: {fileID: 1526006525526602716, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1656372931780999222, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+      propertyPath: statType
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1704299234697190920, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+      propertyPath: statType
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 1726668914203042185, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3638,6 +3652,10 @@ PrefabInstance:
     - target: {fileID: 2131538460796514764, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2150297572348606050, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+      propertyPath: statType
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2156927703194091944, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3934,6 +3952,10 @@ PrefabInstance:
     - target: {fileID: 3274634011817877074, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3336754245693396152, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+      propertyPath: statType
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3383499407683338444, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4375,6 +4397,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5079358415045087117, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+      propertyPath: statType
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 5285699931074171330, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4470,6 +4496,10 @@ PrefabInstance:
     - target: {fileID: 5447546345412400077, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5454687519896149586, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+      propertyPath: statType
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5476689171238662867, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -5070,6 +5100,10 @@ PrefabInstance:
     - target: {fileID: 6963349946793858040, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6982820591689411879, guid: af7578229c8bad64da173077f2c458f9, type: 3}
+      propertyPath: statType
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 7121322231792644049, guid: af7578229c8bad64da173077f2c458f9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -6059,6 +6093,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6019499081686631857, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6277622331246835261, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6335113025110621809, guid: 687a5526d94404140a128184003b4ad4, type: 3}
       propertyPath: amountText
       value: 
@@ -6187,6 +6229,106 @@ PrefabInstance:
       propertyPath: expGauge.valueText
       value: 
       objectReference: {fileID: 5436534838482941181}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[0].type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[1].type
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[2].type
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[3].type
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[4].type
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[5].type
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[6].type
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[7].type
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[8].type
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[9].type
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[10].type
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[11].type
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[12].type
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[13].type
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[14].type
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[15].type
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: finalStatUIs.Array.data[16].type
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: upgradeStatUIs.Array.data[0].type
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: upgradeStatUIs.Array.data[1].type
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: upgradeStatUIs.Array.data[2].type
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: upgradeStatUIs.Array.data[3].type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: upgradeStatUIs.Array.data[4].type
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: upgradeStatUIs.Array.data[5].type
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: upgradeStatUIs.Array.data[6].type
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
+      propertyPath: upgradeStatUIs.Array.data[7].type
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 8847147242347140411, guid: 687a5526d94404140a128184003b4ad4, type: 3}
       propertyPath: finalStatUIs.Array.data[0].statUIItem
       value: 
