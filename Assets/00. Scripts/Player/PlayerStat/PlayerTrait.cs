@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEditor.Build.Pipeline.Interfaces;
 using UnityEngine;
 
 [System.Serializable]
@@ -18,15 +19,15 @@ public class PlayerTrait
 
     public bool unlock = false;
 
-    public PlayerStatType statType;
+    public StatType statType;
 
-    public event Action<PlayerStatType> UpgradeTrait;
+    public event Action<StatType> UpgradeTrait;
 
     public float CurrentStat;
 
     private CharacterStatManager mgr;
 
-    public void LoadTrait()
+    public void LoadTrait(int level = 0)
     {
         DataManager.Instance.TraitInfoDict.TryGetValue(ID, out var value);
 
@@ -38,6 +39,9 @@ public class PlayerTrait
         MaxLevel = value.maxLevel;
         DecreasePoint = value.decreasePoint;
         NeedTrait = value.needTrait;
+        
+        CurrentLevel = level;
+        CurrentStat = CurrentLevel * StatUP;
 
         mgr = CharacterStatManager.Instance;
 

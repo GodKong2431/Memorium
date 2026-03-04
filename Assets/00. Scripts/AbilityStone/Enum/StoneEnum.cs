@@ -12,21 +12,21 @@ public enum StoneGrade
 
 public static class StoneGroups
 {
-    public static readonly HashSet<PlayerStatType> StoneType = new HashSet<PlayerStatType>
+    public static readonly HashSet<StatType> StoneType = new HashSet<StatType>
     {
-        PlayerStatType.ATK,
-        PlayerStatType.MP,
-        PlayerStatType.MP_REGEN,
-        PlayerStatType.CRIT_CHANCE,
-        PlayerStatType.CRIT_MULT,
-        PlayerStatType.BOSS_DMG,
-        PlayerStatType.NORMAL_DMG,
-        PlayerStatType.DMG_MULT,
-        PlayerStatType.HP,
-        PlayerStatType.HP_REGEN,
-        PlayerStatType.PHYS_DEF,
-        PlayerStatType.MAGIC_DEF,
-        PlayerStatType.GOLD_GAIN,
-        PlayerStatType.EXP_GAIN,
+        StatType.ATK,
+        StatType.MP,
+        StatType.MP_REGEN,
+        StatType.CRIT_CHANCE,
+        StatType.CRIT_MULT,
+        StatType.BOSS_DMG,
+        StatType.NORMAL_DMG,
+        StatType.DMG_MULT,
+        StatType.HP,
+        StatType.HP_REGEN,
+        StatType.PHYS_DEF,
+        StatType.MAGIC_DEF,
+        StatType.GOLD_GAIN,
+        StatType.EXP_GAIN,
     };
 }

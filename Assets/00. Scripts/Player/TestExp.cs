@@ -23,7 +23,7 @@ public class TestExp : MonoBehaviour
     [Space(10)]
     [SerializeField] Button buttone;
 
-    [SerializeField] private PlayerStatType playerStatType;
+    [SerializeField] private StatType playerStatType;
 
     [Space(10)]
     [SerializeField] Button buttont;

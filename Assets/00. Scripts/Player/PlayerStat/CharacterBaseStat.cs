@@ -20,7 +20,7 @@ public class CharacterBaseStat
     private CharacterBaseStatInfoTable statTable;
 
     [SerializedDictionary("Base Stat Type", "Value")]
-    public SerializedDictionary<PlayerStatType, float> baseStatValues = new SerializedDictionary<PlayerStatType, float>();
+    public SerializedDictionary<StatType, float> baseStatValues = new SerializedDictionary<StatType, float>();
 
     public CharacterBaseStat(int key)
     {
@@ -38,23 +38,23 @@ public class CharacterBaseStat
         classType = statTable.classType;
 
         baseStatValues.Clear();
-        baseStatValues.Add(PlayerStatType.HP, statTable.baseHP);
-        baseStatValues.Add(PlayerStatType.HP_REGEN, statTable.baseHPRegen);
-        baseStatValues.Add(PlayerStatType.MP, statTable.baseMP);
-        baseStatValues.Add(PlayerStatType.MP_REGEN, statTable.baseMPRegen);
-        baseStatValues.Add(PlayerStatType.ATK, statTable.baseAttack);
-        baseStatValues.Add(PlayerStatType.ATK_SPEED, statTable.baseAttackSpeed);
-        baseStatValues.Add(PlayerStatType.PHYS_DEF, statTable.basePhysicalResist);
-        baseStatValues.Add(PlayerStatType.MAGIC_DEF, statTable.baseMagicResist);
-        baseStatValues.Add(PlayerStatType.CRIT_CHANCE, statTable.baseCritical);
-        baseStatValues.Add(PlayerStatType.CRIT_MULT, statTable.baseCriticalMultiPlier);
-        baseStatValues.Add(PlayerStatType.MOVE_SPEED, statTable.baseMoveSpeed);
-        baseStatValues.Add(PlayerStatType.COOLDOWN_REDUCE, statTable.baseCooltimeRegen);
-        baseStatValues.Add(PlayerStatType.GOLD_GAIN, statTable.baseMoneyGain);
-        baseStatValues.Add(PlayerStatType.EXP_GAIN, statTable.baseExpGain);
-        baseStatValues.Add(PlayerStatType.BOSS_DMG, statTable.baseBossDamage);
-        baseStatValues.Add(PlayerStatType.NORMAL_DMG, statTable.baseNormalDamage);
-        baseStatValues.Add(PlayerStatType.DMG_MULT, statTable.baseFinalMultiPlier);
+        baseStatValues.Add(StatType.HP, statTable.baseHP);
+        baseStatValues.Add(StatType.HP_REGEN, statTable.baseHPRegen);
+        baseStatValues.Add(StatType.MP, statTable.baseMP);
+        baseStatValues.Add(StatType.MP_REGEN, statTable.baseMPRegen);
+        baseStatValues.Add(StatType.ATK, statTable.baseAttack);
+        baseStatValues.Add(StatType.ATK_SPEED, statTable.baseAttackSpeed);
+        baseStatValues.Add(StatType.PHYS_DEF, statTable.basePhysicalResist);
+        baseStatValues.Add(StatType.MAGIC_DEF, statTable.baseMagicResist);
+        baseStatValues.Add(StatType.CRIT_CHANCE, statTable.baseCritical);
+        baseStatValues.Add(StatType.CRIT_MULT, statTable.baseCriticalMultiPlier);
+        baseStatValues.Add(StatType.MOVE_SPEED, statTable.baseMoveSpeed);
+        baseStatValues.Add(StatType.COOLDOWN_REDUCE, statTable.baseCooltimeRegen);
+        baseStatValues.Add(StatType.GOLD_GAIN, statTable.baseMoneyGain);
+        baseStatValues.Add(StatType.EXP_GAIN, statTable.baseExpGain);
+        baseStatValues.Add(StatType.BOSS_DMG, statTable.baseBossDamage);
+        baseStatValues.Add(StatType.NORMAL_DMG, statTable.baseNormalDamage);
+        baseStatValues.Add(StatType.DMG_MULT, statTable.baseFinalMultiPlier);
     }
 }
 

@@ -74,7 +74,7 @@ public static class EnemyKillRewardDispatcher
             var baseGold = dropSettings.dropGold;
             if (baseGold > 0)
             {
-                var goldMult = 1.0 + (double)CharacterStatManager.Instance.FinalStats[PlayerStatType.GOLD_GAIN].finalStat;
+                var goldMult = 1.0 + (double)CharacterStatManager.Instance.FinalStats[StatType.GOLD_GAIN].finalStat;
                 var finalGold = baseGold * goldMult;
                 //var currencyModule = InventoryManager.Instance != null
                 //    ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
@@ -94,7 +94,7 @@ public static class EnemyKillRewardDispatcher
         }
         if (exp > 0)
         {
-            var finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.FinalStats[PlayerStatType.EXP_GAIN].finalStat));
+            var finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.FinalStats[StatType.EXP_GAIN].finalStat));
             var currencyModule = InventoryManager.Instance != null
                 ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
                 : null;

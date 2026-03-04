@@ -12,11 +12,11 @@ public class StatUpgrade
     [SerializeField] private float costMultiplyRate;
     [SerializeField] private float stat;
     [SerializeField] private BigDouble currentCost;
-    [SerializeField] private PlayerStatType statType;
+    [SerializeField] private StatType statType;
 
     private CharacterStatManager mgr;
 
-    public event Action<PlayerStatType> UpgradeStat;
+    public event Action<StatType> UpgradeStat;
 
     public int ID {get {return id;}}
     public string StatName {  get { return statName; } }
@@ -32,17 +32,18 @@ public class StatUpgrade
 
     public BigDouble CurrentCost { get { return currentCost; } }
 
-    public PlayerStatType StatType {get {return statType;}}
+    public StatType StatType {get {return statType;}}
 
-    public void LoadUpgrade()
-    {
+    public void LoadUpgrade(int upgradeCount = 0, BigDouble? currentCost = null)
+    {   
         DataManager.Instance.StatUpgradeDict.TryGetValue(ID, out StatUpgradeTable statUpgradeTable);
         statName = statUpgradeTable.statName;
         statInCrease = statUpgradeTable.statInCrease;
         baseCost = statUpgradeTable.baseCost;
         costMultiplyRate = statUpgradeTable.costMultiplyRate;
-        stat = upgradeCount * statInCrease;
-        currentCost = statUpgradeTable.baseCost;
+        this.upgradeCount = upgradeCount;
+        stat = this.upgradeCount * statInCrease;
+        currentCost = currentCost ?? statUpgradeTable.baseCost;
         mgr = CharacterStatManager.Instance;
         UpgradeStat += mgr.FinalStat;
     }
