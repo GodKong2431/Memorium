@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -81,7 +81,7 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, StoneTable> StoneDict;
     public Dictionary<int, StoneStatProbabilityTable> StoneStatProbabilityDict;
     public Dictionary<int, StoneGradeStatUpTable> StoneGradeStatUpDict;
-    public Dictionary<int, StoneTotalUpBonus> StoneTotalUpBonusDict;
+    //public Dictionary<int, StoneTotalUpBonus> StoneTotalUpBonusDict;
     
     #endregion
 

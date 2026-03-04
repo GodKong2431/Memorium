@@ -1,4 +1,4 @@
-﻿using AYellowpaper.SerializedCollections;
+using AYellowpaper.SerializedCollections;
 using System;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
@@ -109,6 +109,10 @@ public class PlayerLevel
             if (CurrentLevel > 30)
             {
                 currencyModule.AddCurrency(CurrencyType.TraitPoint, 1);
+
+                //값을 더하는 게 아니라 가져와야 하네
+
+                InventoryManager.Instance.saveCurrencyData.Save(CurrencyType.TraitPoint, currencyModule.GetAmount(CurrencyType.TraitPoint));
             }
 
             OnLevelUp?.Invoke();

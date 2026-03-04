@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEditor.Build.Pipeline.Interfaces;
 using UnityEngine;
 
@@ -73,6 +73,8 @@ public class PlayerTrait
         CurrentLevel++;
         CurrentStat = CurrentLevel * StatUP;
         UpgradeTrait?.Invoke(statType);
+
+        InventoryManager.Instance.saveCurrencyData.Save(CurrencyType.TraitPoint, currencyModule.GetAmount(CurrencyType.TraitPoint));
         return true;
     }
 

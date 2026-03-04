@@ -13,7 +13,7 @@ public class InventoryManager : Singleton<InventoryManager>
     // 런타임 시작 시 기본 모듈을 한 번만 등록한다.
 
     //재화를 저장할 객체
-    [SerializeField] SaveCurrencyData saveCurrencyData;
+    public SaveCurrencyData saveCurrencyData;
     public bool DataLoad = false;
 
     protected override void Awake()
