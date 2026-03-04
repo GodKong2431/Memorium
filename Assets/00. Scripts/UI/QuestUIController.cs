@@ -1,9 +1,9 @@
-﻿using System.Collections;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class QuestUIController : MonoBehaviour
+public class QuestUIController : UIControllerBase
 {
     [Header("퀘스트 패널")]
     [SerializeField] private RectTransform rectQuestPanel;
@@ -35,7 +35,8 @@ public class QuestUIController : MonoBehaviour
 
     private Coroutine initializeRoutine;
     private Coroutine panelMoveRoutine;
-    private bool isBound;
+    private QuestUIView questView;
+
     private bool isOpened;
     private bool isQuestCompleted;
     private Vector2 openedAnchoredPosition;
@@ -45,14 +46,24 @@ public class QuestUIController : MonoBehaviour
     private Vector3 cachedArrowScale;
     private bool hasCachedArrowScale;
 
-    private void Awake()
+    protected override void Initialize()
     {
+        questView = new QuestUIView(
+            textQuestName,
+            textQuestNumber,
+            objQuestProgressSliderRoot,
+            sliderQuestProgress,
+            imageQuestReward,
+            btnRewardTouch,
+            textRewardTouch
+        );
+
         CacheOpenedPosition();
         CacheTogglePosition();
         CacheArrowScale();
     }
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
         CacheOpenedPosition();
         CacheTogglePosition();
@@ -61,13 +72,14 @@ public class QuestUIController : MonoBehaviour
         isOpened = startOpened;
         ApplyFoldState(true);
 
-        btnToggleQuestPanel.onClick.AddListener(TogglePanel);
+        if (btnToggleQuestPanel != null)
+            btnToggleQuestPanel.onClick.AddListener(TogglePanel);
 
-        if (initializeRoutine == null)
-            initializeRoutine = StartCoroutine(InitializeAfterDataLoad());
+        base.OnEnable();
+        StartInitializeRoutine();
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
         if (initializeRoutine != null)
         {
@@ -81,39 +93,85 @@ public class QuestUIController : MonoBehaviour
             panelMoveRoutine = null;
         }
 
-        btnToggleQuestPanel.onClick.RemoveListener(TogglePanel);
+        if (btnToggleQuestPanel != null)
+            btnToggleQuestPanel.onClick.RemoveListener(TogglePanel);
 
-        Unbind();
+        base.OnDisable();
+    }
+
+    protected override void Subscribe()
+    {
+        GameEventManager.OnQuestProgressChanged += RefreshView;
+        questView.BindRewardButton(OnClickRewardTouch);
+    }
+
+    protected override void Unsubscribe()
+    {
+        GameEventManager.OnQuestProgressChanged -= RefreshView;
+        questView.UnbindRewardButton(OnClickRewardTouch);
+    }
+
+    protected override void RefreshView()
+    {
+        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.LineQuestDict == null)
+            return;
+
+        if (QuestManager.Instance == null)
+            return;
+
+        LineQuestTable questData = QuestManager.Instance.CurrentQuestData;
+        int currentProgress = QuestManager.Instance.currentProgress;
+
+        if (questData == null)
+        {
+            isQuestCompleted = false;
+            questView.SetQuestInfo("-", allClearTitle);
+            questView.SetProgress(1f);
+            questView.SetRewardSprite(spriteRewardInProgress);
+            questView.SetRewardButtonInteractable(false);
+            ApplyFoldState();
+            return;
+        }
+
+        int requiredCount = Mathf.Max(1, questData.reqCount);
+        int clampedCurrent = Mathf.Clamp(currentProgress, 0, requiredCount);
+        float progress01 = (float)clampedCurrent / requiredCount;
+
+        isQuestCompleted = currentProgress >= questData.reqCount;
+        questView.SetQuestInfo($"no. {questData.questNum}", questData.questTitle);
+        questView.SetProgress(progress01);
+
+        if (isQuestCompleted)
+        {
+            questView.SetRewardSprite(spriteRewardReady);
+            questView.SetRewardButtonInteractable(true);
+            questView.SetRewardTouchText(rewardTouchText);
+        }
+        else
+        {
+            questView.SetRewardSprite(spriteRewardInProgress);
+            questView.SetRewardButtonInteractable(false);
+        }
+
+        ApplyFoldState();
+    }
+
+    private void StartInitializeRoutine()
+    {
+        if (initializeRoutine != null)
+            StopCoroutine(initializeRoutine);
+
+        initializeRoutine = StartCoroutine(InitializeAfterDataLoad());
     }
 
     private IEnumerator InitializeAfterDataLoad()
     {
         yield return new WaitUntil(() => DataManager.Instance != null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        yield return new WaitUntil(() => QuestManager.Instance != null);
 
-        Bind();
         RefreshView();
         initializeRoutine = null;
-    }
-
-    private void Bind()
-    {
-        if (isBound)
-            return;
-
-        GameEventManager.OnQuestProgressChanged += RefreshView;
-        btnRewardTouch.onClick.AddListener(OnClickRewardTouch);
-        isBound = true;
-    }
-
-    private void Unbind()
-    {
-        if (!isBound)
-            return;
-
-        GameEventManager.OnQuestProgressChanged -= RefreshView;
-        btnRewardTouch.onClick.RemoveListener(OnClickRewardTouch);
-        isBound = false;
     }
 
     private void TogglePanel()
@@ -131,52 +189,9 @@ public class QuestUIController : MonoBehaviour
         RefreshView();
     }
 
-    private void RefreshView()
-    {
-        if (QuestManager.Instance == null)
-            return;
-
-        LineQuestTable questData = QuestManager.Instance.CurrentQuestData;
-        int currentProgress = QuestManager.Instance.currentProgress;
-
-        if (questData == null)
-        {
-            isQuestCompleted = false;
-            SetQuestInfo("-", allClearTitle);
-            SetProgress(1f);
-            SetRewardSprite(spriteRewardInProgress);
-            btnRewardTouch.interactable = false;
-            ApplyFoldState();
-            return;
-        }
-
-        int requiredCount = Mathf.Max(1, questData.reqCount);
-        int clampedCurrent = Mathf.Clamp(currentProgress, 0, requiredCount);
-        float progress01 = (float)clampedCurrent / requiredCount;
-
-        isQuestCompleted = currentProgress >= questData.reqCount;
-
-        SetQuestInfo($"no. {questData.questNum}", questData.questTitle);
-        SetProgress(progress01);
-
-        if (isQuestCompleted)
-        {
-            SetRewardSprite(spriteRewardReady);
-            btnRewardTouch.interactable = true;
-            textRewardTouch.text = rewardTouchText;
-        }
-        else
-        {
-            SetRewardSprite(spriteRewardInProgress);
-            btnRewardTouch.interactable = false;
-        }
-
-        ApplyFoldState();
-    }
-
     private void CacheOpenedPosition()
     {
-        if (hasCachedOpenPosition)
+        if (hasCachedOpenPosition || rectQuestPanel == null)
             return;
 
         openedAnchoredPosition = rectQuestPanel.anchoredPosition;
@@ -191,13 +206,14 @@ public class QuestUIController : MonoBehaviour
 
     private Vector2 GetTogglePositionByState()
     {
+        if (rectToggleArrow == null)
+            return openedToggleAnchoredPosition;
+
         float openSign = GetScaleSign(openedArrowScaleX);
         float currentSign = isOpened ? openSign : GetScaleSign(foldedArrowScaleX);
-
-        // 화살표를 좌우 반전하면 Pivot 기준으로 폭만큼 시각 위치가 밀리므로 오프셋을 보정한다.
         float width = rectToggleArrow.rect.width;
         float pivotOffset = width * ((2f * rectToggleArrow.pivot.x) - 1f);
-        float signDelta = (currentSign - openSign) * 0.5f; // same sign: 0, +->-: -1, -->+: +1
+        float signDelta = (currentSign - openSign) * 0.5f;
         float compensationX = -pivotOffset * signDelta;
 
         return openedToggleAnchoredPosition + new Vector2(compensationX, 0f);
@@ -210,20 +226,24 @@ public class QuestUIController : MonoBehaviour
 
     private float GetEffectiveFoldDistanceX()
     {
-        RectTransform parentRect = (RectTransform)rectQuestPanel.parent;
-        Bounds handleBoundsInPanel = RectTransformUtility.CalculateRelativeRectTransformBounds(rectQuestPanel, rectToggleArrow);
+        if (rectQuestPanel == null || rectToggleArrow == null)
+            return Mathf.Max(0f, foldDistanceX);
 
+        RectTransform parentRect = rectQuestPanel.parent as RectTransform;
+        if (parentRect == null)
+            return Mathf.Max(0f, foldDistanceX);
+
+        Bounds handleBoundsInPanel = RectTransformUtility.CalculateRelativeRectTransformBounds(rectQuestPanel, rectToggleArrow);
         float requestedFold = Mathf.Max(0f, foldDistanceX);
         float openHandleRightX = openedAnchoredPosition.x + handleBoundsInPanel.max.x;
         float minHandleRightX = parentRect.rect.xMin + minVisibleHandleWidth;
         float maxFoldToKeepHandleVisible = Mathf.Max(0f, openHandleRightX - minHandleRightX);
-
         return Mathf.Min(requestedFold, maxFoldToKeepHandleVisible);
     }
 
     private void CacheArrowScale()
     {
-        if (hasCachedArrowScale)
+        if (hasCachedArrowScale || rectToggleArrow == null)
             return;
 
         cachedArrowScale = rectToggleArrow.localScale;
@@ -232,7 +252,7 @@ public class QuestUIController : MonoBehaviour
 
     private void CacheTogglePosition()
     {
-        if (hasCachedTogglePosition)
+        if (hasCachedTogglePosition || rectToggleArrow == null)
             return;
 
         openedToggleAnchoredPosition = rectToggleArrow.anchoredPosition;
@@ -241,6 +261,9 @@ public class QuestUIController : MonoBehaviour
 
     private void MovePanel(Vector2 targetPosition, Vector2 targetTogglePosition, bool instant)
     {
+        if (rectQuestPanel == null || rectToggleArrow == null)
+            return;
+
         if (panelMoveRoutine != null)
         {
             StopCoroutine(panelMoveRoutine);
@@ -259,6 +282,9 @@ public class QuestUIController : MonoBehaviour
 
     private IEnumerator CoMovePanel(Vector2 targetPosition, Vector2 targetTogglePosition)
     {
+        if (rectQuestPanel == null || rectToggleArrow == null)
+            yield break;
+
         Vector2 startPosition = rectQuestPanel.anchoredPosition;
         Vector2 startTogglePosition = rectToggleArrow.anchoredPosition;
         float elapsed = 0f;
@@ -280,10 +306,10 @@ public class QuestUIController : MonoBehaviour
     private void ApplyFoldState(bool instant = false)
     {
         bool showRewardTouch = isQuestCompleted;
-        objQuestProgressSliderRoot.SetActive(!showRewardTouch);
-        btnRewardTouch.gameObject.SetActive(showRewardTouch);
+        questView.SetProgressVisible(!showRewardTouch);
+        questView.SetRewardButtonVisible(showRewardTouch);
         if (showRewardTouch)
-            textRewardTouch.text = rewardTouchText;
+            questView.SetRewardTouchText(rewardTouchText);
 
         Vector2 targetPosition = isOpened ? openedAnchoredPosition : GetFoldedPosition();
         Vector2 targetTogglePosition = GetTogglePositionByState();
@@ -293,24 +319,11 @@ public class QuestUIController : MonoBehaviour
 
     private void ApplyArrowDirection()
     {
+        if (rectToggleArrow == null)
+            return;
+
         float baseAbsX = Mathf.Approximately(cachedArrowScale.x, 0f) ? 1f : Mathf.Abs(cachedArrowScale.x);
         float targetScaleX = baseAbsX * (isOpened ? openedArrowScaleX : foldedArrowScaleX);
         rectToggleArrow.localScale = new Vector3(targetScaleX, cachedArrowScale.y, cachedArrowScale.z);
-    }
-
-    private void SetQuestInfo(string number, string name)
-    {
-        textQuestNumber.text = number;
-        textQuestName.text = name;
-    }
-
-    private void SetProgress(float value)
-    {
-        sliderQuestProgress.SetValueWithoutNotify(value);
-    }
-
-    private void SetRewardSprite(Sprite sprite)
-    {
-        imageQuestReward.sprite = sprite;
     }
 }

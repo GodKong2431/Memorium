@@ -1,10 +1,10 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
 /// <summary>
-/// 스테이지 HUD(라벨, 진행도, 보스 소환 버튼) 표시를 담당하는 UI 뷰 래퍼.
+/// Stage HUD 렌더링과 버튼 바인딩만 담당한다.
 /// </summary>
 public sealed class StageUIView
 {
@@ -43,56 +43,51 @@ public sealed class StageUIView
         this.summonBossDisabledColor = summonBossDisabledColor;
     }
 
-    
-
-    // 스테이지 이름(지역명)을 MapInfo에 갱신한다.
-    public void SetStageName(string stageName)
+    public void Render(int chapter, int stageNumber, string stageName, int currentKill, int maxKill)
     {
-        mapInfoStageNameText.text = stageName;
+        SetStageLevel(chapter, stageNumber);
+        SetStageName(stageName);
+        SetStageProgress(currentKill, maxKill);
     }
 
-    // 스테이지 레벨(층-스테이지)을 팝업/MapInfo 양쪽에 동일하게 반영한다.
+    public void SetStageName(string stageName)
+    {
+        mapInfoStageNameText.text = string.IsNullOrEmpty(stageName) ? "-" : stageName;
+    }
+
     public void SetStageLevel(int chapter, int stage)
     {
-        string levelText = $"{chapter}-{stage}";
+        string levelText = chapter > 0 && stage > 0 ? $"{chapter}-{stage}" : "-";
         popupStageLevelText.text = levelText;
         mapInfoStageLevelText.text = levelText;
     }
 
-    // 처치 진행도를 텍스트/슬라이더에 반영하고 보스 버튼 상태를 갱신한다.
     public void SetStageProgress(int currentKill, int maxKill)
     {
-        // int clampedCurrent = Mathf.Max(0, currentKill);
-        // int clampedMax = Mathf.Max(0, maxKill);
-
-        if (maxKill > 0 && currentKill > maxKill)
-            currentKill = maxKill;
-
-        int progressPercent = maxKill > 0
-            ? Mathf.RoundToInt((currentKill / (float)maxKill) * 100f)
+        int clampedMax = Mathf.Max(0, maxKill);
+        int clampedCurrent = Mathf.Clamp(currentKill, 0, clampedMax);
+        int progressPercent = clampedMax > 0
+            ? Mathf.RoundToInt((clampedCurrent / (float)clampedMax) * 100f)
             : 0;
+
         progressText.text = $"{progressPercent}%";
         progressSlider.minValue = 0f;
-        progressSlider.maxValue = maxKill > 0 ? maxKill : 1f;
-        progressSlider.value = currentKill;
-
-        SetSummonInteractable(maxKill > 0 && currentKill >= maxKill);
+        progressSlider.maxValue = clampedMax > 0 ? clampedMax : 1f;
+        progressSlider.SetValueWithoutNotify(clampedCurrent);
+        SetSummonInteractable(clampedMax > 0 && clampedCurrent >= clampedMax);
     }
 
-    // 버튼 클릭 액션을 연결한다.
     public void BindSummonButton(UnityAction onClick)
     {
         summonBossButton.onClick.RemoveListener(onClick);
         summonBossButton.onClick.AddListener(onClick);
     }
 
-    // 버튼 클릭 액션을 해제한다.
     public void UnbindSummonButton(UnityAction onClick)
     {
         summonBossButton.onClick.RemoveListener(onClick);
     }
 
-    // 보스 소환 버튼의 활성/비활성 상태를 단일 버튼 색상으로 전환한다.
     public void SetSummonInteractable(bool interactable)
     {
         summonBossButton.interactable = interactable;

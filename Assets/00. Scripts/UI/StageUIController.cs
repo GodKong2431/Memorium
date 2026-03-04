@@ -1,8 +1,8 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StageUIController : MonoBehaviour
+public class StageUIController : UIControllerBase
 {
     [Header("팝업 스테이지 레벨")]
     [SerializeField] private TextMeshProUGUI textPopupStageLevel;
@@ -24,12 +24,11 @@ public class StageUIController : MonoBehaviour
     [SerializeField] private Color colorSummonBossEnabled = new Color(1f, 1f, 1f, 1f);
     [SerializeField] private Color colorSummonBossDisabled = new Color(0.49411765f, 0.49411765f, 0.49411765f, 1f);
 
-    private StageUIView stageUI;
+    private StageUIView stageView;
 
-    // 인스펙터에 직렬화된 참조로 UI 뷰 래퍼를 초기화한다.
-    private void Awake()
+    protected override void Initialize()
     {
-        stageUI = new StageUIView(
+        stageView = new StageUIView(
             textPopupStageLevel,
             textMapInfoStageName,
             textMapInfoStageLevel,
@@ -43,80 +42,65 @@ public class StageUIController : MonoBehaviour
         );
     }
 
-    // 이벤트를 구독하고 현재 스테이지 상태를 즉시 반영한다.
-    private void OnEnable()
+    protected override void Subscribe()
     {
-        GameEventManager.OnStageChanged += UpdateStageChanged;
-        GameEventManager.OnStageProgressChanged += UpdateStageProgress;
-
-        stageUI.BindSummonButton(OnClickSummonBoss);
-        stageUI.SetSummonInteractable(false);
-        RefreshFromCurrentState();
+        GameEventManager.OnStageChanged += OnStageChanged;
+        GameEventManager.OnStageProgressChanged += OnStageProgressChanged;
+        stageView.BindSummonButton(OnClickSummonBoss);
     }
 
-    // 비활성화 시 이벤트를 해제해 중복 호출을 방지한다.
-    private void OnDisable()
+    protected override void Unsubscribe()
     {
-        GameEventManager.OnStageChanged -= UpdateStageChanged;
-        GameEventManager.OnStageProgressChanged -= UpdateStageProgress;
-
-        stageUI.UnbindSummonButton(OnClickSummonBoss);
+        GameEventManager.OnStageChanged -= OnStageChanged;
+        GameEventManager.OnStageProgressChanged -= OnStageProgressChanged;
+        stageView.UnbindSummonButton(OnClickSummonBoss);
     }
 
-    // 스테이지 변경 이벤트를 받아 이름/레벨을 갱신한다.
-    private void UpdateStageChanged(int chapter, int stage)
+    protected override void RefreshView()
     {
-        stageUI.SetStageLevel(chapter, stage);
-        stageUI.SetStageName(ResolveSceneStageName());
+        if (StageManager.Instance == null)
+        {
+            stageView.Render(0, 0, string.Empty, 0, 0);
+            stageView.SetSummonInteractable(false);
+            return;
+        }
+
+        int chapter = StageManager.Instance.curFloor;
+        int stageNumber = ResolveSceneStageNumber();
+        string stageName = ResolveSceneStageName();
+        int currentKill = StageManager.Instance.curMonsterKillCount;
+        int maxKill = StageManager.Instance.maxMonsterKillCount;
+
+        stageView.Render(chapter, stageNumber, stageName, currentKill, maxKill);
     }
 
-    // 진행도 변경 이벤트를 받아 텍스트/슬라이더를 갱신한다.
-    private void UpdateStageProgress(int currentKill, int maxKill)
+    private void OnStageChanged(int chapter, int stage)
     {
-        stageUI.SetStageProgress(currentKill, maxKill);
+        stageView.SetStageLevel(chapter, stage);
+        stageView.SetStageName(ResolveSceneStageName());
     }
 
-    // 보스 소환 버튼 클릭 시 버튼을 잠그고 소환 이벤트를 전달한다.
+    private void OnStageProgressChanged(int currentKill, int maxKill)
+    {
+        stageView.SetStageProgress(currentKill, maxKill);
+    }
+
     private void OnClickSummonBoss()
     {
-        stageUI.SetSummonInteractable(false);
+        stageView.SetSummonInteractable(false);
         GameEventManager.OnSummonBossClicked?.Invoke();
     }
 
-    // 패널 재진입 시 현재 스테이지 이름/레벨/진행도를 다시 그린다.
-    private void RefreshFromCurrentState()
-    {
-        if (StageManager.Instance == null)
-            return;
-
-        int chapter = StageManager.Instance.curFloor;
-        int stage = ResolveSceneStageNumber();
-        if (chapter > 0 && stage > 0)
-            stageUI.SetStageLevel(chapter, stage);
-
-        stageUI.SetStageName(ResolveSceneStageName());
-        stageUI.SetStageProgress(StageManager.Instance.curMonsterKillCount, StageManager.Instance.maxMonsterKillCount);
-    }
-
-    // 현재 인덱스를 씬 표기용 스테이지 번호로 변환한다.
     private static int ResolveSceneStageNumber()
     {
-        if (!TryResolveCurrentStageData(out StageManageTable stageData))
-            return 0;
-
-        return stageData.sceneNumber;
+        return TryResolveCurrentStageData(out StageManageTable stageData) ? stageData.sceneNumber : 0;
     }
 
-    // 현재 스테이지 이름(지역명)을 조회한다.
     private static string ResolveSceneStageName()
     {
-        if (!TryResolveCurrentStageData(out StageManageTable stageData))
-            return string.Empty;
-
-        return stageData.stageName;
+        return TryResolveCurrentStageData(out StageManageTable stageData) ? stageData.stageName : string.Empty;
     }
 
-    // 현재 StageManager/DataManager 상태를 기준으로 스테이지 데이터를 조회한다.
     private static bool TryResolveCurrentStageData(out StageManageTable stageData)
     {
         stageData = null;
@@ -130,7 +114,6 @@ public class StageUIController : MonoBehaviour
 
         int index = Mathf.Clamp(StageManager.Instance.curStage - 1, 0, StageManager.Instance.stageKeyList.Count - 1);
         int stageKey = StageManager.Instance.stageKeyList[index];
-
         return DataManager.Instance.StageManageDict.TryGetValue(stageKey, out stageData);
     }
 }
