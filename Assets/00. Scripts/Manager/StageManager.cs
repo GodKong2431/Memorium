@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,6 +11,7 @@ public class StageManager : Singleton<StageManager>
 {
     // Current stage index starts at 1.
     public int curStage = 1;
+    public int maxStage = 1;
     public int curMonsterKillCount = 0;
     public int maxMonsterKillCount = 0;
 
@@ -37,10 +40,21 @@ public class StageManager : Singleton<StageManager>
 
     public bool onFailedStage = false;
 
+    public SaveStageData saveStageData;
+    public event Action OnStageClearOrFailed;
+
     private IEnumerator Start()
     {
         yield return new WaitUntil(() => DataManager.Instance != null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+
+
+        saveStageData = JSONService.Load<SaveStageData>();
+        (curStage, maxStage, onFailedStage) = saveStageData.InitStageData();
+        OnStageClearOrFailed += () =>
+        {
+            saveStageData.Save(curStage, maxStage, onFailedStage);
+        };
 
         Init();
         SetReward();
@@ -92,7 +106,7 @@ public class StageManager : Singleton<StageManager>
         if (isReadyToBossSpawn)
             return;
 
-        Debug.Log("[StageManager] º¸½º ¼ÒÈ¯ ¹öÆ° Å¬¸¯");
+        Debug.Log("[StageManager] ë³´ìŠ¤ ì†Œí™˜ ë²„íŠ¼ í´ë¦­");
         isReadyToBossSpawn = true;
         onClickBossSpawnBtn = true;
 
@@ -171,6 +185,8 @@ public class StageManager : Singleton<StageManager>
             SetReward();
             SetKillCount();
             infinityMap?.MapReset();
+
+            OnStageClearOrFailed.Invoke();
         }
         else
         {
@@ -193,6 +209,8 @@ public class StageManager : Singleton<StageManager>
             SetReward();
             SetKillCount();
             infinityMap?.MapReset();
+
+            OnStageClearOrFailed.Invoke();
         }
         else
         {
@@ -210,7 +228,7 @@ public class StageManager : Singleton<StageManager>
 
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log("[StageManager] ¾À ³Ñ¾î°¨À¸·Î ÀÎÇØ °ª ÃÊ±âÈ­");
+        Debug.Log("[StageManager] ì”¬ ë„˜ì–´ê°ìœ¼ë¡œ ì¸í•´ ê°’ ì´ˆê¸°í™”");
         Init();
         SetReward();
         SetKillCount();
