@@ -6,12 +6,6 @@ public class InventoryManager : Singleton<InventoryManager>
 {
     private readonly List<IInventoryModule> modules = new List<IInventoryModule>(); // 허브에 등록된 인벤토리 모듈 목록.
     private readonly Dictionary<ItemType, IInventoryModule> routeByItemType = new Dictionary<ItemType, IInventoryModule>(); // ItemType별 라우팅 캐시.
-    private readonly Dictionary<Type, IInventoryModule> moduleByType = new Dictionary<Type, IInventoryModule>(); // 모듈 타입 조회 캐시.
-
-    private CurrencyInventoryModule currencyModule; // 재화 모듈 캐시.
-    private SkillInventoryModule skillModule; // 스킬 모듈 캐시.
-    private StackItemInventoryModule stackItemModule; // 일반 스택 아이템 모듈 캐시.
-    private EquipmentInventoryModule equipmentModule; // 장비 모듈 캐시.
 
     public event Action<InventoryItemContext, BigDouble> OnItemAmountChanged; // 공통 아이템 수량 변경 이벤트.
 
@@ -31,7 +25,6 @@ public class InventoryManager : Singleton<InventoryManager>
             return;
 
         modules.Add(module);
-        moduleByType[module.GetType()] = module;
         routeByItemType.Clear();
     }
 
@@ -43,36 +36,16 @@ public class InventoryManager : Singleton<InventoryManager>
         if (!modules.Remove(module))
             return;
 
-        Type moduleType = module.GetType();
-        if (moduleByType.TryGetValue(moduleType, out var cached) && ReferenceEquals(cached, module))
-            moduleByType.Remove(moduleType);
-
-        if (ReferenceEquals(currencyModule, module))
-            currencyModule = null;
-        if (ReferenceEquals(skillModule, module))
-            skillModule = null;
-        if (ReferenceEquals(stackItemModule, module))
-            stackItemModule = null;
-        if (ReferenceEquals(equipmentModule, module))
-            equipmentModule = null;
-
         routeByItemType.Clear();
     }
 
     // 모듈 타입으로 등록된 모듈을 조회한다.
     public TModule GetModule<TModule>() where TModule : class, IInventoryModule
     {
-        Type type = typeof(TModule);
-        if (moduleByType.TryGetValue(type, out var cached))
-            return cached as TModule;
-
         for (int i = 0; i < modules.Count; i++)
         {
             if (modules[i] is TModule typed)
-            {
-                moduleByType[type] = typed;
                 return typed;
-            }
         }
 
         return null;
@@ -214,16 +187,9 @@ public class InventoryManager : Singleton<InventoryManager>
         if (modules.Count > 0)
             return;
 
-        currencyModule = new CurrencyInventoryModule();
-        RegisterModule(currencyModule);
-
-        skillModule = new SkillInventoryModule();
-        RegisterModule(skillModule);
-
-        stackItemModule = new StackItemInventoryModule();
-        RegisterModule(stackItemModule);
-
-        equipmentModule = new EquipmentInventoryModule();
-        RegisterModule(equipmentModule);
+        RegisterModule(new CurrencyInventoryModule());
+        RegisterModule(new SkillInventoryModule());
+        RegisterModule(new StackItemInventoryModule());
+        RegisterModule(new EquipmentInventoryModule());
     }
 }

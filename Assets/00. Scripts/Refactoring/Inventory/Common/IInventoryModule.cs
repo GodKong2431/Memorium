@@ -1,7 +1,5 @@
 public interface IInventoryModule
 {
-    string ModuleName { get; } // 디버깅 시 어떤 모듈이 처리했는지 확인하기 위한 이름.
-
     // 전달된 ItemType을 이 모듈이 처리할 수 있는지 검사한다.
     bool CanHandle(ItemType itemType);
 

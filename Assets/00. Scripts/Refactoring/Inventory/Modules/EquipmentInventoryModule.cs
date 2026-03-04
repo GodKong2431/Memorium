@@ -13,8 +13,6 @@ public sealed class EquipmentInventoryModule : IInventoryModule
     private PlayerInventory inventoryView; // 장비 인벤토리 UI 렌더링 전용 뷰.
 
     #region IInventoryModule
-    public string ModuleName => "EquipmentInventoryModule"; // 허브에서 모듈 식별 시 사용하는 이름.
-
     // 장비 타입만 이 모듈에서 처리한다.
     public bool CanHandle(ItemType itemType)
     {

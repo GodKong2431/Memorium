@@ -60,6 +60,7 @@ public class DataManager : Singleton<DataManager>
 
     // 스킬 데이터
     public Dictionary<int, SkillInfoTable> SkillInfoDict;
+    public Dictionary<int, SkillUpTable> SkillUpDict;
     public Dictionary<int, SkillModule1Table> SkillModule1Dict;
     public Dictionary<int, SkillModule2Table> SkillModule2Dict;
     public Dictionary<int, SkillModule3Table> SkillModule3Dict;
