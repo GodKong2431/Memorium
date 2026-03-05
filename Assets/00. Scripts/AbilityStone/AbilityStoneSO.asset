@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65d67ec4fd6a61d439da0da965590cd4, type: 3}
   m_Name: AbilityStoneSO
   m_EditorClassIdentifier: Assembly-CSharp::AblityStoneSO
-  AbilityStone:
+  AbilityStoneDict:
     _serializedList:
     - Key: 0
       Value:
@@ -30,12 +30,17 @@ MonoBehaviour:
         secondUpOpportunity: 10
         thirdUpOpportunity: 10
         Slots:
-        - SlotType: 0
+        - SlotType: 2
+          successCounter: 01000001000100010001
+          increaseStat: 20
+        - SlotType: 8
+          successCounter: 01000001010101010000
+          increaseStat: 0.005
+        - SlotType: 1
           successCounter: 
-        - SlotType: 0
-          successCounter: 
-        - SlotType: 0
-          successCounter: 
+          increaseStat: 30
+        currentProbability: 0.45
+        totalUpCount: 11
         currentProbabilityCount: 0
     - Key: 1
       Value:
@@ -53,12 +58,17 @@ MonoBehaviour:
         secondUpOpportunity: 10
         thirdUpOpportunity: 10
         Slots:
-        - SlotType: 0
+        - SlotType: 14
+          successCounter: 00010000010000000001
+          increaseStat: 0.05
+        - SlotType: 8
+          successCounter: 01010100000001010101
+          increaseStat: 0.015
+        - SlotType: 1
           successCounter: 
-        - SlotType: 0
-          successCounter: 
-        - SlotType: 0
-          successCounter: 
+          increaseStat: 50
+        currentProbability: 0.25
+        totalUpCount: 10
         currentProbabilityCount: 0
     - Key: 2
       Value:
@@ -76,12 +86,17 @@ MonoBehaviour:
         secondUpOpportunity: 10
         thirdUpOpportunity: 10
         Slots:
-        - SlotType: 0
+        - SlotType: 7
+          successCounter: 00010100010101010100
+          increaseStat: 0.015
+        - SlotType: 5
+          successCounter: 00000100000101010001
+          increaseStat: 40
+        - SlotType: 3
           successCounter: 
-        - SlotType: 0
-          successCounter: 
-        - SlotType: 0
-          successCounter: 
+          increaseStat: 50
+        currentProbability: 0.35000002
+        totalUpCount: 12
         currentProbabilityCount: 0
     - Key: 3
       Value:
@@ -101,10 +116,15 @@ MonoBehaviour:
         Slots:
         - SlotType: 0
           successCounter: 
+          increaseStat: 50
         - SlotType: 0
           successCounter: 
+          increaseStat: 60
         - SlotType: 0
           successCounter: 
+          increaseStat: 60
+        currentProbability: 0.75
+        totalUpCount: 0
         currentProbabilityCount: 0
     - Key: 4
       Value:
@@ -124,113 +144,118 @@ MonoBehaviour:
         Slots:
         - SlotType: 0
           successCounter: 
+          increaseStat: 0
         - SlotType: 0
           successCounter: 
+          increaseStat: 0
         - SlotType: 0
           successCounter: 
+          increaseStat: 0
+        currentProbability: 0.75
+        totalUpCount: 0
         currentProbabilityCount: 0
-  StoneStatProbability:
+  StoneStatProbabilityDict:
     _serializedList:
-    - Key: 4
+    - Key: 5
       Value:
         id: 1060001
-        stoneType: 4
+        stoneType: 5
         statName: "\uFFFD\uFFFD\uFFFD\u0777\uFFFD"
         firstSlotProbability: 0.08
         secondSlotProbability: 0.08
         thirdSlotProbability: 0.04
-    - Key: 2
+    - Key: 3
       Value:
         id: 1060002
-        stoneType: 2
+        stoneType: 3
         statName: MP
         firstSlotProbability: 0.15
         secondSlotProbability: 0.15
         thirdSlotProbability: 0.14
-    - Key: 3
+    - Key: 4
       Value:
         id: 1060003
-        stoneType: 3
+        stoneType: 4
         statName: "MP\u0238\uFFFD\uFFFD"
         firstSlotProbability: 0.15
         secondSlotProbability: 0.15
         thirdSlotProbability: 0.14
-    - Key: 8
+    - Key: 9
       Value:
         id: 1060004
-        stoneType: 8
+        stoneType: 9
         statName: "\u0121\uFFFD\uFFFD\u0178 \u022E\uFFFD\uFFFD"
         firstSlotProbability: 0.045
         secondSlotProbability: 0.045
         thirdSlotProbability: 0.04
-    - Key: 9
+    - Key: 10
       Value:
         id: 1060005
-        stoneType: 9
+        stoneType: 10
         statName: "\u0121\uFFFD\uFFFD\u0178 \uFFFD\uFFFD\uFFFD\uFFFD"
         firstSlotProbability: 0.045
         secondSlotProbability: 0.045
         thirdSlotProbability: 0.04
-    - Key: 14
+    - Key: 15
       Value:
         id: 1060006
-        stoneType: 14
+        stoneType: 15
         statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\u0637\uFFFD"
         firstSlotProbability: 0.025
         secondSlotProbability: 0.025
         thirdSlotProbability: 0.04
-    - Key: 15
+    - Key: 16
       Value:
         id: 1060007
-        stoneType: 15
+        stoneType: 16
         statName: "\uFFFD\u03F9\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\u0637\uFFFD"
         firstSlotProbability: 0.04
         secondSlotProbability: 0.04
         thirdSlotProbability: 0.04
-    - Key: 16
+    - Key: 17
       Value:
         id: 1060008
-        stoneType: 16
+        stoneType: 17
         statName: "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
         firstSlotProbability: 0.025
         secondSlotProbability: 0.025
         thirdSlotProbability: 0.04
-    - Key: 0
+    - Key: 1
       Value:
         id: 1060009
-        stoneType: 0
+        stoneType: 1
         statName: "\xFC\uFFFD\uFFFD"
         firstSlotProbability: 0.15
         secondSlotProbability: 0.15
         thirdSlotProbability: 0.14
-    - Key: 1
+    - Key: 2
       Value:
         id: 1060010
-        stoneType: 1
+        stoneType: 2
         statName: "\xFC\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD"
         firstSlotProbability: 0.15
         secondSlotProbability: 0.15
         thirdSlotProbability: 0.14
-    - Key: 6
-      Value:
-        id: 1060011
-        stoneType: 6
-        statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
-        firstSlotProbability: 0.08
-        secondSlotProbability: 0.08
-        thirdSlotProbability: 0.1
     - Key: 7
       Value:
-        id: 1060012
+        id: 1060011
         stoneType: 7
         statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
         firstSlotProbability: 0.08
         secondSlotProbability: 0.08
         thirdSlotProbability: 0.1
-    - Key: 12
+    - Key: 8
+      Value:
+        id: 1060012
+        stoneType: 8
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
+        firstSlotProbability: 0.08
+        secondSlotProbability: 0.08
+        thirdSlotProbability: 0.1
+    - Key: 14
       Value:
         id: 1060013
-        stoneType: 12
+        stoneType: 14
         statName: "\uFFFD\uFFFD\u022D \u0239\uFFFD\u6DEE"
         firstSlotProbability: 0.08
         secondSlotProbability: 0.08
@@ -243,3 +268,112 @@ MonoBehaviour:
         firstSlotProbability: 0.08
         secondSlotProbability: 0.08
         thirdSlotProbability: 0
+  StoneTotalUpBonusDict:
+    _serializedList:
+    - Key: 1
+      Value:
+        statType: 1
+        totalUpCount: 30
+        statName: Hp
+        increaseStat: 0.1
+        isUnlock: 1
+    - Key: 2
+      Value:
+        statType: 2
+        totalUpCount: 30
+        statName: "Hp \uFFFD\uFFFD\uFFFD"
+        increaseStat: 0.1
+        isUnlock: 1
+    - Key: 3
+      Value:
+        statType: 3
+        totalUpCount: 40
+        statName: Mp
+        increaseStat: 0.1
+        isUnlock: 0
+    - Key: 4
+      Value:
+        statType: 4
+        totalUpCount: 40
+        statName: "Mp \u0238\uFFFD\uFFFD"
+        increaseStat: 0.1
+        isUnlock: 0
+    - Key: 5
+      Value:
+        statType: 5
+        totalUpCount: 50
+        statName: "\uFFFD\uFFFD\uFFFD\u0777\uFFFD"
+        increaseStat: 0.1
+        isUnlock: 0
+    - Key: 12
+      Value:
+        statType: 12
+        totalUpCount: 60
+        statName: "\uFFFD\uFFFD\u0178\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
+        increaseStat: 0.1
+        isUnlock: 0
+    - Key: 17
+      Value:
+        statType: 17
+        totalUpCount: 70
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
+        increaseStat: 0.1
+        isUnlock: 0
+  StoneGradeStatUpDict:
+    _serializedList:
+    - Key: 5
+      Value:
+        statName: "\uFFFD\uFFFD\uFFFD\u0777\uFFFD"
+        statType: 5
+    - Key: 3
+      Value:
+        statName: MP
+        statType: 3
+    - Key: 4
+      Value:
+        statName: "MP\u0238\uFFFD\uFFFD"
+        statType: 4
+    - Key: 9
+      Value:
+        statName: "\u0121\uFFFD\uFFFD\u0178 \u022E\uFFFD\uFFFD"
+        statType: 9
+    - Key: 10
+      Value:
+        statName: "\u0121\uFFFD\uFFFD\u0178 \uFFFD\uFFFD\uFFFD\uFFFD"
+        statType: 10
+    - Key: 15
+      Value:
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\u0637\uFFFD"
+        statType: 15
+    - Key: 16
+      Value:
+        statName: "\uFFFD\u03F9\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\u0637\uFFFD"
+        statType: 16
+    - Key: 17
+      Value:
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
+        statType: 17
+    - Key: 1
+      Value:
+        statName: "\xFC\uFFFD\uFFFD"
+        statType: 1
+    - Key: 2
+      Value:
+        statName: "\xFC\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD"
+        statType: 2
+    - Key: 7
+      Value:
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
+        statType: 7
+    - Key: 8
+      Value:
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
+        statType: 8
+    - Key: 14
+      Value:
+        statName: "\uFFFD\uFFFD\u022D \u0239\uFFFD\u6DEE"
+        statType: 14
+    - Key: 13
+      Value:
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD\u0121 \u0239\uFFFD\u6DEE"
+        statType: 13

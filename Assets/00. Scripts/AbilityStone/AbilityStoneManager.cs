@@ -5,13 +5,16 @@ using UnityEngine.UI;
 
 public class AbilityStoneManager : Singleton<AbilityStoneManager>
 {
-    [SerializeField] private AblityStoneSO so;
+    [SerializeField] public AblityStoneSO so;
     
     [SerializeField] private int stoneStatProbabilityID;
     [SerializeField] private int stoneID;
-    
+    [SerializeField] private int stoneStatUpID;
+    [SerializeField] private int stoneTotalBonusID;
     [SerializeField] public static int ID;
     [SerializeField] public Button resetBnt;
+    
+    [SerializeField] private int totalCount;
     
     [SerializeField] private StoneGrade grade;
 
@@ -35,17 +38,32 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
             item.Value.LoadStone();
         }
         
+        ID = stoneTotalBonusID;
+        
+        foreach (var item in so.StoneTotalUpBonusDict)
+        {
+            item.Value.LoadStone(item.Key);
+        }
+        
+        ID = stoneStatUpID;
+        
+        foreach (var item in so.StoneGradeStatUpDict)
+        {
+            item.Value.LoadStone(item.Key);
+        }
+        
         resetBnt.onClick.AddListener(() => ResetStone(grade));
         
-        // foreach (var item in DataManager.Instance.StoneTotalUpBonusDict)
-        // {
-        //     DataManager.Instance.StoneTotalUpBonusDict.TryGetValue(item.Key, out var table);
-        //     so.StoneTotalUpBonusDict.Add(table.stoneTotalUP, new StoneTotalUpBonus(table));
-        // }
-        
-        
+        totalCount = 0;
     }
-    
+
+    private void OnDisable()
+    {
+        foreach (var item in so.AbilityStoneDict)
+        {
+            item.Value.DisableEvent();
+        }
+    }
     public void ResetStone(StoneGrade grade)
     {
         OnReset?.Invoke(grade);
@@ -119,5 +137,59 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
     {
         so.AbilityStoneDict[grade].ResetUp();
     }
-
+    
+    public float GetStat(StatType statType)
+    {
+        float totalStat = 0;
+        foreach (var item in so.AbilityStoneDict)
+        {
+            for (int i = 0; i < item.Value.Slots.Count; i++)
+            {
+                if (statType == item.Value.Slots[i].SlotType)
+                {
+                    totalStat += i == 2 ? -(item.Value.Slots[i].totalStat) : item.Value.Slots[i].totalStat;
+                }
+            }
+        }
+        
+        return totalStat;
+    }
+    
+    public void CheckTotalUpCount()
+    {
+        totalCount = 0;
+        
+        foreach(var item in so.AbilityStoneDict)
+        {
+            totalCount += item.Value.GetUpCount();
+        }
+        
+        foreach(var item in so.StoneTotalUpBonusDict)
+        {
+            if(item.Value.totalUpCount <= totalCount)
+            {
+                item.Value.Unlock(true);
+            }
+            
+            else
+            {
+                item.Value.Unlock(false);
+            }
+        }
+    }
+    
+    public float GetBonusStat(StatType statType)
+    {
+        CheckTotalUpCount();
+        
+        foreach (var item in so.StoneTotalUpBonusDict)
+        {
+            if (item.Value.statType == statType)
+            {
+                return item.Value.isUnlock ? (1 + item.Value.increaseStat) : 1f;
+            }
+        }
+        
+        return 1f;
+    }
 }

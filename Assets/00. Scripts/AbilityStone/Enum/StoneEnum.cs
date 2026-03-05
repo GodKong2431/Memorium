@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 public enum StoneGrade
 {
-    Nomal = 0,
+    Normal = 0,
     Rare = 1,
     Unique = 2,
     Legendy = 3,

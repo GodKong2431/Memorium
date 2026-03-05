@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -247,5 +246,11 @@ public class StageManager : Singleton<StageManager>
         int stageKey = stageKeyList[index];
 
         return DataManager.Instance.StageManageDict.TryGetValue(stageKey, out stageData);
+    }
+
+    protected override void OnApplicationQuit()
+    {
+        base.OnApplicationQuit();
+        JSONService.Save(saveStageData);
     }
 }
