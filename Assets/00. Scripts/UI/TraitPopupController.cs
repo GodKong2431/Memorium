@@ -29,7 +29,7 @@ public class TraitPopupController : MonoBehaviour
     /// <summary>
     /// 전달받은 노드 데이터를 기반으로 팝업 UI를 갱신하고 화면에 표시
     /// </summary>
-    public void OpenPopup(Sprite nodeIcon, int currentLevel, int maxLevel, string statName, float currentStat, float nextStat, bool canUnlock, bool hasEnoughPoints, PlayerStatType type)
+    public void OpenPopup(Sprite nodeIcon, int currentLevel, int maxLevel, string statName, float currentStat, float nextStat, bool canUnlock, bool hasEnoughPoints, StatType type)
     {
         gameObject.SetActive(true);
 

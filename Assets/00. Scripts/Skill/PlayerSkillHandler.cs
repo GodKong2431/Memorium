@@ -165,7 +165,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
         playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
         skillCaster.CastSkill(skilldataContexts[index]);
-        float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE);
+        float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(StatType.COOLDOWN_REDUCE);
         float maxCooldown = Mathf.Max(0f, skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f));
         cooldownTimers[index] = maxCooldown;
         cooldownTimeMax[index] = maxCooldown;
@@ -222,11 +222,11 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
 
     #region ISkillStatProvider
-    public float GetAttack() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.ATK);
+    public float GetAttack() => CharacterStatManager.Instance.GetFinalStat(StatType.ATK);
 
-    public float GetCriticalChance() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.CRIT_CHANCE);
+    public float GetCriticalChance() => CharacterStatManager.Instance.GetFinalStat(StatType.CRIT_CHANCE);
 
-    public float GetCriticalMulti() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.CRIT_MULT);
+    public float GetCriticalMulti() => CharacterStatManager.Instance.GetFinalStat(StatType.CRIT_MULT);
     #endregion
 
 

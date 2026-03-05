@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Rendering.Universal;
 using UnityEngine;
 
 /// <summary>
@@ -73,12 +74,13 @@ public static class EnemyKillRewardDispatcher
             var baseGold = dropSettings.dropGold;
             if (baseGold > 0)
             {
-                var goldMult = 1.0 + (double)CharacterStatManager.Instance.FinalStats[PlayerStatType.GOLD_GAIN].finalStat;
+                var goldMult = 1.0 + (double)CharacterStatManager.Instance.FinalStats[StatType.GOLD_GAIN].finalStat;
                 var finalGold = baseGold * goldMult;
-                var currencyModule = InventoryManager.Instance != null
-                    ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
-                    : null;
-                currencyModule?.AddCurrency(CurrencyType.Gold, finalGold);
+                //var currencyModule = InventoryManager.Instance != null
+                //    ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+                //    : null;
+                //currencyModule?.AddCurrency(CurrencyType.Gold, finalGold);
+                InventoryManager.Instance.AddItem(TypeToId.ConvertTypeToId(ItemType.FreeCurrency), finalGold);
                 Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{finalGold}");
             }
         }
@@ -92,12 +94,17 @@ public static class EnemyKillRewardDispatcher
         }
         if (exp > 0)
         {
-            var finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.FinalStats[PlayerStatType.EXP_GAIN].finalStat));
+            var finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.FinalStats[StatType.EXP_GAIN].finalStat));
             var currencyModule = InventoryManager.Instance != null
                 ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
                 : null;
             currencyModule?.AddCurrency(CurrencyType.Exp, finalExp);
             Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{finalExp}");
+
+
+            //경험치 저장
+            InventoryManager.Instance.saveCurrencyData.Save(CurrencyType.Exp,
+                currencyModule.GetAmount(CurrencyType.Exp));
         }
 
         // 아이템: RewardManager를 통해서만 ItemDropSettings 사용

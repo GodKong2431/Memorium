@@ -1,22 +1,24 @@
-using NUnit.Framework;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class StageManager : Singleton<StageManager>
 {
-    //각 스테이지별 키 값은 curStage-1;
+    // Current stage index starts at 1.
     public int curStage = 1;
+    public int maxStage = 1;
     public int curMonsterKillCount = 0;
     public int maxMonsterKillCount = 0;
 
-    //각 층별 키 값은 curFloor-1;
+    // Current floor index starts at 1.
     public int curFloor = 1;
-    //스테이지 키들 순서대로(0부터) 관리하는 리스트
+
+    // Stage keys filtered by StageType and sorted ascending.
     public List<int> stageKeyList;
 
     public EnemyRewardData normalEnemyReward;
@@ -25,46 +27,62 @@ public class StageManager : Singleton<StageManager>
     public InfinityMap infinityMap;
     public MonsterSpawner monsterSpawner;
 
-    public bool isReadyToBossSpawn=false;
+    public bool isReadyToBossSpawn = false;
 
-    //[SerializeField] GameObject BossSpawnBtn;
-    [SerializeField] Button bossSpawnBtn;
-    bool onClickBossSpawnBtn=false;
-    //보스 스테이지 진입 여부
-    public bool onBossStage=false;
+    [SerializeField] private Button bossSpawnBtn;
+    private bool onClickBossSpawnBtn = false;
 
-    [SerializeField] StageType curStageType;
+    // True while player is in boss stage flow.
+    public bool onBossStage = false;
+
+    [SerializeField] private StageType curStageType;
     public int normalStage = 1;
 
-    public bool onFailedStage=false;
+    public bool onFailedStage = false;
+
+    public SaveStageData saveStageData;
+    public event Action OnStageClearOrFailed;
 
     private IEnumerator Start()
     {
         yield return new WaitUntil(() => DataManager.Instance != null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+
+
+        saveStageData = JSONService.Load<SaveStageData>();
+        (curStage, maxStage, onFailedStage) = saveStageData.InitStageData();
+        OnStageClearOrFailed += () =>
+        {
+            saveStageData.Save(curStage, maxStage, onFailedStage);
+        };
+
         Init();
-        //나중에 데이터 연동하면 여기서 내가 진행중인 스테이지 가져와서 그거 기반으로 키 검색하고 진행 현재 스테이지 가져옴
-        //MapManager.Instance.MapSetting(curFloor);
         SetReward();
         SetKillCount();
-        //킬 카운트 변경 시 스테이지 매니저의 킬 카운트도 증가 <- 나중에는 그냥 디스패쳐에 있는거 그냥 사용
-        EnemyKillRewardDispatcher.OnKillCountChanged += (num) => CheckBossEnemySpawn();
-        
+
+        EnemyKillRewardDispatcher.OnKillCountChanged += CheckBossEnemySpawn;
         EnemyKillRewardDispatcher.OnBossKilled += StageClear;
         GameEventManager.OnSummonBossClicked += OnClickBossSummonButtonClick;
         SceneManager.sceneLoaded += OnSceneLoaded;
-        //bossSpawnBtn.onClick.AddListener(() => 
-        //{ 
-        //    isReadyToBossSpawn = !isReadyToBossSpawn;
-        //    //BossSpawnBtn.SetActive(false);
-        //    bossSpawnBtn.interactable = false;
-        //    onClickBossSpawnBtn = true;
-        //});
     }
+
+    protected override void OnDestroy()
+    {
+        EnemyKillRewardDispatcher.OnKillCountChanged -= CheckBossEnemySpawn;
+        EnemyKillRewardDispatcher.OnBossKilled -= StageClear;
+        GameEventManager.OnSummonBossClicked -= OnClickBossSummonButtonClick;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        base.OnDestroy();
+    }
+
     private void Init()
     {
-        List<int> keyList= DataManager.Instance.StageManageDict.Keys.ToList<int>();
+        if (DataManager.Instance == null || DataManager.Instance.StageManageDict == null)
+            return;
+
+        List<int> keyList = DataManager.Instance.StageManageDict.Keys.ToList();
         keyList.Sort();
+
         if (stageKeyList == null)
             stageKeyList = new List<int>();
         stageKeyList.Clear();
@@ -72,83 +90,86 @@ public class StageManager : Singleton<StageManager>
         foreach (int key in keyList)
         {
             if (DataManager.Instance.StageManageDict[key].stageType == curStageType)
-            {
                 stageKeyList.Add(key);
-            }
         }
+
         if (monsterSpawner == null)
             monsterSpawner = GameObject.FindFirstObjectByType<MonsterSpawner>();
         if (infinityMap == null)
             infinityMap = GameObject.FindFirstObjectByType<InfinityMap>();
-        //stageKeyList = DataManager.Instance.StageManageDict.Keys.ToList<int>();
-        //stageKeyList.Sort();
     }
+
     public void OnClickBossSummonButtonClick()
     {
+        if (curMonsterKillCount < maxMonsterKillCount)
+            return;
+        if (isReadyToBossSpawn)
+            return;
+
         Debug.Log("[StageManager] 보스 소환 버튼 클릭");
-        isReadyToBossSpawn = !isReadyToBossSpawn;
-        //BossSpawnBtn.SetActive(false);
-        //bossSpawnBtn.interactable = false;
+        isReadyToBossSpawn = true;
         onClickBossSpawnBtn = true;
+
+        if (bossSpawnBtn != null)
+            bossSpawnBtn.interactable = false;
     }
-    public void CheckBossEnemySpawn()
+
+    public void CheckBossEnemySpawn(int totalKillCount)
     {
-        curMonsterKillCount++;
-        //만약에 보스가 소환 안되어 있으면 소환하지 않는다
-
+        curMonsterKillCount = Mathf.Clamp(totalKillCount, 0, maxMonsterKillCount);
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
-
-        ////실패한 스테이지 상태가 아닐 경우 혹은 던전일 경우 바로 보스 소환
-        if (maxMonsterKillCount <= curMonsterKillCount&&(!onFailedStage || curStageType != StageType.NormalStage))
-            OnClickBossSummonButtonClick();
-
-        //여기에 현재 몇 마리 잡았는지 UI로 보여주는 코드도 추가
-        //if (maxMonsterKillCount <= EnemyKillRewardDispatcher.TotalKillCount)
-        //if (maxMonsterKillCount <= curMonsterKillCount)
-        //{
-        //    if (!onClickBossSpawnBtn)
-        //    {
-        //        Debug.Log("[StageManager] 보스 소환 버튼 활성화");
-        //        bossSpawnBtn.interactable = true;
-        //    }
-        //}
     }
 
-
-    //스테이지 증가하면 curstage 증가 후 아래 메서드 다시 호출
     public void SetReward()
     {
-        int prevCurFloor=curFloor;
-        curFloor = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].floorNumber;
-        if(curStageType == StageType.NormalStage)
-            MapManager.Instance.MapSetting(curStageType,curFloor);
+        if (!TryGetCurrentStageData(out StageManageTable stageData))
+            return;
+
+        curFloor = stageData.floorNumber;
+
+        if (curStageType == StageType.NormalStage)
+            MapManager.Instance.MapSetting(curStageType, curFloor);
         else
             MapManager.Instance.MapSetting(curStageType, curStage);
-        monsterSpawner.SetMonster();
 
-        //노말, 보스 몬스터 경험치 세팅
-        normalEnemyReward.expBase = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].commonMonsterExp;
-        bossEnemyReward.expBase = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].bossMonsterExp;
+        if (monsterSpawner == null)
+            monsterSpawner = GameObject.FindFirstObjectByType<MonsterSpawner>();
 
-        //스테이지에서 사용할 드롭테이블 인덱스 가져오기
-        int dropTableId = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].dropTableID;
+        monsterSpawner?.SetMonster();
+
+        if (normalEnemyReward != null)
+            normalEnemyReward.expBase = stageData.commonMonsterExp;
+        if (bossEnemyReward != null)
+            bossEnemyReward.expBase = stageData.bossMonsterExp;
+
+        int dropTableId = stageData.dropTableID;
         Debug.Log($"[StageManager] dropTableId : {dropTableId}");
-        ItemDropTable dropTable = DataManager.Instance.ItemDropDict[dropTableId];
 
-        // RewardManager로 분리했습니다. (ItemDropSettings는 변수(데이터)만 관리)
-        if (RewardManager.Instance != null)
+        if (DataManager.Instance.ItemDropDict != null && DataManager.Instance.ItemDropDict.TryGetValue(dropTableId, out ItemDropTable dropTable))
         {
-            RewardManager.Instance.SetDropTable(dropTable);
+            if (RewardManager.Instance != null)
+                RewardManager.Instance.SetDropTable(dropTable);
         }
 
-        GameEventManager.OnStageChanged?.Invoke(curFloor, DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].sceneNumber);
+        GameEventManager.OnStageChanged?.Invoke(curFloor, stageData.sceneNumber);
     }
+
     public void SetKillCount()
     {
-        onBossStage=false;
+        onBossStage = false;
+        isReadyToBossSpawn = false;
+        onClickBossSpawnBtn = false;
+
         curMonsterKillCount = 0;
-        maxMonsterKillCount = DataManager.Instance.StageManageDict[stageKeyList[curStage - 1]].monsterKillCount;
-        //Debug.Log($"[StageManager] MaxKillCount = {maxMonsterKillCount} 씬 넘버 = {stageKeyList[curStage - 1]}");
+
+        if (!TryGetCurrentStageData(out StageManageTable stageData))
+        {
+            maxMonsterKillCount = 0;
+            GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
+            return;
+        }
+
+        maxMonsterKillCount = stageData.monsterKillCount;
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
     }
 
@@ -157,15 +178,16 @@ public class StageManager : Singleton<StageManager>
         if (curStageType == StageType.NormalStage)
         {
             onFailedStage = false;
-            if (stageKeyList.Count > curStage - 1)
+            if (stageKeyList != null && stageKeyList.Count > curStage - 1)
                 curStage++;
+
             normalStage = curStage;
             SetReward();
             SetKillCount();
-            infinityMap.MapReset();
+            infinityMap?.MapReset();
+
+            OnStageClearOrFailed.Invoke();
         }
-        //일반 스테이지가 아닌 던전 클리어 시
-        //
         else
         {
             SetStageType(StageType.NormalStage, normalStage);
@@ -175,21 +197,21 @@ public class StageManager : Singleton<StageManager>
 
     public void StageFailed()
     {
-        //if (stageKeyList.Count > curStage - 1)
-        //    curStage++;
-
         if (curStageType == StageType.NormalStage)
         {
             onFailedStage = true;
-            //보스 스테이지에서 패배한 게 아니면 스테이지 감소
-            if (curStage - 2>=0 && !onBossStage)
+
+            // If failure happened before entering boss stage, move one stage back.
+            if (curStage - 2 >= 0 && !onBossStage)
                 curStage--;
+
             normalStage = curStage;
             SetReward();
             SetKillCount();
-            infinityMap.MapReset();
+            infinityMap?.MapReset();
+
+            OnStageClearOrFailed.Invoke();
         }
-        //일반 스테이지가 아닌 던전 클리어 시
         else
         {
             SetStageType(StageType.NormalStage, normalStage);
@@ -207,12 +229,23 @@ public class StageManager : Singleton<StageManager>
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log("[StageManager] 씬 넘어감으로 인해 값 초기화");
-        //아래 값들은 씬을 넘어간 다음에 작성을 진행해야 할 것
-        //스테이지 타입 전용 스테이지 키 리스트 설정
         Init();
-        //MapManager.Instance.MapSetting(curFloor);
-        //해당 스테이지에 걸맞는 드롭 및 몬스터 세팅 <- 이거 몬스터 세팅 시점을 잘 설정해야 할 것 같음, 씬 넘어가도 유지되려면 몬스터 스포너를 싱글톤으로 만들거나 해당 정보를 유지할 필요가 있음
         SetReward();
         SetKillCount();
+    }
+
+    private bool TryGetCurrentStageData(out StageManageTable stageData)
+    {
+        stageData = null;
+
+        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.StageManageDict == null)
+            return false;
+        if (stageKeyList == null || stageKeyList.Count == 0)
+            return false;
+
+        int index = Mathf.Clamp(curStage - 1, 0, stageKeyList.Count - 1);
+        int stageKey = stageKeyList[index];
+
+        return DataManager.Instance.StageManageDict.TryGetValue(stageKey, out stageData);
     }
 }

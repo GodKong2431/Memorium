@@ -1,0 +1,245 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65d67ec4fd6a61d439da0da965590cd4, type: 3}
+  m_Name: AbilityStoneSO
+  m_EditorClassIdentifier: Assembly-CSharp::AblityStoneSO
+  AbilityStone:
+    _serializedList:
+    - Key: 0
+      Value:
+        id: 1050001
+        stoneGrade: 0
+        upCost: 1000
+        unlockLevel: 50
+        needUp: 0
+        statRerollCost: 1000
+        UpResetCost: 100
+        upStartProbability: 0.75
+        maxProbability: 0.75
+        minProbability: 0.25
+        firstUpOpportunity: 10
+        secondUpOpportunity: 10
+        thirdUpOpportunity: 10
+        Slots:
+        - SlotType: 0
+          successCounter: 
+        - SlotType: 0
+          successCounter: 
+        - SlotType: 0
+          successCounter: 
+        currentProbabilityCount: 0
+    - Key: 1
+      Value:
+        id: 1050002
+        stoneGrade: 1
+        upCost: 1500
+        unlockLevel: 60
+        needUp: 12
+        statRerollCost: 1500
+        UpResetCost: 150
+        upStartProbability: 0.75
+        maxProbability: 0.75
+        minProbability: 0.25
+        firstUpOpportunity: 10
+        secondUpOpportunity: 10
+        thirdUpOpportunity: 10
+        Slots:
+        - SlotType: 0
+          successCounter: 
+        - SlotType: 0
+          successCounter: 
+        - SlotType: 0
+          successCounter: 
+        currentProbabilityCount: 0
+    - Key: 2
+      Value:
+        id: 1050003
+        stoneGrade: 2
+        upCost: 2000
+        unlockLevel: 70
+        needUp: 13
+        statRerollCost: 2000
+        UpResetCost: 200
+        upStartProbability: 0.75
+        maxProbability: 0.75
+        minProbability: 0.25
+        firstUpOpportunity: 10
+        secondUpOpportunity: 10
+        thirdUpOpportunity: 10
+        Slots:
+        - SlotType: 0
+          successCounter: 
+        - SlotType: 0
+          successCounter: 
+        - SlotType: 0
+          successCounter: 
+        currentProbabilityCount: 0
+    - Key: 3
+      Value:
+        id: 1050004
+        stoneGrade: 3
+        upCost: 2500
+        unlockLevel: 80
+        needUp: 14
+        statRerollCost: 2500
+        UpResetCost: 250
+        upStartProbability: 0.75
+        maxProbability: 0.75
+        minProbability: 0.25
+        firstUpOpportunity: 10
+        secondUpOpportunity: 10
+        thirdUpOpportunity: 10
+        Slots:
+        - SlotType: 0
+          successCounter: 
+        - SlotType: 0
+          successCounter: 
+        - SlotType: 0
+          successCounter: 
+        currentProbabilityCount: 0
+    - Key: 4
+      Value:
+        id: 1050005
+        stoneGrade: 4
+        upCost: 3000
+        unlockLevel: 90
+        needUp: 15
+        statRerollCost: 3000
+        UpResetCost: 300
+        upStartProbability: 0.75
+        maxProbability: 0.75
+        minProbability: 0.25
+        firstUpOpportunity: 10
+        secondUpOpportunity: 10
+        thirdUpOpportunity: 10
+        Slots:
+        - SlotType: 0
+          successCounter: 
+        - SlotType: 0
+          successCounter: 
+        - SlotType: 0
+          successCounter: 
+        currentProbabilityCount: 0
+  StoneStatProbability:
+    _serializedList:
+    - Key: 4
+      Value:
+        id: 1060001
+        stoneType: 4
+        statName: "\uFFFD\uFFFD\uFFFD\u0777\uFFFD"
+        firstSlotProbability: 0.08
+        secondSlotProbability: 0.08
+        thirdSlotProbability: 0.04
+    - Key: 2
+      Value:
+        id: 1060002
+        stoneType: 2
+        statName: MP
+        firstSlotProbability: 0.15
+        secondSlotProbability: 0.15
+        thirdSlotProbability: 0.14
+    - Key: 3
+      Value:
+        id: 1060003
+        stoneType: 3
+        statName: "MP\u0238\uFFFD\uFFFD"
+        firstSlotProbability: 0.15
+        secondSlotProbability: 0.15
+        thirdSlotProbability: 0.14
+    - Key: 8
+      Value:
+        id: 1060004
+        stoneType: 8
+        statName: "\u0121\uFFFD\uFFFD\u0178 \u022E\uFFFD\uFFFD"
+        firstSlotProbability: 0.045
+        secondSlotProbability: 0.045
+        thirdSlotProbability: 0.04
+    - Key: 9
+      Value:
+        id: 1060005
+        stoneType: 9
+        statName: "\u0121\uFFFD\uFFFD\u0178 \uFFFD\uFFFD\uFFFD\uFFFD"
+        firstSlotProbability: 0.045
+        secondSlotProbability: 0.045
+        thirdSlotProbability: 0.04
+    - Key: 14
+      Value:
+        id: 1060006
+        stoneType: 14
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\u0637\uFFFD"
+        firstSlotProbability: 0.025
+        secondSlotProbability: 0.025
+        thirdSlotProbability: 0.04
+    - Key: 15
+      Value:
+        id: 1060007
+        stoneType: 15
+        statName: "\uFFFD\u03F9\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\u0637\uFFFD"
+        firstSlotProbability: 0.04
+        secondSlotProbability: 0.04
+        thirdSlotProbability: 0.04
+    - Key: 16
+      Value:
+        id: 1060008
+        stoneType: 16
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
+        firstSlotProbability: 0.025
+        secondSlotProbability: 0.025
+        thirdSlotProbability: 0.04
+    - Key: 0
+      Value:
+        id: 1060009
+        stoneType: 0
+        statName: "\xFC\uFFFD\uFFFD"
+        firstSlotProbability: 0.15
+        secondSlotProbability: 0.15
+        thirdSlotProbability: 0.14
+    - Key: 1
+      Value:
+        id: 1060010
+        stoneType: 1
+        statName: "\xFC\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD"
+        firstSlotProbability: 0.15
+        secondSlotProbability: 0.15
+        thirdSlotProbability: 0.14
+    - Key: 6
+      Value:
+        id: 1060011
+        stoneType: 6
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
+        firstSlotProbability: 0.08
+        secondSlotProbability: 0.08
+        thirdSlotProbability: 0.1
+    - Key: 7
+      Value:
+        id: 1060012
+        stoneType: 7
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD"
+        firstSlotProbability: 0.08
+        secondSlotProbability: 0.08
+        thirdSlotProbability: 0.1
+    - Key: 12
+      Value:
+        id: 1060013
+        stoneType: 12
+        statName: "\uFFFD\uFFFD\u022D \u0239\uFFFD\u6DEE"
+        firstSlotProbability: 0.08
+        secondSlotProbability: 0.08
+        thirdSlotProbability: 0
+    - Key: 13
+      Value:
+        id: 1060014
+        stoneType: 13
+        statName: "\uFFFD\uFFFD\uFFFD\uFFFD\u0121 \u0239\uFFFD\u6DEE"
+        firstSlotProbability: 0.08
+        secondSlotProbability: 0.08
+        thirdSlotProbability: 0

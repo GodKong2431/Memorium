@@ -9,14 +9,14 @@ public class PlayerStatView : MonoBehaviour
     [System.Serializable]
     public struct StatUpgradUI
     {
-        public PlayerStatType type;
+        public StatType type;
         public StatUpgradeUIItem statUIItem;
     }
 
     [System.Serializable]
     public struct FinalStatUI
     {
-        public PlayerStatType type;
+        public StatType type;
         public string statName;
         public FinalStatUIItem statUIItem;
     }
@@ -35,7 +35,7 @@ public class PlayerStatView : MonoBehaviour
 
     public struct TraitUI
     {
-        public PlayerStatType type;
+        public StatType type;
 
     }
 
@@ -158,7 +158,7 @@ public class PlayerStatView : MonoBehaviour
         }
     }
 
-    public void SetStat(PlayerStatType statType)
+    public void SetStat(StatType statType)
     {
         foreach (var statui in upgradeStatUIs)
         {

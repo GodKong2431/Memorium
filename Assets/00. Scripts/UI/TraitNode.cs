@@ -12,7 +12,7 @@ using System.Collections;
 public class TraitNode : MonoBehaviour
 {
     [Header("스탯 타입")]
-    public PlayerStatType statType;
+    public StatType statType;
 
     [Header("UI 연결")]
     public Image iconImage;

@@ -1,16 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class DungeonTicketUIController : UIControllerBase<DungeonTicketUIView>
 {
     [SerializeField] private DungeonLevelSelectUI dungeonLevelSelectUI; // 현재 선택된 던전 정보와 필요 티켓 수를 제공하는 대상.
 
-    private CurrencyUIService currencyService; // 재화 변화 감시와 보유량 조회를 담당하는 전역 서비스.
-
-    // 컨트롤러가 사용할 전역 재화 서비스를 준비한다.
     protected override void Initialize()
     {
-        currencyService = CurrencyUIService.Instance;
-
         if (dungeonLevelSelectUI == null)
             dungeonLevelSelectUI = GetComponentInParent<DungeonLevelSelectUI>(true);
     }
@@ -18,11 +13,7 @@ public class DungeonTicketUIController : UIControllerBase<DungeonTicketUIView>
     // 재화 변화와 던전 선택 상태 변화를 모두 구독한다.
     protected override void Subscribe()
     {
-        if (currencyService == null)
-            return;
-
-        currencyService.Bind();
-        currencyService.CurrencyChanged += OnCurrencyChanged;
+        GameEventManager.OnCurrencyChanged += OnCurrencyChanged;
 
         if (dungeonLevelSelectUI != null)
             dungeonLevelSelectUI.TicketStateChanged += RefreshView;
@@ -31,11 +22,7 @@ public class DungeonTicketUIController : UIControllerBase<DungeonTicketUIView>
     // 연결했던 이벤트를 모두 해제한다.
     protected override void Unsubscribe()
     {
-        if (currencyService != null)
-        {
-            currencyService.CurrencyChanged -= OnCurrencyChanged;
-            currencyService.Unbind();
-        }
+        GameEventManager.OnCurrencyChanged -= OnCurrencyChanged;
 
         if (dungeonLevelSelectUI != null)
             dungeonLevelSelectUI.TicketStateChanged -= RefreshView;
@@ -44,10 +31,10 @@ public class DungeonTicketUIController : UIControllerBase<DungeonTicketUIView>
     // 현재 던전 기준의 보유 티켓 수와 필요 티켓 수를 View에 반영한다.
     protected override void RefreshView()
     {
-        if (view == null || dungeonLevelSelectUI == null || currencyService == null)
+        if (view == null || dungeonLevelSelectUI == null)
             return;
 
-        BigDouble ownedAmount = currencyService.GetAmount(dungeonLevelSelectUI.CurrentTicketType);
+        BigDouble ownedAmount = GetAmount(dungeonLevelSelectUI.CurrentTicketType);
         view.SetTicketInfo(ownedAmount, dungeonLevelSelectUI.RequiredTicketCount);
     }
 
@@ -58,5 +45,14 @@ public class DungeonTicketUIController : UIControllerBase<DungeonTicketUIView>
             return;
 
         RefreshView();
+    }
+
+    private static BigDouble GetAmount(CurrencyType type)
+    {
+        if (InventoryManager.Instance == null)
+            return BigDouble.Zero;
+
+        CurrencyInventoryModule currencyModule = InventoryManager.Instance.GetModule<CurrencyInventoryModule>();
+        return currencyModule != null ? currencyModule.GetAmount(type) : BigDouble.Zero;
     }
 }

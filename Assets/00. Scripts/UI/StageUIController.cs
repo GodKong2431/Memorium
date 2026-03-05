@@ -1,67 +1,119 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
-public class StageUIController : MonoBehaviour
+public class StageUIController : UIControllerBase
 {
-    [Header("½ºÅ×ÀÌÁö ÅØ½ºÆ®")]
-    public TextMeshProUGUI textStageName;
+    [Header("íŒì—… ìŠ¤í…Œì´ì§€ ë ˆë²¨")]
+    [SerializeField] private TextMeshProUGUI textPopupStageLevel;
 
-    [Header("ÁøÇàµµ UI")]
-    public TextMeshProUGUI textProgress; 
-    public Image imageStageProgressBar;
+    [Header("MapInfo ìŠ¤í…Œì´ì§€")]
+    [SerializeField] private TextMeshProUGUI textMapInfoStageName;
+    [SerializeField] private TextMeshProUGUI textMapInfoStageLevel;
 
-    [Header("º¸½º ¼ÒÈ¯ ¹öÆ°")]
-    public Button btnSummonBoss;
+    [Header("ì§„í–‰ë„ UI")]
+    [SerializeField] private TextMeshProUGUI textProgress;
+    [SerializeField] private Slider sliderStageProgressBar;
 
-    private void Start()
+    [Header("ë³´ìŠ¤ ì†Œí™˜")]
+    [SerializeField] private Button btnSummonBoss;
+    [SerializeField] private Image imageSummonBossButton;
+    [SerializeField] private Image imageSummonBossIcon;
+
+    [Header("ë³´ìŠ¤ ì†Œí™˜ ìƒ‰ìƒ")]
+    [SerializeField] private Color colorSummonBossEnabled = new Color(1f, 1f, 1f, 1f);
+    [SerializeField] private Color colorSummonBossDisabled = new Color(0.49411765f, 0.49411765f, 0.49411765f, 1f);
+
+    private StageUIView stageView;
+
+    protected override void Initialize()
     {
-        GameEventManager.OnStageChanged += UpdateStageName;
-        GameEventManager.OnStageProgressChanged += UpdateStageProgress;
+        stageView = new StageUIView(
+            textPopupStageLevel,
+            textMapInfoStageName,
+            textMapInfoStageLevel,
+            textProgress,
+            sliderStageProgressBar,
+            btnSummonBoss,
+            imageSummonBossButton,
+            imageSummonBossIcon,
+            colorSummonBossEnabled,
+            colorSummonBossDisabled
+        );
+    }
 
-        if (btnSummonBoss != null)
+    protected override void Subscribe()
+    {
+        GameEventManager.OnStageChanged += OnStageChanged;
+        GameEventManager.OnStageProgressChanged += OnStageProgressChanged;
+        stageView.BindSummonButton(OnClickSummonBoss);
+    }
+
+    protected override void Unsubscribe()
+    {
+        GameEventManager.OnStageChanged -= OnStageChanged;
+        GameEventManager.OnStageProgressChanged -= OnStageProgressChanged;
+        stageView.UnbindSummonButton(OnClickSummonBoss);
+    }
+
+    protected override void RefreshView()
+    {
+        if (StageManager.Instance == null)
         {
-            btnSummonBoss.onClick.RemoveAllListeners();
-            btnSummonBoss.onClick.AddListener(OnClickSummonBoss);
-            btnSummonBoss.interactable = false;
+            stageView.Render(0, 0, string.Empty, 0, 0);
+            stageView.SetSummonInteractable(false);
+            return;
         }
+
+        int chapter = StageManager.Instance.curFloor;
+        int stageNumber = ResolveSceneStageNumber();
+        string stageName = ResolveSceneStageName();
+        int currentKill = StageManager.Instance.curMonsterKillCount;
+        int maxKill = StageManager.Instance.maxMonsterKillCount;
+
+        stageView.Render(chapter, stageNumber, stageName, currentKill, maxKill);
     }
 
-    private void OnDestroy()
+    private void OnStageChanged(int chapter, int stage)
     {
-        GameEventManager.OnStageChanged -= UpdateStageName;
-        GameEventManager.OnStageProgressChanged -= UpdateStageProgress;
+        stageView.SetStageLevel(chapter, stage);
+        stageView.SetStageName(ResolveSceneStageName());
     }
 
-    private void UpdateStageName(int chapter, int stage)
+    private void OnStageProgressChanged(int currentKill, int maxKill)
     {
-        if (textStageName != null)
-            textStageName.text = $"Stage {chapter}-{stage}";
-    }
-
-    private void UpdateStageProgress(int currentKill, int maxKill)
-    {
-        if(currentKill >= maxKill)
-            currentKill = maxKill;
-
-        if (textProgress != null)
-            textProgress.text = $"{currentKill} / {maxKill}";
-
-        if (imageStageProgressBar != null && maxKill > 0)
-            imageStageProgressBar.fillAmount = (float)currentKill / maxKill;
-
-        if (btnSummonBoss != null)
-        {
-            btnSummonBoss.interactable = (currentKill >= maxKill);
-        }
+        stageView.SetStageProgress(currentKill, maxKill);
     }
 
     private void OnClickSummonBoss()
     {
-        if (btnSummonBoss != null)
-        {
-            btnSummonBoss.interactable = false;
-        }
+        stageView.SetSummonInteractable(false);
         GameEventManager.OnSummonBossClicked?.Invoke();
+    }
+
+    private static int ResolveSceneStageNumber()
+    {
+        return TryResolveCurrentStageData(out StageManageTable stageData) ? stageData.sceneNumber : 0;
+    }
+
+    private static string ResolveSceneStageName()
+    {
+        return TryResolveCurrentStageData(out StageManageTable stageData) ? stageData.stageName : string.Empty;
+    }
+
+    private static bool TryResolveCurrentStageData(out StageManageTable stageData)
+    {
+        stageData = null;
+
+        if (StageManager.Instance == null)
+            return false;
+        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.StageManageDict == null)
+            return false;
+        if (StageManager.Instance.stageKeyList == null || StageManager.Instance.stageKeyList.Count == 0)
+            return false;
+
+        int index = Mathf.Clamp(StageManager.Instance.curStage - 1, 0, StageManager.Instance.stageKeyList.Count - 1);
+        int stageKey = StageManager.Instance.stageKeyList[index];
+        return DataManager.Instance.StageManageDict.TryGetValue(stageKey, out stageData);
     }
 }

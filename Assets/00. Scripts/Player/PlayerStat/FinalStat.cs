@@ -5,9 +5,9 @@ public class FinalStat
 {
     public float finalStat;
 
-    public PlayerStatType playerStatType;
+    public StatType playerStatType;
 
-    public FinalStat(PlayerStatType statType)
+    public FinalStat(StatType statType)
     {
         playerStatType = statType;
     }

@@ -9,14 +9,17 @@ public enum ClassType
 
 public enum StatType
 {
-    HP, HPRegen,
-    ATK, ATKSpeed,
-    DEF, MagicDEF,
-    MP, MPRegen,
-    CritChance, CritMult,
-    CoolDown,
-    MoveSpeed,
-    ExpGain, GoldGain
+    None,
+    HP, HP_REGEN,
+    MP, MP_REGEN,
+    ATK, ATK_SPEED,
+    PHYS_DEF, MAGIC_DEF,
+    CRIT_CHANCE, CRIT_MULT,
+    MOVE_SPEED,
+    COOLDOWN_REDUCE,
+    GOLD_GAIN, EXP_GAIN,
+    BOSS_DMG, NORMAL_DMG,
+    DMG_MULT
 }
 
 public enum SlotType
@@ -28,16 +31,16 @@ public enum SlotType
 
 public static class StatGroups
 {
-    public static readonly HashSet<PlayerStatType> MultTypes = new HashSet<PlayerStatType>
+    public static readonly HashSet<StatType> MultTypes = new HashSet<StatType>
     {
-        PlayerStatType.CRIT_CHANCE,
-        PlayerStatType.CRIT_MULT,
-        PlayerStatType.NORMAL_DMG,
-        PlayerStatType.BOSS_DMG,
-        PlayerStatType.DMG_MULT,
-        PlayerStatType.EXP_GAIN,
-        PlayerStatType.GOLD_GAIN,
-        PlayerStatType.COOLDOWN_REDUCE,
+        StatType.CRIT_CHANCE,
+        StatType.CRIT_MULT,
+        StatType.NORMAL_DMG,
+        StatType.BOSS_DMG,
+        StatType.DMG_MULT,
+        StatType.EXP_GAIN,
+        StatType.GOLD_GAIN,
+        StatType.COOLDOWN_REDUCE,
     };
 }
 
