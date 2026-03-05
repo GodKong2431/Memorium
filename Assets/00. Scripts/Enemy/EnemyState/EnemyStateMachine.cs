@@ -53,7 +53,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             IsBoss = isBoss,
             AttackEffectPrefab = attackEffectPrefab,
             SkillHandler = skillHandler,
-            EffectController = effectController
+            EnemyEffectController = effectController
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);

@@ -1,5 +1,3 @@
-
-//발화
 using UnityEngine;
 
 // 발화 출혈+화상
@@ -28,6 +26,11 @@ public class IgnitionEffect : StatusEffectBase
             if (buffer[i].TryGetComponent<IDamageable>(out var enemy) && enemy.IsAlive)
                 enemy.TakeDamage(explosionDamage);
         }
+
+
+#if UNITY_EDITOR
+        Debug.Log($"[발화] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
+#endif
     }
 
     protected override void OnTick() { }

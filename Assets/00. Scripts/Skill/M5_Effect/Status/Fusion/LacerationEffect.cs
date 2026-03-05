@@ -1,5 +1,7 @@
 
 //부식
+using UnityEngine;
+
 public class LacerationEffect : StatusEffectBase
 {
     private float defReduction;
@@ -26,6 +28,11 @@ public class LacerationEffect : StatusEffectBase
             value = -defReduction,
             duration = this.duration
         });
+
+
+#if UNITY_EDITOR
+        Debug.Log($"[부식Effect] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
+#endif
     }
 
     protected override void OnTick()

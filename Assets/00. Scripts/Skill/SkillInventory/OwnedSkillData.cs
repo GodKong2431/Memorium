@@ -5,20 +5,18 @@ public class OwnedSkillData
 {
     public int skillID;
     public int level;
-    private Dictionary<SkillGrade, int> gradeCountMap = new();
+    public List<int> gradeCountMap = new List<int>(new int[(int)SkillGrade.Count]);
 
     public int GetCount(SkillGrade grade)
     {
-        return gradeCountMap.TryGetValue(grade, out var count) ? count : 0;
+        return gradeCountMap[(int)grade];
     }
 
     public void AddCount(SkillGrade grade, int amount)
     {
-        if (!gradeCountMap.ContainsKey(grade))
-            gradeCountMap[grade] = 0;
-        gradeCountMap[grade] += amount;
-        if (gradeCountMap[grade] <= 0)
-            gradeCountMap.Remove(grade);
+
+        gradeCountMap[(int)grade] += amount;
+        if (gradeCountMap[(int)grade] < 0) gradeCountMap[(int)grade] = 0;
     }
 
     public SkillGrade HighestGrade
@@ -26,10 +24,14 @@ public class OwnedSkillData
         get
         {
             SkillGrade best = SkillGrade.Scroll;
-            foreach (var pair in gradeCountMap)
+
+            for(int i = (int)SkillGrade.Count - 1; i >= 0; i--)
             {
-                if (pair.Value > 0 && pair.Key > best)
-                    best = pair.Key;
+                if (gradeCountMap[i] > 0)
+                {
+                    best = (SkillGrade)i;
+                    break;
+                }
             }
             return best;
         }

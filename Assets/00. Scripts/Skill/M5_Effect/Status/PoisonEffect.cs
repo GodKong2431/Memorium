@@ -12,6 +12,14 @@ public class PoisonEffect : StatusEffectBase
         tickInterval = data.damage;
         damage = 1;
     }
+
+    public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
+    {
+#if UNITY_EDITOR
+        Debug.Log($"[PoisonEffect] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
+#endif
+    }
+
     protected override void OnTick()
     {
         target.TakeDamage(damage);

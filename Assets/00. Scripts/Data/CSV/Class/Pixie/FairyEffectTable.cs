@@ -5,7 +5,6 @@ using System.Collections.Generic;
 public class FairyEffectTable : TableBase
 {
     public int triggerID;
-    public TargetType targetType;
     public float duration;
     public float tickRate;
 }

@@ -37,6 +37,9 @@ public class EnemyStateChase : IEnemyState
             return;
         }
 
+        // 이 부분에 버프/디버프 적용된 이동속도 반영하도록 추가했습니다.
+        ctx.Agent.speed = ctx.MoveSpeed;
+
         NavMeshAgent agent = ctx.Agent;
         if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh && !agent.isStopped)
         {

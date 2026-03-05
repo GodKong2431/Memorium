@@ -34,7 +34,8 @@ public class StatusEffectHandler
             if (effect.IsExpired)
             {
                 effect.OnExpire();
-                activeEffects.RemoveAt(i);
+                activeEffects[i] = activeEffects[activeEffects.Count - 1]; 
+                activeEffects.RemoveAt(activeEffects.Count - 1);
             }
         } 
     }

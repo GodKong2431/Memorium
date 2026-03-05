@@ -1,18 +1,19 @@
-using System.Collections.Generic;
+
 using UnityEngine;
 
-public abstract class EffectController : MonoBehaviour, IBuffApplicable
+public class EffectController : MonoBehaviour, IBuffApplicable
 {
     public BuffDebuffHandler BuffDebuff { get; protected set; }
     public StatusEffectHandler StatusEffect { get; protected set; }
 
-    protected virtual void Awake()
+    private void Awake()
     {
         BuffDebuff = new BuffDebuffHandler();
         var enemy = GetComponent<EnemyStateMachine>();
         if (enemy != null)
             StatusEffect = new StatusEffectHandler(this, enemy);
     }
+
 
     private void Update()
     {

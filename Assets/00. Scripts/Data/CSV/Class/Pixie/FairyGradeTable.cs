@@ -8,4 +8,6 @@ public class FairyGradeTable : TableBase
     public int maxLevel;
     public int costBase;
     public float costSlope;
+    public int fragmentCostBase;
+    public float fragmentCostSlope;
 }

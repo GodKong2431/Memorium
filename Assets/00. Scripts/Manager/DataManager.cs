@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +39,6 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, FairyStatTable> FairyStatDict;
     public Dictionary<int, FairyEffectTable> FairyEffectDict;
     public Dictionary<int, FairyGradeTable> FairyGradeDict;
-    public Dictionary<int, FairyGrowthTable> FairyGrowthDict;
     public Dictionary<int, FairyInfoTable> FairyInfoDict;
     public Dictionary<int, TriggerInfoTable> TriggerInfoDict;
 

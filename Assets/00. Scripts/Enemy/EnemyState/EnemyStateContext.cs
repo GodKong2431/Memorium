@@ -13,7 +13,7 @@ public class EnemyStateContext
     public NavMeshAgent Agent { get; set; }
     public EnemyStatPresenter StatPresenter { get; set; }
 
-    public EffectController EffectController { get; set; }
+    public EffectController EnemyEffectController { get; set; }
     public Animator Animator { get; set; }
 
     /// <summary>
@@ -28,6 +28,35 @@ public class EnemyStateContext
 
     public float MaxHealth => StatPresenter?.Data?.monsterHealth ?? 100f;
     public float AttackRange => StatPresenter?.Data?.attackRange ?? 1.5f;
+
+    // 원본값
+    public float BaseAttackPoint => StatPresenter?.Data?.monsterAttackpoint ?? 10f;
+    public float BaseAttackSpeed => StatPresenter?.Data?.monsterAttackspeed ?? 1f;
+    public float BaseMoveSpeed => StatPresenter?.Data?.monsterSpeed ?? 3f;
+    // public float BaseDefense => StatPresenter?.Data?.monsterDefense ?? 0f; // 방어력 추가 시
+
+    // 디버프 반영 최종값
+
+    /// <summary>
+    /// 버프 / 디버프 적용된 공격력.
+    /// </summary>
+    public float AttackPoint => GetModifiedStat(StatType.ATK, BaseAttackPoint);
+
+    /// <summary>
+    /// 버프 / 디버프 적용된 공격 속도.
+    /// </summary>
+    public float AttackSpeed => GetModifiedStat(StatType.ATK_SPEED, BaseAttackSpeed);
+
+    /// <summary>
+    /// 버프/디버프 적용된 이동 속도.
+    /// </summary>
+    public float MoveSpeed => GetModifiedStat(StatType.MOVE_SPEED, BaseMoveSpeed);
+
+    ///// <summary>
+    ///// 버프/디버프 적용된 방어력. 방어력 추가 시
+    ///// <summary>
+    //public float Defense => GetModifiedStat(StatType.PHYS_DEF, BaseDefense); // 방어력 추가 시
+
     /// <summary>StatPresenter.IsBoss 또는 인스펙터 isBoss 중 하나라도 true면 보스. (인스펙터 명시적 설정 우선)</summary>
     private bool _isBossFallback;
     public bool IsBoss { get => (StatPresenter?.IsBoss ?? false) || _isBossFallback; set => _isBossFallback = value; }
@@ -71,6 +100,11 @@ public class EnemyStateContext
     {
         //Debug.Log($"[EnemyStateContext] TakeDamage: {damage}");
 
+
+        //float def = Defense;
+        //TO DO:방어력 추가 되면 데미지 계산식에 방어력 적용
+
+
         CurrentHealth -= damage;
     }
 
@@ -91,5 +125,11 @@ public class EnemyStateContext
     {
         if (Animator != null && !string.IsNullOrEmpty(trigger))
             Animator.SetTrigger(trigger);
+    }
+
+    public float GetModifiedStat(StatType type, float baseValue)
+    {
+        if (EnemyEffectController == null) return baseValue;
+        return EnemyEffectController.GetModifiedStat(type, baseValue);
     }
 }

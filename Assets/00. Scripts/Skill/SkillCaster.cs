@@ -19,6 +19,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     [SerializeField] SkillProjectile projectilePrefab;
     [SerializeField] SkillDeploy deployPrefab;
     [SerializeField] GameObject shadowPrepab;
+    [SerializeField] FireZone fireZonePrefab;
 
     private SkillDataContext skillDataContext;
     private bool isCasting = false;
@@ -226,15 +227,12 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     {
         ProcessHit(hitCount, data, hitBuffer, false);
     }
+
     private void ProcessHit(int hitCount, SkillDataContext data, Collider[] hitBuffer, bool applyAddon)
     {
         if (hitCount == 0) return;
 
         ISkillAddonStrategy m4Strategy = null;
-#if UNITY_EDITOR
-        if(data.m4Data != null)
-            Debug.Log($"애드 온: {data.m4Data.ID}_{data.m4Data.m4Type}");
-#endif
         if (applyAddon && data.m4Data != null)
         {
             m4Strategy = SkillStrategyContainer.GetAddon(data.m4Data.m4Type);
@@ -258,42 +256,43 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
                 if (hitBuffer[i].TryGetComponent<EffectController>(out var controller))
                 {
-                    var m5A = data.m5DataA;
-                    var m5B = data.m5DataB;
-
-                    StatusEffectBase effect=null;
-                    SkillModule5Table activeData=null;
-
-                    if (m5A != null && m5B != null)
-                    {
-                        effect = StatusEffectFactory.CreateFusion(m5A, m5B);
-                    }
-                    else if (m5A != null)
-                    {
-                        effect = StatusEffectFactory.Create(m5A);
-                        activeData = m5A;
-                    }
-                    else if (m5B != null)
-                    {
-                        effect = StatusEffectFactory.Create(m5B);
-                        activeData = m5B;
-                    }
-
-                    if (activeData !=null&&activeData.applyType == ApplyType.strikeLocation)
-                    {
-                        var go = Instantiate(projectilePrefab, target.transform.position, transform.rotation);
-
-                        if (go.TryGetComponent<FireZone>(out var fireZone))
-                        {
-                            fireZone.Init(activeData,3.0f,targetLayer);
-                        }
-                    }
-
-
-                    else if (effect != null)
-                        controller.ApplyStatusEffect(effect);
+                    ApplyM5Effect(data, controller, target.transform.position);
                 }
             }
         }
+    }
+
+
+    private void ApplyM5Effect(SkillDataContext data, EffectController controller, Vector3 hitPos)
+    {
+        var m5A = data.m5DataA;
+        var m5B = data.m5DataB;
+
+        var activeData = m5A ?? m5B;
+        if (activeData ==  null) return;
+
+        if (m5A != null && m5B != null)
+        {
+            var effect = StatusEffectFactory.CreateFusion(m5A, m5B);
+            if (effect != null) controller.ApplyStatusEffect(effect);
+            return;
+        }
+
+        if (activeData.applyType == ApplyType.strikeLocation)
+        {
+            SpawnFireZone(activeData, hitPos);
+        }
+        else
+        {
+            var effect = StatusEffectFactory.Create(activeData);
+            if (effect != null) controller.ApplyStatusEffect(effect);
+        }
+    }
+
+    private void SpawnFireZone(SkillModule5Table data, Vector3 position)
+    {
+        var gameObject = Instantiate(fireZonePrefab, position, transform.rotation);
+        if (gameObject.TryGetComponent<FireZone>(out var fireZone))
+            fireZone.Init(data, 3.0f, targetLayer);
     }
 }

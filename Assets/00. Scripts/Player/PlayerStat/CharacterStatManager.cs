@@ -44,6 +44,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
     [SerializeField] private float expectedCrit;
 
+    private EffectController _playerEffectController;
+
     IEnumerator Start()
     {
         yield return new WaitUntil(() => DataManager.Instance != null);
@@ -192,7 +194,9 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     public float GetFinalStat(StatType statType)
     {
         float baseValue = FinalStats.TryGetValue(statType, out var finalStat) ? finalStat.finalStat : 0f;
-        return ApplyBerserkerMultiplier(statType, baseValue);
+        baseValue = ApplyBerserkerMultiplier(statType, baseValue);
+        baseValue = _playerEffectController.GetModifiedStat(statType, baseValue);
+        return baseValue;
     }
 
     public void AllUpdate()
@@ -271,6 +275,13 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         if (BerserkerModeController.Instance != null && BerserkerModeController.Instance.IsActive)
             return baseValue * BerserkerStatMultiplier;
         return baseValue;
+    }
+    #endregion
+
+    #region 버프 컨트롤러 등록
+    public void RegisterEffectController(EffectController effectController)
+    {
+        _playerEffectController = effectController;
     }
     #endregion
 }

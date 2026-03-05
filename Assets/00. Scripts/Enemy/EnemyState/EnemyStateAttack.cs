@@ -42,7 +42,10 @@ public class EnemyStateAttack : IEnemyState
         else
         {
             _damageApplied = false;
-            float attackSpeed = ctx.StatPresenter?.Data?.monsterAttackspeed ?? 1f;
+
+            //이 부분 버프 계산된 공격속도 가져오는걸로 수정했습니다.
+            float attackSpeed = ctx.AttackSpeed;
+
             float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
             _attackEndTime = Time.time + delay;
             _attackInProgress = true;
@@ -95,7 +98,8 @@ public class EnemyStateAttack : IEnemyState
                     var damageable = ctx.PlayerTransform.GetComponent<IDamageable>();
                     if (damageable != null)
                     {
-                        float damage = ctx.StatPresenter?.Data?.monsterAttackpoint ?? 10f;
+                        // 이 부분 버프 계산된 공격력 가져오는걸로 수정했습니다.
+                        float damage = ctx.AttackPoint;
                         if (ctx.SkillHandler != null)
                             damage = ctx.SkillHandler.GetAttack();
                         Debug.Log($"[EnemyStateAttack] damage={damage}");

@@ -391,7 +391,7 @@ MonoBehaviour:
   characterBaseKey: 1000001
   characterTableKey: 1030001
   level: 1
-  testSaveData:
+  saveEquipmentData:
     weaponId: -1
     helmetId: 0
     gloveId: 0
@@ -1705,6 +1705,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestManager
   currentQuestID: 7010001
   currentProgress: 0
+  saveQuestData:
+    currentQuestId: -1
+    currentProgress: 0
 --- !u!4 &930009148
 Transform:
   m_ObjectHideFlags: 0
@@ -3364,7 +3367,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1f90f35de5715949b82d1bf7ffd75b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillHandler
-  battleSkillPresenter: {fileID: 0}
+  battleSkillPresenter: {fileID: 1166894198}
 --- !u!114 &1652796885
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3383,6 +3386,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 1604259860813359153, guid: cc27048a1a6486843887c6285dab2d36, type: 3}
   deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
   shadowPrepab: {fileID: 9106158446547060106, guid: ad334d366ce436447a3b287029a8541f, type: 3}
+  fireZonePrefab: {fileID: 3087428585756455590, guid: feaf579888b89024e8d3d07f64cb07ed, type: 3}
 --- !u!114 &1652796886
 MonoBehaviour:
   m_ObjectHideFlags: 0

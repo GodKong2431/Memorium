@@ -26,6 +26,9 @@ public class BleedEffect : StatusEffectBase
             return;
         }
         base.OnApply(target, buffApplicable);
+#if UNITY_EDITOR
+        Debug.Log($"[BleedEffect] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage} | Current Stack: {stackCount}");
+#endif
     }
 
     public void AddStack()
@@ -39,6 +42,11 @@ public class BleedEffect : StatusEffectBase
         float dmg = damage * stackCount;
         bool isMoving = target.isMoving;
         if (isMoving) dmg *= 2f;
+
+#if UNITY_EDITOR
+        if (isMoving)
+            Debug.Log($"출혈 2배 데미지");
+#endif
         target.TakeDamage(dmg);
     }
 }

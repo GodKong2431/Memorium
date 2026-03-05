@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(PlayerStatPresenter))]
+[RequireComponent(typeof(PlayerSkillHandler))]
+[RequireComponent(typeof(EffectController))]
 public class PlayerStateMachine : MonoBehaviour, IDamageable
 {
     [SerializeField]
@@ -35,6 +37,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         var statPresenter = GetComponent<PlayerStatPresenter>();
         var _playerSkillHandler = GetComponent<PlayerSkillHandler>();
         var effectController =GetComponent<EffectController>();
+        CharacterStatManager.Instance.RegisterEffectController(effectController);
 
         _ctx = new PlayerStateContext
         {

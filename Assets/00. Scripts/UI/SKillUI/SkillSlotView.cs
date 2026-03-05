@@ -76,25 +76,24 @@ public class SkillSlotItem : MonoBehaviour
 
         skillIcon.color = Color.white;
         equipButton.interactable = data.IsEquippable;
-        equipButton.image.color = data.IsEquippable ? Color.white : new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        equipButton.image.color = data.IsEquippable ? Color.white : Color.gray;
 
         for (int i = 0; i < m5JemIcons.Length; i++)
         {
             m5JemIcons[i].gameObject.SetActive(true);
-            m5JemIcons[i].color = data.IsM5JemSlotOpen(i) ? Color.white : new Color(0.3f, 0.3f, 0.3f, 0.5f);
+            m5JemIcons[i].color = data.IsM5JemSlotOpen(i) ? Color.white : Color.gray;
         }
 
         m4JemIcon.gameObject.SetActive(true);
-        m4JemIcon.color = data.IsM4JemSlotOpen ? Color.white : new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        m4JemIcon.color = data.IsM4JemSlotOpen ? Color.white : Color.gray;
     }
-
     private void SetLocked()
     {
         gradeText.SetText("None");
         levelText.SetText(string.Empty);
-        skillIcon.color = new Color(0.2f, 0.2f, 0.2f, 0.5f);
+        skillIcon.color = Color.gray;
         equipButton.interactable = false;
-        equipButton.image.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        equipButton.image.color = Color.gray;
 
         for (int i = 0; i < m5JemIcons.Length; i++)
             m5JemIcons[i].gameObject.SetActive(false);
