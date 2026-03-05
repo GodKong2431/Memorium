@@ -22,7 +22,7 @@ public class Shadow : MonoBehaviour
     public void Cast(SkillDataContext originalContext, float delay)
     {
         int skillID = originalContext.skillData.skillTable.ID;
-        int m5ID = originalContext.m5Data != null ? originalContext.m5Data.ID : -1;
+        int m5ID = originalContext.m5DataA != null ? originalContext.m5DataA.ID : -1;
         caster.CastSkill(caster.ResetContext(skillID, -1, m5ID), delay, false);
     }
 

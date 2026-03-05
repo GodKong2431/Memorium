@@ -7,13 +7,13 @@ public class SkillData
 {
     public SkillInfoTable skillTable;
 
-    [Header("M1: ÀÌµ¿")]
+    [Header("M1: ì´ë™")]
     public SkillModule1Table m1Data;
 
-    [Header("M2: ¹üÀ§")]
+    [Header("M2: ë²”ìœ„")]
     public SkillModule2Table m2Data;
 
-    [Header("M3: ½ÇÇà ¹æ½Ä")]
+    [Header("M3: ì‹¤í–‰ ë°©ì‹")]
     public SkillModule3Table m3Data;
 
 }
@@ -21,30 +21,21 @@ public class SkillData
 [System.Serializable]
 public class SkillDataContext
 {
-    [Header("±âº» ½ºÅ³ µ¥ÀÌÅÍ")]
+    [Header("ê¸°ë³¸ ìŠ¤í‚¬ ë°ì´í„°")]
     public SkillData skillData;
 
-    [Header("M4: Ãß°¡ È¿°ú")]
+    [Header("M4: ì¶”ê°€ íš¨ê³¼")]
     public SkillModule4Table m4Data;
 
-    [Header("M5: »óÅÂ ÀÌ»ó")]
-    public SkillModule5Table m5Data;
+    [Header("M5: ìƒíƒœ ì´ìƒ")]
+    public SkillModule5Table m5DataA;
+    public SkillModule5Table m5DataB;
 
-    public SkillDataContext(int skillID, int m4ID = -1, int m5ID = -1)
+    public SkillDataContext(int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb = -1)
     {
-        if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table)) return;
-
-        if (skillData == null) skillData = new SkillData();
-
-        skillData.skillTable = table;
-        skillData.m1Data = DataManager.Instance.SkillModule1Dict.GetValueOrDefault(table.m1ID);
-        skillData.m2Data = DataManager.Instance.SkillModule2Dict.GetValueOrDefault(table.m2ID);
-        skillData.m3Data = DataManager.Instance.SkillModule3Dict.GetValueOrDefault(table.m3ID);
-
-        m4Data = DataManager.Instance.SkillModule4Dict.GetValueOrDefault(m4ID);
-        m5Data = DataManager.Instance.SkillModule5Dict.GetValueOrDefault(m5ID);
+        SetSkillContext(skillID, m4ID, m5IDa, m5IDb);
     }
-    public void Reset(int skillID, int m4ID = -1, int m5ID = -1)
+    public void SetSkillContext(int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb = -1)
     {
         if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table)) return;
         if (skillData == null) skillData = new SkillData();
@@ -54,6 +45,7 @@ public class SkillDataContext
         skillData.m3Data = DataManager.Instance.SkillModule3Dict.GetValueOrDefault(table.m3ID);
 
         m4Data = DataManager.Instance.SkillModule4Dict.GetValueOrDefault(m4ID);
-        m5Data = DataManager.Instance.SkillModule5Dict.GetValueOrDefault(m5ID);
+        m5DataA = DataManager.Instance.SkillModule5Dict.GetValueOrDefault(m5IDa);
+        m5DataB = DataManager.Instance.SkillModule5Dict.GetValueOrDefault(m5IDb);
     }
 }
