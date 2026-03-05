@@ -14,9 +14,6 @@ public sealed class CurrencyUIView
 
     public void SetAmount(BigDouble amount)
     {
-        if (amountText == null)
-            return;
-
         amountText.text = amount.ToString();
     }
 }

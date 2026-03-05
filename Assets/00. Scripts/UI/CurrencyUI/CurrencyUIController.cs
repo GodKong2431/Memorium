@@ -26,15 +26,12 @@ public class CurrencyUIController : UIControllerBase
 
     protected override void RefreshView()
     {
-        if (currencyView == null)
-            return;
-
         currencyView.SetAmount(GetAmount(targetCurrency));
     }
 
     private void OnCurrencyChanged(CurrencyType type, BigDouble amount)
     {
-        if (type != targetCurrency || currencyView == null)
+        if (type != targetCurrency)
             return;
 
         currencyView.SetAmount(amount);
