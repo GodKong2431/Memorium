@@ -10,5 +10,7 @@ public class AblityStoneSO : ScriptableObject
 
     public SerializedDictionary<StatType, StoneStatProbability> StoneStatProbabilityDict = new SerializedDictionary<StatType, StoneStatProbability>();
 
-    public SerializedDictionary<int, StoneTotalUpBonus> StoneTotalUpBonusDict = new SerializedDictionary<int, StoneTotalUpBonus>();
+    public SerializedDictionary<StatType, StoneTotalUpBonusA> StoneTotalUpBonusDict = new SerializedDictionary<StatType, StoneTotalUpBonusA>();
+    
+    public SerializedDictionary<StatType, StoneGradeStatUp> StoneGradeStatUpDict = new SerializedDictionary<StatType, StoneGradeStatUp>();
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
-using UnityEngine.UI;
+using System.Linq;
 
 [System.Serializable]
 public class AbilityStone
@@ -31,6 +32,10 @@ public class AbilityStone
     
     [SerializeField] private float currentProbability;
     
+    [SerializeField] private int totalUpCount;
+    
+    private CharacterStatManager mgr;
+
     private List<int> slotUpOpportunitys = new List<int>();
     
     public float CurrentProbability
@@ -70,6 +75,23 @@ public class AbilityStone
         slotUpOpportunitys.Add(firstUpOpportunity);
         slotUpOpportunitys.Add(secondUpOpportunity);
         slotUpOpportunitys.Add(thirdUpOpportunity);
+        
+        mgr = CharacterStatManager.Instance;
+        
+        foreach(var slot in Slots)
+        {
+            slot.SlotType = StatType.None;
+            slot.successCounter.Clear();
+            slot.OnUpdateStat += mgr.FinalStat;
+        }
+        
+    }
+    public void DisableEvent()
+    {
+        foreach(var slot in Slots)
+        {
+            slot.OnUpdateStat -= mgr.FinalStat;
+        }
     }
     
     public void Reset(StoneGrade grade)
@@ -94,13 +116,15 @@ public class AbilityStone
             }
             
             Slots[i].TypeSetting(currentType);
+            Slots[i].increaseStat = AbilityStoneManager.Instance.so.StoneGradeStatUpDict[currentType].SetStat(stoneGrade);
         }
     }
     
     public bool UpStone(int slotIndex)
     {
         
-        if (Slots[slotIndex].successCounter.Count >= slotUpOpportunitys[slotIndex])
+        if (Slots[slotIndex].successCounter.Count >= slotUpOpportunitys[slotIndex]
+        || Slots[slotIndex].SlotType == StatType.None)
         {
             return false;
         }
@@ -131,4 +155,19 @@ public class AbilityStone
         }
     }
     
+    public int GetUpCount()
+    {
+        totalUpCount = 0;
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            if (i == 2)
+            {
+                continue;
+            }
+            
+            totalUpCount += Slots[i].successCounter.Count(x => x);
+        }
+        
+        return totalUpCount;
+    }
 }

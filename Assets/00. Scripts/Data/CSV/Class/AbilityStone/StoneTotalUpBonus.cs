@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 [System.Serializable]
-public class StoneTotalUpBonusTable : TableBase
+public class StoneTotalUpBonus : TableBase
 {
     public int stoneTotalUP;
     public string stoneBonusStatName;

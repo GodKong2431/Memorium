@@ -82,7 +82,7 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, StoneTable> StoneDict;
     public Dictionary<int, StoneStatProbabilityTable> StoneStatProbabilityDict;
     public Dictionary<int, StoneGradeStatUpTable> StoneGradeStatUpDict;
-    // public Dictionary<int, StoneTotalUpBonus> StoneTotalUpBonusDict;
+    public Dictionary<int, StoneTotalUpBonus> StoneTotalUpBonusDict;
     #endregion
 
     // (현재 개수, 총 개수, 현재 처리 중 파일명)

@@ -31,7 +31,11 @@ public class FinalStat
         // 장비 스탯
         float equipStat = CharacterStatManager.Instance.PlayerSlot.GetStat(playerStatType);
         
-        finalStat = baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat;
+        float abilityStoneStat = AbilityStoneManager.Instance.GetStat(playerStatType); 
+        
+        float ablityStoneBonusStat = AbilityStoneManager.Instance.GetBonusStat(playerStatType);
+        
+        finalStat = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat) * ablityStoneBonusStat;
 
         return finalStat;
     }
