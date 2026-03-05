@@ -61,11 +61,27 @@ public class ItemDropSettings : ScriptableObject
     public int[] skillGemIds = { 3220001 };
     public int[] dungeonTicketIds = { 3831001 };
 
+    public Dictionary<ItemType, List<int>> itemTypeToItemTable = new Dictionary<ItemType, List<int>>();
+
     [Serializable]
     public class EquipmentOffsetEntry
     {
         public int offset;
         public int weight;
+    }
+
+    public List<int> ReturnItemTableToType(ItemType type)
+    {
+        if(itemTypeToItemTable.ContainsKey(type))
+            return itemTypeToItemTable[type];
+
+        itemTypeToItemTable[type] = new List<int>();
+        foreach (var item in DataManager.Instance.ItemInfoDict)
+        {
+            if(item.Value.itemType==type)
+                itemTypeToItemTable[type].Add(item.Key);
+        }
+        return itemTypeToItemTable[type];
     }
 
     /// <summary>ItemDropSettings는 RewardManager.DropSettings를 통해서만 접근. SetDropTable은 RewardManager에서 처리.</summary>
