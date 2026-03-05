@@ -3,8 +3,11 @@
 public enum CurrencyType
 {
     TraitPoint, 
-    Exp, 
-    PixieFragment=31, 
+    Exp,
+    SkillScroll = 21,
+    ElementGem = 22,
+    UniqueGem = 23,
+    PixieFragment =31, 
     Gold=81,
     Crystal=82,
     DungeonTicket=83,

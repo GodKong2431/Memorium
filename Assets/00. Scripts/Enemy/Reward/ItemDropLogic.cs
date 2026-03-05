@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -63,6 +63,11 @@ public static class ItemDropLogic
         if (ids == null || ids.Length == 0) return 0;
         return ids[Random.Range(0, ids.Length)];
     }
+    private static int PickRandom(List<int> ids)
+    {
+        if (ids == null || ids.Count == 0) return 0;
+        return ids[Random.Range(0, ids.Count)];
+    }
 
     private static int GetEquipmentIdByTypeAndTier(EquipmentType type, int tier)
     {
@@ -111,22 +116,26 @@ public static class ItemDropLogic
 
         if (RollChance(settings.pixieFragmentChance, isBoss))
         {
-            int id = PickRandom(settings.pixieFragmentIds);
+            //int id = PickRandom(settings.pixieFragmentIds);
+            int id = PickRandom(settings.ReturnItemTableToType(ItemType.PixiePiece));
             if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.PixieFragment }); Debug.Log($"[드랍] 수호요정조각 ID={id} (확률 {settings.pixieFragmentChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
         }
         if (RollChance(settings.skillScrollChance, isBoss))
         {
-            int id = PickRandom(settings.skillScrollIds);
+            //int id = PickRandom(settings.skillScrollIds);
+            int id = PickRandom(settings.ReturnItemTableToType(ItemType.SkillScroll));
             if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.SkillScroll }); Debug.Log($"[드랍] 스킬주문서 ID={id} (확률 {settings.skillScrollChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
         }
         if (RollChance(settings.skillGemChance, isBoss))
         {
-            int id = PickRandom(settings.skillGemIds);
+            //int id = PickRandom(settings.skillGemIds);
+            int id = PickRandom(settings.ReturnItemTableToType(ItemType.ElementGem));
             if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.SkillGem }); Debug.Log($"[드랍] 스킬잼 ID={id} (확률 {settings.skillGemChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
         }
         if (RollChance(settings.dungeonTicketChance, isBoss))
         {
-            int id = PickRandom(settings.dungeonTicketIds);
+            //int id = PickRandom(settings.dungeonTicketIds);
+            int id = PickRandom(settings.ReturnItemTableToType(ItemType.Key));
             if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.DungeonTicket }); Debug.Log($"[드랍] 던전입장권 ID={id} (확률 {settings.dungeonTicketChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
         }
     }

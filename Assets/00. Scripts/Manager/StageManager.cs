@@ -185,6 +185,9 @@ public class StageManager : Singleton<StageManager>
             SetKillCount();
             infinityMap?.MapReset();
 
+            if(curStage>maxStage)
+                maxStage = curStage -1;
+
             OnStageClearOrFailed.Invoke();
         }
         else

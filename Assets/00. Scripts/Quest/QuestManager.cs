@@ -1,4 +1,5 @@
 using System.Collections;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 // GameEventManager.OnQuestActionUpdated?.Invoke(QuestType.questElimination, 1);
@@ -13,6 +14,8 @@ public class QuestManager : Singleton<QuestManager>
     [Header("Current Progress")]
     public int currentQuestID = 7010001;
     public int currentProgress = 0;
+
+    public SaveQuestData saveQuestData;
 
     // Current quest row.
     public LineQuestTable CurrentQuestData
@@ -39,6 +42,10 @@ public class QuestManager : Singleton<QuestManager>
     private IEnumerator Start()
     {
         GameEventManager.OnQuestActionUpdated += HandleQuestAction;
+
+        //JSON Data Load
+        saveQuestData = JSONService.Load<SaveQuestData>();
+        (currentQuestID, currentProgress) = saveQuestData.InitQuestData();
 
         // Delay first UI broadcast until quest table is loaded.
         yield return new WaitUntil(() => IsQuestDataReady);
@@ -117,10 +124,21 @@ public class QuestManager : Singleton<QuestManager>
         currentQuestID = nextID;
         currentProgress = 0;
         GameEventManager.OnQuestProgressChanged?.Invoke();
+
+        saveQuestData.SaveID(currentQuestID);
     }
 
     private static bool IsQuestDataReady =>
         DataManager.Instance != null &&
         DataManager.Instance.DataLoad &&
         DataManager.Instance.LineQuestDict != null;
+
+
+    protected override void OnApplicationQuit()
+    {
+        base.OnApplicationQuit();
+        saveQuestData.Save(currentQuestID, currentProgress);
+        JSONService.Save(saveQuestData);
+
+    }
 }
