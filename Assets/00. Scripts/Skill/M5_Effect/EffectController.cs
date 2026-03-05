@@ -9,6 +9,9 @@ public abstract class EffectController : MonoBehaviour, IBuffApplicable
     protected virtual void Awake()
     {
         BuffDebuff = new BuffDebuffHandler();
+        var enemy = GetComponent<EnemyStateMachine>();
+        if (enemy != null)
+            StatusEffect = new StatusEffectHandler(this, enemy);
     }
 
     private void Update()
@@ -26,7 +29,11 @@ public abstract class EffectController : MonoBehaviour, IBuffApplicable
     {
         StatusEffect.Apply(effect);
     }
-    public abstract float GetModifiedStat(StatType type, float baseValue);
+    public float GetModifiedStat(StatType type, float baseValue)
+    {
+        float buff = BuffDebuff.GetTotal(type);
+        return baseValue + buff;
+    }
 
     public void ClearAll()
     {

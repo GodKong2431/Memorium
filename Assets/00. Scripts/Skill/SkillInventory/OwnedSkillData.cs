@@ -25,7 +25,7 @@ public class OwnedSkillData
     {
         get
         {
-            SkillGrade best = SkillGrade.Fragment;
+            SkillGrade best = SkillGrade.Scroll;
             foreach (var pair in gradeCountMap)
             {
                 if (pair.Value > 0 && pair.Key > best)
@@ -46,7 +46,7 @@ public class OwnedSkillData
         {
             switch (HighestGrade)
             {
-                case SkillGrade.Fragment: return 0;
+                case SkillGrade.Scroll: return 0;
                 case SkillGrade.Common: return 0;
                 case SkillGrade.Rare: return 50;
                 case SkillGrade.Epic: return 150;

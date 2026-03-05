@@ -9,7 +9,7 @@ public class ExecuteDeploy : ISkillExecuteStrategy
         SkillData data = dataContext.skillData;
         Vector3 deployPos = startPosition + (direction * dataContext.skillData.m3Data.m3Distance);
 
-        GameObject go = Object.Instantiate(prefab, deployPos, Quaternion.identity);
+        var go = Object.Instantiate(prefab, deployPos, owner.transform.rotation);
 
         if (go.TryGetComponent<SkillObjectileBase>(out var deployer))
         {

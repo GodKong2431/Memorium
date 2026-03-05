@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 public class BattleSkillPresenter : MonoBehaviour
@@ -82,7 +82,7 @@ public class BattleSkillPresenter : MonoBehaviour
                 continue;
             }
 
-            // 아이콘 확정 시 스킬 ID에 맞는 아이콘 반영 로직을 추가한다.
+            // 아이콘 확정 시 스킬 ID에 맞는 아이콘 반영 로직을 추가.
         }
     }
 

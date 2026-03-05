@@ -2,6 +2,7 @@
 //발화
 using UnityEngine;
 
+// 발화 출혈+화상
 public class IgnitionEffect : StatusEffectBase
 {
     private float explosionDamage;
@@ -15,7 +16,7 @@ public class IgnitionEffect : StatusEffectBase
         explosionDamage = 1f;
     }
 
-    public override void OnApply(EnemyStateMachine target, IBuffApplicable buffApplicable)
+    public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         base.OnApply(target, buffApplicable);
 
@@ -24,7 +25,7 @@ public class IgnitionEffect : StatusEffectBase
 
         for (int i = 0; i < count; i++)
         {
-            if (buffer[i].TryGetComponent<EnemyStateMachine>(out var enemy) && enemy.IsAlive)
+            if (buffer[i].TryGetComponent<IDamageable>(out var enemy) && enemy.IsAlive)
                 enemy.TakeDamage(explosionDamage);
         }
     }

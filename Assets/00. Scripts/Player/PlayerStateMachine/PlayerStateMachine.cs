@@ -22,9 +22,9 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     private Dictionary<PlayerStateType, IPlayerState> _states;
     //private IPlayerState _current;
     //private PlayerStateType _currentType;
-
     public PlayerStateType CurrentType;
-
+    public bool IsAlive => CurrentType != PlayerStateType.Die;
+    public bool isMoving => _ctx.Agent.velocity.sqrMagnitude > 0.1f;
     private StateMachine<PlayerStateContext, IPlayerState, PlayerStateType> playerStateMachine;
 
     bool IsComplete = false;
@@ -34,6 +34,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<PlayerStatPresenter>();
         var _playerSkillHandler = GetComponent<PlayerSkillHandler>();
+        var effectController =GetComponent<EffectController>();
 
         _ctx = new PlayerStateContext
         {
@@ -46,6 +47,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
             playerSkillHandler = _playerSkillHandler,
             AngularTime = angularTime,
             StopAngle = stopAngle,
+            EffectController = effectController,
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);

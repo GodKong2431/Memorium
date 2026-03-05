@@ -1,19 +1,17 @@
 
 using System.Collections.Generic;
-using static UnityEngine.UI.GridLayoutGroup;
 
 public class StatusEffectHandler
 {
     private List<StatusEffectBase> activeEffects = new List<StatusEffectBase>();
     private IBuffApplicable buffTarget;
-    private EnemyStateMachine owner;
+    private IDamageable owner;
 
-    public StatusEffectHandler(IBuffApplicable target, EnemyStateMachine enemyStateMachine)
+    public StatusEffectHandler(IBuffApplicable target, IDamageable enemyStateMachine)
     {
         this.buffTarget = target;
         owner = enemyStateMachine;
     }
-
     public void Apply(StatusEffectBase effect)
     {
         for (int i = 0; i < activeEffects.Count; i++)

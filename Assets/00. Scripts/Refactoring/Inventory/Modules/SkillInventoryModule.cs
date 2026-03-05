@@ -50,7 +50,7 @@ public sealed class SkillInventoryModule : IInventoryModule
             if (!TryGetRandomSkillIdByScroll(item.ItemId, out int skillId))
                 return false;
 
-            AddSkill(skillId, SkillGrade.Fragment, 1, notify: false);
+            AddSkill(skillId, SkillGrade.Scroll, 1, notify: false);
         }
 
         OnInventoryChanged?.Invoke();
@@ -78,7 +78,7 @@ public sealed class SkillInventoryModule : IInventoryModule
     }
 
     // 스킬 보유량/등급 수량을 증가시킨다.
-    public void AddSkill(int skillId, SkillGrade grade = SkillGrade.Fragment, int amount = 1, bool notify = true)
+    public void AddSkill(int skillId, SkillGrade grade = SkillGrade.Scroll, int amount = 1, bool notify = true)
     {
         if (!skillDataById.TryGetValue(skillId, out var data))
         {

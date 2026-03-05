@@ -1,6 +1,7 @@
 
 using UnityEngine;
 
+// 부식 출혈+독
 public class CorrosionEffect : StatusEffectBase
 {
     private float burstDamage;
@@ -10,16 +11,18 @@ public class CorrosionEffect : StatusEffectBase
 
     public CorrosionEffect(M5FusionTable fusion, SkillModule5Table poisonSource)
     {
-        duration = 0f;
+        duration = fusion.duration;
         tickInterval = 1f;
         burstDamage = 1;
         poisonData = poisonSource;
     }
 
-    public override void OnApply(EnemyStateMachine target, IBuffApplicable buffApplicable)
+    public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         base.OnApply(target, buffApplicable);
-        target.TakeDamage(burstDamage);
+        float count = poisonData.duration / poisonData.damage;
+        float totalDamage = burstDamage * count;
+        target.TakeDamage(totalDamage);
     }
 
     protected override void OnTick() { }
@@ -33,7 +36,7 @@ public class CorrosionEffect : StatusEffectBase
         for (int i = 0; i < count; i++)
         {
             if (buffer[i].TryGetComponent<EffectController>(out var ec)
-                && buffer[i].TryGetComponent<EnemyStateMachine>(out var enemy)
+                && buffer[i].TryGetComponent<IDamageable>(out var enemy)
                 && enemy.IsAlive && enemy != target)
             {
                 ec.ApplyStatusEffect(new PoisonEffect(poisonData));

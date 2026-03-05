@@ -24,10 +24,10 @@ public class PoisonEffect : StatusEffectBase
         for (int i = 0; i < count; i++)
         {
             if (buffer[i].TryGetComponent<EffectController>(out var effect)
-                && buffer[i].TryGetComponent<EnemyStateMachine>(out var enemy)
+                && buffer[i].TryGetComponent<IDamageable>(out var enemy)
                 && enemy.IsAlive && enemy != target)
             {
-                effect.ApplyStatusEffect(new PoisonEffect(tableData));
+                effect.ApplyStatusEffect(StatusEffectFactory.Create(tableData));
             }
         }
     }

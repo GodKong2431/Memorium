@@ -13,7 +13,7 @@ public class FireEffect : StatusEffectBase
         defReduction = data.defDown;
     }
 
-    public override void OnApply(EnemyStateMachine target, IBuffApplicable buffApplicable)
+    public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         // 재적용 시 — Refresh + 디버프 갱신만
         if (elapsedTime > 0f)
@@ -32,7 +32,7 @@ public class FireEffect : StatusEffectBase
         buffApplicable.ApplyBuff(new StatModifier
         {
             id = tableData.ID,
-            statType = StatType.DEF,
+            statType = StatType.PHYS_DEF,
             value = -defReduction,
             duration = this.duration
         });

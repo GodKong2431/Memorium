@@ -15,14 +15,14 @@ public class LacerationEffect : StatusEffectBase
         defReduction = fusion.defDown;
     }
 
-    public override void OnApply(EnemyStateMachine target, IBuffApplicable buffApplicable)
+    public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         base.OnApply(target, buffApplicable);
 
         buffApplicable.ApplyBuff(new StatModifier
         {
             id = fusion.ID,
-            statType = StatType.DEF,
+            statType = StatType.PHYS_DEF,
             value = -defReduction,
             duration = this.duration
         });

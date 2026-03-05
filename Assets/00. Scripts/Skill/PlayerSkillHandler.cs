@@ -55,19 +55,21 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         DataManager.Instance.OnComplete -= OnDataLoaded;
         InitFromPreset();
     }
-    public void Init(int[] skillIDs, int[] m4IDs = null, int[] m5IDs = null)
+    public void Init(SkillPresetSlot[] slots)
     {
-        skilldataContexts = new SkillDataContext[skillIDs.Length];
-        cooldownTimers = new float[skillIDs.Length];
-        cooldownTimeMax = new float[skillIDs.Length];
-        for (int i = 0; i < skillIDs.Length; i++)
+        skilldataContexts = new SkillDataContext[slots.Length];
+        cooldownTimers = new float[slots.Length];
+        cooldownTimeMax = new float[slots.Length];
+        for (int i = 0; i < slots.Length; i++)
         {
-            skilldataContexts[i] = new SkillDataContext(skillIDs[i], m4IDs?[i] ?? -1, m5IDs?[i] ?? -1);
+            var s = slots[i];
+            skilldataContexts[i] = new SkillDataContext(
+                s.skillID, s.m4JemID, s.m5JemIDs[0], s.m5JemIDs[1]
+            );
             cooldownTimers[i] = 0;
             cooldownTimeMax[i] = 0;
         }
         skillCaster.Init(this, this, SetInvincible);
-
         if (battleSkillPresenter != null)
             battleSkillPresenter.Init(this);
     }
@@ -95,29 +97,14 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     }
     public void InitFromPreset()
     {
-        var skillModule = InventoryManager.Instance != null
-            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
-            : null;
-        if (skillModule == null)
-            return;
-
-        var preset = skillModule.GetCurrentPreset();
-        int[] skillIDs = new int[preset.slots.Length];
-        int[] m4IDs = new int[preset.slots.Length];
-        int[] m5IDs = new int[preset.slots.Length];
-
-        for (int i = 0; i < preset.slots.Length; i++)
-        {
-            skillIDs[i] = preset.slots[i].skillID;
-            m4IDs[i] = preset.slots[i].m4JemID;
-            m5IDs[i] = preset.slots[i].m5JemIDs[0];
-        }
-        Init(skillIDs, m4IDs, m5IDs);
+        var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
+        if (skillModule == null) return;
+        Init(skillModule.GetCurrentPreset().slots);
     }
-    public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5ID = -1)
+    public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb =-1)
     {
         if (index < 0 || index >= skilldataContexts.Length) return;
-        skilldataContexts[index] = new SkillDataContext(skillID, m4ID, m5ID);
+        skilldataContexts[index] = new SkillDataContext(skillID, m4ID, m5IDa, m5IDb);
         cooldownTimers[index] = 0;
         cooldownTimeMax[index] = 0;
     }

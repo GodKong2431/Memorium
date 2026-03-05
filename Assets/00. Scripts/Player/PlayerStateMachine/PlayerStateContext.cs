@@ -9,6 +9,7 @@ public class PlayerStateContext : BaseStateContext
     public NavMeshAgent Agent { get; set; }
     public PlayerStatPresenter StatPresenter { get; set; }
     public Animator Animator { get; set; }
+    public EffectController EffectController { get; set; }
 
     public float AngularTime { get; set; }
     public float StopAngle { get; set; }

@@ -1,7 +1,7 @@
 
 public enum SkillGrade
 {
-    Fragment,   
+    Scroll,   
     Common,
     Rare,
     Epic,

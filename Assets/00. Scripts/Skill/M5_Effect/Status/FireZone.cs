@@ -56,7 +56,7 @@ public class FireZone : MonoBehaviour
         {
             if (hitBuffer[i].TryGetComponent<EffectController>(out var effectController))
             {
-                effectController.ApplyStatusEffect(new FireEffect(tableData));
+                effectController.ApplyStatusEffect(StatusEffectFactory.Create(tableData));
             }
         }
     }

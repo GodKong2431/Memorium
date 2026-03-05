@@ -1,6 +1,8 @@
-using System.Collections;
-using UnityEngine;
 using System;
+using System.Collections;
+using Unity.VisualScripting;
+using UnityEngine;
+using static UnityEngine.UI.GridLayoutGroup;
 
 /// <summary>
 /// 스킬 실행하는 컴포넌트, 플레이어/몬스터/분신 어디든 붙여도 나가도록
@@ -245,7 +247,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
         for (int i = 0; i < hitCount; i++)
         {
-            if (hitBuffer[i].TryGetComponent<EnemyStateMachine>(out var target))
+            if (hitBuffer[i].TryGetComponent<IDamageable>(out var target))
             {
                 target.TakeDamage(statProvider.GetAttack());
 
@@ -256,20 +258,39 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
                 if (hitBuffer[i].TryGetComponent<EffectController>(out var controller))
                 {
-                    int m5IDA = data.m5DataA.ID;
-                    int m5IDB = data.m5DataB.ID;
+                    var m5A = data.m5DataA;
+                    var m5B = data.m5DataB;
 
-                    StatusEffectBase effect;
-                    if (m5IDA > 0 && m5IDB > 0)
-                        effect = StatusEffectFactory.CreateFusion(m5IDA, m5IDB);
-                    else if (m5IDA > 0)
-                        effect = StatusEffectFactory.Create(m5IDA);
-                    else if (m5IDB > 0)
-                        effect = StatusEffectFactory.Create(m5IDB);
-                    else
-                        effect = null;
+                    StatusEffectBase effect=null;
+                    SkillModule5Table activeData=null;
 
-                    if (effect != null)
+                    if (m5A != null && m5B != null)
+                    {
+                        effect = StatusEffectFactory.CreateFusion(m5A, m5B);
+                    }
+                    else if (m5A != null)
+                    {
+                        effect = StatusEffectFactory.Create(m5A);
+                        activeData = m5A;
+                    }
+                    else if (m5B != null)
+                    {
+                        effect = StatusEffectFactory.Create(m5B);
+                        activeData = m5B;
+                    }
+
+                    if (activeData !=null&&activeData.applyType == ApplyType.strikeLocation)
+                    {
+                        var go = Instantiate(projectilePrefab, target.transform.position, transform.rotation);
+
+                        if (go.TryGetComponent<FireZone>(out var fireZone))
+                        {
+                            fireZone.Init(activeData,3.0f,targetLayer);
+                        }
+                    }
+
+
+                    else if (effect != null)
                         controller.ApplyStatusEffect(effect);
                 }
             }

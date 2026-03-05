@@ -6,7 +6,7 @@ public interface IBuffApplicable
 }
 public abstract class StatusEffectBase
 {
-    protected EnemyStateMachine target;
+    protected IDamageable target;
     protected IBuffApplicable buffApplicable;
     protected float duration;
     protected float elapsedTime;
@@ -19,7 +19,7 @@ public abstract class StatusEffectBase
     protected static Collider[] GetHitBuffer() => hitBuffer;
     public bool IsExpired => 0 > duration && elapsedTime >= duration;
 
-    public virtual void OnApply(EnemyStateMachine target, IBuffApplicable buffApplicable)
+    public virtual void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         this.target = target;
         this.buffApplicable = buffApplicable;

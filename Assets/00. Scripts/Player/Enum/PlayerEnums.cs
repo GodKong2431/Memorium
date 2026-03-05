@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 public enum ClassType
 {
@@ -10,16 +10,16 @@ public enum ClassType
 public enum StatType
 {
     None,
-    HP, HP_REGEN,
-    MP, MP_REGEN,
-    ATK, ATK_SPEED,
-    PHYS_DEF, MAGIC_DEF,
-    CRIT_CHANCE, CRIT_MULT,
-    MOVE_SPEED,
-    COOLDOWN_REDUCE,
-    GOLD_GAIN, EXP_GAIN,
-    BOSS_DMG, NORMAL_DMG,
-    DMG_MULT
+    HP = 1, HP_REGEN = 2,
+    MP = 3, MP_REGEN = 4,
+    ATK = 5, ATK_SPEED = 6,
+    PHYS_DEF = 7, MAGIC_DEF = 8,
+    CRIT_CHANCE = 9, CRIT_MULT = 10,
+    MOVE_SPEED = 11,
+    COOLDOWN_REDUCE = 12,
+    GOLD_GAIN = 13, EXP_GAIN = 14,
+    BOSS_DMG = 15, NORMAL_DMG = 16,
+    DMG_MULT =17,
 }
 
 public enum SlotType

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -111,7 +111,7 @@ public class SkillSlotItem : MonoBehaviour
     {
         switch (grade)
         {
-            case SkillGrade.Fragment:
+            case SkillGrade.Scroll:
                 return "Scroll";
             case SkillGrade.Common:
                 return "Common";

@@ -12,6 +12,8 @@ public class EnemyStateContext
     public Transform PlayerTransform { get; set; }
     public NavMeshAgent Agent { get; set; }
     public EnemyStatPresenter StatPresenter { get; set; }
+
+    public EffectController EffectController { get; set; }
     public Animator Animator { get; set; }
 
     /// <summary>

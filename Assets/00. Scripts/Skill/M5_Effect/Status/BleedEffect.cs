@@ -18,7 +18,7 @@ public class BleedEffect : StatusEffectBase
         maxStack = data.maxStack;
     }
 
-    public override void OnApply(EnemyStateMachine target, IBuffApplicable buffApplicable)
+    public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         if (elapsedTime > 0f)
         {
@@ -37,7 +37,7 @@ public class BleedEffect : StatusEffectBase
     protected override void OnTick()
     {
         float dmg = damage * stackCount;
-        bool isMoving = target.Context.Agent.velocity.sqrMagnitude > 0.1f;
+        bool isMoving = target.isMoving;
         if (isMoving) dmg *= 2f;
         target.TakeDamage(dmg);
     }

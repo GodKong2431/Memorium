@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEngine.GraphicsBuffer;
 
 /// <summary>
 /// 몬스터 상태 머신.
@@ -10,7 +11,8 @@ using UnityEngine.AI;
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyStatPresenter))]
-public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
+[RequireComponent(typeof(EffectController))]
+public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageable
 {
     [Header("플레이어 참조 설정")]
     [SerializeField][Tooltip("추적할 플레이어. 비워두면 'Player' 태그를 가진 오브젝트를 자동 검색합니다.")]
@@ -31,12 +33,14 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
     public EnemyStateContext Context => _ctx;
     public EnemyStateType CurrentStateType => _currentType;
     public bool IsAlive => _currentType != EnemyStateType.Dead;
+    public bool isMoving => Context.Agent.velocity.sqrMagnitude > 0.1f;
 
     private void Awake()
     {
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<EnemyStatPresenter>();
         var skillHandler = GetComponent<EnemySkillHandler>();
+        var effectController = GetComponent<EffectController>();
 
         _ctx = new EnemyStateContext
         {
@@ -48,7 +52,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
             Animator = animator,
             IsBoss = isBoss,
             AttackEffectPrefab = attackEffectPrefab,
-            SkillHandler = skillHandler
+            SkillHandler = skillHandler,
+            EffectController = effectController
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);
@@ -130,7 +135,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
     /// <summary>
     /// 외부(플레이어 공격 등)에서 피격 시 호출. 데미지 적용 후 Onhit 상태로 전환
     /// </summary>
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, DamageType type= DamageType.Physical)
     {
         if (!IsAlive) return;
         _ctx.TakeDamage(damage);
