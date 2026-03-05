@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SaveDataLoadManager_JSON : Singleton<SaveDataLoadManager_JSON>
 {
-    [SerializeField] TestSavePlayerEquipmentData saveEquipmentData;
+    [SerializeField] SaveEquipmentData saveEquipmentData;
     [SerializeField] SavePlayerData savePlayerData;
     [SerializeField] SaveCurrencyData saveCurrencyData;
     [SerializeField] SaveSkillData saveSkillData;

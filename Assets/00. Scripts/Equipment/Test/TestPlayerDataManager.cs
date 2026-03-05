@@ -1,9 +1,9 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 public class TestPlayerDataManager : Singleton<TestPlayerDataManager>
 {
-    [SerializeField] TestSavePlayerEquipmentData testSaveData;
+    [SerializeField] SaveEquipmentData testSaveData;
     [SerializeField] EquipmentHandler equipmentHandler;
 
     [Header("테스트용 플레이어 스탯")]
@@ -19,7 +19,7 @@ public class TestPlayerDataManager : Singleton<TestPlayerDataManager>
         yield return new WaitUntil(() => DataManager.Instance != null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
         //시작 시 데이터 불러옴
-        testSaveData = JSONService.Load<TestSavePlayerEquipmentData>();
+        testSaveData = JSONService.Load<SaveEquipmentData>();
         testSaveData.InitPlayerEquipmentData();
         //불러온 데이터 플레이어 장착 및 데이터 세팅
         equipmentHandler.SetMyEquipOnStart(testSaveData.weaponId, testSaveData.helmetId, testSaveData.gloveId, testSaveData.armorId, testSaveData.bootsId, testSaveData.unlockEquipmentDict);

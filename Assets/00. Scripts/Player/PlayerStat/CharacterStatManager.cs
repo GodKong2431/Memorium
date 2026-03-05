@@ -17,7 +17,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     [SerializeField] private int characterTableKey;
     [SerializeField] private int level;
 
-    [SerializeField] TestSavePlayerEquipmentData testSaveData;
+    [SerializeField] SaveEquipmentData saveEquipmentData;
     [SerializeField] EquipmentHandler equipmentHandler;
     [SerializeField] SavePlayerData savePlayerData;
 
@@ -55,19 +55,19 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         savePlayerData = JSONService.Load<SavePlayerData>();
 
-
         LoadTable();
-        testSaveData = JSONService.Load<TestSavePlayerEquipmentData>();
-        testSaveData.InitPlayerEquipmentData();
+        saveEquipmentData = JSONService.Load<SaveEquipmentData>();
+        saveEquipmentData.InitPlayerEquipmentData();
 
 
         //불러온 데이터 플레이어 장착 및 데이터 세팅
         if (equipmentHandler != null)
         {
-            equipmentHandler.SetMyEquipOnStart(testSaveData.weaponId, testSaveData.helmetId, testSaveData.gloveId, testSaveData.armorId, testSaveData.bootsId, testSaveData.unlockEquipmentDict);
+            equipmentHandler.SetMyEquipOnStart(saveEquipmentData.weaponId, saveEquipmentData.helmetId, saveEquipmentData.gloveId, saveEquipmentData.armorId, saveEquipmentData.bootsId, saveEquipmentData.unlockEquipmentDict);
         }
 
-        
+        yield return new WaitUntil(() => InventoryManager.Instance != null);
+        InventoryManager.Instance.OnItemAmountChanged += saveEquipmentData.SaveEquipment;
 
         TableLoad = true;
     }
@@ -238,11 +238,11 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
             return;
         if (!equipmentHandler.TryGetPlayerEquipment(out var playerEquipment))
             return;
-        if (testSaveData == null)
+        if (saveEquipmentData == null)
             return;
 
-        testSaveData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
-        JSONService.Save(testSaveData);
+        saveEquipmentData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
+        JSONService.Save(saveEquipmentData);
 
 
         savePlayerData.Save();
