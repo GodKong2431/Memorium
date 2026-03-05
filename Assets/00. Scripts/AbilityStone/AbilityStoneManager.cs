@@ -20,10 +20,19 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
 
     public event Action<StoneGrade> OnReset;
     
+    public bool LoadStone = false;
+    
     IEnumerator Start()
     {
-        yield return new WaitUntil(() => DataManager.Instance != null);
-        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        yield return new WaitUntil(() => CharacterStatManager.Instance != null);
+        yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
+        
+        so = Resources.Load<AblityStoneSO>("AbilityStoneSO");
+        
+        stoneStatProbabilityID = so.stoneStatProbabilityID;
+        stoneID = so.stoneID;
+        stoneStatUpID = so.stoneStatUpID;
+        stoneTotalBonusID = so.stoneTotalBonusID;
         
         ID = stoneStatProbabilityID;
         foreach (var item in so.StoneStatProbabilityDict)
@@ -52,9 +61,14 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
             item.Value.LoadStone(item.Key);
         }
         
-        resetBnt.onClick.AddListener(() => ResetStone(grade));
+        if (resetBnt != null)
+        {
+            resetBnt.onClick.AddListener(() => ResetStone(grade));
+        }
         
         totalCount = 0;
+        
+        LoadStone = true;
     }
 
     private void OnDisable()
