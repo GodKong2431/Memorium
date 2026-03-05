@@ -247,4 +247,10 @@ public class StageManager : Singleton<StageManager>
 
         return DataManager.Instance.StageManageDict.TryGetValue(stageKey, out stageData);
     }
+
+    protected override void OnApplicationQuit()
+    {
+        base.OnApplicationQuit();
+        JSONService.Save(saveStageData);
+    }
 }
