@@ -1,43 +1,40 @@
+﻿using TMPro;
 using UnityEngine;
 
 public class CurrencyUIController : UIControllerBase
 {
-    [SerializeField] private CurrencyUIView view;
+    [Header("Currency Binding")]
+    [SerializeField] private CurrencyType targetCurrency = CurrencyType.Gold;
+    [SerializeField] private TextMeshProUGUI amountText;
+
+    private CurrencyUIView currencyView;
 
     protected override void Initialize()
     {
-        if (view == null)
-            view = GetComponentInChildren<CurrencyUIView>(true);
+        currencyView = new CurrencyUIView(amountText);
     }
 
-    // 재화 변경 이벤트를 구독한다.
     protected override void Subscribe()
     {
         GameEventManager.OnCurrencyChanged += OnCurrencyChanged;
     }
 
-    // 구독했던 재화 변경 이벤트를 해제한다.
     protected override void Unsubscribe()
     {
         GameEventManager.OnCurrencyChanged -= OnCurrencyChanged;
     }
 
-    // 현재 재화 값을 읽어 View에 반영한다.
     protected override void RefreshView()
     {
-        if (view == null)
-            return;
-
-        view.SetAmount(GetAmount(view.TargetCurrency));
+        currencyView.SetAmount(GetAmount(targetCurrency));
     }
 
-    // 이 View가 표시하는 재화가 바뀐 경우에만 UI를 갱신한다.
     private void OnCurrencyChanged(CurrencyType type, BigDouble amount)
     {
-        if (view == null || type != view.TargetCurrency)
+        if (type != targetCurrency)
             return;
 
-        view.SetAmount(amount);
+        currencyView.SetAmount(amount);
     }
 
     private static BigDouble GetAmount(CurrencyType type)
