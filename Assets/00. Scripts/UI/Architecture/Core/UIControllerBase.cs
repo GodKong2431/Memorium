@@ -1,7 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
-/// 최소 UI 컨트롤러 공통 생명주기 베이스.
+/// Minimal shared lifecycle for UI controllers.
 /// </summary>
 public abstract class UIControllerBase : MonoBehaviour
 {

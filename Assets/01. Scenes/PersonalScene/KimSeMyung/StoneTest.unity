@@ -834,6 +834,105 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 546283072}
   m_CullTransparentMesh: 1
+--- !u!1 &661796571
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 661796573}
+  - component: {fileID: 661796572}
+  m_Layer: 0
+  m_Name: CharacterStatManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &661796572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 661796571}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39159c08c7c95f94f8cdd42b0ddf3ab8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStatManager
+  characterStatSO: {fileID: 11400000, guid: 716587a999b57e542beb374d588be4f6, type: 2}
+  characterBaseKey: 1000001
+  characterTableKey: 1030001
+  level: 1
+  testSaveData:
+    weaponId: -1
+    helmetId: 0
+    gloveId: 0
+    armorId: 0
+    bootsId: 0
+    unLockEquipmentKey: 
+    unLockEquipmentValue: 
+  equipmentHandler: {fileID: 0}
+  savePlayerData:
+    playerLevel: 0
+    playerStatType_GoldUpgrades: 
+    statUpgradeCount_GoldUpgrades: 
+    statUpgradeCost_GoldUpgrades: []
+    playerStatType_Traits: 
+    currentLevel_Traits: 
+  traitManager: {fileID: 0}
+  baseStat:
+    classType: 0
+    baseStatValues:
+      _serializedList: []
+  levelBonus:
+    CurrentLevel: 0
+    RequiredExp:
+      mantissa: 0
+      exponent: 0
+    BonusCristal: 0
+    BonusValues:
+      _serializedList: []
+  playerSlot:
+    CharacterStatID: 0
+    SkillSlot1: 0
+    SkillSlot2: 0
+    SkillSlot3: 0
+    WeaponSlot: 0
+    HelmetSlot: 0
+    ArmorSlot: 0
+    GloveSlot: 0
+    BootsSlot: 0
+    FairySlot: 0
+  Upgrades:
+    _serializedList: []
+  Traits:
+    _serializedList: []
+  FinalStats:
+    _serializedList: []
+  normalBasicDamage: 0
+  bossBasicDamage: 0
+  TableLoad: 0
+  normalPower: 0
+  expectedCrit: 0
+--- !u!4 &661796573
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 661796571}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 602.75397, y: 1328.044, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &794241576
 GameObject:
   m_ObjectHideFlags: 0
@@ -1609,7 +1708,7 @@ GameObject:
   - component: {fileID: 1474059538}
   - component: {fileID: 1474059539}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: AbilityStoneManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1645,7 +1744,10 @@ MonoBehaviour:
   so: {fileID: 11400000, guid: ba8ed03ed6bc4854c8760953eefb7ad7, type: 2}
   stoneStatProbabilityID: 1060001
   stoneID: 1050001
+  stoneStatUpID: 1070001
+  stoneTotalBonusID: 1080001
   resetBnt: {fileID: 153575734}
+  totalCount: 0
   grade: 0
 --- !u!114 &1474059539
 MonoBehaviour:
@@ -2010,3 +2112,4 @@ SceneRoots:
   - {fileID: 1474059537}
   - {fileID: 1297757032}
   - {fileID: 1909137926}
+  - {fileID: 661796573}
