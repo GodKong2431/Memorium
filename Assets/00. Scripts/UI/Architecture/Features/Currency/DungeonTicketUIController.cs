@@ -1,11 +1,15 @@
 using UnityEngine;
 
-public class DungeonTicketUIController : UIControllerBase<DungeonTicketUIView>
+public class DungeonTicketUIController : UIControllerBase
 {
+    [SerializeField] private DungeonTicketUIView view;
     [SerializeField] private DungeonLevelSelectUI dungeonLevelSelectUI; // 현재 선택된 던전 정보와 필요 티켓 수를 제공하는 대상.
 
     protected override void Initialize()
     {
+        if (view == null)
+            view = GetComponentInChildren<DungeonTicketUIView>(true);
+
         if (dungeonLevelSelectUI == null)
             dungeonLevelSelectUI = GetComponentInParent<DungeonLevelSelectUI>(true);
     }

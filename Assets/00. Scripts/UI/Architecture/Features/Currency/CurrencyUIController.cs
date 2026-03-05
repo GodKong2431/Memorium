@@ -1,5 +1,15 @@
-public class CurrencyUIController : UIControllerBase<CurrencyUIView>
+using UnityEngine;
+
+public class CurrencyUIController : UIControllerBase
 {
+    [SerializeField] private CurrencyUIView view;
+
+    protected override void Initialize()
+    {
+        if (view == null)
+            view = GetComponentInChildren<CurrencyUIView>(true);
+    }
+
     // 재화 변경 이벤트를 구독한다.
     protected override void Subscribe()
     {
