@@ -53,6 +53,8 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         }
         
         resetBnt.onClick.AddListener(() => ResetStone(grade));
+        
+        totalCount = 0;
     }
 
     private void OnDisable()
