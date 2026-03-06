@@ -31,32 +31,11 @@ public class MonsterSpawner : MonoBehaviour
     //??? ??? ?????? ??????? ??????? ????????? ????? ??????δ°? ???? ???????
     IEnumerator Start()
     {
-        ////yield return new WaitUntil(() => InfinityMap.Instance !=null);
-        ////yield return new WaitUntil(() => InfinityMap.Instance.firstMapSetting);
-
-        ////if (maps == null)
-        ////    maps = new List<GameObject>();
-        ////maps.Clear();
-        ////for (int i = 0; i < mapGroups[0].transform.childCount; i++)
-        ////{
-        ////    maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
-        ////}
-
-        //SetMap(1);
         yield return new WaitUntil(() => MapManager.Instance != null);
         yield return new WaitUntil(() => MapManager.Instance.mapSetting);
 
         //매니저에 있는 맵 참조<- 주소를 참조하여 이후에도 동기화 진행
-        //if(maps==null)
         maps = MapManager.Instance.maps;
-        //Debug.Log("초기 맵 세팅 완료");
-        //MapChange();
-
-        //yield return new WaitUntil(() => DataManager.Instance != null);
-        //yield return new WaitUntil(() => DataManager.Instance.DataLoad);
-        //yield return new WaitUntil(() => EnemyListManager.Instance.DataLoad);
-
-        //SetMonster();
 
     }
 
@@ -75,8 +54,10 @@ public class MonsterSpawner : MonoBehaviour
                 {
                     Vector3 randX = Random.Range(-randomRange, randomRange) * Vector3.right;
                     Vector3 randZ = Random.Range(-randomRange, randomRange) * Vector3.forward;
-                    Instantiate(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
-                    
+                    ////오브젝트 풀링으로 전환
+                    //Instantiate(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+                    ObjectPoolManager.Get(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+
                     //GameObject testWizardEnemy = EnemyListManager.Instance.enemyMap[2010012];
                     //Instantiate(testWizardEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
                 }
@@ -88,7 +69,10 @@ public class MonsterSpawner : MonoBehaviour
             //보스 스테이지 진입
             StageManager.Instance.onBossStage = true;
             GameObject spawnBoss = EnemyListManager.Instance.enemyMap[curSpawnGroupBossMonsterTable.MonsterID];
-            Instantiate(spawnBoss, spawnPos[spawnPos.Length-1].position, spawnPos[spawnPos.Length - 1].rotation);
+            ////오브젝트 풀링으로 전환
+            //Instantiate(spawnBoss, spawnPos[spawnPos.Length-1].position, spawnPos[spawnPos.Length - 1].rotation);
+            ObjectPoolManager.Get(spawnBoss, spawnPos[spawnPos.Length - 1].position, spawnPos[spawnPos.Length - 1].rotation);
+
             EnemyKillRewardDispatcher.ResetKillCount();
             StageManager.Instance.isReadyToBossSpawn = false;
         }

@@ -32,7 +32,7 @@ public class Enemy : MonoBehaviour
             EnemyRegistry.UnRegister(this);
             Isdead = true;
 
-            transform.GetComponent<Renderer>().material.color = Color.black;
+            //transform.GetComponent<Renderer>().material.color = Color.black;
 
         }
     }
