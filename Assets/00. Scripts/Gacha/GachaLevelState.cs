@@ -16,9 +16,11 @@ public class GachaLevelState
 
     /// <summary>현재 단계 (1~21). 단계별 장비 전투력 범위 결정.</summary>
     public int Stage => GachaConfig.LevelToStage(Level);
+    //public int Stage;
 
     /// <summary>다음 레벨까지 남은 뽑기 횟수</summary>
     public int DrawsUntilNextLevel => Mathf.Max(0, GachaConfig.DrawsPerLevel - DrawCountInCurrentLevel);
+    //public int DrawsUntilNextLevel;
 
     /// <summary>Max 레벨(110) 도달 여부. Max 이상 뽑기 횟수는 카운트 안 됨.</summary>
     public bool IsMaxLevel => Level >= GachaConfig.MaxLevel;
@@ -36,5 +38,12 @@ public class GachaLevelState
         }
         if (Level >= GachaConfig.MaxLevel)
             DrawCountInCurrentLevel = 0;
+    }
+
+    public GachaLevelState(GachaType type, int level, int drawCountInCurrentLevel)
+    {
+        GachaType = type;
+        Level = level;
+        DrawCountInCurrentLevel= drawCountInCurrentLevel;
     }
 }
