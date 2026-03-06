@@ -77,6 +77,12 @@ public class DataManager : Singleton<DataManager>
     // 문자열 테이블
     public Dictionary<int, StringTable> StringDict;
 
+    // 갸차 테이블
+    public Dictionary<int, GachaSkillScrollTable> GachaSkillScrollDict;
+    public Dictionary<int, GachaEquipGroupTable> GachaEquipGroupDict;
+    public Dictionary<int, GachaEquipTable> GachaEquipDict;
+    public Dictionary<int, GachaTicketTable> GachaTicketDict;
+
     // 어빌리티 스톤 테이블
     public Dictionary<int, StoneTable> StoneDict;
     public Dictionary<int, StoneStatProbabilityTable> StoneStatProbabilityDict;

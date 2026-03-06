@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!29 &1
 OcclusionCullingSettings:
@@ -8667,7 +8667,7 @@ MonoBehaviour:
   characterBaseKey: 1000001
   characterTableKey: 1030001
   level: 1
-  testSaveData:
+  saveEquipmentData:
     weaponId: -1
     helmetId: 0
     gloveId: 0
@@ -20500,6 +20500,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestManager
   currentQuestID: 7010001
   currentProgress: 0
+  saveQuestData:
+    currentQuestId: -1
+    currentProgress: 0
 --- !u!4 &930009148
 Transform:
   m_ObjectHideFlags: 0
@@ -37490,6 +37493,7 @@ GameObject:
   - component: {fileID: 1652796886}
   - component: {fileID: 1652796885}
   - component: {fileID: 1652796884}
+  - component: {fileID: 1652796894}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -37545,6 +37549,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 1604259860813359153, guid: cc27048a1a6486843887c6285dab2d36, type: 3}
   deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
   shadowPrepab: {fileID: 9106158446547060106, guid: ad334d366ce436447a3b287029a8541f, type: 3}
+  fireZonePrefab: {fileID: 0}
 --- !u!114 &1652796886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37718,6 +37723,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1652796881}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1652796894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1652796881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1464f6c377137e24eb8205c204d47017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EffectController
 --- !u!1 &1656084565
 GameObject:
   m_ObjectHideFlags: 0
@@ -48298,12 +48315,6 @@ MonoBehaviour:
     ID: 0
     description: 
     moveSpeed: 0
-  onEquipmentUI:
-  - {fileID: 6246177118102919940}
-  - {fileID: 667341243631785054}
-  - {fileID: 9094916844828136789}
-  - {fileID: 7634626771478219803}
-  - {fileID: 2046230227857388952}
   equipmentHandler: {fileID: 1988957294}
 --- !u!114 &1988957294
 MonoBehaviour:
@@ -48318,25 +48329,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentHandler
   playerEquipment: {fileID: 1988957293}
-  autoMerge: {fileID: 1880989251}
-  autoEquip: {fileID: 1976987106}
-  currentEquipmentRoot: {fileID: 574341930}
-  currentEquipmentItemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}
-  equippedLevelText: Lv. 0
-  tierColors:
-  - {r: 0.7, g: 0.7, b: 0.7, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.35, g: 0.65, b: 0.95, a: 1}
-  - {r: 0.95, g: 0.75, b: 0.35, a: 1}
-  - {r: 1, g: 0.45, b: 0.25, a: 1}
-  slotOrderColors:
-  - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.72, g: 0.45, b: 1, a: 1}
-  - {r: 1, g: 0.85, b: 0.2, a: 1}
-  - {r: 1, g: 0.55, b: 0.2, a: 1}
-  fallbackTierColor: {r: 1, g: 1, b: 1, a: 1}
   dataLoad: 0
+--- !u!4 &1988957295
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1988957291}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1988957296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48374,21 +48382,6 @@ MonoBehaviour:
   - {fileID: 9094916844828136789}
   - {fileID: 7634626771478219803}
   - {fileID: 2046230227857388952}
---- !u!4 &1988957295
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1988957291}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1996558625
 GameObject:
   m_ObjectHideFlags: 0
@@ -52958,19 +52951,6 @@ MonoBehaviour:
   clearOnBuild: 1
   mergeCount: 3
   levelText: Lv. -
-  tierColors:
-  - {r: 0.7, g: 0.7, b: 0.7, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.35, g: 0.65, b: 0.95, a: 1}
-  - {r: 0.95, g: 0.75, b: 0.35, a: 1}
-  - {r: 1, g: 0.45, b: 0.25, a: 1}
-  slotOrderColors:
-  - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.72, g: 0.45, b: 1, a: 1}
-  - {r: 1, g: 0.85, b: 0.2, a: 1}
-  - {r: 1, g: 0.55, b: 0.2, a: 1}
-  fallbackTierColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &889000111222333452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52991,19 +52971,6 @@ MonoBehaviour:
   clearOnBuild: 1
   mergeCount: 3
   levelText: Lv. -
-  tierColors:
-  - {r: 0.7, g: 0.7, b: 0.7, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.35, g: 0.65, b: 0.95, a: 1}
-  - {r: 0.95, g: 0.75, b: 0.35, a: 1}
-  - {r: 1, g: 0.45, b: 0.25, a: 1}
-  slotOrderColors:
-  - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.72, g: 0.45, b: 1, a: 1}
-  - {r: 1, g: 0.85, b: 0.2, a: 1}
-  - {r: 1, g: 0.55, b: 0.2, a: 1}
-  fallbackTierColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &889000111222333453
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53024,19 +52991,6 @@ MonoBehaviour:
   clearOnBuild: 1
   mergeCount: 3
   levelText: Lv. -
-  tierColors:
-  - {r: 0.7, g: 0.7, b: 0.7, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.35, g: 0.65, b: 0.95, a: 1}
-  - {r: 0.95, g: 0.75, b: 0.35, a: 1}
-  - {r: 1, g: 0.45, b: 0.25, a: 1}
-  slotOrderColors:
-  - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.72, g: 0.45, b: 1, a: 1}
-  - {r: 1, g: 0.85, b: 0.2, a: 1}
-  - {r: 1, g: 0.55, b: 0.2, a: 1}
-  fallbackTierColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &889000111222333454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53057,19 +53011,6 @@ MonoBehaviour:
   clearOnBuild: 1
   mergeCount: 3
   levelText: Lv. -
-  tierColors:
-  - {r: 0.7, g: 0.7, b: 0.7, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.35, g: 0.65, b: 0.95, a: 1}
-  - {r: 0.95, g: 0.75, b: 0.35, a: 1}
-  - {r: 1, g: 0.45, b: 0.25, a: 1}
-  slotOrderColors:
-  - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.72, g: 0.45, b: 1, a: 1}
-  - {r: 1, g: 0.85, b: 0.2, a: 1}
-  - {r: 1, g: 0.55, b: 0.2, a: 1}
-  fallbackTierColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &889000111222333455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53090,19 +53031,6 @@ MonoBehaviour:
   clearOnBuild: 1
   mergeCount: 3
   levelText: Lv. -
-  tierColors:
-  - {r: 0.7, g: 0.7, b: 0.7, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.35, g: 0.65, b: 0.95, a: 1}
-  - {r: 0.95, g: 0.75, b: 0.35, a: 1}
-  - {r: 1, g: 0.45, b: 0.25, a: 1}
-  slotOrderColors:
-  - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0.4, g: 0.85, b: 0.5, a: 1}
-  - {r: 0.72, g: 0.45, b: 1, a: 1}
-  - {r: 1, g: 0.85, b: 0.2, a: 1}
-  - {r: 1, g: 0.55, b: 0.2, a: 1}
-  fallbackTierColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &889000111222333456
 MonoBehaviour:
   m_ObjectHideFlags: 0
