@@ -1,25 +1,16 @@
-﻿using System;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class EquipmentHandler : MonoBehaviour
 {
+    public static event Action EquipmentUiRefreshRequested;
+
     [SerializeField] private PlayerEquipment playerEquipment;
-    [SerializeField] private PlayerInventory playerInventory;
-    [SerializeField] private Button autoMerge;
-    [SerializeField] private Button autoEquip;
 
     public bool dataLoad;
 
-    private IEnumerator Start()
-    {
-        yield return new WaitUntil(() => DataManager.Instance != null);
-        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
-    }
-
-    // 플레이어 착용 장비와 인벤토리 데이터를 시작 상태로 세팅한다.
+    // 플레이어 장비/인벤토리 데이터를 초기 상태로 세팅한다.
     public void SetMyEquipOnStart(int weaponId, int helmetId, int glovesId, int armorId, int bootsId, Dictionary<int, int> equipCountDict)
     {
         if (playerEquipment == null)
@@ -35,58 +26,17 @@ public class EquipmentHandler : MonoBehaviour
         playerEquipment.OnEqipItem(armorId);
         playerEquipment.OnEqipItem(bootsId);
 
-        if (InventoryManager.Instance == null)
+        if (!TryGetEquipmentModule(out EquipmentInventoryModule equipmentModule))
         {
             Debug.LogWarning("[EquipmentHandler] InventoryManager가 없어 장비 인벤토리를 초기화할 수 없습니다.");
             return;
         }
 
-        var equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
-        if (equipmentModule == null || !equipmentModule.Setup(this, playerInventory, equipCountDict))
+        if (!equipmentModule.Setup(equipCountDict))
             Debug.LogWarning("[EquipmentHandler] 장비 모듈 초기화에 실패했습니다.");
 
         dataLoad = true;
-
-        if (autoMerge != null)
-        {
-            autoMerge.onClick.RemoveListener(OnClickAutoMerge);
-            autoMerge.onClick.AddListener(OnClickAutoMerge);
-            autoMerge.interactable = false;
-        }
-
-        if (autoEquip != null)
-        {
-            autoEquip.onClick.RemoveListener(AutoEquip);
-            autoEquip.onClick.AddListener(AutoEquip);
-            autoEquip.interactable = false;
-        }
-
-        CheckAutoEquip();
-        equipmentModule?.RefreshAutoMergeInteractable();
-    }
-
-    // 자동 합성 버튼 클릭 시 허브를 통해 장비 자동 합성을 수행한다.
-    private void OnClickAutoMerge()
-    {
-        if (InventoryManager.Instance == null)
-            return;
-
-        InventoryManager.Instance.GetModule<EquipmentInventoryModule>()?.RunAutoMerge();
-    }
-
-    // 자동 합성 버튼 활성 상태를 외부 모듈에서 안전하게 제어한다.
-    public void SetAutoMergeButtonInteractable(bool interactable)
-    {
-        if (autoMerge == null)
-            return;
-
-        autoMerge.interactable = interactable;
-    }
-
-    // 자동 합성 버튼의 현재 활성 상태를 반환한다.
-    public bool IsAutoMergeButtonInteractable()
-    {
-        return autoMerge != null && autoMerge.interactable;
+        RaiseEquipmentUiRefreshRequested();
     }
 
     // 외부 시스템에서 현재 PlayerEquipment를 안전하게 가져오도록 제공한다.
@@ -96,54 +46,139 @@ public class EquipmentHandler : MonoBehaviour
         return equipment != null;
     }
 
-    // 타입별 최상위 장비를 찾아 자동 장착한다.
-    public void AutoEquip()
+    public bool CanAutoMerge()
     {
-        if (InventoryManager.Instance == null || playerEquipment == null)
-            return;
-        var equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
-        if (equipmentModule == null)
-            return;
+        if (!TryGetEquipmentModule(out EquipmentInventoryModule equipmentModule))
+            return false;
+
+        // 자동 합성 가능 여부는 모듈 계산을 그대로 사용한다.
+        return equipmentModule.CanAutoMerge();
+    }
+
+    public bool CanAutoEquip()
+    {
+        if (!TryGetEquipmentModule(out EquipmentInventoryModule equipmentModule))
+            return false;
+        if (playerEquipment == null)
+            return false;
 
         foreach (EquipmentType type in Enum.GetValues(typeof(EquipmentType)))
         {
             int bestItemId = equipmentModule.GetBestEquipmentId(type);
-            if (bestItemId == 0)
-                continue;
+            int currentItemId = playerEquipment.ReturnItemNum(type);
 
-            if (bestItemId == playerEquipment.ReturnItemNum(type))
+            if (IsBetterEquipment(bestItemId, currentItemId))
+                return true;
+        }
+
+        return false;
+    }
+
+    // 장비 자동 합성을 수행한다.
+    public bool TryAutoMerge()
+    {
+        if (!TryGetEquipmentModule(out EquipmentInventoryModule equipmentModule))
+            return false;
+        if (!equipmentModule.RunAutoMerge())
+            return false;
+
+        // 합성 후 장비 관련 UI를 한 번에 갱신한다.
+        RaiseEquipmentUiRefreshRequested();
+        return true;
+    }
+
+    // UnityEvent 직렬화 호환용 래퍼.
+    public void AutoMerge()
+    {
+        TryAutoMerge();
+    }
+
+    // 타입별 최상위 장비를 자동 장착한다.
+    public bool TryAutoEquip()
+    {
+        if (!TryGetEquipmentModule(out EquipmentInventoryModule equipmentModule))
+            return false;
+        if (playerEquipment == null)
+            return false;
+
+        bool changed = false;
+
+        foreach (EquipmentType type in Enum.GetValues(typeof(EquipmentType)))
+        {
+            int bestItemId = equipmentModule.GetBestEquipmentId(type);
+            int currentItemId = playerEquipment.ReturnItemNum(type);
+
+            if (!IsBetterEquipment(bestItemId, currentItemId))
                 continue;
 
             playerEquipment.OnEqipItem(bestItemId);
+            changed = true;
         }
 
-        if (autoEquip != null)
-            autoEquip.interactable = false;
+        if (changed)
+            RaiseEquipmentUiRefreshRequested();
+
+        return changed;
     }
 
-    // 자동 장착 버튼 활성 조건을 점검한다.
-    public void CheckAutoEquip()
+    // UnityEvent 직렬화 호환용 래퍼.
+    public void AutoEquip()
     {
-        if (autoEquip == null || autoEquip.interactable)
-            return;
+        TryAutoEquip();
+    }
 
-        if (InventoryManager.Instance == null || playerEquipment == null)
-            return;
-        var equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
-        if (equipmentModule == null)
-            return;
+    private static bool TryGetEquipmentModule(out EquipmentInventoryModule equipmentModule)
+    {
+        equipmentModule = null;
 
-        foreach (EquipmentType type in Enum.GetValues(typeof(EquipmentType)))
-        {
-            int bestItemId = equipmentModule.GetBestEquipmentId(type);
-            if (bestItemId == 0)
-                continue;
+        if (InventoryManager.Instance == null)
+            return false;
 
-            if (bestItemId == playerEquipment.ReturnItemNum(type))
-                continue;
+        equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
+        return equipmentModule != null;
+    }
 
-            autoEquip.interactable = true;
-            break;
-        }
+    private static bool IsBetterEquipment(int candidateItemId, int currentItemId)
+    {
+        if (candidateItemId == 0)
+            return false;
+        if (currentItemId == 0)
+            return true;
+        if (candidateItemId == currentItemId)
+            return false;
+        if (!TryGetEquipInfo(candidateItemId, out EquipListTable candidateInfo))
+            return false;
+        if (!TryGetEquipInfo(currentItemId, out EquipListTable currentInfo))
+            return true;
+        if (candidateInfo.equipmentType != currentInfo.equipmentType)
+            return false;
+
+        int tierCompare = candidateInfo.equipmentTier.CompareTo(currentInfo.equipmentTier);
+        if (tierCompare != 0)
+            return tierCompare > 0;
+
+        int rarityCompare = candidateInfo.rarityType.CompareTo(currentInfo.rarityType);
+        if (rarityCompare != 0)
+            return rarityCompare > 0;
+
+        int gradeCompare = candidateInfo.grade.CompareTo(currentInfo.grade);
+        if (gradeCompare != 0)
+            return gradeCompare > 0;
+
+        return candidateItemId > currentItemId;
+    }
+
+    private static bool TryGetEquipInfo(int itemId, out EquipListTable equipInfo)
+    {
+        equipInfo = null;
+        if (DataManager.Instance == null || DataManager.Instance.EquipListDict == null)
+            return false;
+
+        return DataManager.Instance.EquipListDict.TryGetValue(itemId, out equipInfo);
+    }
+
+    private static void RaiseEquipmentUiRefreshRequested()
+    {
+        EquipmentUiRefreshRequested?.Invoke();
     }
 }

@@ -1,19 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public sealed class EquipmentInventoryModule : IInventoryModule
 {
-    private readonly Dictionary<int, int> equipmentCountByItemId = new Dictionary<int, int>(); // 장비 아이템 ID별 보유 수량.
-    private readonly List<int> allEquipmentItemIds = new List<int>(); // 장비 테이블 기준 전체 아이템 키(오름차순).
-    private readonly List<int> finalEquipmentItemIds = new List<int>(); // 각 부위별 최종 티어 아이템 키.
+    // itemId -> 보유 개수
+    private readonly Dictionary<int, int> equipmentCountByItemId = new Dictionary<int, int>();
+    // 한 번이라도 획득(해금)한 장비 ID
+    private readonly HashSet<int> unlockedItemIds = new HashSet<int>();
+    // 장비 테이블 전체 ID 캐시(오름차순)
+    private readonly List<int> allEquipmentItemIds = new List<int>();
+    // 부위별 최종 티어 ID 캐시
+    private readonly List<int> finalEquipmentItemIds = new List<int>();
 
-    private EquipmentHandler equipmentHandler; // 자동합성/자동장착 버튼 제어를 위한 핸들러.
-    private PlayerInventory inventoryView; // 장비 인벤토리 UI 렌더링 전용 뷰.
+    public bool IsInitialized { get; private set; }
 
-    #region IInventoryModule
-    // 장비 타입만 이 모듈에서 처리한다.
     public bool CanHandle(ItemType itemType)
     {
         switch (itemType)
@@ -29,7 +30,6 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         }
     }
 
-    // 허브를 통해 들어온 장비 아이템 추가 요청을 처리한다.
     public bool TryAdd(InventoryItemContext item, BigDouble amount)
     {
         if (!CanHandle(item.ItemType))
@@ -41,7 +41,6 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         return true;
     }
 
-    // 허브를 통해 들어온 장비 아이템 차감 요청을 처리한다.
     public bool TryRemove(InventoryItemContext item, BigDouble amount)
     {
         if (!CanHandle(item.ItemType))
@@ -57,7 +56,6 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         return true;
     }
 
-    // 허브에서 조회할 장비 수량을 반환한다.
     public BigDouble GetAmount(InventoryItemContext item)
     {
         if (!CanHandle(item.ItemType))
@@ -67,19 +65,19 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             ? new BigDouble(count)
             : BigDouble.Zero;
     }
-    #endregion
 
-    // 장비 핸들러/뷰/초기 보유 데이터를 연결하고 장비 UI를 구성한다.
-    public bool Setup(EquipmentHandler handler, PlayerInventory view, Dictionary<int, int> initialCountByItemId)
+    public bool Setup(Dictionary<int, int> initialCountByItemId)
     {
-        equipmentHandler = handler;
-        inventoryView = view;
+        // 세이브 데이터를 모듈 상태로 복원한다.
+        IsInitialized = false;
 
         equipmentCountByItemId.Clear();
+        unlockedItemIds.Clear();
         if (initialCountByItemId != null)
         {
-            foreach (var pair in initialCountByItemId)
+            foreach (KeyValuePair<int, int> pair in initialCountByItemId)
             {
+                unlockedItemIds.Add(pair.Key);
                 if (pair.Value <= 0)
                     continue;
 
@@ -89,17 +87,19 @@ public sealed class EquipmentInventoryModule : IInventoryModule
 
         RebuildEquipmentItemCache();
         RefreshFinalEquipment();
-        inventoryView?.BuildEquipmentInventory(allEquipmentItemIds, equipmentCountByItemId);
-        RefreshAutoMergeInteractable();
+        IsInitialized = true;
         return true;
     }
 
-    // 장비 자동 합성을 실행한다.
     public bool RunAutoMerge()
     {
         if (!EnsureEquipmentTable())
             return false;
+        InventoryManager manager = InventoryManager.Instance;
+        if (manager == null)
+            return false;
 
+        // 합성은 InventoryManager 경유로 처리해 저장/이벤트를 공통 경로로 통일한다.
         bool mergedAny = false;
         for (int i = 0; i < allEquipmentItemIds.Count; i++)
         {
@@ -121,15 +121,16 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             if (mergedCount <= 0)
                 continue;
 
-            int remainCount = ownedCount % 3;
-            if (remainCount <= 0)
-                equipmentCountByItemId.Remove(itemId);
-            else
-                equipmentCountByItemId[itemId] = remainCount;
+            int consumeCount = mergedCount * 3;
+            if (!manager.RemoveItem(itemId, consumeCount))
+                continue;
 
-            AddRawCount(nextItemId, mergedCount);
-            SyncSlot(itemId);
-            SyncSlot(nextItemId);
+            if (!manager.AddItem(nextItemId, mergedCount))
+            {
+                manager.AddItem(itemId, consumeCount);
+                continue;
+            }
+
             mergedAny = true;
         }
 
@@ -137,73 +138,70 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             return false;
 
         RefreshFinalEquipment();
-        RefreshAutoMergeInteractable();
-        equipmentHandler?.CheckAutoEquip();
         return true;
     }
 
-    // 자동 합성 가능 여부를 계산해 버튼 상태를 갱신한다.
-    public bool RefreshAutoMergeInteractable()
+    public bool CanAutoMerge()
     {
-        if (equipmentHandler == null)
-            return false;
-
-        bool canMerge = false;
-        foreach (var pair in equipmentCountByItemId)
+        foreach (KeyValuePair<int, int> pair in equipmentCountByItemId)
         {
             if (finalEquipmentItemIds.Contains(pair.Key))
                 continue;
             if (pair.Value < 3)
                 continue;
 
-            canMerge = true;
-            break;
+            return true;
         }
 
-        equipmentHandler.SetAutoMergeButtonInteractable(canMerge);
-        return canMerge;
+        return false;
     }
 
-    // 타입별 최상위 장비 ID를 반환한다.
+    public bool IsUnlocked(int itemId)
+    {
+        return unlockedItemIds.Contains(itemId);
+    }
+
     public int GetBestEquipmentId(EquipmentType equipmentType)
     {
-        if (DataManager.Instance == null)
+        if (!EnsureEquipmentTable())
             return 0;
 
-        List<int> keys = GetEquipmentKeysByType(equipmentType);
-        if (keys == null || keys.Count == 0)
-            return 0;
+        // 현재 보유 장비 중 랭크가 가장 높은 ID를 선택한다.
+        int bestItemId = 0;
 
-        keys.Sort();
-        keys.Reverse();
-
-        for (int i = 0; i < keys.Count; i++)
+        foreach (KeyValuePair<int, int> pair in equipmentCountByItemId)
         {
-            int key = keys[i];
-            if (equipmentCountByItemId.ContainsKey(key))
-                return key;
+            if (pair.Value <= 0)
+                continue;
+            if (!DataManager.Instance.EquipListDict.TryGetValue(pair.Key, out EquipListTable equipInfo))
+                continue;
+            if (equipInfo.equipmentType != equipmentType)
+                continue;
+
+            if (bestItemId == 0 || CompareEquipmentRank(pair.Key, bestItemId) > 0)
+                bestItemId = pair.Key;
         }
 
-        return 0;
+        return bestItemId;
     }
 
-    // 각 부위별 최종 티어 키를 갱신한다.
     public void RefreshFinalEquipment()
     {
+        // 부위별 최종 티어 장비를 캐시해 자동합성 제외 대상으로 사용한다.
         finalEquipmentItemIds.Clear();
         if (!EnsureEquipmentTable())
             return;
 
-        int count = Enum.GetNames(typeof(EquipmentType)).Length;
-        int[] highestTierByType = new int[count];
-        int[] itemIdByType = new int[count];
+        int typeCount = Enum.GetNames(typeof(EquipmentType)).Length;
+        int[] highestTierByType = new int[typeCount];
+        int[] itemIdByType = new int[typeCount];
 
         for (int i = 0; i < allEquipmentItemIds.Count; i++)
         {
             int itemId = allEquipmentItemIds[i];
-            var equipInfo = DataManager.Instance.EquipListDict[itemId];
+            EquipListTable equipInfo = DataManager.Instance.EquipListDict[itemId];
             int typeIndex = (int)equipInfo.equipmentType - (int)EquipmentType.Weapon;
-            if (typeIndex < 0 || typeIndex >= count)
+            if (typeIndex < 0 || typeIndex >= typeCount)
                 continue;
 
             if (equipInfo.equipmentTier <= highestTierByType[typeIndex])
@@ -220,19 +218,14 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         }
     }
 
-    // 장비 아이템 개수를 증가시키고 UI/버튼 상태를 동기화한다.
     private void IncreaseEquipment(int itemId, int count)
     {
         if (count <= 0)
             return;
 
         AddRawCount(itemId, count);
-        SyncSlot(itemId);
-        RefreshAutoMergeInteractable();
-        equipmentHandler?.CheckAutoEquip();
     }
 
-    // 장비 아이템 개수를 감소시키고 UI/버튼 상태를 동기화한다.
     private void DecreaseEquipment(int itemId, int count)
     {
         if (count <= 0)
@@ -245,17 +238,14 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             equipmentCountByItemId.Remove(itemId);
         else
             equipmentCountByItemId[itemId] = nextCount;
-
-        SyncSlot(itemId);
-        RefreshAutoMergeInteractable();
-        equipmentHandler?.CheckAutoEquip();
     }
 
-    // 수량 딕셔너리에 원시 개수를 누적한다.
     private void AddRawCount(int itemId, int count)
     {
         if (count <= 0)
             return;
+
+        unlockedItemIds.Add(itemId);
 
         if (equipmentCountByItemId.TryGetValue(itemId, out int owned))
             equipmentCountByItemId[itemId] = owned + count;
@@ -263,17 +253,6 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             equipmentCountByItemId[itemId] = count;
     }
 
-    // 특정 슬롯 UI를 현재 보유 수량으로 갱신한다.
-    private void SyncSlot(int itemId)
-    {
-        if (inventoryView == null)
-            return;
-
-        int count = equipmentCountByItemId.TryGetValue(itemId, out int owned) ? owned : 0;
-        inventoryView.UpdateEquipmentCount(itemId, count);
-    }
-
-    // 장비 테이블 캐시를 갱신한다.
     private void RebuildEquipmentItemCache()
     {
         allEquipmentItemIds.Clear();
@@ -284,46 +263,49 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         allEquipmentItemIds.Sort();
     }
 
-    // 장비 테이블 접근 가능 상태인지 확인한다.
     private static bool EnsureEquipmentTable()
     {
         return DataManager.Instance != null && DataManager.Instance.EquipListDict != null;
     }
 
-    // 두 아이템이 같은 장비 부위인지 검사한다.
     private static bool IsSameEquipmentType(int lhsItemId, int rhsItemId)
     {
         if (!EnsureEquipmentTable())
             return false;
-        if (!DataManager.Instance.EquipListDict.TryGetValue(lhsItemId, out var lhsInfo))
+        if (!DataManager.Instance.EquipListDict.TryGetValue(lhsItemId, out EquipListTable lhsInfo))
             return false;
-        if (!DataManager.Instance.EquipListDict.TryGetValue(rhsItemId, out var rhsInfo))
+        if (!DataManager.Instance.EquipListDict.TryGetValue(rhsItemId, out EquipListTable rhsInfo))
             return false;
 
         return lhsInfo.equipmentType == rhsInfo.equipmentType;
     }
 
-    // 장비 타입별 테이블 키 목록을 반환한다.
-    private static List<int> GetEquipmentKeysByType(EquipmentType equipmentType)
+    private static int CompareEquipmentRank(int lhsItemId, int rhsItemId)
     {
-        switch (equipmentType)
-        {
-            case EquipmentType.Weapon:
-                return DataManager.Instance.EquipWeaponDict?.Keys.ToList();
-            case EquipmentType.Helmet:
-                return DataManager.Instance.EquipHelmetDict?.Keys.ToList();
-            case EquipmentType.Glove:
-                return DataManager.Instance.EquipGloveDict?.Keys.ToList();
-            case EquipmentType.Armor:
-                return DataManager.Instance.EquipArmorDict?.Keys.ToList();
-            case EquipmentType.Boots:
-                return DataManager.Instance.EquipBootsDict?.Keys.ToList();
-            default:
-                return null;
-        }
+        if (lhsItemId == rhsItemId)
+            return 0;
+        if (!EnsureEquipmentTable())
+            return 0;
+        if (!DataManager.Instance.EquipListDict.TryGetValue(lhsItemId, out EquipListTable lhsInfo))
+            return -1;
+        if (!DataManager.Instance.EquipListDict.TryGetValue(rhsItemId, out EquipListTable rhsInfo))
+            return 1;
+
+        int tierCompare = lhsInfo.equipmentTier.CompareTo(rhsInfo.equipmentTier);
+        if (tierCompare != 0)
+            return tierCompare;
+
+        int rarityCompare = lhsInfo.rarityType.CompareTo(rhsInfo.rarityType);
+        if (rarityCompare != 0)
+            return rarityCompare;
+
+        int gradeCompare = lhsInfo.grade.CompareTo(rhsInfo.grade);
+        if (gradeCompare != 0)
+            return gradeCompare;
+
+        return lhsItemId.CompareTo(rhsItemId);
     }
 
-    // BigDouble 수량을 장비 수량(int)으로 변환한다.
     private static bool TryConvertAmountToInt(BigDouble amount, out int count)
     {
         count = 0;

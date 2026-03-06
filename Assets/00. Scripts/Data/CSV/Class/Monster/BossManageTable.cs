@@ -5,11 +5,18 @@ using System.Collections.Generic;
 public class BossManageTable : TableBase
 {
     public AttackType attackType;
+    public AtkAttributeType atkAttributeType;
     public float skillDamageRate;
+    public float castingDelay;
     public float castingTime;
-    public int normalAtkCastRate;
-    public int skillAtk1CastRate;
-    public int skillAtk2CastRate;
+    public int baseAtkCastRate;
+    public int atkBiasIncreaseRate;
+    public float atkCoolTime;
+    public bool resetBiasCheck;
+    public string rangeShape;
+    public float rangeSize;
+    public string colorNormal;
+    public string colorFillUp;
     public string animation;
     public string effect;
 }

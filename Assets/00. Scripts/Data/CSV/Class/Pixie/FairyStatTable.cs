@@ -9,4 +9,5 @@ public class FairyStatTable : TableBase
     public float lvGrowth;
     public float grdGrowth;
     public float mythicLvGrowth;
+    public TargetType targetType;
 }
