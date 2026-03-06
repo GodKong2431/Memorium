@@ -24,7 +24,14 @@ public class EnemyStateDead : IEnemyState
         _destroyScheduled = false;
 
         // 보상: 골드·경험치·아이템 (수식은 EnemyRewardData / EnemyRewardCalculator에서 관리)
-        var rewardData = ctx.StatPresenter?.RewardData;
+        // EnemyStatSetting 대신 StageManager에 설정된 보상 데이터를 사용
+        EnemyRewardData rewardData = null;
+        if (StageManager.Instance != null)
+        {
+            rewardData = ctx.IsBoss
+                ? StageManager.Instance.bossEnemyReward
+                : StageManager.Instance.normalEnemyReward;
+        }
         if (rewardData != null)
         {
             Vector3 pos = ctx.EnemyTransform != null ? ctx.EnemyTransform.position : Vector3.zero;

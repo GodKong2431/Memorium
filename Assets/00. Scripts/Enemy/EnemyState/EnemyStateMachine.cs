@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using static UnityEngine.GraphicsBuffer;
@@ -50,7 +50,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
                 Debug.LogWarning($"[EnemyStateMachine] 스킬 공격형 몬스터(ID:{statPresenter.monsterIdFromDataManager})에 EnemySkillHandler가 없습니다. EnemyListManager에서 해당 프리팹을 스킬용 프리팹으로 교체하세요.");
         }
 
-        var agent = GetComponent<NavMeshAgent>();
         var effectController = GetComponent<EffectController>();
 
         _ctx = new EnemyStateContext
@@ -81,30 +80,13 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
 
     private void Start()
     {
-        // 1순위: 인스펙터에서 직접 지정한 플레이어 Transform
-        if (playerTransformOverride != null)
-        {
-            _ctx.PlayerTransform = playerTransformOverride;
-        }
-        else
-        {
-            // 2순위: 'Player' 태그를 가진 오브젝트 자동 검색 (테스트하다가 좀 missing 당해서 임의로 넣었습니다~ 이건 나중에 확인하고 통합 예정입니다~~~)
-            var go = GameObject.FindGameObjectWithTag("Player");
-            if (go != null)
-            {
-                _ctx.PlayerTransform = go.transform;
-            }
-            else
-            {
-                Debug.LogWarning("[EnemyStateMachine] 'Player' 태그 오브젝트를 찾을 수 없습니다.");
-            }
-        }
+        RefreshPlayerTransform();
 
         if (_ctx.SkillHandler != null)
         {
             _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
-            int skillId = _ctx.StatPresenter?.SkillId ?? 0;
-            _ctx.SkillHandler.Init(skillId > 0 ? skillId : 4000001);
+            // 스킬 몬스터의 스킬 ID는 EnemySkillHandler 인스펙터의 skillId 값을 기본으로 사용
+            _ctx.SkillHandler.Init();
         }
 
         EnemyStatData data = _ctx.StatPresenter?.Data;
@@ -116,6 +98,22 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
 
         // 스폰되면 바로 chase 상태로 전환
         ChangeState(EnemyStateType.Chase);
+    }
+
+    /// <summary>
+    /// 플레이어 Transform 참조 갱신. Start/OnSpawnFromPool에서 호출.
+    /// </summary>
+    private void RefreshPlayerTransform()
+    {
+        if (playerTransformOverride != null && playerTransformOverride)
+        {
+            _ctx.PlayerTransform = playerTransformOverride;
+        }
+        else
+        {
+            var go = GameObject.FindGameObjectWithTag("Player");
+            _ctx.PlayerTransform = go != null ? go.transform : null;
+        }
     }
 
     private void Update()
@@ -170,6 +168,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     {
         _ctx.SpawnPosition = transform.position;
         _ctx.Initialize();
+        // 풀 재사용 시 플레이어 참조 갱신 (파괴/리스폰 시 stale 참조 방지)
+        RefreshPlayerTransform();
         if (_ctx.SkillHandler != null && _ctx.PlayerTransform != null)
             _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
         if (_ctx.Agent != null && _ctx.Agent.isOnNavMesh)

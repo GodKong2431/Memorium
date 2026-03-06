@@ -1,24 +1,22 @@
 using UnityEngine;
 
 /// <summary>
-/// 적의 스탯·보상 데이터를 제공.
-/// EnemyStatSetting(ScriptableObject) 또는 DataManager 몬스터 ID로 데이터 소스 지정.
+/// 적의 스탯 데이터를 제공.
+/// DataManager에서 로드한 몬스터 ID 기반 데이터만 사용합니다.
 /// </summary>
 public class EnemyStatPresenter : MonoBehaviour
 {
-    [SerializeField] private EnemyStatSetting setting;
-    [SerializeField] [Tooltip("0이 아니면 DataManager에서 해당 몬스터 ID로 스탯 로드. setting보다 우선.")]
+    [SerializeField] [Tooltip("DataManager에서 스탯을 로드할 몬스터 ID입니다. 0이면 기본값(내장 스탯) 사용.")]
     public int monsterIdFromDataManager;
 
     private EnemyStatData _data;
     private int _loadedMonsterId;
 
     public EnemyStatData Data => _data ??= ResolveData();
-    public EnemyRewardData RewardData => setting != null ? setting.reward : null;
 
     private EnemyStatData ResolveData()
     {
-        // 1순위: DataManager 몬스터 ID
+        // DataManager 몬스터 ID 기반으로만 스탯 로드
         if (monsterIdFromDataManager != 0)
         {
             var fromTable = MonsterDataProvider.GetEnemyStatData(monsterIdFromDataManager);
@@ -28,24 +26,17 @@ public class EnemyStatPresenter : MonoBehaviour
                 LogStatDebug($"[EnemyStatPresenter] DataManager에서 로드", fromTable);
                 return fromTable;
             }
+
+            Debug.LogWarning($"[EnemyStatPresenter] DataManager.MonsterBasestatDict에서 ID {monsterIdFromDataManager}를 찾지 못했습니다. 기본값 스탯을 사용합니다. GameObject={gameObject.name}");
         }
-        // 2순위: EnemyStatSetting
-        var fromSetting = setting != null ? setting.stat : null;
-        if (fromSetting != null)
-            LogStatDebug($"[EnemyStatPresenter] EnemyStatSetting에서 로드", fromSetting);
-        return fromSetting;
+
+        Debug.LogWarning($"[EnemyStatPresenter] monsterIdFromDataManager가 0이거나 유효한 데이터가 없습니다. 기본값 스탯을 사용합니다. GameObject={gameObject.name}");
+        return null;
     }
 
     public void SetData(EnemyStatData data)
     {
         _data = data;
-        _loadedMonsterId = 0;
-    }
-
-    public void SetSetting(EnemyStatSetting newSetting)
-    {
-        setting = newSetting;
-        _data = null;
         _loadedMonsterId = 0;
     }
 
@@ -61,26 +52,9 @@ public class EnemyStatPresenter : MonoBehaviour
     }
 
     /// <summary>
-    /// 스킬 공격형 몬스터용 스킬 ID.
-    /// DataManager 기반: MonsterDataProvider.GetSkillId 사용.
-    /// EnemyStatSetting 기반: setting.skillId 사용. 0이면 기본값(4000001) 사용.
+    /// 보스 몬스터 여부. DataManager 데이터만 사용합니다.
     /// </summary>
-    public int SkillId
-    {
-        get
-        {
-            if (monsterIdFromDataManager != 0 && MonsterDataProvider.IsSkillAttackMonster(monsterIdFromDataManager))
-                return MonsterDataProvider.GetSkillId(monsterIdFromDataManager);
-            return setting?.skillId ?? 0;
-        }
-    }
-
-    /// <summary>
-    /// 보스 몬스터 여부. DataManager 데이터 사용 시 자동 판별.
-    /// </summary>
-    public bool IsBoss => monsterIdFromDataManager != 0
-        ? MonsterDataProvider.IsBoss(monsterIdFromDataManager)
-        : (setting?.stat?.monsterType?.ToLowerInvariant().Contains("boss") ?? false);
+    public bool IsBoss => monsterIdFromDataManager != 0 && MonsterDataProvider.IsBoss(monsterIdFromDataManager);
 
     /// <summary>
     /// DataManager 로드 완료 후, monsterIdFromDataManager로 스탯 재로드.

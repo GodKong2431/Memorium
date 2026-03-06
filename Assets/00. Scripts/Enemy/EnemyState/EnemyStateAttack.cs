@@ -68,7 +68,13 @@ public class EnemyStateAttack : IEnemyState
 
     public void OnUpdate(EnemyStateContext ctx)
     {
-        var playerStateMachine = ctx.PlayerTransform?.GetComponent<PlayerStateMachine>();
+        // 풀링 시 파괴된 플레이어 참조 방지 (Unity == null은 파괴된 오브젝트도 처리)
+        if (ctx.PlayerTransform == null)
+        {
+            ctx.RequestState(EnemyStateType.Idle);
+            return;
+        }
+        var playerStateMachine = ctx.PlayerTransform.GetComponent<PlayerStateMachine>();
         if (playerStateMachine == null || playerStateMachine._ctx.CurrentHealth <= 0f)
         {
             ctx.RequestState(EnemyStateType.Idle);

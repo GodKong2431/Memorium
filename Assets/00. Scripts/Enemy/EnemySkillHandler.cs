@@ -7,7 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(SkillCaster))]
 public class EnemySkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTargetProvider
 {
-    [SerializeField][Tooltip("시전할 스킬 ID (DataManager SkillInfoDict에 등록된 ID)")]
+    [SerializeField][Tooltip("시전할 스킬 ID (DataManager SkillInfoDict에 등록된 ID). 인스펙터에서 설정한 값을 기본으로 사용합니다.")]
     private int skillId = 4000001;
 
     private SkillCaster _skillCaster;
@@ -34,11 +34,15 @@ public class EnemySkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarget
     }
 
     /// <summary>
-    /// 스킬 ID 설정. DataManager 로드 후 호출.
+    /// 스킬 ID 설정 및 SkillDataContext 생성.
+    /// skillIdToUse > 0이면 해당 값으로 덮어쓰고,
+    /// 그렇지 않으면 인스펙터에서 설정한 skillId를 그대로 사용합니다.
     /// </summary>
-    public void Init(int skillIdToUse)
+    public void Init(int skillIdToUse = -1)
     {
-        skillId = skillIdToUse;
+        if (skillIdToUse > 0)
+            skillId = skillIdToUse;
+
         if (DataManager.Instance != null && DataManager.Instance.SkillInfoDict != null)
         {
             _skillDataContext = new SkillDataContext(skillId, -1, -1);
@@ -77,6 +81,7 @@ public class EnemySkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarget
         if (dist > skillRange) return false;
 
         _skillCaster.Init(this, this);
+        // Debug.Log($"[EnemySkillHandler] Skill monster attack - skillId={skillId}, monsterId={_statPresenter?.monsterIdFromDataManager}, target={_playerTransform?.name}, dist={dist:F2}, range={skillRange:F2}");
         _skillCaster.CastSkill(_skillDataContext, 0f, false);
         _cooldownTimer = _skillDataContext.skillData.skillTable.skillCooldown;
         // 스킬 시전 이펙트 추가 예정 (SkillCaster 쪽에서 처리 가능)
