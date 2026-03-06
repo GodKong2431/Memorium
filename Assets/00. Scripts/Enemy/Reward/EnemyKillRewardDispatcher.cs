@@ -113,9 +113,11 @@ public static class EnemyKillRewardDispatcher
             var prefab = Resources.Load<GameObject>(DropItemPrefabPath);
             foreach (var drop in _itemDropBuffer)
             {
-                if (prefab != null)
-                {
+            if (prefab != null)
+            {
                     var go = UnityEngine.Object.Instantiate(prefab, worldPosition + Vector3.up * 0.5f, Quaternion.identity);
+                    // 아이템 드랍 이펙트 추가 예정 (드랍 시 파티클 등)
+                    // 아이템 드랍 효과음 추가 예정
                     var ctrl = go.GetComponent<DropItemController>();
                     if (ctrl == null) ctrl = go.AddComponent<DropItemController>();
                     ctrl.Initialize(drop.itemId, drop.count, drop.category);

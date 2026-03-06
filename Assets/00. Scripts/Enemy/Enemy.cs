@@ -33,7 +33,6 @@ public class Enemy : MonoBehaviour
             Isdead = true;
 
             //transform.GetComponent<Renderer>().material.color = Color.black;
-
         }
     }
 }

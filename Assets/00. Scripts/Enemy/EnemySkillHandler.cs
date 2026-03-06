@@ -79,6 +79,8 @@ public class EnemySkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarget
         _skillCaster.Init(this, this);
         _skillCaster.CastSkill(_skillDataContext, 0f, false);
         _cooldownTimer = _skillDataContext.skillData.skillTable.skillCooldown;
+        // 스킬 시전 이펙트 추가 예정 (SkillCaster 쪽에서 처리 가능)
+        // 스킬 시전 효과음 추가 예정
         return true;
     }
 

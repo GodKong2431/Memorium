@@ -62,6 +62,7 @@ public class EnemyStateAttack : IEnemyState
                 Transform t = ctx.EnemyTransform;
                 _currentAttackEffect = Object.Instantiate(ctx.AttackEffectPrefab, t.position + Vector3.up * 1f, Quaternion.identity, t);
             }
+            // 공격 시작 효과음 추가 예정
         }
     }
 
@@ -105,6 +106,7 @@ public class EnemyStateAttack : IEnemyState
                         Debug.Log($"[EnemyStateAttack] damage={damage}");
                         damageable.TakeDamage(damage, DamageType.Physical);
                         _damageApplied = true;
+                        // 공격 타격 효과음 추가 예정
                     }
                 }
             }
