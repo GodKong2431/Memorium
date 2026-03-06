@@ -4571,7 +4571,6 @@ GameObject:
   - component: {fileID: 1988957295}
   - component: {fileID: 1988957294}
   - component: {fileID: 1988957293}
-  - component: {fileID: 1988957292}
   m_Layer: 0
   m_Name: PlayerEquipment
   m_TagString: Untagged
@@ -4579,26 +4578,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1988957292
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1988957291}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a6f9d66f9d903743942bd905f1002f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  prefabEquipTierGroup: {fileID: 5220201577418046666, guid: 8f63ba79ee934b546b385f5b2142c2d7, type: 3}
-  uIPage:
-  - {fileID: 4823804304834393278}
-  - {fileID: 478756183064229719}
-  - {fileID: 2568484075972353935}
-  - {fileID: 2822161513620044496}
-  - {fileID: 8959217671170895305}
-  testInventory: {fileID: 0}
 --- !u!114 &1988957293
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4652,7 +4631,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentHandler
   playerEquipment: {fileID: 1988957293}
-  playerInventory: {fileID: 1988957292}
   autoMerge: {fileID: 6498624962589015410}
   autoEquip: {fileID: 7216685129307265688}
   dataLoad: 0
