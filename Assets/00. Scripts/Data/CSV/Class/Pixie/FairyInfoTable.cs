@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class FairyInfoTable : TableBase
 {
     public string nameKey;
+    public int nextID;
     public int gradeID;
     public int effectID;
     public int statID1;
