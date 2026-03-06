@@ -142,7 +142,7 @@ public class StageManager : Singleton<StageManager>
             bossEnemyReward.expBase = stageData.bossMonsterExp;
 
         int dropTableId = stageData.dropTableID;
-        Debug.Log($"[StageManager] dropTableId : {dropTableId}");
+        //Debug.Log($"[StageManager] dropTableId : {dropTableId}");
 
         if (DataManager.Instance.ItemDropDict != null && DataManager.Instance.ItemDropDict.TryGetValue(dropTableId, out ItemDropTable dropTable))
         {

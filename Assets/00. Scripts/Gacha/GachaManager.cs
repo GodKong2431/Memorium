@@ -1,4 +1,6 @@
+using AYellowpaper.SerializedCollections;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,14 +14,34 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class GachaManager : Singleton<GachaManager>
 {
-    private readonly Dictionary<GachaType, GachaLevelState> levelStates = new Dictionary<GachaType, GachaLevelState>();
+    
+    [SerializeField] private SerializedDictionary<GachaType, GachaLevelState> levelStates = new SerializedDictionary<GachaType, GachaLevelState>();
 
     private CurrencyInventoryModule CurrencyModule => InventoryManager.Instance?.GetModule<CurrencyInventoryModule>();
 
+    public SaveGachaData saveGachaData;
+
+    public int crystalId = 0;
+
     protected override void Awake()
     {
+        StartCoroutine(CheckCrystalId());
         base.Awake();
         InitializeLevelStates();
+    }
+
+    IEnumerator CheckCrystalId()
+    {
+        yield return new WaitUntil(() => DataManager.Instance != null);
+        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        foreach (var item in DataManager.Instance.ItemInfoDict)
+        {
+            if (item.Value.itemType == ItemType.PaidCurrency)
+            {
+                crystalId = item.Key;
+                break;
+            }
+        }
     }
 
     private void Update()
@@ -27,7 +49,7 @@ public class GachaManager : Singleton<GachaManager>
         // 임시: G키로 30회 벌크 뽑기 테스트 (UI 연동 전)
         if (Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame)
         {
-            InventoryManager.Instance?.GetModule<CurrencyInventoryModule>()?.AddCurrency(CurrencyType.Crystal, new BigDouble(30 * GachaConfig.CrystalCostPerDraw));
+            //InventoryManager.Instance?.GetModule<CurrencyInventoryModule>()?.AddCurrency(CurrencyType.Crystal, new BigDouble(30 * GachaConfig.CrystalCostPerDraw));
             var gachaType = GachaType.Weapon;
             if (TryDrawBulk(gachaType, out var result))
             {
@@ -58,10 +80,13 @@ public class GachaManager : Singleton<GachaManager>
     /// <summary>가챠 유형별 레벨 상태 초기화 (아마 나중에 저장하는 기능 연동 필요)</summary>
     private void InitializeLevelStates()
     {
+        saveGachaData = JSONService.Load<SaveGachaData>();
+        saveGachaData.InitGachaData();
         foreach (GachaType type in Enum.GetValues(typeof(GachaType)))
         {
             if (!levelStates.ContainsKey(type))
-                levelStates[type] = new GachaLevelState { GachaType = type };
+                levelStates[type] = saveGachaData.GetGachaData(type);
+                //levelStates[type] = new GachaLevelState { GachaType = type };
         }
     }
 
@@ -70,7 +95,8 @@ public class GachaManager : Singleton<GachaManager>
     {
         if (!levelStates.TryGetValue(gachaType, out var state))
         {
-            state = new GachaLevelState { GachaType = gachaType };
+            //state = new GachaLevelState { GachaType = gachaType };
+            state = saveGachaData.GetGachaData(gachaType);
             levelStates[gachaType] = state;
         }
         return state;
@@ -114,7 +140,9 @@ public class GachaManager : Singleton<GachaManager>
         if (CurrencyModule == null || !CurrencyModule.HasEnough(CurrencyType.Crystal, new BigDouble(cost)))
             return false;
 
-        CurrencyModule.TrySpend(CurrencyType.Crystal, new BigDouble(cost));
+        //CurrencyModule.TrySpend(CurrencyType.Crystal, new BigDouble(cost));
+        InventoryManager.Instance.RemoveItem(crystalId, cost);
+
         CurrencyModule.AddCurrency(ticketType, new BigDouble(purchaseCount));
 
         if (!TryDraw(gachaType, drawCount, out result))
@@ -150,7 +178,8 @@ public class GachaManager : Singleton<GachaManager>
         }
         else if (crystalAmount >= crystalCost)
         {
-            currency.TrySpend(CurrencyType.Crystal, new BigDouble(crystalCost));
+            //currency.TrySpend(CurrencyType.Crystal, new BigDouble(crystalCost));
+            InventoryManager.Instance.RemoveItem(crystalId, crystalCost);
             result.SpentCurrencies[CurrencyType.Crystal] = crystalCost;
         }
         else
@@ -175,6 +204,8 @@ public class GachaManager : Singleton<GachaManager>
         }
 
         result.LevelUp = state.Level > levelBefore;
+
+        saveGachaData.SaveGachaLevel(gachaType, state.Level, state.DrawCountInCurrentLevel);
         return true;
     }
 
@@ -213,5 +244,10 @@ public class GachaManager : Singleton<GachaManager>
     public bool CanPurchaseTickets(GachaType gachaType)
     {
         return (CurrencyModule?.GetAmount(CurrencyType.Crystal) ?? BigDouble.Zero) >= new BigDouble(GachaConfig.CrystalCostPerDraw);
+    }
+
+    protected override void OnApplicationQuit()
+    {
+        JSONService.Save(saveGachaData);
     }
 }
