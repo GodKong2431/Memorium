@@ -33,7 +33,7 @@ public class Enemy : MonoBehaviour
             Isdead = true;
 
             transform.GetComponent<Renderer>().material.color = Color.black;
-
+            // 사망 시 시각 처리 (이펙트 등)는 EnemyStateDead에서 처리. 여기서는 레지스트리 해제만 수행
         }
     }
 }

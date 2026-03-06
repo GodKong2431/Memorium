@@ -9,10 +9,9 @@ public class MonsterSpawner : MonoBehaviour
     //????? ?????? ??????
     [SerializeField] Transform[] spawnPos;
 
-    //????? ???? ??????, ??? ?????? ?????? ????????? ID ??? ?? EnemyListManager???? ?????´?
-    [SerializeField] List<GameObject> enemyPrefab;
-    ////????? ???? ???? ?????? <- ??? ???
-    [SerializeField] GameObject bossPrefab;
+    // 일반 몬스터 프리팹 목록 (EnemyListManager.enemyMap에서 동적 로드하므로 여기선 미사용. 새 몬스터 프리팹은 EnemyListManager.enemyList에 추가)
+    [SerializeField] List<GameObject> enemyPrefab; // 몬스터 프리팹 추가 예정
+    [SerializeField] GameObject bossPrefab;         // 보스 몬스터 프리팹 추가 예정
     //???? ??(??)?? ??????? ??? ?? ???? ?? enemyPrefab?? bossPrefab?? ??? ??????? ???
     [SerializeField] int curSpawnGroup = 1;
     //???? ?? ???? ????? ????
@@ -76,6 +75,8 @@ public class MonsterSpawner : MonoBehaviour
                     Vector3 randX = Random.Range(-randomRange, randomRange) * Vector3.right;
                     Vector3 randZ = Random.Range(-randomRange, randomRange) * Vector3.forward;
                     Instantiate(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+                    // 스폰 이펙트 추가 예정
+                    // 스폰 효과음 추가 예정
                     
                     //GameObject testWizardEnemy = EnemyListManager.Instance.enemyMap[2010012];
                     //Instantiate(testWizardEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
@@ -89,6 +90,8 @@ public class MonsterSpawner : MonoBehaviour
             StageManager.Instance.onBossStage = true;
             GameObject spawnBoss = EnemyListManager.Instance.enemyMap[curSpawnGroupBossMonsterTable.MonsterID];
             Instantiate(spawnBoss, spawnPos[spawnPos.Length-1].position, spawnPos[spawnPos.Length - 1].rotation);
+            // 보스 스폰 이펙트 추가 예정
+            // 보스 스폰 효과음 추가 예정
             EnemyKillRewardDispatcher.ResetKillCount();
             StageManager.Instance.isReadyToBossSpawn = false;
         }

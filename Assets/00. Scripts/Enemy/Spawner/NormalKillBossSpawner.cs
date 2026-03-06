@@ -5,7 +5,7 @@ using UnityEngine;
 /// </summary>
 public class NormalKillBossSpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject bossPrefab;
+    [SerializeField] private GameObject bossPrefab; // 보스 몬스터 프리팹 추가 예정
     [SerializeField] private int killThreshold = 5;
     [SerializeField] private Vector3 bossSpawnPosition = new Vector3(0f, 1f, -4f);
 
@@ -48,6 +48,8 @@ public class NormalKillBossSpawner : MonoBehaviour
         }
 
         ObjectPoolManager.Get(prefab, bossSpawnPosition, Quaternion.identity);
+        // 보스 스폰 이펙트 추가 예정
+        // 보스 스폰 효과음 추가 예정
         EnemyKillRewardDispatcher.ResetKillCount();
         Debug.Log($"[NormalKillBossSpawner] 일반 몬스터 {killThreshold}마리 처치 → 보스 소환 ({bossSpawnPosition})");
     }

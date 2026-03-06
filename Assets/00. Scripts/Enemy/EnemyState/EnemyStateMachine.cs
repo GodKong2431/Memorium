@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using static UnityEngine.GraphicsBuffer;
@@ -23,7 +23,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     [SerializeField][Tooltip("현재 적 개체의 보스 몬스터 여부입니다.")]
     private bool isBoss;
     [SerializeField][Tooltip("공격 시 나타나는 이펙트 프리팹입니다.")]
-    private GameObject attackEffectPrefab;
+    private GameObject attackEffectPrefab; // 공격 이펙트 추가 예정 (인스펙터 할당)
+    // [SerializeField] AudioClip attackSound; // 공격 효과음 추가 예정
+    // [SerializeField] AudioClip hitSound;    // 피격 효과음 추가 예정
+    // [SerializeField] AudioClip deathSound;  // 사망 효과음 추가 예정
 
     private EnemyStateContext _ctx;
     private Dictionary<EnemyStateType, IEnemyState> _states;
@@ -40,6 +43,14 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<EnemyStatPresenter>();
         var skillHandler = GetComponent<EnemySkillHandler>();
+        // 스킬 공격형 몬스터는 EnemySkillHandler+SkillCaster가 있는 프리팹 사용 필요 (예: EarthWizardEnemy)
+        if (statPresenter != null && statPresenter.monsterIdFromDataManager != 0 && skillHandler == null)
+        {
+            if (MonsterDataProvider.IsSkillAttackMonster(statPresenter.monsterIdFromDataManager))
+                Debug.LogWarning($"[EnemyStateMachine] 스킬 공격형 몬스터(ID:{statPresenter.monsterIdFromDataManager})에 EnemySkillHandler가 없습니다. EnemyListManager에서 해당 프리팹을 스킬용 프리팹으로 교체하세요.");
+        }
+
+        var agent = GetComponent<NavMeshAgent>();
         var effectController = GetComponent<EffectController>();
 
         _ctx = new EnemyStateContext

@@ -19,6 +19,7 @@ public class EnemyStateChase : IEnemyState
             ctx.Agent.isStopped = false;
         _lastDestinationTime = -DestinationRefreshInterval;
         ctx.SetAnimatorTrigger("Chase");
+        // 이동/발소리 효과음 추가 예정 (선택)
     }
 
     public void OnUpdate(EnemyStateContext ctx)
