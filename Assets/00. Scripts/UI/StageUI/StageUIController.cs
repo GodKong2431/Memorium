@@ -72,6 +72,7 @@ public class StageUIController : UIControllerBase
         int maxKill = StageManager.Instance.maxMonsterKillCount;
 
         stageView.Render(chapter, stageNumber, stageName, currentKill, maxKill);
+        stageView.SetSummonInteractable(CalculateSummonInteractable(currentKill, maxKill));
     }
 
     private void OnStageChanged(int chapter, int stage)
@@ -83,12 +84,13 @@ public class StageUIController : UIControllerBase
     private void OnStageProgressChanged(int currentKill, int maxKill)
     {
         stageView.SetStageProgress(currentKill, maxKill);
+        stageView.SetSummonInteractable(CalculateSummonInteractable(currentKill, maxKill));
     }
 
     private void OnClickSummonBoss()
     {
-        stageView.SetSummonInteractable(false);
         GameEventManager.OnSummonBossClicked?.Invoke();
+        SyncSummonButtonState();
     }
 
     private static int ResolveSceneStageNumber()
@@ -115,5 +117,33 @@ public class StageUIController : UIControllerBase
         int index = Mathf.Clamp(StageManager.Instance.curStage - 1, 0, StageManager.Instance.stageKeyList.Count - 1);
         int stageKey = StageManager.Instance.stageKeyList[index];
         return DataManager.Instance.StageManageDict.TryGetValue(stageKey, out stageData);
+    }
+
+    private static bool CalculateSummonInteractable(int currentKill, int maxKill)
+    {
+        if (StageManager.Instance == null)
+            return false;
+
+        int clampedMax = Mathf.Max(0, maxKill);
+        int clampedCurrent = Mathf.Clamp(currentKill, 0, clampedMax);
+
+        if (clampedMax <= 0 || clampedCurrent < clampedMax)
+            return false;
+
+        return !StageManager.Instance.isReadyToBossSpawn;
+    }
+
+    private void SyncSummonButtonState()
+    {
+        if (StageManager.Instance == null)
+        {
+            stageView.SetSummonInteractable(false);
+            return;
+        }
+
+        stageView.SetSummonInteractable(
+            CalculateSummonInteractable(
+                StageManager.Instance.curMonsterKillCount,
+                StageManager.Instance.maxMonsterKillCount));
     }
 }
