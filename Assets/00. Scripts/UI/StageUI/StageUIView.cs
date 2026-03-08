@@ -74,7 +74,6 @@ public sealed class StageUIView
         progressSlider.minValue = 0f;
         progressSlider.maxValue = clampedMax > 0 ? clampedMax : 1f;
         progressSlider.SetValueWithoutNotify(clampedCurrent);
-        SetSummonInteractable(clampedMax > 0 && clampedCurrent >= clampedMax);
     }
 
     public void BindSummonButton(UnityAction onClick)
