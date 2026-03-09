@@ -260,7 +260,7 @@ public class GachaManager : Singleton<GachaManager>
                 if (fairyId > 0)
                 {
                     result.PixieIds.Add(fairyId);
-                    // TODO: Pixie 보유 시스템 연동 (예: PixieManager.AddOwnedPixie(fairyId))
+                    // TODO: Pixie 시스템 쪽 연동 (픽시매니저 등)
                 }
                 state.AddDraws(1);
             }
