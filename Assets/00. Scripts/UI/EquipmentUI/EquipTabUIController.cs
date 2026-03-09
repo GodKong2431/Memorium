@@ -2,42 +2,58 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+// 단일 장비 탭의 티어/아이템 UI를 생성하고 갱신한다.
 public class EquipTabUIController : UIControllerBase
 {
+    // 이 탭이 표시할 장비 타입이다.
     [SerializeField] private EquipmentType tabType = EquipmentType.Weapon;
+    // 티어 그룹을 생성할 루트 트랜스폼이다.
     [SerializeField] private RectTransform root;
+    // 티어 그룹 프리팹이다.
     [SerializeField] private GameObject tierPrefab;
+    // 장비 아이템 셀 프리팹이다.
     [SerializeField] private GameObject itemPrefab;
+    // 티어 별 아이콘 프리팹이다.
     [SerializeField] private GameObject starPrefab;
+    // 1회 합성에 필요한 아이템 개수다.
     [SerializeField] private int mergeCount = 3;
+    // 각 아이템에 표시할 임시 레벨 텍스트다.
     [SerializeField] private string levelText = "Lv. 0";
 
+    // 티어 패널을 투명 처리할 때 사용하는 색상이다.
     private static readonly Color Transparent = new Color(1f, 1f, 1f, 0f);
-
+    // 아이템 ID 기준으로 생성된 뷰를 보관한다.
     private readonly Dictionary<int, EquipItemView> views = new Dictionary<int, EquipItemView>();
 
+    // 인벤토리 매니저 캐시 참조다.
     private InventoryManager inventory;
+    // 장비 인벤토리 모듈 캐시 참조다.
     private EquipmentInventoryModule equipModule;
+    // UI 목록이 1회 생성되었는지 여부다.
     private bool isBuilt;
 
+    // 데이터 준비 전까지 빌드를 시도한다.
     private void Update()
     {
         if (!isBuilt)
             RefreshView();
     }
 
+    // 새로고침 이벤트와 인벤토리 이벤트를 구독한다.
     protected override void Subscribe()
     {
         EquipmentHandler.EquipmentUiRefreshRequested += RefreshView;
         BindInventory();
     }
 
+    // 등록한 이벤트 구독을 모두 해제한다.
     protected override void Unsubscribe()
     {
         EquipmentHandler.EquipmentUiRefreshRequested -= RefreshView;
         UnbindInventory();
     }
 
+    // 생성 상태와 아이템 상태를 한 번에 갱신한다.
     protected override void RefreshView()
     {
         if (!TryPrepare())
@@ -49,6 +65,7 @@ public class EquipTabUIController : UIControllerBase
         RefreshAllItems();
     }
 
+    // 필수 참조와 런타임 모듈 준비 상태를 검사한다.
     private bool TryPrepare()
     {
         if (root == null || tierPrefab == null || itemPrefab == null || starPrefab == null)
@@ -64,6 +81,7 @@ public class EquipTabUIController : UIControllerBase
         return equipModule != null && equipModule.IsInitialized;
     }
 
+    // 인벤토리 인스턴스 변경 시 이벤트를 다시 바인딩한다.
     private bool BindInventory()
     {
         InventoryManager current = InventoryManager.Instance;
@@ -79,6 +97,7 @@ public class EquipTabUIController : UIControllerBase
         return true;
     }
 
+    // 인벤토리 이벤트 바인딩을 해제하고 참조를 정리한다.
     private void UnbindInventory()
     {
         if (inventory == null)
@@ -88,6 +107,7 @@ public class EquipTabUIController : UIControllerBase
         inventory = null;
     }
 
+    // 아이템 수량 변경 시 해당 셀의 개수/잠금 상태를 갱신한다.
     private void HandleAmountChanged(InventoryItemContext item, BigDouble amount)
     {
         if (!views.TryGetValue(item.ItemId, out EquipItemView view))
@@ -99,6 +119,7 @@ public class EquipTabUIController : UIControllerBase
             view.SetDimmed(!equipModule.IsUnlocked(item.ItemId));
     }
 
+    // 현재 탭의 티어 그룹과 아이템 셀을 모두 생성한다.
     private void BuildViews()
     {
         views.Clear();
@@ -128,6 +149,7 @@ public class EquipTabUIController : UIControllerBase
         isBuilt = true;
     }
 
+    // 티어 헤더 오브젝트를 만들고 별 UI를 구성한다.
     private EquipTierUI CreateTier(int tier)
     {
         GameObject tierObject = Instantiate(tierPrefab, root, false);
@@ -155,6 +177,7 @@ public class EquipTabUIController : UIControllerBase
         return tierUI;
     }
 
+    // 아이템 셀 하나를 생성하고 런타임 뷰에 등록한다.
     private void CreateItem(EquipTierUI tierUI, EquipListTable table, int tier, int orderInTier)
     {
         GameObject itemObject = Instantiate(itemPrefab, tierUI.ListRoot, false);
@@ -180,6 +203,7 @@ public class EquipTabUIController : UIControllerBase
         views[itemId] = view;
     }
 
+    // 생성된 모든 아이템 셀을 최신 데이터로 갱신한다.
     private void RefreshAllItems()
     {
         if (inventory == null || equipModule == null)
@@ -195,6 +219,7 @@ public class EquipTabUIController : UIControllerBase
         }
     }
 
+    // 이 탭에서 사용할 장비 테이블 행을 수집하고 정렬한다.
     private List<EquipListTable> CollectTables()
     {
         List<EquipListTable> tables = new List<EquipListTable>();
@@ -222,12 +247,14 @@ public class EquipTabUIController : UIControllerBase
         return tables;
     }
 
+    // 루트 하위에 생성된 티어/아이템 오브젝트를 모두 삭제한다.
     private void ClearRoot()
     {
         for (int i = root.childCount - 1; i >= 0; i--)
             Destroy(root.GetChild(i).gameObject);
     }
 
+    // 장비 테이블 정보로 아이콘 스프라이트를 로드한다.
     private static Sprite LoadIcon(EquipListTable table)
     {
         string key = string.IsNullOrEmpty(table.iconResource)
@@ -237,11 +264,13 @@ public class EquipTabUIController : UIControllerBase
         return string.IsNullOrEmpty(key) ? null : Resources.Load<Sprite>(key);
     }
 
+    // 장비 등급 티어를 1~5 별 개수로 변환한다.
     private static int GetStarCount(int tier)
     {
         return ((Mathf.Max(1, tier) - 1) % 5) + 1;
     }
 
+    // BigDouble 수량을 0 이상 int 값으로 안전하게 변환한다.
     private static int ToCount(BigDouble amount)
     {
         if (amount <= BigDouble.Zero)
@@ -254,6 +283,7 @@ public class EquipTabUIController : UIControllerBase
         return value >= int.MaxValue ? int.MaxValue : (int)value;
     }
 
+    // 장비 아이템 셀 클릭 이벤트를 처리한다.
     private void ClickItem(int itemId)
     {
         Debug.Log($"[EquipTabUIController] 장비 선택 구현 예정: {itemId}");

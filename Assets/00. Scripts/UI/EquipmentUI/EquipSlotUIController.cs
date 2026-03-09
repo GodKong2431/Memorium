@@ -4,22 +4,27 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 축약 장착 슬롯 UI를 갱신한다.
 public class EquipSlotUIController : UIControllerBase
 {
+    // 현재 장착 아이템 ID를 읽어올 플레이어 장비 참조다.
     [SerializeField] private PlayerEquipment player;
-
+    // 인스펙터에서 연결한 슬롯 오브젝트 목록이다.
     [SerializeField] private List<GameObject> slots = new List<GameObject>();
 
+    // 장착 변경 이벤트를 구독한다.
     protected override void Subscribe()
     {
         PlayerEquipment.EquippedItemChanged += HandleEquippedChanged;
     }
 
+    // 장착 변경 이벤트 구독을 해제한다.
     protected override void Unsubscribe()
     {
         PlayerEquipment.EquippedItemChanged -= HandleEquippedChanged;
     }
 
+    // 슬롯 전체 UI를 갱신한다.
     protected override void RefreshView()
     {
         if (!IsReady())
@@ -28,6 +33,7 @@ public class EquipSlotUIController : UIControllerBase
         RefreshAll();
     }
 
+    // 단일 장착 변경 이벤트를 받아 해당 슬롯을 갱신한다.
     private void HandleEquippedChanged(EquipmentType type, int itemId)
     {
         if (!IsReady())
@@ -36,6 +42,7 @@ public class EquipSlotUIController : UIControllerBase
         RefreshOne(type, itemId);
     }
 
+    // 모든 장비 타입 슬롯을 순회하면서 갱신한다.
     private void RefreshAll()
     {
         foreach (EquipmentType type in Enum.GetValues(typeof(EquipmentType)))
@@ -45,6 +52,7 @@ public class EquipSlotUIController : UIControllerBase
         }
     }
 
+    // 장비 타입/아이템 ID 기준으로 슬롯 하나를 갱신한다.
     private void RefreshOne(EquipmentType type, int itemId)
     {
         int index = (int)type - (int)EquipmentType.Weapon;
@@ -60,9 +68,10 @@ public class EquipSlotUIController : UIControllerBase
         RenderSlot(slot, info);
     }
 
+    // 슬롯 오브젝트의 색상과 라벨 텍스트를 반영한다.
     private static void RenderSlot(GameObject slot, EquipListTable info)
     {
-        // Toggle 슬롯은 원색 유지, 일반 슬롯은 희귀도 색으로 표시한다.
+        // Toggle 슬롯은 흰색 유지, 일반 슬롯은 희귀도 색상을 적용한다.
         Image image = slot.GetComponent<Image>();
         if (image != null)
         {
@@ -72,18 +81,21 @@ public class EquipSlotUIController : UIControllerBase
                 image.color = RarityColor.ItemGradeColor(info.rarityType);
         }
 
+        // 설명과 장비 이름을 한 줄 문자열로 합친다.
         string label = info.description + "\n" + info.equipmentName;
 
-        // 기존 Text/TMP_Text 중 씬에 있는 타입에 맞춰 텍스트를 갱신한다.
+        // Legacy Text 컴포넌트가 있으면 텍스트를 반영한다.
         Text legacyText = slot.GetComponentInChildren<Text>(true);
         if (legacyText != null)
             legacyText.text = label;
 
+        // TMP 텍스트 컴포넌트가 있으면 텍스트를 반영한다.
         TMP_Text tmpText = slot.GetComponentInChildren<TMP_Text>(true);
         if (tmpText != null)
             tmpText.text = label;
     }
 
+    // 갱신에 필요한 런타임 데이터와 바인딩 상태를 검사한다.
     private bool IsReady()
     {
         if (player == null)
