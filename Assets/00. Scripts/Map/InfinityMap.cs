@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -78,7 +78,7 @@ public class InfinityMap : MonoBehaviour
 
     public void MapMove()
     {
-        Debug.Log("[InfinityMap] 맵 이동 시작");
+
         //현재 딛고 있는 맵 이전 맵 주소
         int moveMapIndex = curMapIndex - 1;
         if (moveMapIndex < 0)

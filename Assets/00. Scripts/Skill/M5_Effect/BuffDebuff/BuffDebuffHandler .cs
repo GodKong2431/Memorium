@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class BuffDebuffHandler 
@@ -21,9 +21,6 @@ public class BuffDebuffHandler
             }
         }
         modifiers.Add(modifier);
-#if UNITY_EDITOR
-        Debug.Log($"스텟 버프: {modifier.GetType()} : {modifier.GetValue()}적용");
-#endif
     }
 
     public void Tick(float deltaTime)
@@ -33,9 +30,6 @@ public class BuffDebuffHandler
             modifiers[i].Tick(deltaTime);
             if (modifiers[i].IsExpired)
             {
-#if UNITY_EDITOR
-                Debug.Log($"스텟 버프: {modifiers[i].GetType()} : {modifiers[i].GetValue()} 종료");
-#endif
                 modifiers[i] = modifiers[modifiers.Count - 1];
                 modifiers.RemoveAt(modifiers.Count - 1);
 

@@ -1,4 +1,4 @@
-
+﻿
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -145,7 +145,7 @@ public class SoundManager : Singleton<SoundManager>
     #endregion
 
     #region SFX
-    // 2D기반 SFX 재생(UI, ??)
+    // 2D 기반 SFX 재생(UI, 시스템 효과음 등)
     public bool PlaySfx(string key)
     {
         if (!TryGet(key, out SoundEntry entry))

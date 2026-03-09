@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 // GameEventManager.OnQuestActionUpdated?.Invoke(QuestType.questElimination, 1);
@@ -115,7 +115,7 @@ public class QuestManager : Singleton<QuestManager>
         int nextID = currentQuestID + 1;
         if (!DataManager.Instance.LineQuestDict.ContainsKey(nextID))
         {
-            Debug.Log("All main quests are completed.");
+
             currentQuestID = 0;
             return;
         }

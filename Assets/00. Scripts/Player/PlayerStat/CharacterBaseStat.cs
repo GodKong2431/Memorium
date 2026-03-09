@@ -26,7 +26,7 @@ public class CharacterBaseStat
     {
         if (!DataManager.Instance.CharacterBaseStatInfoDict.TryGetValue(key, out statTable))
         {
-            Debug.Log($"[CharacterBaseStat] [{key}] ID 값에 해당하는 데이터가 없습니다 ");
+
             return;
         }
         SetBaseStat();
@@ -57,4 +57,3 @@ public class CharacterBaseStat
         baseStatValues.Add(StatType.DMG_MULT, statTable.baseFinalMultiPlier);
     }
 }
-

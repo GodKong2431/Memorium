@@ -1,4 +1,4 @@
-using Firebase;
+﻿using Firebase;
 using Firebase.Auth;
 using Firebase.Extensions;
 using Google;
@@ -51,7 +51,7 @@ public class LoginSystem : MonoBehaviour
         yield return new WaitUntil(predicate: () => LoginTask.IsCompleted);
         if (LoginTask.Exception != null) // 로그인에서 문제가 발생했을 때 Exception에 담김
         {
-            Debug.Log("다음과 같은 이유로 로그인 실패" + LoginTask.Exception);
+
             //파이어베이스에선, 에러를 파이어베이스 형식으로 해석할 수 있게 클래스 제공
             FirebaseException firebaseEx = LoginTask.Exception.GetBaseException() as FirebaseException;
             AuthError errorCode = (AuthError)firebaseEx.ErrorCode;//진짜 우리가 해석 가능한 형태로 바꿈
@@ -77,14 +77,14 @@ public class LoginSystem : MonoBehaviour
                     message = "IDONTKNOW";
                     break;
             }
-            Debug.Log(message);
+
         }
         else//여기 왔단 뜻은 성공
         {
             FirebaseAuthManager.Instance.user = LoginTask.Result.User;//로그인 잘 되었으니, 유저 정보 기억
             nickNameInputField.text = FirebaseAuthManager.Instance.user.DisplayName;//파이어베이스 상에 기억된 닉네임 가져옴
             //loginButton.interactable = true;
-            Debug.Log("로그인 성공");
+
 
             yield return new WaitUntil(()=>FirebaseAuthManager.Instance.user != null);
             CheckUserData();
@@ -98,17 +98,17 @@ public class LoginSystem : MonoBehaviour
         // 이메일 형식이 최소한의 틀을 갖췄을 때만 체크 시작
         if (!emailInputField.text.Contains("@") || !emailInputField.text.Contains("."))
         {
-            Debug.Log("이메일 양식 불일치");
+
             return false;
         }
         if (passwordInputField.text.Length < 9)
         {
-            Debug.Log("비밀번호는 9자리 이상");
+
             return false;
         }
         if (nickNameInputField.text.Length <4)
         {
-            Debug.Log("닉네임은 4글자 이상");
+
             return false;
         }
         return true;
@@ -148,7 +148,7 @@ public class LoginSystem : MonoBehaviour
                     message = "기타 사유. 관리자 문의 바람";
                     break;
             }
-            Debug.Log(message);
+
         }
         else//생성 완료
         {
@@ -174,7 +174,7 @@ public class LoginSystem : MonoBehaviour
                     //loginButton.interactable = true;
                 }
             }
-            Debug.Log("회원가입 성공 " + FirebaseAuthManager.Instance.user.DisplayName + "님 환영합니다");
+
         }
 
     }
@@ -238,8 +238,8 @@ public class LoginSystem : MonoBehaviour
             {
                 SetPlayerNameSequence();
             }
-            Debug.Log($"UserName: {FirebaseAuthManager.Instance.user.DisplayName}");
-            Debug.Log($"UserEmail: {FirebaseAuthManager.Instance.user.Email}");
+
+
         });
     }
 
@@ -253,7 +253,7 @@ public class LoginSystem : MonoBehaviour
 
         if (playerName.Length < 4)
         {
-            Debug.Log("닉네임은 4글자 이상");
+
             return;
         }
 
@@ -274,7 +274,7 @@ public class LoginSystem : MonoBehaviour
         {
             //정보를 가져오는 코드
             playerData = await DataSaveOnFireStore.ReadData<TestPlayerData>();
-            Debug.Log("정보 가져오기");
+
             playerData.SaveCheck();
         }
         else
@@ -284,7 +284,7 @@ public class LoginSystem : MonoBehaviour
             TestPlayerData playerData = new TestPlayerData();
 
             DataSaveOnFireStore.WriteClassData(playerData);
-            Debug.Log("정보 작성하기");
+
         }
     }
     #endregion

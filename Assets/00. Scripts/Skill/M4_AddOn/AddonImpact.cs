@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class AddonImpact : ISkillHitAddon
 {
@@ -17,14 +17,6 @@ public class AddonImpact : ISkillHitAddon
             if (count > 0)
             {
                 owner.HandleAddonHit(count, dataContext, provider.GetBuffer());
-            }
-            var targets = provider.GetBuffer();
-
-            for (int i = 0; i < count; i++)
-            {
-#if UNITY_EDITOR
-                Debug.Log($"{targets[i].name} ½ºÇÃ·¡½Ã");
-#endif
             }
         }
     }

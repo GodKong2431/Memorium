@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.Rendering.DebugUI;
@@ -313,6 +313,6 @@ public class EquipTabUIController : UIControllerBase
     // 장비 아이템 셀 클릭 이벤트를 처리한다.
     private void ClickItem(int itemId)
     {
-        Debug.Log($"[EquipTabUIController] 장비 선택 구현 예정: {itemId}");
+
     }
 }

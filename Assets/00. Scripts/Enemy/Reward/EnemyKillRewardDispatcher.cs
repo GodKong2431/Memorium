@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -49,7 +49,7 @@ public static class EnemyKillRewardDispatcher
             else if (DataManager.Instance.ItemInfoDict?.TryGetValue(itemId, out var i) == true)
                 name = i.itemName;
         }
-        Debug.Log($"[아이템 획득] ID={itemId} x{count} ({category}) {(string.IsNullOrEmpty(name) ? "" : $"- {name}")}");
+
     }
 
     /// <summary>전역 처치 카운트 초기화 (씬 전환 등에서 호출).</summary>
@@ -80,7 +80,7 @@ public static class EnemyKillRewardDispatcher
                 //    : null;
                 //currencyModule?.AddCurrency(CurrencyType.Gold, finalGold);
                 InventoryManager.Instance.AddItem(TypeToId.ConvertTypeToId(ItemType.FreeCurrency), finalGold);
-                Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{finalGold}");
+
             }
         }
 
@@ -98,7 +98,7 @@ public static class EnemyKillRewardDispatcher
                 ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
                 : null;
             currencyModule?.AddCurrency(CurrencyType.Exp, finalExp);
-            Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{finalExp}");
+
 
 
             //경험치 저장
@@ -121,7 +121,7 @@ public static class EnemyKillRewardDispatcher
                     var ctrl = go.GetComponent<DropItemController>();
                     if (ctrl == null) ctrl = go.AddComponent<DropItemController>();
                     ctrl.Initialize(drop.itemId, drop.count, drop.category);
-                    Debug.Log($"[EnemyKillRewardDispatcher] 드랍 스폰: itemId={drop.itemId} x{drop.count}");
+
                 }
                 else
                 {
@@ -146,7 +146,7 @@ public static class EnemyKillRewardDispatcher
         {
             CurrentStageLevel++;
             OnBossKilled?.Invoke();
-            Debug.Log($"[EnemyKillRewardDispatcher] 보스 처치! 스테이지 레벨 → {CurrentStageLevel}");
+
             // CurrentStageLevel은 임시로 사용중입니다
         }
         else

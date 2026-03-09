@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 public class FireEffect : StatusEffectBase
 {
     private float defReduction;
@@ -25,9 +25,6 @@ public class FireEffect : StatusEffectBase
         // 첫 적용
         base.OnApply(target, buffApplicable);
         ApplyDefDebuff();
-#if UNITY_EDITOR
-        Debug.Log($"[FireEffect] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
-#endif
     }
 
     private void ApplyDefDebuff()

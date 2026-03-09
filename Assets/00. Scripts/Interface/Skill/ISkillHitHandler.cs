@@ -1,7 +1,7 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 /// <summary>
-/// ½ºÅ³ È÷Æ® Ã³¸® ÀÎÅÍÆäÀÌ½º 
+/// ìŠ¤í‚¬ íˆíŠ¸ ì²˜ë¦¬ ì¸í„°í˜ì´ìŠ¤
 /// </summary>
 public interface ISkillHitHandler
 {

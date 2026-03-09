@@ -1,8 +1,8 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 
 /// <summary>
-/// ½ºÅ³  ÀÌµ¿ Àü·« ÀÎÅÍÆäÀÌ½º(m1)
+/// ìŠ¤í‚¬  ì´ë™ ì „ëµ ì¸í„°í˜ì´ìŠ¤(m1)
 /// </summary>
 public interface ISkillMovementStrategy
 {

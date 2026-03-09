@@ -1,9 +1,9 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using TMPro;
 
 public class CurrencyUI : MonoBehaviour
 {
-    [Header("ÀçÈ­ ¼±ÅÃ")]
+    [Header("ì¬í™” ì„ íƒ")]
     public CurrencyType targetCurrency;
 
     [Header("UI")]

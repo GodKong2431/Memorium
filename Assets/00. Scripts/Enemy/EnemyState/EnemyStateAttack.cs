@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
@@ -109,7 +109,7 @@ public class EnemyStateAttack : IEnemyState
                         float damage = ctx.AttackPoint;
                         if (ctx.SkillHandler != null)
                             damage = ctx.SkillHandler.GetAttack();
-                        Debug.Log($"[EnemyStateAttack] damage={damage}");
+
                         damageable.TakeDamage(damage, DamageType.Physical);
                         _damageApplied = true;
                         // 공격 타격 효과음 추가 예정

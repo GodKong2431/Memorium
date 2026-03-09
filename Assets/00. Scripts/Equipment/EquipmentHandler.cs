@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -15,7 +15,7 @@ public class EquipmentHandler : MonoBehaviour
 
     public void TestEquipmentReinforcement()
     {
-        Debug.Log("[EquipmentHandler] 강화 시도");
+
         ReinforceEquipment(playerEquipment.weapon.ID);
     }
 
@@ -199,12 +199,12 @@ public class EquipmentHandler : MonoBehaviour
         EquipmentData equipmentData = equipmentModule.GetEquipment(itemId);
         if (equipmentData.equipmentId == 0)
         {
-            Debug.Log("[EquipmentHandler] 잘못된 ID 가져옴");
+
             return false;
         }
         else if (equipmentData.equipmentReinforcement >= 100)
         {            
-            Debug.Log("[EquipmentHandler] 이미 최종 강화 완료된 장비");
+
             return false;  
         }
 
@@ -216,7 +216,7 @@ public class EquipmentHandler : MonoBehaviour
 
         if (InventoryManager.Instance.GetItemAmount(goldId) <= 400)
         {
-            Debug.Log("강화 비용 부족");
+
             return false;
         }
 
@@ -226,7 +226,7 @@ public class EquipmentHandler : MonoBehaviour
         equipmentData.equipmentReinforcement += 1;
 
         equipmentModule.SetEquipment(equipmentData);
-        Debug.Log($"[EquipmentHandler] 강화 성공 아이템 아이디 : {equipmentData.equipmentId} 강화 수치 : {equipmentData.equipmentReinforcement}");
+
         RaiseEquipmentUiRefreshRequested();
         return true;
     }
