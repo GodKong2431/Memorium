@@ -46,34 +46,66 @@ public class GachaManager : Singleton<GachaManager>
 
     private void Update()
     {
-        // 임시: G키로 30회 벌크 뽑기 테스트 (UI 연동 전)
-        if (Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame)
+        if (Keyboard.current == null) return;
+
+        // 임시: G키로 무기 30회 벌크 뽑기 테스트 (UI 연동 전)
+        if (Keyboard.current.gKey.wasPressedThisFrame)
         {
-            //InventoryManager.Instance?.GetModule<CurrencyInventoryModule>()?.AddCurrency(CurrencyType.Crystal, new BigDouble(30 * GachaConfig.CrystalCostPerDraw));
             var gachaType = GachaType.Weapon;
             if (TryDrawBulk(gachaType, out var result))
             {
-                LogDrawResult(gachaType, true, result);
+                LogDrawResult(gachaType, true, result, 30);
             }
             else
             {
-                LogDrawResult(gachaType, false, result);
+                LogDrawResult(gachaType, false, result, 30);
+            }
+        }
+
+        // 임시: F키로 Pixie 1회 뽑기 테스트
+        if (Keyboard.current.fKey.wasPressedThisFrame)
+        {
+            var gachaType = GachaType.Pixie;
+            if (TryDrawOnce(gachaType, out var result))
+            {
+                LogDrawResult(gachaType, true, result, 1);
+            }
+            else
+            {
+                LogDrawResult(gachaType, false, result, 1);
+            }
+        }
+
+        // 임시: S키로 스킬 주문서 1회 뽑기 테스트
+        if (Keyboard.current.sKey.wasPressedThisFrame)
+        {
+            var gachaType = GachaType.SkillScroll;
+            if (TryDrawOnce(gachaType, out var result))
+            {
+                LogDrawResult(gachaType, true, result, 1);
+            }
+            else
+            {
+                LogDrawResult(gachaType, false, result, 1);
             }
         }
     }
 
     /// <summary>UI 연동 전 임시: 뽑기 결과를 디버그 로그로 출력</summary>
-    private void LogDrawResult(GachaType gachaType, bool success, GachaDrawResult result)
+    private void LogDrawResult(GachaType gachaType, bool success, GachaDrawResult result, int drawCount)
     {
         if (success)
         {
             var spentStr = string.Join(", ", result.SpentCurrencies.Select(kv => $"{kv.Key}:{kv.Value}"));
             var itemsStr = result.ItemIds.Count > 0 ? string.Join(", ", result.ItemIds) : "(없음)";
-            Debug.Log($"[Gacha] {gachaType} 30회 벌크 뽑기 성공 | ItemIds: [{itemsStr}] | 소비: {spentStr} | 레벨업: {result.LevelUp} | 레어: {result.HasRareItem}");
+            var fairyStr = result.PixieIds != null && result.PixieIds.Count > 0
+                ? string.Join(", ", result.PixieIds)
+                : "(없음)";
+            Debug.Log($"[Gacha] {gachaType} {drawCount}회 뽑기 성공 | ItemIds: [{itemsStr}] | FairyIds: [{fairyStr}] | 소비: {spentStr} | 레벨업: {result.LevelUp} | 레어: {result.HasRareItem}");
         }
         else
         {
-            Debug.LogWarning($"[Gacha] {gachaType} 30회 벌크 뽑기 실패 (재화 부족 또는 조건 미충족)");
+            Debug.LogWarning($"[Gacha] {gachaType} 뽑기 실패 (재화 부족 또는 조건 미충족)");
         }
     }
 
@@ -81,6 +113,8 @@ public class GachaManager : Singleton<GachaManager>
     private void InitializeLevelStates()
     {
         saveGachaData = JSONService.Load<SaveGachaData>();
+        if (saveGachaData == null)
+            saveGachaData = new SaveGachaData();
         saveGachaData.InitGachaData();
         foreach (GachaType type in Enum.GetValues(typeof(GachaType)))
         {
@@ -124,7 +158,7 @@ public class GachaManager : Singleton<GachaManager>
     public bool TryPurchaseTicketsAndDraw(GachaType gachaType, int drawCount, out GachaDrawResult result)
     {
         result = GachaDrawResult.Create();
-        if (!IsEquipmentGacha(gachaType)) return false;
+        if (!IsSupportedGachaType(gachaType)) return false;
 
         var ticketType = GetTicketCurrency(gachaType);
         int ticketNeeded = drawCount;
@@ -157,7 +191,7 @@ public class GachaManager : Singleton<GachaManager>
     private bool TryDraw(GachaType gachaType, int count, out GachaDrawResult result)
     {
         result = GachaDrawResult.Create();
-        if (count <= 0 || !IsEquipmentGacha(gachaType)) return false;
+        if (count <= 0 || !IsSupportedGachaType(gachaType)) return false;
 
         var currency = CurrencyModule;
         if (currency == null) return false;
@@ -185,28 +219,63 @@ public class GachaManager : Singleton<GachaManager>
         else
             return false;
 
-        // 2. 뽑기 실행 및 인벤토리 추가
+        // 2. 뽑기 실행 및 인벤토리/결과 반영
         int levelBefore = state.Level;
-        for (int i = 0; i < count; i++)
+
+        if (gachaType == GachaType.Weapon || gachaType == GachaType.Armor)
         {
-            var drawResult = gachaType == GachaType.Weapon
-                ? EquipmentGachaLogic.DrawWeapon(state.Stage)
-                : EquipmentGachaLogic.DrawArmor(state.Stage);
-
-            if (drawResult.ItemId > 0)
+            for (int i = 0; i < count; i++)
             {
-                result.ItemIds.Add(drawResult.ItemId);
-                if (drawResult.IsRare) result.HasRareItem = true;
-                InventoryManager.Instance?.AddItem(drawResult.ItemId, 1);
-            }
+                var drawResult = gachaType == GachaType.Weapon
+                    ? EquipmentGachaLogic.DrawWeapon(state.Stage)
+                    : EquipmentGachaLogic.DrawArmor(state.Stage);
 
-            state.AddDraws(1);
+                if (drawResult.ItemId > 0)
+                {
+                    result.ItemIds.Add(drawResult.ItemId);
+                    if (drawResult.IsRare) result.HasRareItem = true;
+                    InventoryManager.Instance?.AddItem(drawResult.ItemId, 1);
+                }
+                state.AddDraws(1);
+            }
+        }
+        else if (gachaType == GachaType.SkillScroll)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var scrollIds = SkillScrollGachaLogic.DrawSkillScrolls(state.Level);
+                foreach (int itemId in scrollIds)
+                {
+                    result.ItemIds.Add(itemId);
+                    InventoryManager.Instance?.AddItem(itemId, 1);
+                }
+                state.AddDraws(1);
+            }
+        }
+        else if (gachaType == GachaType.Pixie)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                int fairyId = PixieGachaLogic.DrawPixie();
+                if (fairyId > 0)
+                {
+                    result.PixieIds.Add(fairyId);
+                    // TODO: Pixie 보유 시스템 연동 (예: PixieManager.AddOwnedPixie(fairyId))
+                }
+                state.AddDraws(1);
+            }
         }
 
         result.LevelUp = state.Level > levelBefore;
 
         saveGachaData.SaveGachaLevel(gachaType, state.Level, state.DrawCountInCurrentLevel);
         return true;
+    }
+
+    private static bool IsSupportedGachaType(GachaType type)
+    {
+        return type == GachaType.Weapon || type == GachaType.Armor
+            || type == GachaType.SkillScroll || type == GachaType.Pixie;
     }
 
     private static bool IsEquipmentGacha(GachaType type) => type == GachaType.Weapon || type == GachaType.Armor;
@@ -216,7 +285,14 @@ public class GachaManager : Singleton<GachaManager>
 
     private static CurrencyType GetTicketCurrency(GachaType gachaType)
     {
-        return gachaType == GachaType.Weapon ? CurrencyType.WeaponDrawTicket : CurrencyType.ArmorDrawTicket;
+        switch (gachaType)
+        {
+            case GachaType.Weapon: return CurrencyType.WeaponDrawTicket;
+            case GachaType.Armor: return CurrencyType.ArmorDrawTicket;
+            case GachaType.SkillScroll: return CurrencyType.SkillScrollDrawTicket;
+            case GachaType.Pixie: return CurrencyType.PixieDrawTicket;
+            default: return CurrencyType.WeaponDrawTicket;
+        }
     }
 
     /// <summary>뽑기권으로 N회 뽑기 가능한지 확인</summary>
