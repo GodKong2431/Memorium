@@ -1,172 +1,234 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
+// 단일 장비 탭의 티어/아이템 UI를 생성하고 갱신한다.
 public class EquipTabUIController : UIControllerBase
 {
-    [Header("Tab Config")]
+    // 이 탭이 표시할 장비 타입이다.
     [SerializeField] private EquipmentType tabType = EquipmentType.Weapon;
-
+    // 티어 그룹을 생성할 루트 트랜스폼이다.
     [SerializeField] private RectTransform root;
-
+    // 티어 그룹 프리팹이다.
     [SerializeField] private GameObject tierPrefab;
-
+    // 장비 아이템 셀 프리팹이다.
     [SerializeField] private GameObject itemPrefab;
-
+    // 티어 별 아이콘 프리팹이다.
     [SerializeField] private GameObject starPrefab;
-
-    [SerializeField] private bool clearOnBuild = true;
-
-    [Header("Display")]
+    // 1회 합성에 필요한 아이템 개수다.
     [SerializeField] private int mergeCount = 3;
-
+    // 각 아이템에 표시할 임시 레벨 텍스트다.
     [SerializeField] private string levelText = "Lv. 0";
 
+    // 티어 패널을 투명 처리할 때 사용하는 색상이다.
+    private static readonly Color Transparent = new Color(1f, 1f, 1f, 0f);
+    // 아이템 ID 기준으로 생성된 뷰를 보관한다.
     private readonly Dictionary<int, EquipItemView> views = new Dictionary<int, EquipItemView>();
-    private readonly Dictionary<string, Sprite> iconCache = new Dictionary<string, Sprite>();
 
-    private EquipTierListView tierListView;
-    private InventoryManager invManager;
+    // 인벤토리 매니저 캐시 참조다.
+    private InventoryManager inventory;
+    // 장비 인벤토리 모듈 캐시 참조다.
     private EquipmentInventoryModule equipModule;
-    private Coroutine readyRoutine;
+    // UI 목록이 1회 생성되었는지 여부다.
     private bool isBuilt;
 
-    protected override void Initialize()
+    // 데이터 준비 전까지 빌드를 시도한다.
+    private void Update()
     {
-        tierListView = new EquipTierListView(root, tierPrefab, itemPrefab, clearOnBuild);
+        if (!isBuilt)
+            RefreshView();
     }
 
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-        StartReadyRoutine();
-    }
-
-    protected override void OnDisable()
-    {
-        if (readyRoutine != null)
-        {
-            StopCoroutine(readyRoutine);
-            readyRoutine = null;
-        }
-
-        base.OnDisable();
-    }
-
+    // 새로고침 이벤트와 인벤토리 이벤트를 구독한다.
     protected override void Subscribe()
     {
+        EquipmentHandler.EquipmentUiRefreshRequested += RefreshView;
         BindInventory();
-        EquipmentHandler.EquipmentUiRefreshRequested += HandleRefreshRequest;
     }
 
+    // 등록한 이벤트 구독을 모두 해제한다.
     protected override void Unsubscribe()
     {
-        EquipmentHandler.EquipmentUiRefreshRequested -= HandleRefreshRequest;
+        EquipmentHandler.EquipmentUiRefreshRequested -= RefreshView;
         UnbindInventory();
     }
 
+    // 생성 상태와 아이템 상태를 한 번에 갱신한다.
     protected override void RefreshView()
     {
-        BindInventory();
-
-        if (!IsReady())
+        if (!TryPrepare())
             return;
 
-        BuildIfNeeded();
-        RefreshCounts();
-        RefreshLockStates();
+        if (!isBuilt)
+            BuildViews();
+
+        RefreshAllItems();
     }
 
+    // 필수 참조와 런타임 모듈 준비 상태를 검사한다.
+    private bool TryPrepare()
+    {
+        if (root == null || tierPrefab == null || itemPrefab == null || starPrefab == null)
+            return false;
+
+        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.EquipListDict == null)
+            return false;
+
+        if (!BindInventory())
+            return false;
+
+        equipModule = inventory.GetModule<EquipmentInventoryModule>();
+        return equipModule != null && equipModule.IsInitialized;
+    }
+
+    // 인벤토리 인스턴스 변경 시 이벤트를 다시 바인딩한다.
+    private bool BindInventory()
+    {
+        InventoryManager current = InventoryManager.Instance;
+        if (current == null)
+            return false;
+
+        if (inventory == current)
+            return true;
+
+        UnbindInventory();
+        inventory = current;
+        inventory.OnItemAmountChanged += HandleAmountChanged;
+        return true;
+    }
+
+    // 인벤토리 이벤트 바인딩을 해제하고 참조를 정리한다.
+    private void UnbindInventory()
+    {
+        if (inventory == null)
+            return;
+
+        inventory.OnItemAmountChanged -= HandleAmountChanged;
+        inventory = null;
+    }
+
+    // 아이템 수량 변경 시 해당 셀의 개수/잠금 상태를 갱신한다.
     private void HandleAmountChanged(InventoryItemContext item, BigDouble amount)
     {
         if (!views.TryGetValue(item.ItemId, out EquipItemView view))
             return;
 
         view.RenderCount(ToCount(amount), mergeCount);
-        view.SetDimmed(ShouldDim(item.ItemId));
+
+        if (equipModule != null)
+            view.SetDimmed(!equipModule.IsUnlocked(item.ItemId));
     }
 
-    private void HandleRefreshRequest()
+    // 현재 탭의 티어 그룹과 아이템 셀을 모두 생성한다.
+    private void BuildViews()
     {
-        RefreshView();
-    }
+        views.Clear();
+        ClearRoot();
 
-    private void ClickItem(int itemId)
-    {
-        Debug.Log($"[EquipTabUIController] 장비 선택 구현 예정: {itemId}");
-    }
-
-    private void BuildIfNeeded()
-    {
-        if (isBuilt)
-            return;
-
-        // 탭별 장비를 티어 단위로 묶어서 1회 생성한다.
         List<EquipListTable> tables = CollectTables();
-        if (tables.Count == 0)
-            return;
+        int currentTier = int.MinValue;
+        int orderInTier = 0;
+        EquipTierUI currentTierUI = null;
 
-        Dictionary<int, List<EquipListTable>> byTier = new Dictionary<int, List<EquipListTable>>();
         for (int i = 0; i < tables.Count; i++)
         {
             EquipListTable table = tables[i];
             int tier = Mathf.Max(1, table.grade);
-            if (!byTier.TryGetValue(tier, out List<EquipListTable> group))
+
+            if (tier != currentTier)
             {
-                group = new List<EquipListTable>();
-                byTier[tier] = group;
+                currentTier = tier;
+                orderInTier = 0;
+                currentTierUI = CreateTier(tier);
             }
 
-            group.Add(table);
+            if (currentTierUI != null)
+                CreateItem(currentTierUI, table, tier, orderInTier++);
         }
-
-        views.Clear();
-        Dictionary<int, EquipItemView> builtViews = tierListView.Build(
-            byTier,
-            starPrefab,
-            GetTierColor,
-            GetOrderColor,
-            ShouldDim,
-            GetStarCount,
-            GetLevelText,
-            GetIcon,
-            ClickItem);
-
-        foreach (KeyValuePair<int, EquipItemView> pair in builtViews)
-            views[pair.Key] = pair.Value;
 
         isBuilt = true;
     }
 
-    private void RefreshCounts()
+    // 티어 헤더 오브젝트를 만들고 별 UI를 구성한다.
+    private EquipTierUI CreateTier(int tier)
     {
-        // 인벤토리의 최신 수량을 각 셀에 반영한다.
+        GameObject tierObject = Instantiate(tierPrefab, root, false);
+        tierObject.name = $"Tier_{tier:00}";
+
+        EquipTierUI tierUI = tierObject.GetComponent<EquipTierUI>();
+        if (tierUI == null)
+            return null;
+
+        tierUI.TierPanel.color = Transparent;
+
+        Color tierColor = RarityColor.TierColorByTier(tier);
+        int starCount = GetStarCount(tier);
+
+        for (int i = 0; i < starCount; i++)
+        {
+            GameObject starObject = Instantiate(starPrefab, tierUI.TierRoot, false);
+            starObject.name = $"(Img)TierStar_{i + 1}";
+
+            Image star = starObject.GetComponent<Image>();
+            if (star != null)
+                star.color = tierColor;
+        }
+
+        return tierUI;
+    }
+
+    // 아이템 셀 하나를 생성하고 런타임 뷰에 등록한다.
+    private void CreateItem(EquipTierUI tierUI, EquipListTable table, int tier, int orderInTier)
+    {
+        GameObject itemObject = Instantiate(itemPrefab, tierUI.ListRoot, false);
+        itemObject.name = $"Equipment_{table.ID}";
+
+        EquipItemUI itemUI = itemObject.GetComponent<EquipItemUI>();
+        if (itemUI == null)
+            return;
+
+        EquipItemView view = new EquipItemView(itemUI);
+        int itemId = table.ID;
+
+        view.Bind(() => ClickItem(itemId));
+        view.Render(
+            LoadIcon(table),
+            levelText,
+            GetStarCount(tier),
+            RarityColor.TierColorByTier(tier));
+        view.SetFrameColor(RarityColor.ColorByOrderIndex(orderInTier));
+        view.SetDimmed(!equipModule.IsUnlocked(itemId));
+        view.RenderCount(ToCount(inventory.GetItemAmount(itemId)), mergeCount);
+
+        views[itemId] = view;
+    }
+
+    // 생성된 모든 아이템 셀을 최신 데이터로 갱신한다.
+    private void RefreshAllItems()
+    {
+        if (inventory == null || equipModule == null)
+            return;
+
         foreach (KeyValuePair<int, EquipItemView> pair in views)
         {
-            BigDouble amount = invManager != null ? invManager.GetItemAmount(pair.Key) : BigDouble.Zero;
+            int itemId = pair.Key;
+            EquipItemView view = pair.Value;
 
-            pair.Value.RenderCount(ToCount(amount), mergeCount);
+            view.RenderCount(ToCount(inventory.GetItemAmount(itemId)), mergeCount);
+            view.SetDimmed(!equipModule.IsUnlocked(itemId));
         }
     }
 
-    private void RefreshLockStates()
-    {
-        // 해금 여부에 따라 잠금 톤/버튼 상태를 맞춘다.
-        foreach (KeyValuePair<int, EquipItemView> pair in views)
-            pair.Value.SetDimmed(ShouldDim(pair.Key));
-    }
-
+    // 이 탭에서 사용할 장비 테이블 행을 수집하고 정렬한다.
     private List<EquipListTable> CollectTables()
     {
         List<EquipListTable> tables = new List<EquipListTable>();
+
         foreach (KeyValuePair<int, EquipListTable> pair in DataManager.Instance.EquipListDict)
         {
             EquipListTable table = pair.Value;
-            if (table.equipmentType != tabType)
-                continue;
-
-            tables.Add(table);
+            if (table.equipmentType == tabType)
+                tables.Add(table);
         }
 
         tables.Sort((lhs, rhs) =>
@@ -185,104 +247,45 @@ public class EquipTabUIController : UIControllerBase
         return tables;
     }
 
-    private Sprite GetIcon(string key)
+    // 루트 하위에 생성된 티어/아이템 오브젝트를 모두 삭제한다.
+    private void ClearRoot()
     {
-        if (string.IsNullOrEmpty(key))
-            return null;
-
-        if (iconCache.TryGetValue(key, out Sprite cached))
-            return cached;
-
-        Sprite icon = Resources.Load<Sprite>(key);
-        iconCache[key] = icon;
-        return icon;
+        for (int i = root.childCount - 1; i >= 0; i--)
+            Destroy(root.GetChild(i).gameObject);
     }
 
-    private string GetLevelText(int itemId)
+    // 장비 테이블 정보로 아이콘 스프라이트를 로드한다.
+    private static Sprite LoadIcon(EquipListTable table)
     {
-        return levelText;
+        string key = string.IsNullOrEmpty(table.iconResource)
+            ? table.equipmentName
+            : table.iconResource;
+
+        return string.IsNullOrEmpty(key) ? null : Resources.Load<Sprite>(key);
     }
 
-    private Color GetTierColor(int tier)
-    {
-        return RarityColor.TierColorByTier(tier);
-    }
-
+    // 장비 등급 티어를 1~5 별 개수로 변환한다.
     private static int GetStarCount(int tier)
     {
         return ((Mathf.Max(1, tier) - 1) % 5) + 1;
     }
 
-    private Color GetOrderColor(int order)
-    {
-        return RarityColor.ColorByOrderIndex(order);
-    }
-
+    // BigDouble 수량을 0 이상 int 값으로 안전하게 변환한다.
     private static int ToCount(BigDouble amount)
     {
         if (amount <= BigDouble.Zero)
             return 0;
 
         double value = amount.ToDouble();
-        if (double.IsNaN(value) || double.IsInfinity(value))
+        if (double.IsNaN(value) || double.IsInfinity(value) || value <= 0d)
             return 0;
 
-        double floor = Math.Floor(value);
-        if (floor >= int.MaxValue)
-            return int.MaxValue;
-
-        return floor <= 0d ? 0 : (int)floor;
+        return value >= int.MaxValue ? int.MaxValue : (int)value;
     }
 
-    private void StartReadyRoutine()
+    // 장비 아이템 셀 클릭 이벤트를 처리한다.
+    private void ClickItem(int itemId)
     {
-        if (readyRoutine != null)
-            StopCoroutine(readyRoutine);
-
-        readyRoutine = StartCoroutine(WaitReady());
-    }
-
-    private IEnumerator WaitReady()
-    {
-        yield return new WaitUntil(IsReady);
-        RefreshView();
-        readyRoutine = null;
-    }
-
-    private bool IsReady()
-    {
-        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.EquipListDict == null)
-            return false;
-        if (InventoryManager.Instance == null)
-            return false;
-
-        equipModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
-        return equipModule != null && equipModule.IsInitialized;
-    }
-
-    private bool ShouldDim(int itemId)
-    {
-        return equipModule != null && !equipModule.IsUnlocked(itemId);
-    }
-
-    private void BindInventory()
-    {
-        InventoryManager manager = InventoryManager.Instance;
-        if (manager == null || invManager == manager)
-            return;
-
-        UnbindInventory();
-        invManager = manager;
-        invManager.OnItemAmountChanged += HandleAmountChanged;
-    }
-
-    private void UnbindInventory()
-    {
-        if (invManager == null)
-            return;
-
-        invManager.OnItemAmountChanged -= HandleAmountChanged;
-        invManager = null;
+        Debug.Log($"[EquipTabUIController] 장비 선택 구현 예정: {itemId}");
     }
 }
-

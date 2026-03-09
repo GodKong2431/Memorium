@@ -17,7 +17,6 @@ public class ActiveSkillUIController : UIControllerBase
     [SerializeField] private Button mergeAllButton;
 
     [Header("State Rule")]
-    [SerializeField] private int unlockScrollCost = 3;
     [SerializeField] private float lockedItemHeight = 186f;
     [SerializeField] private float upgradeItemHeight = 283.2f;
     [SerializeField] private bool sortSkillIds = true;
@@ -28,6 +27,7 @@ public class ActiveSkillUIController : UIControllerBase
     private SkillInventoryModule subscribedSkillModule;
     private Coroutine waitReadyRoutine;
     private bool built;
+    private const int RequiredMergeCount = 3;
 
     protected override void Initialize()
     {
@@ -169,7 +169,7 @@ public class ActiveSkillUIController : UIControllerBase
         out int requiredCount,
         out bool canClickAction)
     {
-        requiredCount = unlockScrollCost;
+        requiredCount = RequiredMergeCount;
         currentCount = scrollCount;
         canClickAction = CanClickAction(ownedData, state, scrollCount);
     }
@@ -177,7 +177,7 @@ public class ActiveSkillUIController : UIControllerBase
     private bool CanClickAction(OwnedSkillData ownedData, ActiveSkillItemVisualState state, int scrollCount)
     {
         if (state == ActiveSkillItemVisualState.Enough)
-            return scrollCount >= unlockScrollCost;
+            return scrollCount >= RequiredMergeCount;
 
         if (state != ActiveSkillItemVisualState.Upgrade || ownedData == null)
             return false;
@@ -185,7 +185,7 @@ public class ActiveSkillUIController : UIControllerBase
         if (ownedData.HighestGrade >= SkillGrade.Mythic)
             return false;
 
-        return scrollCount >= unlockScrollCost;
+        return scrollCount >= RequiredMergeCount;
     }
 
     private ActiveSkillItemVisualState ResolveState(OwnedSkillData ownedData, int scrollCount)
@@ -193,7 +193,7 @@ public class ActiveSkillUIController : UIControllerBase
         if (ownedData != null && ownedData.IsEquippable)
             return ActiveSkillItemVisualState.Upgrade;
 
-        if (scrollCount >= unlockScrollCost)
+        if (scrollCount >= RequiredMergeCount)
             return ActiveSkillItemVisualState.Enough;
 
         return ActiveSkillItemVisualState.NotEnough;
@@ -338,9 +338,6 @@ public class ActiveSkillUIController : UIControllerBase
 
     private void OnValidate()
     {
-        if (unlockScrollCost < 1)
-            unlockScrollCost = 1;
-
         if (lockedItemHeight < 1f)
             lockedItemHeight = 1f;
 
