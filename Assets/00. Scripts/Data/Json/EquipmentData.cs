@@ -11,7 +11,7 @@ public struct EquipmentData
     //장비 강화 수치
     public int equipmentReinforcement;
 
-    public EquipmentData(int id, int value = 1, int reinforecement = 0)
+    public EquipmentData(int id=0, int value = 1, int reinforecement = 0)
     {
         equipmentId = id;
         equipmentValue = value;
