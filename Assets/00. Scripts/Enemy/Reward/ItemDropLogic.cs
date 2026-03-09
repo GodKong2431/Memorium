@@ -118,7 +118,7 @@ public static class ItemDropLogic
         {
             //int id = PickRandom(settings.pixieFragmentIds);
             int id = PickRandom(settings.ReturnItemTableToType(ItemType.PixiePiece));
-            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.PixieFragment }); Debug.Log($"[드랍] 수호요정조각 ID={id} (확률 {settings.pixieFragmentChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
+            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.PixieFragment }); Debug.Log($"[드랍] 픽시 조각 ID={id} (확률 {settings.pixieFragmentChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
         }
         if (RollChance(settings.skillScrollChance, isBoss))
         {

@@ -10,9 +10,9 @@ public enum GachaType
     /// <summary>방어구 뽑기. ArmorDrawTicket 사용. 투구/장화/장갑/갑옷 4종.</summary>
     Armor,
 
-    /// <summary>스킬 주문서 뽑기. (미구현)</summary>
+    /// <summary>스킬 주문서 뽑기.</summary>
     SkillScroll,
 
-    /// <summary>수호요정 뽑기. (미구현)</summary>
-    GuardianFairy
+    /// <summary>Pixie 뽑기.</summary>
+    Pixie
 }
