@@ -9,7 +9,8 @@ public class StageManager : Singleton<StageManager>
 {
     // 현재 진행 스테이지(1부터 시작)
     public int curStage = 1;
-    public int maxStage = 1;
+    //public int maxStage = 1;
+    public List<int> maxStage;
     public int curMonsterKillCount = 0;
     public int maxMonsterKillCount = 0;
 
@@ -63,7 +64,16 @@ public class StageManager : Singleton<StageManager>
         var (savedCurStage, savedMaxStage, savedOnFailedStage) = saveStageData.InitStageData();
 
         normalStage = Mathf.Max(1, savedCurStage);
-        maxStage = Mathf.Max(1, savedMaxStage);
+        if (savedMaxStage == null)
+        {
+            maxStage = new List<int>();
+            maxStage.Add(0);
+        }
+        else
+        {
+            maxStage = savedMaxStage;
+        }
+        //maxStage = Mathf.Max(1, savedMaxStage);
         onFailedStage = savedOnFailedStage;
 
         // 씬 전환 전에 들어온 진입 요청이 있으면 우선 반영
@@ -174,7 +184,7 @@ public class StageManager : Singleton<StageManager>
         isReadyToBossSpawn = false;
 
         curMonsterKillCount = 0;
-
+        EnemyKillRewardDispatcher.ResetKillCount();
         if (!TryGetCurrentStageData(out StageManageTable stageData))
         {
             maxMonsterKillCount = 0;
@@ -200,13 +210,21 @@ public class StageManager : Singleton<StageManager>
             SetKillCount();
             infinityMap?.MapReset();
 
-            if (curStage > maxStage)
-                maxStage = curStage - 1;
+            if (curStage > maxStage[0])
+            {
+                maxStage[0] = curStage - 1;
+                saveStageData.SetMaxStage(curStageType, curStage-1);
+            }
 
             OnStageClearOrFailed.Invoke();
         }
         else
         {
+            if (maxStage[(int)curStageType - (int)StageType.NormalStage] < curStage)
+            {
+                maxStage[(int)curStageType - (int)StageType.NormalStage] = curStage;
+                saveStageData.SetMaxStage(curStageType, curStage);
+            }
             SetStageType(StageType.NormalStage, normalStage);
             SceneController.Instance.LoadScene(SceneType.StageScene);
         }
@@ -257,6 +275,7 @@ public class StageManager : Singleton<StageManager>
         Init();
         SetReward();
         SetKillCount();
+        EnemyKillRewardDispatcher.ResetKillCount();
     }
 
     // 현재 stageType/level 기준으로 StageManageTable을 조회한다.
