@@ -104,6 +104,11 @@ public class SaveEquipmentData
         //unlockEquipmentValueDict[context.ItemId] = equipmentItemCount;
     }
 
+    public void SaveEquipmentReinforcement(EquipmentData equipmentData)
+    {
+        unlockEquipmentDict[equipmentData.equipmentId] = equipmentData;
+    }
+
     public int FirstDictionaryKey<T>(Dictionary<int,T> table)
     {
         if (table == null)

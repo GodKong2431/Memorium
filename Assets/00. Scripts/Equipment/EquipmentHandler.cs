@@ -16,8 +16,7 @@ public class EquipmentHandler : MonoBehaviour
     public void TestEquipmentReinforcement()
     {
         Debug.Log("[EquipmentHandler] 강화 시도");
-        SetGoldID();
-        ReinforceEquipment(playerEquipment.weapon.ID, InventoryManager.Instance.GetItemAmount(goldId));
+        ReinforceEquipment(playerEquipment.weapon.ID);
     }
 
     // 플레이어 장비/인벤토리 데이터를 초기 상태로 세팅한다.
@@ -193,7 +192,7 @@ public class EquipmentHandler : MonoBehaviour
     }
 
     //아이템 강화 메서드이자, 강화 가능한지 체크하는 메서드
-    public bool ReinforceEquipment(int itemId, BigDouble money)
+    public bool ReinforceEquipment(int itemId)
     {
         if (!TryGetEquipmentModule(out EquipmentInventoryModule equipmentModule))
             return false;
@@ -209,16 +208,18 @@ public class EquipmentHandler : MonoBehaviour
             return false;  
         }
 
+        //골드 아이디 불러오기
+        SetGoldID();
+
         //해당 값은 이후 테이블 기반으로 현재 장비 강화 수치에 따른 강화 비용
         int cost = 400;
 
-        if (money <= 400)
+        if (InventoryManager.Instance.GetItemAmount(goldId) <= 400)
         {
             Debug.Log("강화 비용 부족");
             return false;
         }
 
-        SetGoldID();
 
         InventoryManager.Instance.RemoveItem(goldId, cost);
 
@@ -226,6 +227,7 @@ public class EquipmentHandler : MonoBehaviour
 
         equipmentModule.SetEquipment(equipmentData);
         Debug.Log($"[EquipmentHandler] 강화 성공 아이템 아이디 : {equipmentData.equipmentId} 강화 수치 : {equipmentData.equipmentReinforcement}");
+        RaiseEquipmentUiRefreshRequested();
         return true;
     }
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -41,6 +41,11 @@ public sealed class EquipItemView
         ui.TierPanel.color = Transparent;
 
         SyncStars(Mathf.Max(1, starCount), tierColor);
+    }
+    // 아이콘, 레벨 텍스트, 티어 별 UI를 렌더링한다.
+    public void RenderLevel (string levelText)
+    {
+        ui.LevelText.text = levelText;
     }
 
     // 보유 개수와 합성 요구 개수 슬라이더를 렌더링한다.
