@@ -22,12 +22,12 @@ public class CorrosionEffect : StatusEffectBase
         base.OnApply(target, buffApplicable);
         float count = poisonData.duration / poisonData.damage;
         float totalDamage = burstDamage * count;
+#if UNITY_EDITOR
+        Debug.Log($"부식 데미지 : {totalDamage}");
+        Debug.Log($"[부식] {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
+#endif
         target.TakeDamage(totalDamage);
 
-#if UNITY_EDITOR
-        Debug.Log($"[부식] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
-        Debug.Log($"부식 데미지 : {totalDamage}");
-#endif
     }
 
     protected override void OnTick() { }

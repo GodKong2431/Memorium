@@ -1,5 +1,5 @@
 
-//부식
+//부식 = 출혈+화상
 using UnityEngine;
 
 public class LacerationEffect : StatusEffectBase
@@ -37,11 +37,11 @@ public class LacerationEffect : StatusEffectBase
 
     protected override void OnTick()
     {
-        target.TakeDamage(damage);
 
 #if UNITY_EDITOR
-            Debug.Log($"부식 데미지 : {dmg}");
+        Debug.Log($"부식 데미지 : {damage}");
 #endif
+        target.TakeDamage(damage);
     }
 
     public override void OnExpire()

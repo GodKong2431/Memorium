@@ -22,10 +22,11 @@ public class PoisonEffect : StatusEffectBase
 
     protected override void OnTick()
     {
-        target.TakeDamage(damage);
+        if (target ==null) return;
 #if UNITY_EDITOR
-        Debug.Log($"[독Effect] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
+        Debug.Log($"[독데미지]{damage}");
 #endif
+        target.TakeDamage(damage);
     }
     public override void OnTargetDeath()
     {

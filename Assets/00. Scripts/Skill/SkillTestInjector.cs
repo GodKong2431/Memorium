@@ -33,25 +33,45 @@ public class SkillTestInjector : MonoBehaviour
         if (data != null) data.level = 500;
 
         var preset = skillModule.GetCurrentPreset();
+        int targetSlotIndex = -1;
+
         for (int i = 0; i < preset.slots.Length; i++)
         {
-            if (preset.slots[i].IsEmpty)
+            if (!preset.slots[i].IsEmpty && preset.slots[i].skillID == id)
             {
-                skillModule.SetPresetSlot(i, id);
-
-                if (testContext.m4Data != null)
-                    skillModule.SetM4Jem(i, testContext.m4Data.ID);
-
-                if (testContext.m5DataA != null)
-                    skillModule.SetM5Jem(i, 0, testContext.m5DataA.ID);
-
-                if (testContext.m5DataB != null)
-                    skillModule.SetM5Jem(i, 1, testContext.m5DataB.ID);
-
-                return;
+                targetSlotIndex = i;
+                break;
             }
         }
+        if (targetSlotIndex == -1)
+        {
+            for (int i = 0; i < preset.slots.Length; i++)
+            {
+                if (preset.slots[i].IsEmpty)
+                {
+                    targetSlotIndex = i;
+                    break;
+                }
+            }
+        }
+        if (targetSlotIndex != -1)
+        {
+            skillModule.SetPresetSlot(targetSlotIndex, id);
+            int m4ID = testContext.m4Data != null ? testContext.m4Data.ID : 0;
+            skillModule.SetM4Jem(targetSlotIndex, m4ID);
 
+            int m5AID = testContext.m5DataA != null ? testContext.m5DataA.ID : 0;
+            skillModule.SetM5Jem(targetSlotIndex, 0, m5AID);
+
+            int m5BID = testContext.m5DataB != null ? testContext.m5DataB.ID : 0;
+            skillModule.SetM5Jem(targetSlotIndex, 1, m5BID);
+
+            Debug.Log($"[SkillTestInjector] 테스트 스킬({id})이 슬롯 {targetSlotIndex}번에 세팅되었습니다.");
+        }
+        else
+        {
+            Debug.LogWarning("[SkillTestInjector] 스킬을 장착할 빈 슬롯이 없습니다!");
+        }
     }
 
     private void InjectTestData(int id, SkillInfoTable info)

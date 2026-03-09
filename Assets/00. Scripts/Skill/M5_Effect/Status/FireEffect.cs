@@ -43,11 +43,11 @@ public class FireEffect : StatusEffectBase
 
     protected override void OnTick()
     {
-        target.TakeDamage(damage);
-
 #if UNITY_EDITOR
         Debug.Log($"[화염 데미지 : {damage}");
 #endif
+        target.TakeDamage(damage);
+
     }
 
     public override void OnExpire()

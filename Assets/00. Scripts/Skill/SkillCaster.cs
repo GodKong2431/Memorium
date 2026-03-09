@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 /// <summary>
 /// 스킬 실행하는 컴포넌트, 플레이어/몬스터/분신 어디든 붙여도 나가도록
@@ -22,7 +23,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
     private SkillDataContext skillDataContext;
     private bool isCasting = false;
-    public bool isChanneling = false;
+    private bool isChanneling = false;
     public bool IsCasting() => isCasting;
     public bool IsChanneling() => isChanneling;
     private Coroutine currentSkillRoutine;
@@ -43,10 +44,17 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     public Vector3 CastDirection => castDirection;//스킬 시전 방향 저장용
     public Vector3 Position => transform.position;
     public event Action OnSkillEnd;
+    private NavMeshAgent agent; 
+
+    private void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+    }
 
     public void SetPosition(Vector3 position)
     {
-        transform.position = position;
+        if (position == transform.position) return;
+            transform.position = position;
     }
 
     public void SetInvincible(bool active)
@@ -109,13 +117,13 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
         skillDataContext= dataContext;
 
-        debugLastCastDir = GetTargetDirection();
-        debugLastCastPos = transform.position + debugLastCastDir * dataContext.skillData.m3Data.m3Distance;
-        if(applyAddon)
+        if (applyAddon)
             dataContext.ResetAddonState();
         if (currentSkillRoutine != null)
             StopCoroutine(currentSkillRoutine);
         CacheCastState();
+
+
         currentSkillRoutine = StartCoroutine(SkillSequence(skillDataContext, extraDelay));
     }
 
@@ -138,14 +146,23 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         {
             yield return CoroutineManager.waitForSeconds(extraDelay);
         }
-
         yield return SkillSequenceMove(data);
 
+        ResetAgentWarp();
+
+        debugLastCastDir = GetTargetDirection();
+        debugLastCastPos = transform.position + debugLastCastDir * dataContext.skillData.m3Data.m3Distance;
         yield return SkillSequenceExecute(dataContext);
 
-        OnSkillEnd?.Invoke();
+        SkillEnd();
+    }
 
-        isCasting = false;
+    private void ResetAgentWarp()
+    {
+        if (agent == null || !agent.isActiveAndEnabled) return;
+
+        agent.ResetPath();
+        agent.Warp(transform.position);
     }
 
     /// <summary>
@@ -154,6 +171,11 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     private IEnumerator SkillSequenceMove(SkillData data)
     {
         Vector3 targetPosition = GetTargetPosition();
+        if (agent != null)
+        {
+            agent.isStopped = true;
+            agent.updateRotation = false;
+        }
         if (data.m1Data.m1Delay > 0)
         {
             yield return CoroutineManager.waitForSeconds(data.m1Data.m1Delay);
@@ -191,13 +213,23 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
             prefab = auraPrefab.gameObject;
 
         yield return m3Strategy.Execute(this, this, dataContext, executePivot, castDirection, targetLayer, prefab);
+
+    }
+
+    private void SkillEnd()
+    {
+        isCasting = false;
+        if(agent != null)
+        {
+            agent.isStopped = false;
+            agent.updateRotation = true;
+        }
+        OnSkillEnd?.Invoke();
     }
     public void StopSkill()
     {
         if (currentSkillRoutine != null) StopCoroutine(currentSkillRoutine);
-
-        isCasting = false;
-        OnSkillEnd?.Invoke();
+        SkillEnd();
     }
     private void OnDrawGizmos()
     {
@@ -280,6 +312,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
         var activeData = m5A ?? m5B;
         if (activeData ==  null) return;
+
 
         if (m5A != null && m5B != null)
         {
