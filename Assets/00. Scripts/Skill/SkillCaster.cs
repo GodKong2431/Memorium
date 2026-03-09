@@ -150,7 +150,6 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
         ResetAgentWarp();
 
-        debugLastCastDir = GetTargetDirection();
         debugLastCastPos = transform.position + debugLastCastDir * dataContext.skillData.m3Data.m3Distance;
         yield return SkillSequenceExecute(dataContext);
 
@@ -161,8 +160,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     {
         if (agent == null || !agent.isActiveAndEnabled) return;
 
-        agent.ResetPath();
-        agent.Warp(transform.position);
+        //agent.ResetPath();
+        //agent.Warp(transform.position);
     }
 
     /// <summary>
@@ -171,6 +170,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     private IEnumerator SkillSequenceMove(SkillData data)
     {
         Vector3 targetPosition = GetTargetPosition();
+        debugLastCastDir = GetTargetDirection();
         if (agent != null)
         {
             agent.isStopped = true;
@@ -194,7 +194,6 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     {
         M3Type m3Type = dataContext.skillData.m3Data.m3Type;
         float delay = dataContext.skillData.m3Data.m3Delay;
-        Vector3 castDirection = GetTargetDirection();
         Vector3 executePivot = transform.position;
 
         if (delay > 0)
