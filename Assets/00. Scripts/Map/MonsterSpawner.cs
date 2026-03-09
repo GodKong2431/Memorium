@@ -9,10 +9,9 @@ public class MonsterSpawner : MonoBehaviour
     //????? ?????? ??????
     [SerializeField] Transform[] spawnPos;
 
-    //????? ???? ??????, ??? ?????? ?????? ????????? ID ??? ?? EnemyListManager???? ?????��?
-    [SerializeField] List<GameObject> enemyPrefab;
-    ////????? ???? ???? ?????? <- ??? ???
-    [SerializeField] GameObject bossPrefab;
+    // 일반 몬스터 프리팹 목록 (EnemyListManager.enemyMap에서 동적 로드하므로 여기선 미사용. 새 몬스터 프리팹은 EnemyListManager.enemyList에 추가)
+    [SerializeField] List<GameObject> enemyPrefab; // 몬스터 프리팹 추가 예정
+    [SerializeField] GameObject bossPrefab;         // 보스 몬스터 프리팹 추가 예정
     //???? ??(??)?? ??????? ??? ?? ???? ?? enemyPrefab?? bossPrefab?? ??? ??????? ???
     [SerializeField] int curSpawnGroup = 1;
     //???? ?? ???? ????? ????
@@ -28,35 +27,14 @@ public class MonsterSpawner : MonoBehaviour
     Vector3 originPos;
 
 
-    //??? ??? ?????? ??????? ??????? ????????? ????? ??????���? ???? ???????
+    //??? ??? ?????? ??????? ??????? ????????? ????? ??????δ°? ???? ???????
     IEnumerator Start()
     {
-        ////yield return new WaitUntil(() => InfinityMap.Instance !=null);
-        ////yield return new WaitUntil(() => InfinityMap.Instance.firstMapSetting);
-
-        ////if (maps == null)
-        ////    maps = new List<GameObject>();
-        ////maps.Clear();
-        ////for (int i = 0; i < mapGroups[0].transform.childCount; i++)
-        ////{
-        ////    maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
-        ////}
-
-        //SetMap(1);
         yield return new WaitUntil(() => MapManager.Instance != null);
         yield return new WaitUntil(() => MapManager.Instance.mapSetting);
 
-        //�Ŵ����� �ִ� �� ����<- �ּҸ� �����Ͽ� ���Ŀ��� ����ȭ ����
-        //if(maps==null)
+        //매니저에 있는 맵 참조<- 주소를 참조하여 이후에도 동기화 진행
         maps = MapManager.Instance.maps;
-        //Debug.Log("�ʱ� �� ���� �Ϸ�");
-        //MapChange();
-
-        //yield return new WaitUntil(() => DataManager.Instance != null);
-        //yield return new WaitUntil(() => DataManager.Instance.DataLoad);
-        //yield return new WaitUntil(() => EnemyListManager.Instance.DataLoad);
-
-        //SetMonster();
 
     }
 
@@ -75,20 +53,28 @@ public class MonsterSpawner : MonoBehaviour
                 {
                     Vector3 randX = Random.Range(-randomRange, randomRange) * Vector3.right;
                     Vector3 randZ = Random.Range(-randomRange, randomRange) * Vector3.forward;
-                    Instantiate(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
-                    
-                    //GameObject testWizardEnemy = EnemyListManager.Instance.enemyMap[2010012];
-                    //Instantiate(testWizardEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+                    ////오브젝트 풀링으로 전환
+                    //Instantiate(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+                    ObjectPoolManager.Get(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+
+                    // 스폰 이펙트 추가 예정
+                    // 스폰 효과음 추가 예정
                 }
 
             }
         }
         else
         {
-            //���� �������� ����
+            //보스 스테이지 진입
             StageManager.Instance.onBossStage = true;
             GameObject spawnBoss = EnemyListManager.Instance.enemyMap[curSpawnGroupBossMonsterTable.MonsterID];
-            Instantiate(spawnBoss, spawnPos[spawnPos.Length-1].position, spawnPos[spawnPos.Length - 1].rotation);
+
+            ////오브젝트 풀링으로 전환
+            //Instantiate(spawnBoss, spawnPos[spawnPos.Length-1].position, spawnPos[spawnPos.Length - 1].rotation);
+            ObjectPoolManager.Get(spawnBoss, spawnPos[spawnPos.Length - 1].position, spawnPos[spawnPos.Length - 1].rotation);
+
+            // 보스 스폰 이펙트 추가 예정
+            // 보스 스폰 효과음 추가 예정
             EnemyKillRewardDispatcher.ResetKillCount();
             StageManager.Instance.isReadyToBossSpawn = false;
         }
@@ -123,18 +109,23 @@ public class MonsterSpawner : MonoBehaviour
             int prevSpawnGroup = curSpawnGroup;
             curSpawnGroup = DataManager.Instance.StageManageDict[StageManager.Instance.stageKeyList[StageManager.Instance.curStage - 1]].monsterSpawnGroup;
             if (curSpawnGroup == prevSpawnGroup)
+            {
+                Debug.Log("[MonsterSpawner] 몬스터 추가 실패 및 반환");
                 return;
+            }
         }
         curSpawnGroupMonsterTable.Clear();
         enemyPrefab.Clear();
 
+        Debug.Log("[MonsterSpawner] 몬스터 추가 직전");
         int i = 0;
         foreach (var monster in DataManager.Instance.MonsterGroupDict)
         {
             //???? ????????? ???? ????? ????? ????? ???? ??????
             if (monster.Value.monsterSpawnGroup == curSpawnGroup)
             {
-                //????????? ??? ??????��? ???? ???? ????
+                Debug.Log("[MonsterSpawner] 몬스터 추가");
+                //????????? ??? ??????Ŀ? ???? ???? ????
                 if (monster.Value.monsterType == MonsterType.normalMonster)
                 {
                     //StageManager.Instance.SetReward(EnemyListManager.Instance.enemyRewardMap[monster.Value.MonsterID], false);
@@ -164,7 +155,7 @@ public class MonsterSpawner : MonoBehaviour
         ChangeParent(maps[curSpawnerPos].transform);
     }
 
-    //curFloor-1 ���� �ҷ��� ���� �ٲٴ� ���� �������� ��
+    //curFloor-1 맵을 불러와 맵을 바꾸는 것을 목적으로 함
     //public void SetMap(int curFloor)
     //{
     //    if (maps == null)

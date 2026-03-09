@@ -17,7 +17,7 @@ public class SkillMergeHandler
         if (!inventory.TryGetValue(skillID, out var data)) return 0;
 
         int total = 0;
-        for (var grade = SkillGrade.Fragment; grade < SkillGrade.Mythic; grade++)
+        for (var grade = SkillGrade.Scroll; grade < SkillGrade.Mythic; grade++)
         {
             int count = data.GetCount(grade);
             int mergeCount = count / MERGE_REQUIRED_COUNT;

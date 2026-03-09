@@ -1,5 +1,4 @@
-﻿using AYellowpaper.SerializedCollections;
-using Mono.Cecil.Cil;
+using AYellowpaper.SerializedCollections;
 using System;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
@@ -19,16 +18,16 @@ public class PlayerLevel
 
     public int BonusCristal;
 
-    public SerializedDictionary<PlayerStatType, float> BonusValues = new SerializedDictionary<PlayerStatType, float>
+    public SerializedDictionary<StatType, float> BonusValues = new SerializedDictionary<StatType, float>
     {
-        {PlayerStatType.HP, 0f},
-        {PlayerStatType.MP, 0f},
-        {PlayerStatType.HP_REGEN, 0f},
-        {PlayerStatType.MP_REGEN, 0f},
-        {PlayerStatType.ATK, 0f},
-        {PlayerStatType.CRIT_MULT, 0f},
-        {PlayerStatType.BOSS_DMG, 0f},
-        {PlayerStatType.NORMAL_DMG, 0f},
+        {StatType.HP, 0f},
+        {StatType.MP, 0f},
+        {StatType.HP_REGEN, 0f},
+        {StatType.MP_REGEN, 0f},
+        {StatType.ATK, 0f},
+        {StatType.CRIT_MULT, 0f},
+        {StatType.BOSS_DMG, 0f},
+        {StatType.NORMAL_DMG, 0f},
     };
 
 
@@ -39,14 +38,14 @@ public class PlayerLevel
         {
             DataManager.Instance.LevelbonusDict.TryGetValue(levelKey+i, out var value);
 
-            BonusValues[PlayerStatType.ATK] += value.bonusAttack;
-            BonusValues[PlayerStatType.MP] += value.bonusMP;
-            BonusValues[PlayerStatType.MP_REGEN] += value.bonusMPRegen;
-            BonusValues[PlayerStatType.HP] += value.bonusHP;
-            BonusValues[PlayerStatType.HP_REGEN] += value.bonusHPRegen;
-            BonusValues[PlayerStatType.CRIT_MULT] += value.bonusCriticalDamage;
-            BonusValues[PlayerStatType.BOSS_DMG] += value.bonusBossDamage;
-            BonusValues[PlayerStatType.NORMAL_DMG] += value.bonusNormalDamage;
+            BonusValues[StatType.ATK] += value.bonusAttack;
+            BonusValues[StatType.MP] += value.bonusMP;
+            BonusValues[StatType.MP_REGEN] += value.bonusMPRegen;
+            BonusValues[StatType.HP] += value.bonusHP;
+            BonusValues[StatType.HP_REGEN] += value.bonusHPRegen;
+            BonusValues[StatType.CRIT_MULT] += value.bonusCriticalDamage;
+            BonusValues[StatType.BOSS_DMG] += value.bonusBossDamage;
+            BonusValues[StatType.NORMAL_DMG] += value.bonusNormalDamage;
 
             BonusCristal += value.bonusCristal;
         }
@@ -72,7 +71,13 @@ public class PlayerLevel
             return;
         }
 
-        while (CurrencyManager.Instance.TrySpendSlience(CurrencyType.Exp, RequiredExp))
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currencyModule == null)
+            return;
+
+        while (currencyModule.TrySpendSilent(CurrencyType.Exp, RequiredExp))
         {
             levelKey++;
 
@@ -83,14 +88,14 @@ public class PlayerLevel
                 break;
             }
 
-            BonusValues[PlayerStatType.ATK] += value.bonusAttack;
-            BonusValues[PlayerStatType.MP] += value.bonusMP;
-            BonusValues[PlayerStatType.MP_REGEN] += value.bonusMPRegen;
-            BonusValues[PlayerStatType.HP] += value.bonusHP;
-            BonusValues[PlayerStatType.HP_REGEN] += value.bonusHPRegen;
-            BonusValues[PlayerStatType.CRIT_MULT] += value.bonusCriticalDamage;
-            BonusValues[PlayerStatType.BOSS_DMG] += value.bonusBossDamage;
-            BonusValues[PlayerStatType.NORMAL_DMG] += value.bonusNormalDamage;
+            BonusValues[StatType.ATK] += value.bonusAttack;
+            BonusValues[StatType.MP] += value.bonusMP;
+            BonusValues[StatType.MP_REGEN] += value.bonusMPRegen;
+            BonusValues[StatType.HP] += value.bonusHP;
+            BonusValues[StatType.HP_REGEN] += value.bonusHPRegen;
+            BonusValues[StatType.CRIT_MULT] += value.bonusCriticalDamage;
+            BonusValues[StatType.BOSS_DMG] += value.bonusBossDamage;
+            BonusValues[StatType.NORMAL_DMG] += value.bonusNormalDamage;
             BonusCristal += value.bonusCristal;
 
             playerExpKey++;
@@ -103,7 +108,11 @@ public class PlayerLevel
 
             if (CurrentLevel > 30)
             {
-                CurrencyManager.Instance.AddCurrency(CurrencyType.TraitPoint, 1);
+                currencyModule.AddCurrency(CurrencyType.TraitPoint, 1);
+
+                //값을 더하는 게 아니라 가져와야 하네
+
+                InventoryManager.Instance.saveCurrencyData.Save(CurrencyType.TraitPoint, currencyModule.GetAmount(CurrencyType.TraitPoint));
             }
 
             OnLevelUp?.Invoke();

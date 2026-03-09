@@ -30,6 +30,9 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     public int SkillCount => skilldataContexts?.Length ?? 0;
     [SerializeField] private BattleSkillPresenter battleSkillPresenter;
 
+    public bool IsCasting() => skillCaster != null && skillCaster.IsCasting();
+    public bool IsChanneling() => skillCaster != null && skillCaster.IsChanneling();
+
     private void Awake()
     {
         skillCaster = GetComponent<SkillCaster>();
@@ -55,30 +58,40 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         DataManager.Instance.OnComplete -= OnDataLoaded;
         InitFromPreset();
     }
-    public void Init(int[] skillIDs, int[] m4IDs = null, int[] m5IDs = null)
+    public void Init(SkillPresetSlot[] slots)
     {
-        skilldataContexts = new SkillDataContext[skillIDs.Length];
-        cooldownTimers = new float[skillIDs.Length];
-        cooldownTimeMax = new float[skillIDs.Length];
-        for (int i = 0; i < skillIDs.Length; i++)
+        skilldataContexts = new SkillDataContext[slots.Length];
+        cooldownTimers = new float[slots.Length];
+        cooldownTimeMax = new float[slots.Length];
+        for (int i = 0; i < slots.Length; i++)
         {
-            skilldataContexts[i] = new SkillDataContext(skillIDs[i], m4IDs?[i] ?? -1, m5IDs?[i] ?? -1);
+            var s = slots[i];
+            skilldataContexts[i] = new SkillDataContext(
+                s.skillID, s.m4JemID, s.m5JemIDs[0], s.m5JemIDs[1]
+            );
             cooldownTimers[i] = 0;
             cooldownTimeMax[i] = 0;
         }
         skillCaster.Init(this, this, SetInvincible);
-
         if (battleSkillPresenter != null)
             battleSkillPresenter.Init(this);
     }
     private void OnEnable()
     {
-        SkillInventoryManager.OnPresetChanged += OnPresetChanged;
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule != null)
+            skillModule.OnPresetChanged += OnPresetChanged;
     }
 
     private void OnDisable()
     {
-        SkillInventoryManager.OnPresetChanged -= OnPresetChanged;
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule != null)
+            skillModule.OnPresetChanged -= OnPresetChanged;
     }
 
     private void OnPresetChanged(int presetIndex)
@@ -87,23 +100,17 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     }
     public void InitFromPreset()
     {
-        var preset = SkillInventoryManager.Instance.GetCurrentPreset();
-        int[] skillIDs = new int[preset.slots.Length];
-        int[] m4IDs = new int[preset.slots.Length];
-        int[] m5IDs = new int[preset.slots.Length];
-
-        for (int i = 0; i < preset.slots.Length; i++)
-        {
-            skillIDs[i] = preset.slots[i].skillID;
-            m4IDs[i] = preset.slots[i].m4JemID;
-            m5IDs[i] = preset.slots[i].m5JemIDs[0];
-        }
-        Init(skillIDs, m4IDs, m5IDs);
+        var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
+        if (skillModule == null) return;
+        Init(skillModule.GetCurrentPreset().slots);
     }
-    public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5ID = -1)
+
+
+    // 이거 왜만들었던 건지 까먹음
+    public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb =-1)
     {
         if (index < 0 || index >= skilldataContexts.Length) return;
-        skilldataContexts[index] = new SkillDataContext(skillID, m4ID, m5ID);
+        skilldataContexts[index] = new SkillDataContext(skillID, m4ID, m5IDa, m5IDb);
         cooldownTimers[index] = 0;
         cooldownTimeMax[index] = 0;
     }
@@ -130,7 +137,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     public bool AutoCast()
     {
         if (skilldataContexts == null) return false;
-        if (skillCaster.IsCasting) return false;
+        if (skillCaster.IsCasting()) return false;
 
         var enemy = EnemyTarget.GetTarget(transform.position);
         if (enemy == null) return false;
@@ -151,7 +158,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
         playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
         skillCaster.CastSkill(skilldataContexts[index]);
-        float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(PlayerStatType.COOLDOWN_REDUCE);
+        float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(StatType.COOLDOWN_REDUCE);
         float maxCooldown = Mathf.Max(0f, skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f));
         cooldownTimers[index] = maxCooldown;
         cooldownTimeMax[index] = maxCooldown;
@@ -208,11 +215,11 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
 
     #region ISkillStatProvider
-    public float GetAttack() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.ATK);
+    public float GetAttack() => CharacterStatManager.Instance.GetFinalStat(StatType.ATK);
 
-    public float GetCriticalChance() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.CRIT_CHANCE);
+    public float GetCriticalChance() => CharacterStatManager.Instance.GetFinalStat(StatType.CRIT_CHANCE);
 
-    public float GetCriticalMulti() => CharacterStatManager.Instance.GetFinalStat(PlayerStatType.CRIT_MULT);
+    public float GetCriticalMulti() => CharacterStatManager.Instance.GetFinalStat(StatType.CRIT_MULT);
     #endregion
 
 

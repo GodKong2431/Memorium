@@ -1,0 +1,21 @@
+몬스터 고유 ID,몬스터 이름 스트링 키,몬스터 종류 구분,몬스터 체력,몬스터 공격력,몬스터 기본 방어력,몬스터 현재 방어력,몬스터 공격 속도,몬스터 이동 속도,몬스터 공격 사거리,픽시 방어력 감소 효과 적용 여부,일반 몬스터 애니메이션,일반 몬스터 이펙트,몬스터 이름
+ID,monsterName,monsterType,healthPoint,attackPoint,baseDef,currentDef,attackSpeed,speed,attackRange,targetPixyCheck,animation,effect,
+int,string,enum,long,long,float,float,float,float,float,bool,string,string,
+2010001,monsterName_2010001,1,70,8,0,0,0.5,7,1,FALSE,Animation_LesserWolf,Effect_LesserWolf,레서 울프
+2010002,monsterName_2010002,1,90,10,0,0,0.75,5,1,FALSE,Animation_FeralHog,Effect_FeralHog,페럴 호그
+2010003,monsterName_2010003,1,110,13,0,0,0.75,6,2,FALSE,Animation_DagonSpawn,Effect_DagonSpawn,데이곤 스폰
+2010004,monsterName_2010004,1,150,15,0,0,1,6,2,FALSE,Animation_DuatWarrier,Effect_DuatWarrier,두아트 워리어
+2010005,monsterName_2010005,1,40,5,0,0,0.5,3,1,FALSE,Animation_Slime,Effect_Slime,슬라임
+2010006,monsterName_2010006,1,50,7,0,0,0.75,4,5,FALSE,Animation_ArcherWraith,Effect_ArcherWraith,아처 레이스
+2010007,monsterName_2010007,1,70,9,0,0,0.5,5,6,FALSE,Animation_PoisonSpitter,Effect_PoisonSpitter,포이즌 스피터
+2010008,monsterName_2010008,1,70,6,0,0,0.5,7,7,FALSE,Animation_ScreamingEye,Effect_ScreamingEye,스크리밍 아이
+2010009,monsterName_2010009,1,40,5,0,0,0.5,5,6,FALSE,Animation_SkeletonArcher,Effect_SkeletonArcher,스켈레톤 아처
+2010010,monsterName_2010010,1,100,14,0,0,0.35,2,8,FALSE,Animation_AbyssalCatapult,Effect_AbyssalCatapult,어비설 캐터펄트
+2010011,monsterName_2010011,1,65,10,0,0,0.5,3,6,FALSE,Animation_BloodyPriest,Effect_BloodyPriest,블러디 프리스트
+2010012,monsterName_2010012,1,80,15,0,0,0.25,2,5,FALSE,Animation_EarthWizard,Effect_EarthWizard,어스 위저드
+2010013,monsterName_2010013,1,95,11,0,0,0.35,4,7,FALSE,Animation_Pyromancer,Effect_Pyromancer,파이로맨서
+2010014,monsterName_2010014,1,100,10,0,0,0.5,5,4,FALSE,Animation_Reaper,Effect_Reaper,리퍼
+2010015,monsterName_2010015,1,75,15,0,0,0.75,5,8,FALSE,Animation_Electromancer,Effect_Electromancer,일랙트로맨서
+2020001,monsterName_2020001,2,300,25,0,0,0.5,5,4,FALSE,Animation_AbyssLord,Effect_AbyssLord,어비스 로드
+2020002,monsterName_2020002,2,200,20,0,0,0.5,6,7,FALSE,Animation_PosinWyvern,Effect_PosinWyvern,포이즌 와이번
+2020003,monsterName_2020003,2,400,30,0,0,0.75,8,5,FALSE,Animation_ScorchedOne,Effect_ScorchedOne,스코치드 원

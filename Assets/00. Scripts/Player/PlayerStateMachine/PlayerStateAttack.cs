@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Rendering;
 using static UnityEngine.GraphicsBuffer;
 
@@ -21,7 +21,7 @@ public class PlayerStateAttack : IPlayerState
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
             ctx.Agent.isStopped = true;
 
-        float attackSpeed = ctx.StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.ATK_SPEED].finalStat ?? 1f;
+        float attackSpeed = ctx.StatPresenter?.PlayerStat?.FinalStats[StatType.ATK_SPEED].finalStat ?? 1f;
         float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
         _attackEndTime = Time.time + delay;
         _attackInProgress = true;
@@ -65,19 +65,22 @@ public class PlayerStateAttack : IPlayerState
         float angle = Quaternion.Angle(ctx.PlayerTransform.rotation, targetQuat);
 
         float perSec = angle / Mathf.Max(0.0001f, ctx.AngularTime);
-
-        ctx.PlayerTransform.rotation = Quaternion.RotateTowards(
-            ctx.PlayerTransform.rotation,
-            targetQuat,
-            perSec * Time.deltaTime
-            );
+        if (!ctx.playerSkillHandler.IsCasting())//스킬 중 회전 x
+        {
+            ctx.PlayerTransform.rotation = Quaternion.RotateTowards(
+                ctx.PlayerTransform.rotation,
+                targetQuat,
+                perSec * Time.deltaTime
+                );
+        }
 
         // 치명타
-        var critmult = CritCheck(ctx.StatPresenter.PlayerStat.FinalStats[PlayerStatType.CRIT_CHANCE].finalStat) ? ctx.StatPresenter.PlayerStat.FinalStats[PlayerStatType.CRIT_MULT].finalStat : 1f;
+        var critmult = CritCheck(ctx.StatPresenter.PlayerStat.FinalStats[StatType.CRIT_CHANCE].finalStat) ? ctx.StatPresenter.PlayerStat.FinalStats[StatType.CRIT_MULT].finalStat : 1f;
 
         ctx.SetCritMult(critmult);
 
-        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && !IsDelayAttack)
+        // 스킬 사용시 공격 못하게하기위해 IsCasting 및 IsChanneling 체크 추가
+        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && !IsDelayAttack && !ctx.playerSkillHandler.IsCasting() &&!ctx.playerSkillHandler.IsChanneling())
         {
             if (enemy.TryGetComponent<EnemyStateMachine>(out var target))
             {
@@ -86,8 +89,8 @@ public class PlayerStateAttack : IPlayerState
 
             IsDelayAttack = true;
         }
-
-        if (_attackInProgress && Time.time >= _attackEndTime)
+        // 스킬 사용 중 다음 상태로 넘어가지 않도록 IsCasting 체크 추가
+        if (_attackInProgress && Time.time >= _attackEndTime  && !ctx.playerSkillHandler.IsCasting())
         {
             IsDelayAttack = false;
             _attackInProgress = false;
@@ -109,10 +112,10 @@ public class PlayerStateAttack : IPlayerState
     {
         if (target.TryGetComponent<EnemyStatPresenter>(out var statPresenter))
         {
-            var normal = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalStats[PlayerStatType.NORMAL_DMG].finalStat, 0);
-            var boss = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalStats[PlayerStatType.BOSS_DMG].finalStat, 0);
+            var normal = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalStats[StatType.NORMAL_DMG].finalStat, 0);
+            var boss = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalStats[StatType.BOSS_DMG].finalStat, 0);
 
-            Debug.Log(statPresenter.IsBoss);
+            //Debug.Log(statPresenter.IsBoss);
 
             var finalDamage = statPresenter.IsBoss ? boss : normal;
 

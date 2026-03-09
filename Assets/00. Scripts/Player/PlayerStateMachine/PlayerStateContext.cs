@@ -9,6 +9,7 @@ public class PlayerStateContext : BaseStateContext
     public NavMeshAgent Agent { get; set; }
     public PlayerStatPresenter StatPresenter { get; set; }
     public Animator Animator { get; set; }
+    public EffectController EffectController { get; set; }
 
     public float AngularTime { get; set; }
     public float StopAngle { get; set; }
@@ -19,12 +20,12 @@ public class PlayerStateContext : BaseStateContext
 
     public float CurrentCritMult { get; private set; }
 
-    public float CurrentMoveSpeed => StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.MOVE_SPEED].finalStat ?? 9f;
+    public float CurrentMoveSpeed => StatPresenter?.PlayerStat?.FinalStats[StatType.MOVE_SPEED].finalStat ?? 9f;
 
     public bool isGoal = false;
 
-    public float MaxHealth => StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.HP].finalStat ?? 100f;
-    public float MaxMana => StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.MP].finalStat ?? 100f;
+    public float MaxHealth => StatPresenter?.PlayerStat?.FinalStats[StatType.HP].finalStat ?? 100f;
+    public float MaxMana => StatPresenter?.PlayerStat?.FinalStats[StatType.MP].finalStat ?? 100f;
 
     // 일반공격 사거리
     public float AttackRange => 2f;
@@ -71,9 +72,9 @@ public class PlayerStateContext : BaseStateContext
 
         float resistance = 0f;
         if (damageType == DamageType.Physical)
-            resistance = StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.PHYS_DEF].finalStat ?? 0f;
+            resistance = StatPresenter?.PlayerStat?.FinalStats[StatType.PHYS_DEF].finalStat ?? 0f;
         else if (damageType == DamageType.Magic)
-            resistance = StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.MAGIC_DEF].finalStat ?? 0f;
+            resistance = StatPresenter?.PlayerStat?.FinalStats[StatType.MAGIC_DEF].finalStat ?? 0f;
 
         resistance = Mathf.Clamp(resistance, 0f, 70f);
         damage *= (1f - resistance * 0.01f);
@@ -156,8 +157,8 @@ public class PlayerStateContext : BaseStateContext
         {
             regenTimer -= REGEN_INTERVAL;
 
-            float hpRegen = StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.HP_REGEN].finalStat ?? 0f;
-            float mpRegen = StatPresenter?.PlayerStat?.FinalStats[PlayerStatType.MP_REGEN].finalStat ?? 0f;
+            float hpRegen = StatPresenter?.PlayerStat?.FinalStats[StatType.HP_REGEN].finalStat ?? 0f;
+            float mpRegen = StatPresenter?.PlayerStat?.FinalStats[StatType.MP_REGEN].finalStat ?? 0f;
 
             Heal(hpRegen);
             RestoreMana(mpRegen);

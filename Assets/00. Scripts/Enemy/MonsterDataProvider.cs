@@ -68,6 +68,26 @@ public static class MonsterDataProvider
     }
 
     /// <summary>
+    /// 스킬 공격형 몬스터 여부 (monsterType == skillAttackMonster).
+    /// </summary>
+    public static bool IsSkillAttackMonster(int monsterId)
+    {
+        var table = GetMonsterBaseStat(monsterId);
+        return table != null && table.monsterType == MonsterType.skillAttackMonster;
+    }
+
+    /// <summary>
+    /// 스킬 공격형 몬스터의 스킬 ID.
+    /// </summary>
+    public static int GetSkillId(int monsterId)
+    {
+        var table = GetMonsterBaseStat(monsterId);
+        if (table == null || table.monsterType != MonsterType.skillAttackMonster)
+            return 0;
+        return 4000002;
+    }
+
+    /// <summary>
     /// BossManageTable 조회 (보스 전용 공격/스킬 정보).
     /// </summary>
     public static BossManageTable GetBossManage(int bossId)

@@ -19,6 +19,7 @@ public class EnemyStateChase : IEnemyState
             ctx.Agent.isStopped = false;
         _lastDestinationTime = -DestinationRefreshInterval;
         ctx.SetAnimatorTrigger("Chase");
+        // 이동/발소리 효과음 추가 예정 (선택)
     }
 
     public void OnUpdate(EnemyStateContext ctx)
@@ -36,6 +37,9 @@ public class EnemyStateChase : IEnemyState
             ctx.RequestState(EnemyStateType.Attack);
             return;
         }
+
+        // 이 부분에 버프/디버프 적용된 이동속도 반영하도록 추가했습니다.
+        ctx.Agent.speed = ctx.MoveSpeed;
 
         NavMeshAgent agent = ctx.Agent;
         if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh && !agent.isStopped)

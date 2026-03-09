@@ -163,53 +163,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!1 &157648201
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 157648203}
-  - component: {fileID: 157648202}
-  m_Layer: 0
-  m_Name: SkillInventoryManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &157648202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 157648201}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05189f3700d8e254fa3dc93994acb5c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SkillInventoryManager
-  testSkillID: 0
-  testGrade: 0
-  testAmount: 10
---- !u!4 &157648203
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 157648201}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &198439606 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7672423015122078456, guid: af7578229c8bad64da173077f2c458f9, type: 3}
@@ -2863,7 +2816,6 @@ GameObject:
   - component: {fileID: 1988957295}
   - component: {fileID: 1988957294}
   - component: {fileID: 1988957293}
-  - component: {fileID: 1988957292}
   m_Layer: 0
   m_Name: PlayerEquipment
   m_TagString: Untagged
@@ -2871,31 +2823,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1988957292
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1988957291}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a6f9d66f9d903743942bd905f1002f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  myEquipmentListKeys: 
-  myEquipmentCountKeys: 
-  allEquipmentListKeys: 
-  uIPage:
-  - {fileID: 2018993082}
-  - {fileID: 760028691}
-  - {fileID: 387488421}
-  - {fileID: 1752372427}
-  - {fileID: 335912306}
-  equipmentHandler: {fileID: 0}
-  testInventory: {fileID: 0}
-  prefabEquipTierGroup: {fileID: 5220201577418046666, guid: 8f63ba79ee934b546b385f5b2142c2d7, type: 3}
-  finalEquipment: 
 --- !u!114 &1988957293
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2949,7 +2876,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentHandler
   playerEquipment: {fileID: 1988957293}
-  playerInventory: {fileID: 1988957292}
   autoMerge: {fileID: 1268567093}
   autoEquip: {fileID: 2105228281}
 --- !u!4 &1988957295
@@ -4618,4 +4544,3 @@ SceneRoots:
   - {fileID: 1652796882}
   - {fileID: 738237842}
   - {fileID: 1044715721}
-  - {fileID: 157648203}

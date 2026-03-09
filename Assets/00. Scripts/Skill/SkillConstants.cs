@@ -1,17 +1,17 @@
 public static class SkillConstants
 {
-    // ¹°¸® Å½Áö
+    // ë¬¼ë¦¬ íƒì§€
     public const float DETECT_HEIGHT = 10f;
-    public const int HIT_BUFFER_SIZE = 20;
+    public const int HIT_BUFFER_SIZE = 99;
 
-    // ÀÌµ¿ º¸Á¤
+    // ì´ë™ ë³´ì •
     public const float NAV_SEARCH_RADIUS = 3f;
 
-    // Á¡ÇÁ
+    // ì í”„
     public const float JUMP_HEIGHT_RATIO = 0.3f;
     public const float JUMP_MIN_HEIGHT = 1.0f;
 
-    // ºĞ½Å ½Ã°£
+    // ë¶„ì‹  ì‹œê°„
     public const float SHADOW_CAST_DELAY = 0.6f;
 
 }

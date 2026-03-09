@@ -49,7 +49,7 @@ public static class EnemyKillRewardDispatcher
             else if (DataManager.Instance.ItemInfoDict?.TryGetValue(itemId, out var i) == true)
                 name = i.itemName;
         }
-        Debug.Log($"[아이템 획득] ID={itemId} x{count} ({category}) {(string.IsNullOrEmpty(name) ? "" : $"- {name}")}");
+        //Debug.Log($"[아이템 획득] ID={itemId} x{count} ({category}) {(string.IsNullOrEmpty(name) ? "" : $"- {name}")}");
     }
 
     /// <summary>전역 처치 카운트 초기화 (씬 전환 등에서 호출).</summary>
@@ -73,11 +73,14 @@ public static class EnemyKillRewardDispatcher
             var baseGold = dropSettings.dropGold;
             if (baseGold > 0)
             {
-                var goldMult = 1.0 + (double)CharacterStatManager.Instance.FinalStats[PlayerStatType.GOLD_GAIN].finalStat;
+                var goldMult = 1.0 + (double)CharacterStatManager.Instance.FinalStats[StatType.GOLD_GAIN].finalStat;
                 var finalGold = baseGold * goldMult;
-                if (CurrencyManager.Instance != null)
-                    CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, finalGold);
-                Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{finalGold}");
+                //var currencyModule = InventoryManager.Instance != null
+                //    ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+                //    : null;
+                //currencyModule?.AddCurrency(CurrencyType.Gold, finalGold);
+                InventoryManager.Instance.AddItem(TypeToId.ConvertTypeToId(ItemType.FreeCurrency), finalGold);
+                //Debug.Log($"[EnemyKillRewardDispatcher] 골드 +{finalGold}");
             }
         }
 
@@ -90,10 +93,17 @@ public static class EnemyKillRewardDispatcher
         }
         if (exp > 0)
         {
-            var finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.FinalStats[PlayerStatType.EXP_GAIN].finalStat));
-            if (CurrencyManager.Instance != null)
-                CurrencyManager.Instance.AddCurrency(CurrencyType.Exp, finalExp);
-            Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{finalExp}");
+            var finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.FinalStats[StatType.EXP_GAIN].finalStat));
+            var currencyModule = InventoryManager.Instance != null
+                ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+                : null;
+            currencyModule?.AddCurrency(CurrencyType.Exp, finalExp);
+            //Debug.Log($"[EnemyKillRewardDispatcher] 경험치 +{finalExp}");
+
+
+            //경험치 저장
+            InventoryManager.Instance.saveCurrencyData.Save(CurrencyType.Exp,
+                currencyModule.GetAmount(CurrencyType.Exp));
         }
 
         // 아이템: RewardManager를 통해서만 ItemDropSettings 사용
@@ -103,13 +113,14 @@ public static class EnemyKillRewardDispatcher
             var prefab = Resources.Load<GameObject>(DropItemPrefabPath);
             foreach (var drop in _itemDropBuffer)
             {
-                if (prefab != null)
-                {
+            if (prefab != null)
+            {
                     var go = UnityEngine.Object.Instantiate(prefab, worldPosition + Vector3.up * 0.5f, Quaternion.identity);
+                    // 아이템 드랍 이펙트 추가 예정 (드랍 시 파티클 등)
+                    // 아이템 드랍 효과음 추가 예정
                     var ctrl = go.GetComponent<DropItemController>();
                     if (ctrl == null) ctrl = go.AddComponent<DropItemController>();
                     ctrl.Initialize(drop.itemId, drop.count, drop.category);
-                    Debug.Log($"[EnemyKillRewardDispatcher] 드랍 스폰: itemId={drop.itemId} x{drop.count}");
                 }
                 else
                 {
@@ -134,7 +145,7 @@ public static class EnemyKillRewardDispatcher
         {
             CurrentStageLevel++;
             OnBossKilled?.Invoke();
-            Debug.Log($"[EnemyKillRewardDispatcher] 보스 처치! 스테이지 레벨 → {CurrentStageLevel}");
+            //Debug.Log($"[EnemyKillRewardDispatcher] 보스 처치! 스테이지 레벨 → {CurrentStageLevel}");
             // CurrentStageLevel은 임시로 사용중입니다
         }
         else

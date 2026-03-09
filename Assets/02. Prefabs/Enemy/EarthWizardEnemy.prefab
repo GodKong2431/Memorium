@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 5387610512574402815}
   - component: {fileID: 7830570775401134637}
   - component: {fileID: -5739125162171152386}
+  - component: {fileID: 2211870835926365759}
   m_Layer: 6
   m_Name: EarthWizardEnemy
   m_TagString: Untagged
@@ -222,7 +223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2068fd3fc5013bd408f2bb1cb6aa60ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySkillHandler
-  skillId: 4000001
+  skillId: 4000004
 --- !u!114 &-5739125162171152386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238,73 +239,19 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 1
-  testskillDataContext:
-    skillData:
-      skillTable:
-        ID: 0
-        m1ID: 0
-        m2ID: 0
-        m3ID: 0
-        manaCost: 0
-        skillDamage: 0
-        skillDamageValue: 0
-        skillName: 
-        skillDesc: 
-        skillRange: 0
-        skillCooldown: 0
-        skillType: 0
-        skillVFX: 
-        skillSound: 
-        desc: 
-        skillIcon: 
-      m1Data:
-        ID: 0
-        m1Type: 0
-        m1Delay: 0
-        m1Scale: 0
-        m1Duration: 0
-        desc: 
-      m2Data:
-        ID: 0
-        m2Type: 0
-        m2Delay: 0
-        m2S1: 0
-        m2S2: 0
-        m2Distance: 0
-        m2Duration: 0
-        desc: 
-      m3Data:
-        ID: 0
-        m3Type: 0
-        m3Delay: 0
-        m3Scale: 0
-        m3Distance: 0
-        m3Duration: 0
-        m3TickInterval: 0
-        desc: 
-    m4Data:
-      ID: 0
-      m4Type: 0
-      m4Delay: 0
-      m4Distance: 0
-      m4Duration: 0
-      m4Sound: 
-      m4VFX: 
-      desc: 
-    m5Data:
-      ID: 0
-      skillID: 0
-      m5Type: 0
-      damage: 0
-      applyType: 0
-      duration: 0
-      maxStack: 0
-      defDown: 0
-      icon: 
-      sound: 
-      m5VFX: 
-      desc: 
-  projectilePrefab: {fileID: 1604259860813359153, guid: cc27048a1a6486843887c6285dab2d36, type: 3}
+  projectilePrefab: {fileID: 1604259860813359153, guid: e015ab1502a9b024d92f25d3305fb1df, type: 3}
   deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
   shadowPrepab: {fileID: 9106158446547060106, guid: ad334d366ce436447a3b287029a8541f, type: 3}
-  isTestContextOn: 0
+  fireZonePrefab: {fileID: 3087428585756455590, guid: feaf579888b89024e8d3d07f64cb07ed, type: 3}
+--- !u!114 &2211870835926365759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252973128719962208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1464f6c377137e24eb8205c204d47017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EffectController

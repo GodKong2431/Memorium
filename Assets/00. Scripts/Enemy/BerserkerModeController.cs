@@ -40,7 +40,8 @@ public class BerserkerModeController : MonoBehaviour
         {
             if (_durationCoroutine != null)
                 StopCoroutine(_durationCoroutine);
-            RemoveVfx();
+            // 파괴 과정에서는 UI/스탯 갱신 이벤트를 발행하지 않는다.
+            RemoveVfx(false);
             Instance = null;
         }
     }
@@ -79,7 +80,7 @@ public class BerserkerModeController : MonoBehaviour
             ps.Play();
     }
 
-    private void RemoveVfx()
+    private void RemoveVfx(bool notifyEvent = true)
     {
         if (_berserkerVfx != null)
         {
@@ -88,7 +89,8 @@ public class BerserkerModeController : MonoBehaviour
         if (IsActive)
         {
             IsActive = false;
-            OnBerserkerModeEnded?.Invoke();
+            if (notifyEvent)
+                OnBerserkerModeEnded?.Invoke();
         }
     }
 

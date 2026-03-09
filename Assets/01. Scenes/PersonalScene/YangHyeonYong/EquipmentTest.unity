@@ -534,19 +534,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 497907264}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1961547665}
-        m_TargetAssemblyTypeName: PlayerInventory, Assembly-CSharp
-        m_MethodName: AutoMerge
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &497907264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1691,7 +1679,6 @@ GameObject:
   - component: {fileID: 1961547668}
   - component: {fileID: 1961547667}
   - component: {fileID: 1961547666}
-  - component: {fileID: 1961547665}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1699,21 +1686,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1961547665
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1961547664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a6f9d66f9d903743942bd905f1002f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  itemListKeys: 
-  myEquipmentCountKeys: 
-  testInventory: {fileID: 0}
 --- !u!114 &1961547666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1760,7 +1732,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipmentHandler
   playerEquipment: {fileID: 1961547666}
-  playerInventory: {fileID: 1961547665}
 --- !u!4 &1961547668
 Transform:
   m_ObjectHideFlags: 0

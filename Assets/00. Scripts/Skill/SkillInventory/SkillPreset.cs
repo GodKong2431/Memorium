@@ -4,10 +4,13 @@ public class SkillPreset
 {
     public SkillPresetSlot[] slots;
 
-    public SkillPreset(int slotCount = 3)
+
+    private const int SLOT_COUNT = 3;
+
+    public SkillPreset()
     {
-        slots = new SkillPresetSlot[slotCount];
-        for (int i = 0; i < slotCount; i++)
+        slots = new SkillPresetSlot[SLOT_COUNT];
+        for (int i = 0; i < SLOT_COUNT; i++)
             slots[i] = new SkillPresetSlot();
     }
 }

@@ -20,10 +20,13 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
                 if (_instance == null)
                 {
                     _instance = (T)Object.FindFirstObjectByType(typeof(T));
-
-                    if (Object.FindObjectsByType<T>(FindObjectsSortMode.None).Length > 1)
+                    if (Object.FindObjectsByType<T>(FindObjectsSortMode.None).Length == 1)
                     {
-                        Debug.LogWarning($"[Singleton] {typeof(T)}∞° æ¿ø° 2∞≥ ¿ÃªÛ ¡∏¿Á«’¥œ¥Ÿ.");
+                        DontDestroyOnLoad(_instance.gameObject);
+                    }
+                    else if (Object.FindObjectsByType<T>(FindObjectsSortMode.None).Length > 1)
+                    {
+                        Debug.LogWarning($"[Singleton] {typeof(T)}Í∞Ä Ïî¨Ïóê {Object.FindObjectsByType<T>(FindObjectsSortMode.None).Length}Í∞ú Ïù¥ÏÉÅ Ï°¥Ïû¨Ìï©ÎãàÎã§.");
                         return _instance;
                     }
 
@@ -35,6 +38,8 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
                         DontDestroyOnLoad(singletonObject);
                     }
+
+
                 }
 
                 return _instance;
@@ -47,6 +52,11 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         if (_instance == null)
         {
             _instance = this as T;
+            DontDestroyOnLoad(gameObject);
+        }
+
+        if (_instance == this)
+        {
             DontDestroyOnLoad(gameObject);
         }
         else if (_instance != this)

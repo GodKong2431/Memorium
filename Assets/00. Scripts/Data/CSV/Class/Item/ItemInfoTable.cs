@@ -8,4 +8,5 @@ public class ItemInfoTable : TableBase
     public string itemName;
     public bool isStack;
     public string desc;
+    public string itemIcon;
 }

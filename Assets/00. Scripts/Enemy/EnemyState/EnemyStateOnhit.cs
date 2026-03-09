@@ -14,7 +14,8 @@ public class EnemyStateOnhit : IEnemyState
     {
         _endTime = Time.time + OnhitDuration;
         ctx.SetAnimatorTrigger("Onhit");
-        // 피격 이펙트 출력은 여기서 또는 이벤트로 처리
+        // 피격 이펙트 추가 예정
+        // 피격 효과음 추가 예정
     }
 
     public void OnUpdate(EnemyStateContext ctx)

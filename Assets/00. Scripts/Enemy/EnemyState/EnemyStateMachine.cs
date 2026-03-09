@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEngine.GraphicsBuffer;
 
 /// <summary>
 /// 몬스터 상태 머신.
@@ -10,7 +11,8 @@ using UnityEngine.AI;
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyStatPresenter))]
-public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
+[RequireComponent(typeof(EffectController))]
+public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageable
 {
     [Header("플레이어 참조 설정")]
     [SerializeField][Tooltip("추적할 플레이어. 비워두면 'Player' 태그를 가진 오브젝트를 자동 검색합니다.")]
@@ -21,7 +23,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
     [SerializeField][Tooltip("현재 적 개체의 보스 몬스터 여부입니다.")]
     private bool isBoss;
     [SerializeField][Tooltip("공격 시 나타나는 이펙트 프리팹입니다.")]
-    private GameObject attackEffectPrefab;
+    private GameObject attackEffectPrefab; // 공격 이펙트 추가 예정 (인스펙터 할당)
+    // [SerializeField] AudioClip attackSound; // 공격 효과음 추가 예정
+    // [SerializeField] AudioClip hitSound;    // 피격 효과음 추가 예정
+    // [SerializeField] AudioClip deathSound;  // 사망 효과음 추가 예정
 
     private EnemyStateContext _ctx;
     private Dictionary<EnemyStateType, IEnemyState> _states;
@@ -31,12 +36,21 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
     public EnemyStateContext Context => _ctx;
     public EnemyStateType CurrentStateType => _currentType;
     public bool IsAlive => _currentType != EnemyStateType.Dead;
+    public bool isMoving => Context.Agent.velocity.sqrMagnitude > 0.1f;
 
     private void Awake()
     {
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<EnemyStatPresenter>();
         var skillHandler = GetComponent<EnemySkillHandler>();
+        // 스킬 공격형 몬스터는 EnemySkillHandler+SkillCaster가 있는 프리팹 사용 필요 (예: EarthWizardEnemy)
+        if (statPresenter != null && statPresenter.monsterIdFromDataManager != 0 && skillHandler == null)
+        {
+            if (MonsterDataProvider.IsSkillAttackMonster(statPresenter.monsterIdFromDataManager))
+                Debug.LogWarning($"[EnemyStateMachine] 스킬 공격형 몬스터(ID:{statPresenter.monsterIdFromDataManager})에 EnemySkillHandler가 없습니다. EnemyListManager에서 해당 프리팹을 스킬용 프리팹으로 교체하세요.");
+        }
+
+        var effectController = GetComponent<EffectController>();
 
         _ctx = new EnemyStateContext
         {
@@ -48,7 +62,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
             Animator = animator,
             IsBoss = isBoss,
             AttackEffectPrefab = attackEffectPrefab,
-            SkillHandler = skillHandler
+            SkillHandler = skillHandler,
+            EnemyEffectController = effectController
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);
@@ -65,30 +80,13 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
 
     private void Start()
     {
-        // 1순위: 인스펙터에서 직접 지정한 플레이어 Transform
-        if (playerTransformOverride != null)
-        {
-            _ctx.PlayerTransform = playerTransformOverride;
-        }
-        else
-        {
-            // 2순위: 'Player' 태그를 가진 오브젝트 자동 검색 (테스트하다가 좀 missing 당해서 임의로 넣었습니다~ 이건 나중에 확인하고 통합 예정입니다~~~)
-            var go = GameObject.FindGameObjectWithTag("Player");
-            if (go != null)
-            {
-                _ctx.PlayerTransform = go.transform;
-            }
-            else
-            {
-                Debug.LogWarning("[EnemyStateMachine] 'Player' 태그 오브젝트를 찾을 수 없습니다.");
-            }
-        }
+        RefreshPlayerTransform();
 
         if (_ctx.SkillHandler != null)
         {
             _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
-            int skillId = _ctx.StatPresenter?.SkillId ?? 0;
-            _ctx.SkillHandler.Init(skillId > 0 ? skillId : 4000001);
+            // 스킬 몬스터의 스킬 ID는 EnemySkillHandler 인스펙터의 skillId 값을 기본으로 사용
+            _ctx.SkillHandler.Init();
         }
 
         EnemyStatData data = _ctx.StatPresenter?.Data;
@@ -100,6 +98,22 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
 
         // 스폰되면 바로 chase 상태로 전환
         ChangeState(EnemyStateType.Chase);
+    }
+
+    /// <summary>
+    /// 플레이어 Transform 참조 갱신. Start/OnSpawnFromPool에서 호출.
+    /// </summary>
+    private void RefreshPlayerTransform()
+    {
+        if (playerTransformOverride != null && playerTransformOverride)
+        {
+            _ctx.PlayerTransform = playerTransformOverride;
+        }
+        else
+        {
+            var go = GameObject.FindGameObjectWithTag("Player");
+            _ctx.PlayerTransform = go != null ? go.transform : null;
+        }
     }
 
     private void Update()
@@ -130,7 +144,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
     /// <summary>
     /// 외부(플레이어 공격 등)에서 피격 시 호출. 데미지 적용 후 Onhit 상태로 전환
     /// </summary>
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, DamageType type= DamageType.Physical)
     {
         if (!IsAlive) return;
         _ctx.TakeDamage(damage);
@@ -154,6 +168,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable
     {
         _ctx.SpawnPosition = transform.position;
         _ctx.Initialize();
+        // 풀 재사용 시 플레이어 참조 갱신 (파괴/리스폰 시 stale 참조 방지)
+        RefreshPlayerTransform();
         if (_ctx.SkillHandler != null && _ctx.PlayerTransform != null)
             _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
         if (_ctx.Agent != null && _ctx.Agent.isOnNavMesh)

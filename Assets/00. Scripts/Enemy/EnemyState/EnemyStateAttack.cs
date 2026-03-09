@@ -42,7 +42,10 @@ public class EnemyStateAttack : IEnemyState
         else
         {
             _damageApplied = false;
-            float attackSpeed = ctx.StatPresenter?.Data?.monsterAttackspeed ?? 1f;
+
+            //이 부분 버프 계산된 공격속도 가져오는걸로 수정했습니다.
+            float attackSpeed = ctx.AttackSpeed;
+
             float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
             _attackEndTime = Time.time + delay;
             _attackInProgress = true;
@@ -59,12 +62,19 @@ public class EnemyStateAttack : IEnemyState
                 Transform t = ctx.EnemyTransform;
                 _currentAttackEffect = Object.Instantiate(ctx.AttackEffectPrefab, t.position + Vector3.up * 1f, Quaternion.identity, t);
             }
+            // 공격 시작 효과음 추가 예정
         }
     }
 
     public void OnUpdate(EnemyStateContext ctx)
     {
-        var playerStateMachine = ctx.PlayerTransform?.GetComponent<PlayerStateMachine>();
+        // 풀링 시 파괴된 플레이어 참조 방지 (Unity == null은 파괴된 오브젝트도 처리)
+        if (ctx.PlayerTransform == null)
+        {
+            ctx.RequestState(EnemyStateType.Idle);
+            return;
+        }
+        var playerStateMachine = ctx.PlayerTransform.GetComponent<PlayerStateMachine>();
         if (playerStateMachine == null || playerStateMachine._ctx.CurrentHealth <= 0f)
         {
             ctx.RequestState(EnemyStateType.Idle);
@@ -95,12 +105,14 @@ public class EnemyStateAttack : IEnemyState
                     var damageable = ctx.PlayerTransform.GetComponent<IDamageable>();
                     if (damageable != null)
                     {
-                        float damage = ctx.StatPresenter?.Data?.monsterAttackpoint ?? 10f;
+                        // 이 부분 버프 계산된 공격력 가져오는걸로 수정했습니다.
+                        float damage = ctx.AttackPoint;
                         if (ctx.SkillHandler != null)
                             damage = ctx.SkillHandler.GetAttack();
-                        Debug.Log($"[EnemyStateAttack] damage={damage}");
+                        //Debug.Log($"[EnemyStateAttack] damage={damage}");
                         damageable.TakeDamage(damage, DamageType.Physical);
                         _damageApplied = true;
+                        // 공격 타격 효과음 추가 예정
                     }
                 }
             }

@@ -1,23 +1,24 @@
-﻿using System.Collections;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using System;
-using System.Linq;
-using System.Reflection;
 
 public class DataManager : Singleton<DataManager>
 {
-    #region 데이터 맵
-    // 드랍 테이블
+    #region Data Maps
+    // 장비 드랍 테이블
     public Dictionary<int, EquipmentDropTable> EquipmentDropDict;
     public Dictionary<int, ItemDropTable> ItemDropDict;
 
     // 던전 테이블
     public Dictionary<int, DungeonReqTable> DungeonReqDict;
 
-    // 적 테이블
+    // 몬스터 테이블
     public Dictionary<int, BossManageTable> BossManageDict;
     public Dictionary<int, MonsterBasestatTable> MonsterBasestatDict;
     public Dictionary<int, MonsterGroupTable> MonsterGroupDict;
@@ -34,18 +35,17 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, EquipHelmetTable> EquipHelmetDict;
     public Dictionary<int, EquipListTable> EquipListDict;
 
-    // 페어리 테이블
+    // 페어리/트리거 테이블
     public Dictionary<int, FairyStatTable> FairyStatDict;
     public Dictionary<int, FairyEffectTable> FairyEffectDict;
     public Dictionary<int, FairyGradeTable> FairyGradeDict;
-    public Dictionary<int, FairyGrowthTable> FairyGrowthDict;
     public Dictionary<int, FairyInfoTable> FairyInfoDict;
     public Dictionary<int, TriggerInfoTable> TriggerInfoDict;
 
     // 스테이지 테이블
     public Dictionary<int, StageManageTable> StageManageDict;
 
-    // 플레이어 데이터
+    // 플레이어 테이블
     public Dictionary<int, CharacterBaseStatInfoTable> CharacterBaseStatInfoDict;
     public Dictionary<int, BerserkmodeManageTable> BerserkmodeManageDict;
     public Dictionary<int, CharacterTable> CharacterDict;
@@ -58,8 +58,9 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, LineQuestTable> LineQuestDict;
     public Dictionary<int, QuestRewardsTable> QuestRewardsDict;
 
-    // 스킬 데이터
+    // 스킬 테이블
     public Dictionary<int, SkillInfoTable> SkillInfoDict;
+    public Dictionary<int, SkillUpTable> SkillUpDict;
     public Dictionary<int, SkillModule1Table> SkillModule1Dict;
     public Dictionary<int, SkillModule2Table> SkillModule2Dict;
     public Dictionary<int, SkillModule3Table> SkillModule3Dict;
@@ -67,25 +68,36 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, SkillModule5Table> SkillModule5Dict;
     public Dictionary<int, M5FusionTable> M5FusionDict;
 
-    // 패시브 데이터
+    // 패시브 테이블
     public Dictionary<int, PassiveBalance> PassiveBalanceDict;
     public Dictionary<int, PassiveGrowthTable> PassiveGrowthDict;
     public Dictionary<int, PassiveInfoTable> PassiveInfoDict;
     public Dictionary<int, PassiveSetTable> PassiveSetDict;
 
-    // 기타 데이터
+    // 문자열 테이블
     public Dictionary<int, StringTable> StringDict;
 
+    // 갸차 테이블
+    public Dictionary<int, GachaSkillScrollTable> GachaSkillScrollDict;
+    public Dictionary<int, GachaEquipGroupTable> GachaEquipGroupDict;
+    public Dictionary<int, GachaEquipTable> GachaEquipDict;
+    public Dictionary<int, GachaTicketTable> GachaTicketDict;
+
+    // 어빌리티 스톤 테이블
+    public Dictionary<int, StoneTable> StoneDict;
+    public Dictionary<int, StoneStatProbabilityTable> StoneStatProbabilityDict;
+    public Dictionary<int, StoneGradeStatUpTable> StoneGradeStatUpDict;
+    public Dictionary<int, StoneTotalUpBonusTable> StoneTotalUpBonusDict;
     #endregion
 
-    // (현재개수, 총개수, 현재작업중인파일)
+    // (현재 개수, 총 개수, 현재 처리 중 파일명)
     public event Action<int, int, string> OnProgress;
     public event Action OnComplete;
 
-    // AutoAddressableImporter에서 설정한 라벨 이름
+    // AutoAddressableImporter에서 설정한 라벨명
     private const string LABEL_TO_LOAD = "CSV_Data";
 
-    //데이터 로드 완료했는지 체크하는 bool값
+    // 데이터 로드 완료 여부
     public bool DataLoad = false;
 
     protected override void Awake()
@@ -99,81 +111,68 @@ public class DataManager : Singleton<DataManager>
         StartCoroutine(LoadByLabel());
     }
 
-    // 라벨 기반 데이터 로드 코루틴
+    // 라벨 기반 CSV 로드 코루틴
     private IEnumerator LoadByLabel()
     {
-        Debug.Log($"[DataManager] 라벨 '{LABEL_TO_LOAD}' 기반 데이터 로드 시작");
+        Debug.Log($"[DataManager] 라벨 '{LABEL_TO_LOAD}' 기반 CSV 로드 시작");
 
-        // 로딩바 표시용 총 개수 구하기
+        // 라벨에 매핑된 리소스 개수 조회
         var locationHandle = Addressables.LoadResourceLocationsAsync(LABEL_TO_LOAD);
         yield return locationHandle;
 
         if (locationHandle.Status != AsyncOperationStatus.Succeeded)
         {
-            Debug.LogError($"[DataManager] 라벨 '{LABEL_TO_LOAD}'을 찾을 수 없습니다. (Addressables Group 설정을 확인해야됨)");
+            Debug.LogError($"[DataManager] 라벨 '{LABEL_TO_LOAD}' 리소스 위치 조회 실패. Addressables 그룹 설정을 확인하세요.");
             yield break;
         }
 
         int totalCount = locationHandle.Result.Count;
         int currentCount = 0;
 
-        Debug.Log($"[DataManager] 로드 대상 발견: {totalCount}개");
-        OnProgress?.Invoke(0, totalCount, "로딩 준비 중");
+        Debug.Log($"[DataManager] CSV 에셋 발견: {totalCount}개");
+        OnProgress?.Invoke(0, totalCount, "로딩 시작");
 
-        // 핸들을 통해서 리스트를 통으로 받아옴
+        // 라벨에 해당하는 TextAsset 일괄 로드
         var loadHandle = Addressables.LoadAssetsAsync<TextAsset>(LABEL_TO_LOAD, null);
-
-        // 로드가 될 때까지 대기
         yield return loadHandle;
 
-        // 로드 완료 후 처리
         if (loadHandle.Status == AsyncOperationStatus.Succeeded)
         {
             IList<TextAsset> assets = loadHandle.Result;
-            Debug.Log($"[DataManager] 파일 다운로드 완료 / 파싱 시작 (파일 개수: {assets.Count})");
+            Debug.Log($"[DataManager] CSV 다운로드 완료. 파싱 시작 (파일 {assets.Count}개)");
 
-            // 리스트 순회하면서 하나씩 처리
             foreach (TextAsset textAsset in assets)
             {
-                if (textAsset != null)
-                {
-                    //파싱 및 주입 시도
-                    bool isSuccess = ProcessTextAsset(textAsset);
+                if (textAsset == null)
+                    continue;
 
-                    // 진행도 업데이트
-                    if (isSuccess)
-                    {
-                        currentCount++;
-                        OnProgress?.Invoke(currentCount, totalCount, textAsset.name);
-                    }
+                bool isSuccess = ProcessTextAsset(textAsset);
+                if (isSuccess)
+                {
+                    currentCount++;
+                    OnProgress?.Invoke(currentCount, totalCount, textAsset.name);
                 }
             }
 
-            // 최종 완료 처리
             OnProgress?.Invoke(totalCount, totalCount, "완료");
-
-            // 완료 후 대기 시간
             yield return new WaitForSeconds(0.5f);
 
-            // 완료 이벤트 호출
             OnComplete?.Invoke();
-            Debug.Log($"[DataManager] 최종 완료 (성공: {currentCount} / 총: {totalCount})");
+            Debug.Log($"[DataManager] 데이터 로드 완료 (성공 {currentCount}/{totalCount})");
 
-            // 로드되어있던 CSV 
             Addressables.Release(loadHandle);
-
             DataLoad = true;
         }
         else
         {
-            Debug.LogError("[DataManager] 데이터 다운로드 실패");
+            Debug.LogError("[DataManager] CSV 에셋 다운로드 실패");
             Addressables.Release(loadHandle);
         }
 
         Addressables.Release(locationHandle);
     }
 
-    // 텍스트 에셋 처리 함수
+    // TextAsset 한 개를 클래스에 매핑하여 주입
     private bool ProcessTextAsset(TextAsset textAsset)
     {
         string className = textAsset.name;
@@ -183,70 +182,85 @@ public class DataManager : Singleton<DataManager>
 
         if (tableType == null)
         {
-            Debug.LogWarning($"[DataManager] 클래스를 찾을 수 없음: {className}.cs (파일명과 클래스명이 같은지 확인해야됨)");
+            Debug.LogWarning($"[DataManager] 매핑할 테이블 클래스를 찾지 못했습니다: {className}.cs (파일명/클래스명 일치 여부 확인)");
             return false;
         }
 
-        // 제네릭 메서드 ParseAndInject 동적 호출
         MethodInfo method = typeof(DataManager).GetMethod("ParseAndInject", BindingFlags.NonPublic | BindingFlags.Instance);
         MethodInfo genericMethod = method.MakeGenericMethod(tableType);
+        string csvContent = DecodeCsvContent(textAsset);
 
-        // 호출 결과 반환
-        object result = genericMethod.Invoke(this, new object[] { textAsset.text, className });
+        object result = genericMethod.Invoke(this, new object[] { csvContent, className });
         return (bool)result;
     }
 
-    // 제네릭 파싱 및 주입 함수 (리플렉션으로 호출)
+    /// <summary>
+    /// CSV는 UTF-8/CP949가 혼용될 수 있어 bytes 기준으로 복원한다.
+    /// UTF-8 엄격 디코딩 실패 시 CP949로 재해석한다.
+    /// </summary>
+    private static string DecodeCsvContent(TextAsset textAsset)
+    {
+        byte[] bytes = textAsset.bytes;
+
+        try
+        {
+            return new UTF8Encoding(false, true).GetString(bytes).TrimStart('\uFEFF');
+        }
+        catch (DecoderFallbackException)
+        {
+            return Encoding.GetEncoding(949).GetString(bytes).TrimStart('\uFEFF');
+        }
+    }
+
+    // CSV 파싱 후 Dictionary<int, T>를 DataManager 멤버로 주입
     private bool ParseAndInject<T>(string csvContent, string keyName) where T : TableBase, new()
     {
-        // 파싱
         List<T> list = CSVHelper.ParseCSVData<T>(csvContent);
         Dictionary<int, T> dict = new Dictionary<int, T>();
 
         foreach (T data in list)
         {
-            if (!dict.ContainsKey(data.ID)) dict.Add(data.ID, data);
-            else Debug.LogWarning($"[DataManager] {keyName} - ID: {data.ID} 중복됨");
+            if (!dict.ContainsKey(data.ID))
+                dict.Add(data.ID, data);
+            else
+                Debug.LogWarning($"[DataManager] {keyName} 중복 ID: {data.ID}");
         }
 
-        // 필드와 프로퍼티 모두 검색하도록 설정
+        // 필드/프로퍼티 모두 탐색해서 타입이 맞는 멤버에 주입
         var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
         bool injected = false;
-        Type dictType = typeof(Dictionary<int, T>); // 우리가 찾아야 할 타입
+        Type dictType = typeof(Dictionary<int, T>);
 
-        // 필드 검색
-        var fields = this.GetType().GetFields(flags);
+        var fields = GetType().GetFields(flags);
         foreach (var field in fields)
         {
-            if (field.FieldType == dictType)
+            if (field.FieldType != dictType)
+                continue;
+
+            field.SetValue(this, dict);
+            injected = true;
+            Debug.Log($"[DataManager] {keyName} -> Field: {field.Name}");
+            break;
+        }
+
+        if (!injected)
+        {
+            var properties = GetType().GetProperties(flags);
+            foreach (var prop in properties)
             {
-                field.SetValue(this, dict); // 값 주입
+                if (!prop.CanWrite || prop.PropertyType != dictType)
+                    continue;
+
+                prop.SetValue(this, dict);
                 injected = true;
-                Debug.Log($"[DataManager] {keyName} -> Field: {field.Name}");
+                Debug.Log($"[DataManager] {keyName} -> Property: {prop.Name}");
                 break;
             }
         }
 
-        // 프로퍼티 ({ get; set; }) 검색  (필드에서 못 찾았을 경우)
         if (!injected)
         {
-            var properties = this.GetType().GetProperties(flags);
-            foreach (var prop in properties)
-            {
-                if (prop.CanWrite && prop.PropertyType == dictType)
-                {
-                    prop.SetValue(this, dict);
-                    injected = true;
-                    Debug.Log($"[DataManager] {keyName} -> Property: {prop.Name}");
-                    break;
-                }
-            }
-        }
-
-        if (!injected)
-        {
-            // 주입 실패 로그
-            Debug.LogError($"[DataManager] 변수 없음: {keyName} (Dictionary<int, {typeof(T).Name}> 타입의 변수를 선언해야됨)");
+            Debug.LogError($"[DataManager] 주입 실패: {keyName} (Dictionary<int, {typeof(T).Name}> 타입 멤버 필요)");
             return false;
         }
 

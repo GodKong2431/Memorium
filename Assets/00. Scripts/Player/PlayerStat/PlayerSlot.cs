@@ -70,23 +70,23 @@ public class PlayerSlot
         OnSlotUpdate?.Invoke();
     }
 
-    public float GetStat(PlayerStatType playerStatType)
+    public float GetStat(StatType playerStatType)
     {
         switch (playerStatType)
         {
-            case PlayerStatType.ATK:
+            case StatType.ATK:
                 DataManager.Instance.EquipWeaponDict.TryGetValue(WeaponSlot, out var valueWeaponStat1);
                 return valueWeaponStat1?.attackPower ?? 0f;
-            case PlayerStatType.ATK_SPEED:
+            case StatType.ATK_SPEED:
                 DataManager.Instance.EquipWeaponDict.TryGetValue(WeaponSlot, out var valueWeaponStat2);
                 return valueWeaponStat2?.attackSpeed ?? 0f;
-            case PlayerStatType.HP:
+            case StatType.HP:
                 DataManager.Instance.EquipArmorDict.TryGetValue(ArmorSlot, out var valueArmor);
                 return valueArmor?.hp ?? 0f;
-            case PlayerStatType.MAGIC_DEF:
+            case StatType.MAGIC_DEF:
                 DataManager.Instance.EquipGloveDict.TryGetValue(GloveSlot, out var valueGlove);
                 return valueGlove?.magicDefense ?? 0f;
-            case PlayerStatType.MOVE_SPEED:
+            case StatType.MOVE_SPEED:
                 DataManager.Instance.EquipBootsDict.TryGetValue(BootsSlot, out var valueBoots);
                 return valueBoots?.moveSpeed ?? 0f;
             default:

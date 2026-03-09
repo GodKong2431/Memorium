@@ -1,4 +1,3 @@
-
 using System;
 using TMPro;
 using UnityEngine;
@@ -6,18 +5,17 @@ using UnityEngine.UI;
 
 public class SkillSlotItem : MonoBehaviour
 {
-    [Header("½ºÅ³ Á¤º¸")]
+    [Header("ìŠ¤í‚¬ ì •ë³´")]
     [SerializeField] private Image skillIcon;
     [SerializeField] private TMP_Text skillNameText;
     [SerializeField] private TMP_Text levelText;
     [SerializeField] private TMP_Text gradeText;
-    //[SerializeField] private TMP_Text countText;
 
-    [Header("Áª ½½·Ô")]
-    [SerializeField] private Image[] m5JemIcons;   
-    [SerializeField] private Image m4JemIcon;     
+    [Header("ì ¬ ìŠ¬ë¡¯")]
+    [SerializeField] private Image[] m5JemIcons;
+    [SerializeField] private Image m4JemIcon;
 
-    [Header("¹öÆ°")]
+    [Header("ë²„íŠ¼")]
     [SerializeField] private Button equipButton;
 
     private int skillID = -1;
@@ -27,30 +25,39 @@ public class SkillSlotItem : MonoBehaviour
     {
         equipButton.onClick.AddListener(OnEquipButtonClicked);
     }
+
     private void OnDestroy()
     {
         equipButton.onClick.RemoveListener(OnEquipButtonClicked);
     }
-    public void Init(int _skillID, Action<int> onEquip)
+
+    public void Init(int skillID, Action<int> onEquip)
     {
-        if (skillID == _skillID && onEquipClicked == onEquip)
+        if (this.skillID == skillID && onEquipClicked == onEquip)
         {
             Rebuild();
             return;
         }
 
-        skillID = _skillID;
+        this.skillID = skillID;
         onEquipClicked = onEquip;
         Rebuild();
     }
 
     public void Rebuild()
     {
-        if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table)) return;
+        if (DataManager.Instance == null || DataManager.Instance.SkillInfoDict == null)
+            return;
+
+        if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table))
+            return;
 
         skillNameText.SetText(table.skillName);
 
-        var owned = SkillInventoryManager.Instance.GetSkillData(skillID);
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        var owned = skillModule != null ? skillModule.GetSkillData(skillID) : null;
 
         if (owned != null)
             SetOwned(owned);
@@ -61,42 +68,36 @@ public class SkillSlotItem : MonoBehaviour
     private void SetOwned(OwnedSkillData data)
     {
         gradeText.SetText($"{GetGradeDisplayText(data.HighestGrade)} : {data.HighestGradeCount}/3");
-        // gradeText.SetText(GetGradeDisplayText(data.HighestGrade));
-        // countText.SetText("{0}/3", data.count);
 
         if (data.HighestGrade >= SkillGrade.Rare)
             levelText.SetText("Lv.{0}", data.level);
         else
-            levelText.SetText("");
+            levelText.SetText(string.Empty);
 
         skillIcon.color = Color.white;
         equipButton.interactable = data.IsEquippable;
-        equipButton.image.color = data.IsEquippable ? Color.white : new Color(0.3f, 0.3f, 0.3f, 0.5f);
-
-        // ÃßÈÄ ¾ÆÀÌÄÜ È®Á¤½Ã ¾ÆÀÌÄÜ º¯°æÇÔ¼ö Ãß°¡ ¿¹Á¤
+        equipButton.image.color = data.IsEquippable ? Color.white : Color.gray;
 
         for (int i = 0; i < m5JemIcons.Length; i++)
         {
             m5JemIcons[i].gameObject.SetActive(true);
-            m5JemIcons[i].color = data.IsM5JemSlotOpen(i) ? Color.white : new Color(0.3f, 0.3f, 0.3f, 0.5f);
+            m5JemIcons[i].color = data.IsM5JemSlotOpen(i) ? Color.white : Color.gray;
         }
-        m4JemIcon.gameObject.SetActive(true);
-        m4JemIcon.color = data.IsM4JemSlotOpen ? Color.white : new Color(0.3f, 0.3f, 0.3f, 0.5f);
-    }
 
+        m4JemIcon.gameObject.SetActive(true);
+        m4JemIcon.color = data.IsM4JemSlotOpen ? Color.white : Color.gray;
+    }
     private void SetLocked()
     {
         gradeText.SetText("None");
-        //countText.SetText("");
-        levelText.SetText("");
-        skillIcon.color = new Color(0.2f, 0.2f, 0.2f, 0.5f);
+        levelText.SetText(string.Empty);
+        skillIcon.color = Color.gray;
         equipButton.interactable = false;
-        equipButton.image.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
-
-        // ÃßÈÄ ¾ÆÀÌÄÜ È®Á¤½Ã ¾ÆÀÌÄÜ º¯°æÇÔ¼ö Ãß°¡ ¿¹Á¤
+        equipButton.image.color = Color.gray;
 
         for (int i = 0; i < m5JemIcons.Length; i++)
             m5JemIcons[i].gameObject.SetActive(false);
+
         m4JemIcon.gameObject.SetActive(false);
     }
 
@@ -109,14 +110,20 @@ public class SkillSlotItem : MonoBehaviour
     {
         switch (grade)
         {
-            case SkillGrade.Fragment: return "Scroll";
-            case SkillGrade.Common: return "Common";
-            case SkillGrade.Rare: return "Rare";
-            case SkillGrade.Epic: return "Epic";
-            case SkillGrade.Legendary: return "Legendary";
-            case SkillGrade.Mythic: return "Mythic";
-            default: return grade.ToString();
+            case SkillGrade.Scroll:
+                return "Scroll";
+            case SkillGrade.Common:
+                return "Common";
+            case SkillGrade.Rare:
+                return "Rare";
+            case SkillGrade.Epic:
+                return "Epic";
+            case SkillGrade.Legendary:
+                return "Legendary";
+            case SkillGrade.Mythic:
+                return "Mythic";
+            default:
+                return grade.ToString();
         }
     }
 }
-

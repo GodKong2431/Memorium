@@ -6,4 +6,5 @@ public class QuestRewardsTable : TableBase
 {
     public int ItemID;
     public int rewardItemCount;
+    public string rewardItemIcon;
 }

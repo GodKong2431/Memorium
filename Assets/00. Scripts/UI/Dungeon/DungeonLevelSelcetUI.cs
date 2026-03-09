@@ -50,6 +50,17 @@ public class DungeonLevelSelectUI : MonoBehaviour
             btnBack.onClick.AddListener(OnClickBackToList);
     }
 
+    private void OnEnable()
+    {
+        GameEventManager.OnCurrencyChanged += OnCurrencyChanged;
+        RefreshTicketState();
+    }
+
+    private void OnDisable()
+    {
+        GameEventManager.OnCurrencyChanged -= OnCurrencyChanged;
+    }
+
     public void SetupDungeonType(StageType type)
     {
         currentDungeonType = type;
@@ -91,29 +102,7 @@ public class DungeonLevelSelectUI : MonoBehaviour
 
         if (btnNextLevel != null)
             btnNextLevel.interactable = currentLevel < maxUnlockedLevel;
-
-        currentSelectedDungeonID = GetTargetDungeonID(currentDungeonType, currentLevel);
-        bool isDataValid = false;
-
-        if (DataManager.Instance != null && DataManager.Instance.DungeonReqDict != null)
-        {
-            if (DataManager.Instance.DungeonReqDict.ContainsKey(currentSelectedDungeonID))
-            {
-                isDataValid = true;
-            }
-            else
-            {
-                Debug.LogWarning($"[DungeonLevelSelectUI] ID {currentSelectedDungeonID} 데이터가 없습니다.");
-            }
-        }
-
-        requiredTicketCount = new BigDouble(1);
-        bool hasEnough = CurrencyManager.Instance.HasEnough(CurrentTicketType, requiredTicketCount);
-
-        if (btnStartDungeon != null)
-            btnStartDungeon.interactable = hasEnough && isDataValid;
-
-        TicketStateChanged?.Invoke();
+        RefreshTicketState();
     }
 
     private void OnClickStart()
@@ -121,7 +110,11 @@ public class DungeonLevelSelectUI : MonoBehaviour
         if (currentSelectedDungeonID == 0)
             return;
 
-        if (CurrencyManager.Instance.TrySpend(CurrentTicketType, requiredTicketCount))
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        if (currencyModule != null &&
+            currencyModule.TrySpend(CurrentTicketType, requiredTicketCount))
         {
             Debug.Log($"[DungeonLevelSelectUI] 던전 ID:{currentSelectedDungeonID} / {CurrentTicketType} {requiredTicketCount}장 소모");
 
@@ -143,25 +136,19 @@ public class DungeonLevelSelectUI : MonoBehaviour
 
     private int GetTargetDungeonID(StageType type, int level)
     {
-        int baseID = 0;
-
         switch (type)
         {
             case StageType.GuardianTaxVault:
-                baseID = 6110100;
-                break;
+                return 6021000 + level;
             case StageType.HallOfTraining:
-                baseID = 6110200;
-                break;
+                return 6022000 + level;
             case StageType.CelestiAlchemyWorkshop:
-                baseID = 6110300;
-                break;
+                return 6023000 + level;
             case StageType.EidosTreasureVault:
-                baseID = 6110400;
-                break;
+                return 6024000 + level;
+            default:
+                return 0;
         }
-
-        return baseID + level;
     }
 
     private CurrencyType GetTicketCurrencyType(StageType type)
@@ -175,5 +162,46 @@ public class DungeonLevelSelectUI : MonoBehaviour
             default:
                 return CurrencyType.DungeonTicket;
         }
+    }
+
+    private void RefreshTicketState()
+    {
+        if (currentDungeonType == StageType.None)
+            return;
+
+        currentSelectedDungeonID = GetTargetDungeonID(currentDungeonType, currentLevel);
+
+        bool isDataValid = false;
+        if (DataManager.Instance != null && DataManager.Instance.DungeonReqDict != null)
+        {
+            if (DataManager.Instance.DungeonReqDict.ContainsKey(currentSelectedDungeonID))
+            {
+                isDataValid = true;
+            }
+            else
+            {
+                Debug.LogWarning($"[DungeonLevelSelectUI] ID {currentSelectedDungeonID} 데이터가 없습니다.");
+            }
+        }
+
+        requiredTicketCount = new BigDouble(1);
+        var currencyModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
+            : null;
+        bool hasEnough = currencyModule != null &&
+                         currencyModule.HasEnough(CurrentTicketType, requiredTicketCount);
+
+        if (btnStartDungeon != null)
+            btnStartDungeon.interactable = hasEnough && isDataValid;
+
+        TicketStateChanged?.Invoke();
+    }
+
+    private void OnCurrencyChanged(CurrencyType type, BigDouble amount)
+    {
+        if (currentDungeonType == StageType.None || type != CurrentTicketType)
+            return;
+
+        RefreshTicketState();
     }
 }

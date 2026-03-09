@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(PlayerStatPresenter))]
+[RequireComponent(typeof(PlayerSkillHandler))]
+[RequireComponent(typeof(EffectController))]
 public class PlayerStateMachine : MonoBehaviour, IDamageable
 {
     [SerializeField]
@@ -22,18 +24,24 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     private Dictionary<PlayerStateType, IPlayerState> _states;
     //private IPlayerState _current;
     //private PlayerStateType _currentType;
-
     public PlayerStateType CurrentType;
-
+    public bool IsAlive => CurrentType != PlayerStateType.Die;
+    public bool isMoving => _ctx.Agent.velocity.sqrMagnitude > 0.1f;
     private StateMachine<PlayerStateContext, IPlayerState, PlayerStateType> playerStateMachine;
 
     bool IsComplete = false;
+
+    private PixieSpawner pixieSpawner;
 
     private void init()
     {
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<PlayerStatPresenter>();
         var _playerSkillHandler = GetComponent<PlayerSkillHandler>();
+        var effectController =GetComponent<EffectController>();
+        pixieSpawner = GetComponent<PixieSpawner>();
+
+        CharacterStatManager.Instance.RegisterEffectController(effectController);
 
         _ctx = new PlayerStateContext
         {
@@ -46,6 +54,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
             playerSkillHandler = _playerSkillHandler,
             AngularTime = angularTime,
             StopAngle = stopAngle,
+            EffectController = effectController,
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);
@@ -63,6 +72,8 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         };
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
+
+        SpawnPixie();
     }
 
     private void OnDisable()
@@ -86,7 +97,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
         if (playerStat != null && _ctx.Agent != null)
         {
-            _ctx.Agent.speed = playerStat.FinalStats[PlayerStatType.MOVE_SPEED].finalStat;
+            _ctx.Agent.speed = playerStat.FinalStats[StatType.MOVE_SPEED].finalStat;
             _ctx.Agent.stoppingDistance = 1.5f;
         }
         if (DataManager.Instance.DataLoad)
@@ -146,6 +157,14 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     public void TakeDamage(float damage, DamageType damageType)
     {
         _ctx.TakeDamage(damage, damageType);
+    }
+
+    public void SpawnPixie()
+    {
+        if (pixieSpawner != null)
+        {
+            pixieSpawner.Spawn(new OwnedFairyData(5000001));
+        }
     }
 
 }

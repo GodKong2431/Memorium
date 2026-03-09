@@ -21641,7 +21641,7 @@ GameObject:
   - component: {fileID: 1383378099}
   - component: {fileID: 1383378102}
   m_Layer: 5
-  m_Name: QuestUI
+  m_Name: "[\uD31D\uC5C5] \uD328\uB110_\uC9C4\uD589 \uD018\uC2A4\uD2B8"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21724,6 +21724,15 @@ MonoBehaviour:
   textQuestProgress: {fileID: 1509800676}
   imageProgressBar: {fileID: 1376716343}
   btnClaimReward: {fileID: 1600816530}
+  rectQuestHandlePanel: {fileID: 1383378098}
+  rectQuestHandleClickArea: {fileID: 1383378098}
+  rectOpenedPoseReference: {fileID: 1383378098}
+  rectClosedPoseReference: {fileID: 1658713087}
+  openedAnchoredPosX: 0
+  closedAnchoredPosX: -320
+  startOpened: 0
+  objProgressStateUI: {fileID: 0}
+  objCompletedStateUI: {fileID: 0}
 --- !u!1 &1388941718
 GameObject:
   m_ObjectHideFlags: 0
