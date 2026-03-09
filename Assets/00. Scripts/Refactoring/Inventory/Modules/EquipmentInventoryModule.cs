@@ -335,6 +335,19 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         count = (int)floored;
         return true;
     }
+
+    public EquipmentData GetEquipment(int itemId)
+    {
+        if (equipmentByItemId.ContainsKey(itemId))
+            return equipmentByItemId[itemId];
+        else
+            return new EquipmentData();
+    }
+
+    public void SetEquipment(EquipmentData equipmentData)
+    {
+        equipmentByItemId[equipmentData.equipmentId] = equipmentData;
+    }
 }
 
 
