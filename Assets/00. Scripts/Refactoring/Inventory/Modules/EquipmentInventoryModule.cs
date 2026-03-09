@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public sealed class EquipmentInventoryModule : IInventoryModule
 {
     // itemId -> 보유 개수
-    private readonly Dictionary<int, int> equipmentCountByItemId = new Dictionary<int, int>();
+    //private readonly Dictionary<int, int> equipmentCountByItemId = new Dictionary<int, int>();
+    private readonly Dictionary<int, EquipmentData> equipmentByItemId = new Dictionary<int, EquipmentData>();
     // 한 번이라도 획득(해금)한 장비 ID
     private readonly HashSet<int> unlockedItemIds = new HashSet<int>();
     // 장비 테이블 전체 ID 캐시(오름차순)
@@ -47,9 +49,9 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             return false;
         if (!TryConvertAmountToInt(amount, out int count))
             return false;
-        if (!equipmentCountByItemId.TryGetValue(item.ItemId, out int ownedCount))
+        if (!equipmentByItemId.TryGetValue(item.ItemId, out EquipmentData ownedCount))
             return false;
-        if (ownedCount < count)
+        if (ownedCount.equipmentValue < count)
             return false;
 
         DecreaseEquipment(item.ItemId, count);
@@ -61,8 +63,8 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         if (!CanHandle(item.ItemType))
             return BigDouble.Zero;
 
-        return equipmentCountByItemId.TryGetValue(item.ItemId, out int count)
-            ? new BigDouble(count)
+        return equipmentByItemId.TryGetValue(item.ItemId, out EquipmentData count)
+            ? new BigDouble(count.equipmentValue)
             : BigDouble.Zero;
     }
 
@@ -71,7 +73,7 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         // 세이브 데이터를 모듈 상태로 복원한다.
         IsInitialized = false;
 
-        equipmentCountByItemId.Clear();
+        equipmentByItemId.Clear();
         unlockedItemIds.Clear();
         if (initialCountByItemId != null)
         {
@@ -81,7 +83,7 @@ public sealed class EquipmentInventoryModule : IInventoryModule
                 if (pair.Value.equipmentValue <= 0)
                     continue;
 
-                equipmentCountByItemId[pair.Key] = pair.Value.equipmentValue;
+                equipmentByItemId[pair.Key] = pair.Value;
             }
         }
 
@@ -106,9 +108,9 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             int itemId = allEquipmentItemIds[i];
             if (finalEquipmentItemIds.Contains(itemId))
                 continue;
-            if (!equipmentCountByItemId.TryGetValue(itemId, out int ownedCount))
+            if (!equipmentByItemId.TryGetValue(itemId, out EquipmentData ownedCount))
                 continue;
-            if (ownedCount < 3)
+            if (ownedCount.equipmentValue < 3)
                 continue;
             if (i + 1 >= allEquipmentItemIds.Count)
                 continue;
@@ -117,7 +119,7 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             if (!IsSameEquipmentType(itemId, nextItemId))
                 continue;
 
-            int mergedCount = ownedCount / 3;
+            int mergedCount = ownedCount.equipmentValue / 3;
             if (mergedCount <= 0)
                 continue;
 
@@ -143,11 +145,11 @@ public sealed class EquipmentInventoryModule : IInventoryModule
 
     public bool CanAutoMerge()
     {
-        foreach (KeyValuePair<int, int> pair in equipmentCountByItemId)
+        foreach (KeyValuePair<int, EquipmentData> pair in equipmentByItemId)
         {
             if (finalEquipmentItemIds.Contains(pair.Key))
                 continue;
-            if (pair.Value < 3)
+            if (pair.Value.equipmentValue < 3)
                 continue;
 
             return true;
@@ -169,9 +171,9 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         // 현재 보유 장비 중 랭크가 가장 높은 ID를 선택한다.
         int bestItemId = 0;
 
-        foreach (KeyValuePair<int, int> pair in equipmentCountByItemId)
+        foreach (KeyValuePair<int, EquipmentData> pair in equipmentByItemId)
         {
-            if (pair.Value <= 0)
+            if (pair.Value.equipmentValue <= 0)
                 continue;
             if (!DataManager.Instance.EquipListDict.TryGetValue(pair.Key, out EquipListTable equipInfo))
                 continue;
@@ -230,14 +232,19 @@ public sealed class EquipmentInventoryModule : IInventoryModule
     {
         if (count <= 0)
             return;
-        if (!equipmentCountByItemId.TryGetValue(itemId, out int owned))
+        if (!equipmentByItemId.TryGetValue(itemId, out EquipmentData owned))
             return;
 
-        int nextCount = Mathf.Max(0, owned - count);
+        int nextCount = Mathf.Max(0, owned.equipmentValue - count);
         if (nextCount <= 0)
-            equipmentCountByItemId.Remove(itemId);
+            equipmentByItemId.Remove(itemId);
         else
-            equipmentCountByItemId[itemId] = nextCount;
+        {
+            EquipmentData equipmentData = owned;
+            equipmentData.equipmentValue = nextCount;
+            //equipmentByItemId[itemId] = nextCount;
+            equipmentByItemId[itemId] = equipmentData;
+        }
     }
 
     private void AddRawCount(int itemId, int count)
@@ -247,10 +254,15 @@ public sealed class EquipmentInventoryModule : IInventoryModule
 
         unlockedItemIds.Add(itemId);
 
-        if (equipmentCountByItemId.TryGetValue(itemId, out int owned))
-            equipmentCountByItemId[itemId] = owned + count;
+        if (equipmentByItemId.TryGetValue(itemId, out EquipmentData owned))
+        { 
+            EquipmentData equipmentData = owned;
+            equipmentData.equipmentValue += count;
+            equipmentByItemId[itemId] = equipmentData;
+        }
+
         else
-            equipmentCountByItemId[itemId] = count;
+            equipmentByItemId[itemId] = new EquipmentData(itemId,count);
     }
 
     private void RebuildEquipmentItemCache()
