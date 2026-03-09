@@ -77,7 +77,7 @@ public class PlayerStateAttack : IPlayerState
 
         ctx.SetCritMult(critmult);
 
-        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && !IsDelayAttack)
+        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && !IsDelayAttack && !ctx.playerSkillHandler.IsCasting() &&!ctx.playerSkillHandler.IsChanneling())
         {
             if (enemy.TryGetComponent<EnemyStateMachine>(out var target))
             {
@@ -87,7 +87,7 @@ public class PlayerStateAttack : IPlayerState
             IsDelayAttack = true;
         }
 
-        if (_attackInProgress && Time.time >= _attackEndTime)
+        if (_attackInProgress && Time.time >= _attackEndTime  && !ctx.playerSkillHandler.IsCasting())
         {
             IsDelayAttack = false;
             _attackInProgress = false;
@@ -112,7 +112,7 @@ public class PlayerStateAttack : IPlayerState
             var normal = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalStats[StatType.NORMAL_DMG].finalStat, 0);
             var boss = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalStats[StatType.BOSS_DMG].finalStat, 0);
 
-            Debug.Log(statPresenter.IsBoss);
+            //Debug.Log(statPresenter.IsBoss);
 
             var finalDamage = statPresenter.IsBoss ? boss : normal;
 

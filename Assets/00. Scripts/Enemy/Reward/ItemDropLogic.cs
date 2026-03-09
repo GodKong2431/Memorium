@@ -118,25 +118,25 @@ public static class ItemDropLogic
         {
             //int id = PickRandom(settings.pixieFragmentIds);
             int id = PickRandom(settings.ReturnItemTableToType(ItemType.PixiePiece));
-            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.PixieFragment }); Debug.Log($"[드랍] 수호요정조각 ID={id} (확률 {settings.pixieFragmentChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
+            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.PixieFragment }); }
         }
         if (RollChance(settings.skillScrollChance, isBoss))
         {
             //int id = PickRandom(settings.skillScrollIds);
             int id = PickRandom(settings.ReturnItemTableToType(ItemType.SkillScroll));
-            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.SkillScroll }); Debug.Log($"[드랍] 스킬주문서 ID={id} (확률 {settings.skillScrollChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
+            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.SkillScroll }); }
         }
         if (RollChance(settings.skillGemChance, isBoss))
         {
             //int id = PickRandom(settings.skillGemIds);
             int id = PickRandom(settings.ReturnItemTableToType(ItemType.ElementGem));
-            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.SkillGem }); Debug.Log($"[드랍] 스킬잼 ID={id} (확률 {settings.skillGemChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
+            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.SkillGem }); }
         }
         if (RollChance(settings.dungeonTicketChance, isBoss))
         {
             //int id = PickRandom(settings.dungeonTicketIds);
             int id = PickRandom(settings.ReturnItemTableToType(ItemType.Key));
-            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.DungeonTicket }); Debug.Log($"[드랍] 던전입장권 ID={id} (확률 {settings.dungeonTicketChance * (isBoss ? 5f : 1f) * 100:F4}%)"); }
+            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.DungeonTicket });}
         }
     }
 

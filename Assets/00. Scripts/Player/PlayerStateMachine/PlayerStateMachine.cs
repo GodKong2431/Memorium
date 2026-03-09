@@ -31,12 +31,16 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
     bool IsComplete = false;
 
+    private PixieSpawner pixieSpawner;
+
     private void init()
     {
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<PlayerStatPresenter>();
         var _playerSkillHandler = GetComponent<PlayerSkillHandler>();
         var effectController =GetComponent<EffectController>();
+        pixieSpawner = GetComponent<PixieSpawner>();
+
         CharacterStatManager.Instance.RegisterEffectController(effectController);
 
         _ctx = new PlayerStateContext
@@ -68,6 +72,8 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         };
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
+
+        SpawnPixie();
     }
 
     private void OnDisable()
@@ -151,6 +157,14 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     public void TakeDamage(float damage, DamageType damageType)
     {
         _ctx.TakeDamage(damage, damageType);
+    }
+
+    public void SpawnPixie()
+    {
+        if (pixieSpawner != null)
+        {
+            pixieSpawner.Spawn(new OwnedFairyData(5000001));
+        }
     }
 
 }

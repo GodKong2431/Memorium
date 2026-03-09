@@ -19,6 +19,8 @@ GameObject:
   - component: {fileID: 8859310765448299607}
   - component: {fileID: 1985830844537503114}
   - component: {fileID: 6266435267375270553}
+  - component: {fileID: 6965212196657189765}
+  - component: {fileID: 4334518867199353396}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -248,6 +250,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillHandler
   battleSkillPresenter: {fileID: 0}
+--- !u!114 &6965212196657189765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3821375917054962214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1464f6c377137e24eb8205c204d47017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EffectController
+--- !u!114 &4334518867199353396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3821375917054962214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9a57d3a15692f948b3a67936078b5d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PixieSpawner
+  pixiePrefab: {fileID: 5778789668616923005, guid: b6e964d8a943e8747ba38dfca390bad6, type: 3}
 --- !u!1 &6105536229642324074
 GameObject:
   m_ObjectHideFlags: 0

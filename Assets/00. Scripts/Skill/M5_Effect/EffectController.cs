@@ -35,7 +35,10 @@ public class EffectController : MonoBehaviour, IBuffApplicable
         float buff = BuffDebuff.GetTotal(type);
         return baseValue + buff;
     }
-
+    public bool HasStatusEffect()
+    {
+        return StatusEffect != null && StatusEffect.HasActive();
+    }
     public void ClearAll()
     {
         BuffDebuff?.ClearModifiers();

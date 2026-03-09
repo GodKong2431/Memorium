@@ -11,6 +11,7 @@ public class SkillProjectile : SkillObjectileBase
     }
     private void OnTriggerEnter(Collider other)
     {
+        debugLastCastPos = skillDataContext.skillData.m3Data.m3Distance * transform.forward;
         if (((1 << other.gameObject.layer) & targetLayer) != 0)
         {
             var m2 = SkillStrategyContainer.GetDetect(data.m2Data.m2Type);

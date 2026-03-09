@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 드랍 아이템을 플레이어에게 끌어당기고, 획득 시 인벤토리에 반영한다.
@@ -65,7 +65,7 @@ public class DropItemController : MonoBehaviour
         isCollected = true;
 
         string itemName = GetItemName(itemId, category);
-        Debug.Log($"[아이템획득] ID={itemId} x{count} ({category}) {(string.IsNullOrEmpty(itemName) ? string.Empty : $"- {itemName}")}");
+        //Debug.Log($"[아이템획득] ID={itemId} x{count} ({category}) {(string.IsNullOrEmpty(itemName) ? string.Empty : $"- {itemName}")}");
 
         bool isEquipment = category == ItemDropLogic.ItemCategory.Equipment;
         EnemyKillRewardDispatcher.RaiseItemCollected(itemId, count, isEquipment);

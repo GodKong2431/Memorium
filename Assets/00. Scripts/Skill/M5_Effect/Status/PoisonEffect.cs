@@ -35,7 +35,8 @@ public class PoisonEffect : StatusEffectBase
                 && buffer[i].TryGetComponent<IDamageable>(out var enemy)
                 && enemy.IsAlive && enemy != target)
             {
-                effect.ApplyStatusEffect(StatusEffectFactory.Create(tableData));
+                if (!effect.HasStatusEffect())
+                    effect.ApplyStatusEffect(StatusEffectFactory.Create(tableData));
             }
         }
     }

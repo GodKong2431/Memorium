@@ -1,11 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// ½ºÅ³ È÷Æ® Ã³¸® ÀÎÅÍÆäÀÌ½º 
+/// ìŠ¤í‚¬ íˆíŠ¸ ì²˜ë¦¬ ì¸í„°í˜ì´ìŠ¤ 
 /// </summary>
 public interface ISkillHitHandler
 {
     Transform transform { get; }
     void HandleSkillHit(int hitCount, SkillDataContext dataContext, Collider[] hitBuffer = null);
     void HandleAddonHit(int hitCount, SkillDataContext dataContext, Collider[] hitBuffer = null);
+    public void SetChanneling(bool active);
 }

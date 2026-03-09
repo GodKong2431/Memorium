@@ -39,11 +39,12 @@ public class CorrosionEffect : StatusEffectBase
 
         for (int i = 0; i < count; i++)
         {
-            if (buffer[i].TryGetComponent<EffectController>(out var ec)
+            if (buffer[i].TryGetComponent<EffectController>(out var effectController)
                 && buffer[i].TryGetComponent<IDamageable>(out var enemy)
                 && enemy.IsAlive && enemy != target)
             {
-                ec.ApplyStatusEffect(new PoisonEffect(poisonData));
+                if (!effectController.HasStatusEffect())
+                    effectController.ApplyStatusEffect(new PoisonEffect(poisonData));
             }
         }
     }

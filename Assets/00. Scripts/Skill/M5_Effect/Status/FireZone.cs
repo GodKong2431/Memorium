@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 
 public class FireZone : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class FireZone : MonoBehaviour
     private float detectRadius;
     private int targetLayer;
 
-    private static readonly Collider[] hitBuffer = new Collider[20];
+    private static readonly Collider[] hitBuffer = new Collider[SkillConstants.HIT_BUFFER_SIZE];
 
     public void Init(SkillModule5Table data,float radius,int layerMask)
     {
@@ -56,7 +57,8 @@ public class FireZone : MonoBehaviour
         {
             if (hitBuffer[i].TryGetComponent<EffectController>(out var effectController))
             {
-                effectController.ApplyStatusEffect(StatusEffectFactory.Create(tableData));
+                if (!effectController.HasStatusEffect())
+                    effectController.ApplyStatusEffect(StatusEffectFactory.Create(tableData));
             }
         }
     }

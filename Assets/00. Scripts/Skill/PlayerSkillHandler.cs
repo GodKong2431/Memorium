@@ -30,6 +30,9 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     public int SkillCount => skilldataContexts?.Length ?? 0;
     [SerializeField] private BattleSkillPresenter battleSkillPresenter;
 
+    public bool IsCasting() => skillCaster != null && skillCaster.IsCasting();
+    public bool IsChanneling() => skillCaster != null && skillCaster.IsChanneling();
+
     private void Awake()
     {
         skillCaster = GetComponent<SkillCaster>();
@@ -101,6 +104,9 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         if (skillModule == null) return;
         Init(skillModule.GetCurrentPreset().slots);
     }
+
+
+    // 이거 왜만들었던 건지 까먹음
     public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb =-1)
     {
         if (index < 0 || index >= skilldataContexts.Length) return;
@@ -131,7 +137,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     public bool AutoCast()
     {
         if (skilldataContexts == null) return false;
-        if (skillCaster.IsCasting) return false;
+        if (skillCaster.IsCasting()) return false;
 
         var enemy = EnemyTarget.GetTarget(transform.position);
         if (enemy == null) return false;
