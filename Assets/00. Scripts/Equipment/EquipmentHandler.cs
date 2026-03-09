@@ -11,7 +11,7 @@ public class EquipmentHandler : MonoBehaviour
     public bool dataLoad;
 
     // 플레이어 장비/인벤토리 데이터를 초기 상태로 세팅한다.
-    public void SetMyEquipOnStart(int weaponId, int helmetId, int glovesId, int armorId, int bootsId, Dictionary<int, int> equipCountDict)
+    public void SetMyEquipOnStart(int weaponId, int helmetId, int glovesId, int armorId, int bootsId, Dictionary<int, EquipmentData> equipCountDict)
     {
         if (playerEquipment == null)
         {

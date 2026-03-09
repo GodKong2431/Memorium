@@ -10,6 +10,13 @@ public class SkillPresetSlot
         Clear();
     }
 
+    public SkillPresetSlot(int skillID, int[] m5JemIDs, int m4JemID)
+    {
+        this.skillID = skillID;
+        this.m5JemIDs= m5JemIDs;
+        this.m4JemID = m4JemID;
+    }
+
     public bool IsEmpty
     {
         get { return skillID == -1; }

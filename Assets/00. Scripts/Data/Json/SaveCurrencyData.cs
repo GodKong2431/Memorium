@@ -96,7 +96,7 @@ public class SaveCurrencyData
         if (!Enum.IsDefined(typeof(CurrencyType), (int)type))
             return;
 
-        Debug.Log($"[SaveCurrencyData] 타입 : {context.ItemType} 이름 : {context.ItemId} 증가량 {amount}");
+        //Debug.Log($"[SaveCurrencyData] 타입 : {context.ItemType} 이름 : {context.ItemId} 증가량 {amount}");
 
         int contextItemId = context.ItemId;
         if (!itemId.Contains(contextItemId))
@@ -119,7 +119,7 @@ public class SaveCurrencyData
             return;
         //값을 찾을 인덱스
         int index = currencyTypes.IndexOf((int)type);
-        Debug.Log($"[InventoryManager] {type}의 인덱스 : {index} 증가량 {amount}");
+        //Debug.Log($"[InventoryManager] {type}의 인덱스 : {index} 증가량 {amount}");
         currencyValues[index] = amount;
     }
 
