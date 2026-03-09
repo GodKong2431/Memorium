@@ -26,6 +26,7 @@ public class CorrosionEffect : StatusEffectBase
 
 #if UNITY_EDITOR
         Debug.Log($"[부식] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
+        Debug.Log($"부식 데미지 : {totalDamage}");
 #endif
     }
 

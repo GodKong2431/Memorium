@@ -38,6 +38,10 @@ public class LacerationEffect : StatusEffectBase
     protected override void OnTick()
     {
         target.TakeDamage(damage);
+
+#if UNITY_EDITOR
+            Debug.Log($"부식 데미지 : {dmg}");
+#endif
     }
 
     public override void OnExpire()

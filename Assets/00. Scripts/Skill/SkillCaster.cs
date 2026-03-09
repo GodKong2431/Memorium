@@ -187,6 +187,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
             prefab = projectilePrefab.gameObject;
         else if (m3Strategy is ExecuteDeploy)
             prefab = deployPrefab.gameObject;
+        else if (m3Strategy is ExecuteAura)
+            prefab = auraPrefab.gameObject;
 
         yield return m3Strategy.Execute(this, this, dataContext, executePivot, castDirection, targetLayer, prefab);
     }

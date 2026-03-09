@@ -26,7 +26,7 @@ public class FireEffect : StatusEffectBase
         base.OnApply(target, buffApplicable);
         ApplyDefDebuff();
 #if UNITY_EDITOR
-        Debug.Log($"[FireEffect] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
+        Debug.Log($"[화염Effect] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
 #endif
     }
 
@@ -44,6 +44,10 @@ public class FireEffect : StatusEffectBase
     protected override void OnTick()
     {
         target.TakeDamage(damage);
+
+#if UNITY_EDITOR
+        Debug.Log($"[화염 데미지 : {damage}");
+#endif
     }
 
     public override void OnExpire()
