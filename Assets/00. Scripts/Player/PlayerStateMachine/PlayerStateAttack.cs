@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 using static UnityEngine.GraphicsBuffer;
 
@@ -112,7 +112,7 @@ public class PlayerStateAttack : IPlayerState
             var normal = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalStats[StatType.NORMAL_DMG].finalStat, 0);
             var boss = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalStats[StatType.BOSS_DMG].finalStat, 0);
 
-            Debug.Log(statPresenter.IsBoss);
+
 
             var finalDamage = statPresenter.IsBoss ? boss : normal;
 

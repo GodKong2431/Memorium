@@ -65,7 +65,7 @@ public class DropItemController : MonoBehaviour
         isCollected = true;
 
         string itemName = GetItemName(itemId, category);
-        Debug.Log($"[아이템획득] ID={itemId} x{count} ({category}) {(string.IsNullOrEmpty(itemName) ? string.Empty : $"- {itemName}")}");
+
 
         bool isEquipment = category == ItemDropLogic.ItemCategory.Equipment;
         EnemyKillRewardDispatcher.RaiseItemCollected(itemId, count, isEquipment);

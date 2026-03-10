@@ -171,7 +171,7 @@ public class PlayerStatView : MonoBehaviour
 
             if (statui.statUIItem != null)
             {
-                Debug.Log("스탯 호출");
+
                 BigDouble value = statUpgrade.Stat;
 
                 if (StatGroups.MultTypes.Contains(statui.type))
@@ -191,7 +191,7 @@ public class PlayerStatView : MonoBehaviour
 
     public void CheakGold(CurrencyType currencyType, BigDouble value)
     {
-        Debug.Log("골드 체크 호출");
+
         if (currencyType != CurrencyType.Gold)
         {
             return;

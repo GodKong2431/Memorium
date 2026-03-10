@@ -150,6 +150,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestManager
   currentQuestID: 7010001
   currentProgress: 0
+  saveQuestData:
+    currentQuestId: -1
+    currentProgress: 0
 --- !u!4 &51108157
 Transform:
   m_ObjectHideFlags: 0
@@ -184,6 +187,7 @@ GameObject:
   - component: {fileID: 209201029}
   - component: {fileID: 209201028}
   - component: {fileID: 209201027}
+  - component: {fileID: 209201037}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -238,6 +242,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 1604259860813359153, guid: cc27048a1a6486843887c6285dab2d36, type: 3}
   deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
   shadowPrepab: {fileID: 0}
+  fireZonePrefab: {fileID: 0}
 --- !u!114 &209201029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -411,6 +416,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 209201025}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &209201037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 209201025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1464f6c377137e24eb8205c204d47017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EffectController
 --- !u!1 &212037860
 GameObject:
   m_ObjectHideFlags: 0
@@ -512,65 +529,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!1 &252669898
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 252669900}
-  - component: {fileID: 252669899}
-  m_Layer: 0
-  m_Name: StageManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &252669899
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 252669898}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aece8927e3d206249a6353da24a83399, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StageManager
-  curStage: 1
-  curMonsterKillCount: 0
-  maxMonsterKillCount: 0
-  curFloor: 1
-  stageKeyList: 
-  normalEnemyReward: {fileID: 11400000, guid: 53847f05c2c57dc42a28868b694f85b7, type: 2}
-  bossEnemyReward: {fileID: 11400000, guid: 9178c5780669f9e4faa2a34c4a8c79c8, type: 2}
-  infinityMap: {fileID: 963482704}
-  monsterSpawner: {fileID: 659872534}
-  isReadyToBossSpawn: 0
-  bossSpawnBtn: {fileID: 1882254219}
-  onBossStage: 0
-  curStageType: 2
-  normalStage: 0
-  onFailedStage: 0
---- !u!4 &252669900
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 252669898}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &358898150
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4583,17 +4541,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
---- !u!114 &1882254219 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 599855915096129676, guid: 687a5526d94404140a128184003b4ad4, type: 3}
-  m_PrefabInstance: {fileID: 1882254215}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!114 &1882254220 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2575861108239226674, guid: 687a5526d94404140a128184003b4ad4, type: 3}
@@ -5529,7 +5476,6 @@ SceneRoots:
   - {fileID: 2029872748}
   - {fileID: 627220990}
   - {fileID: 1832248178}
-  - {fileID: 252669900}
   - {fileID: 51108157}
   - {fileID: 1122382869}
   - {fileID: 963482703}

@@ -65,11 +65,14 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         //불러온 데이터 플레이어 장착 및 데이터 세팅
         if (equipmentHandler != null)
         {
-            equipmentHandler.SetMyEquipOnStart(saveEquipmentData.weaponId, saveEquipmentData.helmetId, saveEquipmentData.gloveId, saveEquipmentData.armorId, saveEquipmentData.bootsId, saveEquipmentData.unlockEquipmentDict);
+            equipmentHandler.SetMyEquipOnStart(saveEquipmentData.weaponId, saveEquipmentData.helmetId, saveEquipmentData.gloveId, saveEquipmentData.armorId, saveEquipmentData.bootsId, 
+                saveEquipmentData.unlockEquipmentDict);
         }
 
         yield return new WaitUntil(() => InventoryManager.Instance != null);
         InventoryManager.Instance.OnItemAmountChanged += saveEquipmentData.SaveEquipment;
+        EquipmentInventoryModule equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
+        equipmentModule.OnEquipmentInfoChanged += saveEquipmentData.SaveEquipmentReinforcement;
 
         TableLoad = true;
     }

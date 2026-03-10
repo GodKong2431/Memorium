@@ -1,25 +1,24 @@
-﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 현재 장착 장비 UI와 자동 합성/장착 버튼 상태를 갱신한다.
 public class EquipCurrentUIController : UIControllerBase
 {
-    [Header("Binding")]
+    // 합성/장착 도메인 액션을 호출하는 핸들러다.
     [SerializeField] private EquipmentHandler handler;
-
+    // 자동 합성 실행 버튼이다.
     [SerializeField] private Button mergeButton;
-
+    // 자동 장착 실행 버튼이다.
     [SerializeField] private Button equipButton;
-
+    // 현재 장착 셀을 생성할 루트 트랜스폼이다.
     [SerializeField] private RectTransform root;
-
+    // 슬롯별 셀 생성에 사용할 아이템 프리팹이다.
     [SerializeField] private GameObject itemPrefab;
-
-    [Header("Display")]
+    // 각 장착 아이템에 표시할 임시 레벨 텍스트다.
     [SerializeField] private string levelText = "Lv. 0";
 
+    // 장착 슬롯 표시 순서다.
     private static readonly EquipmentType[] Order =
     {
         EquipmentType.Weapon,
@@ -29,224 +28,231 @@ public class EquipCurrentUIController : UIControllerBase
         EquipmentType.Boots
     };
 
-    private readonly Dictionary<string, Sprite> iconCache = new Dictionary<string, Sprite>();
+    // 생성된 슬롯 아이템 뷰 목록이다.
     private readonly List<EquipItemView> views = new List<EquipItemView>();
 
-    private EquipCurrentListView listView;
-    private InventoryManager invManager;
-    private Coroutine readyRoutine;
+    // 인벤토리 매니저 캐시 참조다.
+    private InventoryManager inventory;
+    // 슬롯 UI가 1회 생성되었는지 여부다.
     private bool isBuilt;
 
-    protected override void Initialize()
+    // 데이터 준비 전까지 빌드를 시도한다.
+    private void Update()
     {
-        listView = new EquipCurrentListView(root, itemPrefab);
+        if (!isBuilt)
+            RefreshView();
     }
 
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-        StartReadyRoutine();
-    }
-
-    protected override void OnDisable()
-    {
-        if (readyRoutine != null)
-        {
-            StopCoroutine(readyRoutine);
-            readyRoutine = null;
-        }
-
-        base.OnDisable();
-    }
-
+    // 새로고침/장착/인벤토리 이벤트와 버튼 클릭을 구독한다.
     protected override void Subscribe()
     {
-        EquipmentHandler.EquipmentUiRefreshRequested += HandleRefreshRequest;
+        EquipmentHandler.EquipmentUiRefreshRequested += RefreshView;
         PlayerEquipment.EquippedItemChanged += HandleEquippedChanged;
-        mergeButton.onClick.AddListener(ClickMerge);
-        equipButton.onClick.AddListener(ClickEquip);
+
+        if (mergeButton != null)
+            mergeButton.onClick.AddListener(ClickMerge);
+
+        if (equipButton != null)
+            equipButton.onClick.AddListener(ClickEquip);
+
         BindInventory();
     }
 
+    // 등록한 이벤트와 클릭 핸들러를 모두 해제한다.
     protected override void Unsubscribe()
     {
-        EquipmentHandler.EquipmentUiRefreshRequested -= HandleRefreshRequest;
+        EquipmentHandler.EquipmentUiRefreshRequested -= RefreshView;
         PlayerEquipment.EquippedItemChanged -= HandleEquippedChanged;
-        mergeButton.onClick.RemoveListener(ClickMerge);
-        equipButton.onClick.RemoveListener(ClickEquip);
+
+        if (mergeButton != null)
+            mergeButton.onClick.RemoveListener(ClickMerge);
+
+        if (equipButton != null)
+            equipButton.onClick.RemoveListener(ClickEquip);
+
         UnbindInventory();
     }
 
+    // 현재 장착 슬롯 UI와 버튼 상태를 갱신한다.
     protected override void RefreshView()
     {
-        BindInventory();
-
-        if (!IsReady())
+        if (!TryPrepare())
             return;
 
-        BuildIfNeeded();
+        if (!isBuilt)
+            BuildViews();
+
         RefreshButtons();
         RefreshCurrent();
     }
 
+    // 렌더링에 필요한 참조와 런타임 모듈 상태를 검사한다.
+    private bool TryPrepare()
+    {
+        if (handler == null || !handler.dataLoad)
+            return false;
+
+        if (root == null || itemPrefab == null)
+            return false;
+
+        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.EquipListDict == null)
+            return false;
+
+        if (!BindInventory())
+            return false;
+
+        EquipmentInventoryModule module = inventory.GetModule<EquipmentInventoryModule>();
+        return module != null && module.IsInitialized;
+    }
+
+    // 필요 시 인벤토리 수량 변경 이벤트를 바인딩한다.
+    private bool BindInventory()
+    {
+        InventoryManager current = InventoryManager.Instance;
+        if (current == null)
+            return false;
+
+        if (inventory == current)
+            return true;
+
+        UnbindInventory();
+        inventory = current;
+        inventory.OnItemAmountChanged += HandleAmountChanged;
+        return true;
+    }
+
+    // 인벤토리 이벤트 바인딩을 해제하고 캐시를 정리한다.
+    private void UnbindInventory()
+    {
+        if (inventory == null)
+            return;
+
+        inventory.OnItemAmountChanged -= HandleAmountChanged;
+        inventory = null;
+    }
+
+    // 장비 슬롯 개수만큼 비상호작용 아이템 뷰를 생성한다.
+    private void BuildViews()
+    {
+        views.Clear();
+
+        for (int i = root.childCount - 1; i >= 0; i--)
+            Destroy(root.GetChild(i).gameObject);
+
+        for (int i = 0; i < Order.Length; i++)
+        {
+            GameObject go = Instantiate(itemPrefab, root, false);
+            go.name = $"CurrentEquipment_{Order[i]}";
+
+            EquipItemUI ui = go.GetComponent<EquipItemUI>();
+            if (ui == null)
+                continue;
+
+            ui.Button.onClick.RemoveAllListeners();
+            ui.Button.interactable = false;
+            ui.MergeSlider.gameObject.SetActive(false);
+
+            views.Add(new EquipItemView(ui));
+        }
+
+        isBuilt = true;
+    }
+
+    // 도메인 조건에 따라 자동 합성/장착 버튼 상태를 갱신한다.
+    private void RefreshButtons()
+    {
+        if (mergeButton != null)
+            mergeButton.interactable = handler.CanAutoMerge();
+
+        if (equipButton != null)
+            equipButton.interactable = handler.CanAutoEquip();
+    }
+
+    // 플레이어 장착 데이터 기준으로 슬롯 UI를 갱신한다.
+    private void RefreshCurrent()
+    {
+        if (!handler.TryGetPlayerEquipment(out PlayerEquipment player))
+            return;
+
+        if (views.Count < Order.Length)
+            return;
+
+        for (int i = 0; i < Order.Length; i++)
+        {
+            int itemId = player.ReturnItemNum(Order[i]);
+            if (!DataManager.Instance.EquipListDict.TryGetValue(itemId, out EquipListTable info))
+                continue;
+
+            Sprite icon = LoadIcon(info);
+            int starCount = GetStarCount(info.grade);
+            //아이템 아이디 기반으로 레벨 가져오기 
+            EquipmentInventoryModule equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
+            EquipmentData equipmentData = equipmentModule.GetEquipment(itemId);
+            if (equipmentData.equipmentId == itemId)
+            {
+                levelText = "Lv. "+equipmentData.equipmentReinforcement;
+            }
+            else
+            {
+                levelText = "Lv. 0";
+            }
+            views[i].Render(icon, levelText, starCount, RarityColor.TierColorByTier(info.grade));
+            views[i].SetFrameColor(RarityColor.ItemGradeColor(info.rarityType));
+        }
+    }
+
+    // 자동 합성을 실행하고 버튼 상태를 다시 갱신한다.
     private void ClickMerge()
     {
         handler.TryAutoMerge();
         RefreshButtons();
     }
 
+    // 자동 장착을 실행하고 버튼 상태를 다시 갱신한다.
     private void ClickEquip()
     {
         handler.TryAutoEquip();
         RefreshButtons();
     }
 
-    private void HandleRefreshRequest()
+    // 장착 변경 이벤트 발생 시 슬롯 UI를 갱신한다.
+    private void HandleEquippedChanged(EquipmentType type, int itemId)
     {
-        RefreshView();
-    }
-
-    private void HandleEquippedChanged(EquipmentType equipmentType, int itemId)
-    {
-        if (!IsReady())
-            return;
-
         RefreshCurrent();
     }
 
+    // 장비 아이템 수량 변경 시 액션 버튼 상태를 갱신한다.
     private void HandleAmountChanged(InventoryItemContext item, BigDouble amount)
     {
-        if (!IsEquipType(item.ItemType))
-            return;
-
-        RefreshButtons();
+        if (IsEquipmentItem(item.ItemType))
+            RefreshButtons();
     }
 
-    private void BuildIfNeeded()
+    // 장비 테이블 정보로 아이콘 스프라이트를 로드한다.
+    private static Sprite LoadIcon(EquipListTable table)
     {
-        if (isBuilt)
-            return;
+        string key = string.IsNullOrEmpty(table.iconResource)
+            ? table.equipmentName
+            : table.iconResource;
 
-        List<EquipItemView> builtViews = listView.Build(Order);
-        views.Clear();
-        for (int i = 0; i < builtViews.Count; i++)
-            views.Add(builtViews[i]);
-
-        isBuilt = true;
+        return string.IsNullOrEmpty(key) ? null : Resources.Load<Sprite>(key);
     }
 
-    private void RefreshButtons()
-    {
-        // 버튼 활성화는 도메인 조건만 조회해서 갱신한다.
-        mergeButton.interactable = handler.CanAutoMerge();
-        equipButton.interactable = handler.CanAutoEquip();
-    }
-
-    private void RefreshCurrent()
-    {
-        if (!handler.TryGetPlayerEquipment(out PlayerEquipment player))
-            return;
-        if (views.Count < Order.Length)
-            return;
-
-        for (int i = 0; i < Order.Length; i++)
-        {
-            EquipmentType type = Order[i];
-            int itemId = player.ReturnItemNum(type);
-            if (!DataManager.Instance.EquipListDict.TryGetValue(itemId, out EquipListTable info))
-                continue;
-
-            string iconKey = string.IsNullOrEmpty(info.iconResource)
-                ? info.equipmentName
-                : info.iconResource;
-
-            Sprite icon = GetIcon(iconKey);
-            int starCount = GetStarCount(info.grade);
-            Color tierColor = RarityColor.TierColorByTier(info.grade);
-            Color orderColor = RarityColor.ItemGradeColor(info.rarityType);
-
-            // 현재 장착 슬롯 UI는 장비 정보 표시만 담당한다.
-            views[i].Render(icon, levelText, starCount, tierColor);
-            views[i].SetFrameColor(orderColor);
-        }
-    }
-
-    private Sprite GetIcon(string key)
-    {
-        if (string.IsNullOrEmpty(key))
-            return null;
-
-        if (iconCache.TryGetValue(key, out Sprite cached))
-            return cached;
-
-        Sprite icon = Resources.Load<Sprite>(key);
-        iconCache[key] = icon;
-        return icon;
-    }
-
+    // 장비 등급 티어를 1~5 별 개수로 변환한다.
     private static int GetStarCount(int tier)
     {
         return ((Mathf.Max(1, tier) - 1) % 5) + 1;
     }
 
-    private void StartReadyRoutine()
+    // 아이템 타입이 장비 카테고리인지 판별한다.
+    private static bool IsEquipmentItem(ItemType type)
     {
-        if (readyRoutine != null)
-            StopCoroutine(readyRoutine);
-
-        readyRoutine = StartCoroutine(WaitReady());
-    }
-
-    private IEnumerator WaitReady()
-    {
-        yield return new WaitUntil(IsReady);
-        RefreshView();
-        readyRoutine = null;
-    }
-
-    private bool IsReady()
-    {
-        if (handler == null || !handler.dataLoad)
-            return false;
-
-        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.EquipListDict == null)
-            return false;
-
-        if (InventoryManager.Instance == null)
-            return false;
-
-        EquipmentInventoryModule module = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
-        return module != null && module.IsInitialized;
-    }
-
-    private void BindInventory()
-    {
-        InventoryManager manager = InventoryManager.Instance;
-        if (manager == null || invManager == manager)
-            return;
-
-        UnbindInventory();
-        invManager = manager;
-        invManager.OnItemAmountChanged += HandleAmountChanged;
-    }
-
-    private void UnbindInventory()
-    {
-        if (invManager == null)
-            return;
-
-        invManager.OnItemAmountChanged -= HandleAmountChanged;
-        invManager = null;
-    }
-
-    private static bool IsEquipType(ItemType itemType)
-    {
-        switch (itemType)
+        switch (type)
         {
             case ItemType.Weapon:
             case ItemType.Helmet:
-            case ItemType.Glove:
             case ItemType.Armor:
+            case ItemType.Glove:
             case ItemType.Boots:
                 return true;
             default:
@@ -254,4 +260,3 @@ public class EquipCurrentUIController : UIControllerBase
         }
     }
 }
-

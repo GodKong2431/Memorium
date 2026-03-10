@@ -22,7 +22,7 @@ public class TestPlayerDataManager : Singleton<TestPlayerDataManager>
         testSaveData = JSONService.Load<SaveEquipmentData>();
         testSaveData.InitPlayerEquipmentData();
         //불러온 데이터 플레이어 장착 및 데이터 세팅
-        equipmentHandler.SetMyEquipOnStart(testSaveData.weaponId, testSaveData.helmetId, testSaveData.gloveId, testSaveData.armorId, testSaveData.bootsId, testSaveData.unlockEquipmentDict);
+        //equipmentHandler.SetMyEquipOnStart(testSaveData.weaponId, testSaveData.helmetId, testSaveData.gloveId, testSaveData.armorId, testSaveData.bootsId, testSaveData.unlockEquipmentValueDict);
     }
 
     protected override void OnApplicationQuit()

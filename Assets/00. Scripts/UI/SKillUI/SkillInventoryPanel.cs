@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -107,7 +107,7 @@ public class SkillInventoryPanel : MonoBehaviour
 
         if (!CanEquipToSlot(slotIndex, selectedSkillType))
         {
-            Debug.Log("이 슬롯에는 장착할 수 없습니다.");
+
             return;
         }
 
@@ -207,7 +207,7 @@ public class SkillInventoryPanel : MonoBehaviour
         {
             if (preset.slots[i].skillID == skillId)
             {
-                Debug.Log("이미 장착된 스킬입니다.");
+
                 return;
             }
         }

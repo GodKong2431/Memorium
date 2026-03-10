@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System;
 using UnityEngine.UI;
@@ -101,7 +101,7 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         float r = UnityEngine.Random.value * total;
         float acc = 0f;
         
-        Debug.Log($"가중치 {r}");
+
         
         foreach (var weight in so.StoneStatProbabilityDict)
         {

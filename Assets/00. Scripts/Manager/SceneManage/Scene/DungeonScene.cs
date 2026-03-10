@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Threading.Tasks;
 using System.Collections;
 
@@ -6,13 +6,13 @@ public class DungeonScene : SceneBase
 {
     public override IEnumerator EnterScene()
     {
-        Debug.Log("´øÀü ¾À ·ÎÁ÷ ÁøÀÔ");
+
 
         yield return null;
     }
 
     public override void ExitScene()
     {
-        Debug.Log("´øÀü ¾À ·ÎÁ÷ Á¾·á");
+
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -55,7 +55,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
     public void PlayAnim(string key)
     {
-        Debug.Log($"애니메이션 재생: {key}");
+
     }
 
     public void Init(ISkillStatProvider stat, ISkillTargetProvider target, Action<bool> onInvincible = null)
@@ -106,9 +106,6 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
        
         if (currentSkillRoutine != null)
             StopCoroutine(currentSkillRoutine);
-#if UNITY_EDITOR
-        Debug.Log($"스킬 시전: {skillDataContext.skillData.skillTable.ID}");
-#endif
         CacheCastState();
         currentSkillRoutine = StartCoroutine(SkillSequence(skillDataContext, extraDelay));
     }

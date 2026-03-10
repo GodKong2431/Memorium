@@ -1,4 +1,4 @@
-using Firebase.Firestore;
+﻿using Firebase.Firestore;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -27,6 +27,6 @@ public class TestPlayerData
 
     public void SaveCheck()
     {
-        Debug.Log($"name : {name} \n level : {level} \n gold : {gold}");
+
     }
 }

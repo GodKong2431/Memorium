@@ -1,4 +1,4 @@
-using System.IO;
+ï»¿using System.IO;
 using UnityEngine;
 
 
@@ -7,30 +7,30 @@ public static class JSONService
     private static string savePath;
 
     /// <summary>
-    /// ÁöÁ¤ÇÑ °æ·Î¿¡ jsonÆÄÀÏ »ı¼º ¹× µ¥ÀÌÅÍ ÀúÀå
+    /// ì§€ì •í•œ ê²½ë¡œì— jsoníŒŒì¼ ìƒì„± ë° ë°ì´í„° ì €ì¥
     /// </summary>
-    /// <param name="data">ÀúÀåÇÒ µ¥ÀÌÅÍ Å¬·¡½º</param>
+    /// <param name="data">ì €ì¥í•  ë°ì´í„° í´ë˜ìŠ¤</param>
     public static void Save<T>(T data)
     {
         savePath = Application.persistentDataPath + "/"+ typeof(T).Name + ".json";
         if (savePath == null)
         {
-            Debug.Log("[JSONService] ÆÄÀÏ °æ·Î ÁöÁ¤ ¿À·ù");
+
             return;
         }
-        Debug.Log($"[JSONService] ÆÄÀÏ ºÒ·¯¿À±â °æ·Î : {savePath}");
+
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(savePath, json);
-        Debug.Log(Application.persistentDataPath);
+
     }
 
-    //ÆÄÀÏ ·Îµå
+    //íŒŒì¼ ë¡œë“œ
     public static T Load<T>() where T : class, new()
     {
         savePath = Application.persistentDataPath + "/" + typeof(T).Name + ".json";
         if (savePath == null)
         {
-            Debug.Log("[JSONService] ÆÄÀÏ °æ·Î ÁöÁ¤ ¿À·ù");
+
             return null;
         }
         if (!File.Exists(savePath))
@@ -38,7 +38,7 @@ public static class JSONService
             T newData = new T();
             return newData;
         }
-        Debug.Log($"[JSONService] ÆÄÀÏ ÀúÀå °æ·Î : {savePath}");
+
         string json = File.ReadAllText(savePath);
         return JsonUtility.FromJson<T>(json);
     }
@@ -49,7 +49,7 @@ public static class JSONService
         if (File.Exists(savePath))
         {
             File.Delete(savePath);
-            Debug.Log("±âÁ¸ ¼¼ÀÌºêµ¥ÀÌÅÍ »èÁ¦");
+
         }
     }
 }
@@ -65,9 +65,9 @@ public static class JSONService
 //    private static string savePath = Application.persistentDataPath + "/savedata.json";
 
 //    /// <summary>
-//    /// ÁöÁ¤ÇÑ °æ·Î¿¡ jsonÆÄÀÏ »ı¼º ¹× µ¥ÀÌÅÍ ÀúÀå
+//    /// ì§€ì •í•œ ê²½ë¡œì— jsoníŒŒì¼ ìƒì„± ë° ë°ì´í„° ì €ì¥
 //    /// </summary>
-//    /// <param name="data">ÀúÀåÇÒ µ¥ÀÌÅÍ Å¬·¡½º</param>
+//    /// <param name="data">ì €ì¥í•  ë°ì´í„° í´ë˜ìŠ¤</param>
 //    public static void Save(GameDataBase data)
 //    {
 //        string json = JsonUtility.ToJson(data, true);
@@ -75,7 +75,7 @@ public static class JSONService
 //        Debug.Log(Application.persistentDataPath);
 //    }
 
-//    //ÆÄÀÏ ·Îµå
+//    //íŒŒì¼ ë¡œë“œ
 //    public static GameDataBase Load()
 //    {
 //        if (!File.Exists(savePath))
@@ -92,7 +92,7 @@ public static class JSONService
 //        if (File.Exists(savePath))
 //        {
 //            File.Delete(savePath);
-//            Debug.Log("±âÁ¸ ¼¼ÀÌºêµ¥ÀÌÅÍ »èÁ¦");
+//            Debug.Log("ê¸°ì¡´ ì„¸ì´ë¸Œë°ì´í„° ì‚­ì œ");
 //        }
 //    }
 //}

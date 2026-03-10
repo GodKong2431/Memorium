@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class EquipmentHandler : MonoBehaviour
 {
@@ -10,8 +11,16 @@ public class EquipmentHandler : MonoBehaviour
 
     public bool dataLoad;
 
+    public int goldId = 0;
+
+    public void TestEquipmentReinforcement()
+    {
+
+        ReinforceEquipment(playerEquipment.weapon.ID);
+    }
+
     // 플레이어 장비/인벤토리 데이터를 초기 상태로 세팅한다.
-    public void SetMyEquipOnStart(int weaponId, int helmetId, int glovesId, int armorId, int bootsId, Dictionary<int, int> equipCountDict)
+    public void SetMyEquipOnStart(int weaponId, int helmetId, int glovesId, int armorId, int bootsId, Dictionary<int, EquipmentData> equipCountDict)
     {
         if (playerEquipment == null)
         {
@@ -180,5 +189,63 @@ public class EquipmentHandler : MonoBehaviour
     private static void RaiseEquipmentUiRefreshRequested()
     {
         EquipmentUiRefreshRequested?.Invoke();
+    }
+
+    //아이템 강화 메서드이자, 강화 가능한지 체크하는 메서드
+    public bool ReinforceEquipment(int itemId)
+    {
+        if (!TryGetEquipmentModule(out EquipmentInventoryModule equipmentModule))
+            return false;
+        EquipmentData equipmentData = equipmentModule.GetEquipment(itemId);
+        if (equipmentData.equipmentId == 0)
+        {
+
+            return false;
+        }
+        else if (equipmentData.equipmentReinforcement >= 100)
+        {            
+
+            return false;  
+        }
+
+        //골드 아이디 불러오기
+        SetGoldID();
+
+        //해당 값은 이후 테이블 기반으로 현재 장비 강화 수치에 따른 강화 비용
+        int cost = 400;
+
+        if (InventoryManager.Instance.GetItemAmount(goldId) <= 400)
+        {
+
+            return false;
+        }
+
+
+        InventoryManager.Instance.RemoveItem(goldId, cost);
+
+        equipmentData.equipmentReinforcement += 1;
+
+        equipmentModule.SetEquipment(equipmentData);
+
+        RaiseEquipmentUiRefreshRequested();
+        return true;
+    }
+
+    public void SetGoldID()
+    {
+
+        if (goldId != 0)
+            return;
+        else
+        {
+            foreach (var item in DataManager.Instance.ItemInfoDict)
+            {
+                if (item.Value.itemType == ItemType.FreeCurrency)
+                {
+                    goldId = item.Key;
+                    break;
+                }
+            }
+        }
     }
 }
