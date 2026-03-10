@@ -66,7 +66,6 @@ public class MonsterSpawner : MonoBehaviour
         else
         {
             //보스 스테이지 진입
-            StageManager.Instance.onBossStage = true;
             GameObject spawnBoss = EnemyListManager.Instance.enemyMap[curSpawnGroupBossMonsterTable.MonsterID];
 
             ////오브젝트 풀링으로 전환
@@ -75,8 +74,8 @@ public class MonsterSpawner : MonoBehaviour
 
             // 보스 스폰 이펙트 추가 예정
             // 보스 스폰 효과음 추가 예정
-            EnemyKillRewardDispatcher.ResetKillCount();
-            StageManager.Instance.isReadyToBossSpawn = false;
+            InstanceMessageManager.TryShowBossEnter();
+            StageManager.Instance.OnBossSpawned();
         }
 
         curSpawnerPos++;

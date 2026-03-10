@@ -19,8 +19,12 @@ public class PlayerStateAttack : IPlayerState
         enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position).transform;
 
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
+        {
             ctx.Agent.isStopped = true;
-
+            ctx.Agent.velocity = Vector3.zero;
+        }
+            
+        
         float attackSpeed = ctx.StatPresenter?.PlayerStat?.FinalStats[StatType.ATK_SPEED].finalStat ?? 1f;
         float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
         _attackEndTime = Time.time + delay;

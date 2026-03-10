@@ -5,7 +5,10 @@ using System.Collections.Generic;
 public class PassiveSetTable : TableBase
 {
     public int reqGrade;
-    public EffectType effectType;
+    public int reqCount;
+    public string effectType;
+    public string effectType2;
     public float effectValue;
+    public float effectValue2;
     public string vfxPath;
 }

@@ -9,6 +9,8 @@ public class EquipListTable : TableBase
     public int grade;
     public RarityType rarityType;
     public int equipmentTier;
+    public int statType1;
+    public int statType2;
     public string iconResource;
     public string equipmentName;
 }

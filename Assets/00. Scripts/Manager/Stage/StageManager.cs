@@ -30,6 +30,10 @@ public class StageManager : Singleton<StageManager>
 
     // 보스 소환 가능 상태
     public bool isReadyToBossSpawn = false;
+    public bool hasPendingBossSpawnRequest = false;
+
+    [SerializeField] private StageType manualBossSummonRequiredStageType = StageType.None;
+    [SerializeField] private int manualBossSummonRequiredStageLevel = 0;
 
     // 현재 보스 스테이지 흐름 안에 있는지 여부
     public bool onBossStage = false;
@@ -37,6 +41,13 @@ public class StageManager : Singleton<StageManager>
     // 현재 스테이지 타입과 일반 스테이지 진행 값
     [SerializeField] private StageType curStageType;
     public int normalStage = 1;
+
+    public StageType CurrentStageType => curStageType;
+    public bool IsDungeonInProgress => curStageType != StageType.None && curStageType != StageType.NormalStage;
+    public bool HasPendingBossSpawnRequest => hasPendingBossSpawnRequest || isReadyToBossSpawn;
+    public bool RequiresManualBossSummonForCurrentStage =>
+        manualBossSummonRequiredStageType == curStageType &&
+        manualBossSummonRequiredStageLevel == curStage;
 
     // 일반 스테이지 실패 플래그
     public bool onFailedStage = false;
@@ -130,19 +141,17 @@ public class StageManager : Singleton<StageManager>
     // 보스 소환 버튼 클릭 이벤트 처리
     public void OnClickBossSummonButtonClick()
     {
-        if (curMonsterKillCount < maxMonsterKillCount)
-            return;
-        if (isReadyToBossSpawn)
-            return;
-
-
-        isReadyToBossSpawn = true;
+        QueueBossSpawnRequest();
     }
 
     // 누적 처치 수를 반영하고 스테이지 진행도 UI 이벤트를 발행한다.
     public void CheckBossEnemySpawn(int totalKillCount)
     {
         curMonsterKillCount = Mathf.Clamp(totalKillCount, 0, maxMonsterKillCount);
+
+        if (CanAutoQueueBossSpawn())
+            QueueBossSpawnRequest();
+
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
     }
 
@@ -182,6 +191,7 @@ public class StageManager : Singleton<StageManager>
     {
         onBossStage = false;
         isReadyToBossSpawn = false;
+        hasPendingBossSpawnRequest = false;
 
         curMonsterKillCount = 0;
         EnemyKillRewardDispatcher.ResetKillCount();
@@ -233,6 +243,8 @@ public class StageManager : Singleton<StageManager>
     // 스테이지 실패 처리
     public void StageFailed()
     {
+        bool failedDuringBossStage = onBossStage;
+
         if (curStageType == StageType.NormalStage)
         {
             onFailedStage = true;
@@ -245,10 +257,16 @@ public class StageManager : Singleton<StageManager>
             SetKillCount();
             infinityMap?.MapReset();
 
+            if (failedDuringBossStage)
+                MarkManualBossSummonRequiredForCurrentStage();
+
             OnStageClearOrFailed.Invoke();
         }
         else
         {
+            if (failedDuringBossStage)
+                MarkManualBossSummonRequiredForCurrentStage();
+
             SetStageType(StageType.NormalStage, normalStage);
             SceneController.Instance.LoadScene(SceneType.StageScene);
         }
@@ -275,6 +293,14 @@ public class StageManager : Singleton<StageManager>
         Init();
         SetReward();
         SetKillCount();
+        EnemyKillRewardDispatcher.ResetKillCount();
+    }
+
+    public void OnBossSpawned()
+    {
+        onBossStage = true;
+        isReadyToBossSpawn = false;
+        hasPendingBossSpawnRequest = false;
         EnemyKillRewardDispatcher.ResetKillCount();
     }
 
@@ -345,6 +371,43 @@ public class StageManager : Singleton<StageManager>
 
         if (updateNormalStage)
             normalStage = curStage;
+    }
+
+    private bool CanQueueBossSpawn()
+    {
+        if (onBossStage)
+            return false;
+
+        if (HasPendingBossSpawnRequest)
+            return false;
+
+        if (maxMonsterKillCount <= 0)
+            return false;
+
+        return curMonsterKillCount >= maxMonsterKillCount;
+    }
+
+    private bool CanAutoQueueBossSpawn()
+    {
+        if (!CanQueueBossSpawn())
+            return false;
+
+        return !RequiresManualBossSummonForCurrentStage;
+    }
+
+    private void QueueBossSpawnRequest()
+    {
+        if (!CanQueueBossSpawn())
+            return;
+
+        hasPendingBossSpawnRequest = true;
+        isReadyToBossSpawn = true;
+    }
+
+    private void MarkManualBossSummonRequiredForCurrentStage()
+    {
+        manualBossSummonRequiredStageType = curStageType;
+        manualBossSummonRequiredStageLevel = curStage;
     }
 
     // Stage 관련 서비스 의존성을 준비한다.

@@ -157,7 +157,7 @@ public class PlayerStatUpgradeUIController : UIControllerBase
                 statUpgrade.StatName,
                 FormatCurrentStatText(pair.Key, statUpgrade.Stat),
                 statUpgrade.CurrentCost.ToString(),
-                canAfford,
+                true,
                 costColor);
         }
     }

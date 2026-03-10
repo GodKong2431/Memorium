@@ -34,6 +34,7 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, EquipGloveTable> EquipGloveDict;
     public Dictionary<int, EquipHelmetTable> EquipHelmetDict;
     public Dictionary<int, EquipListTable> EquipListDict;
+    public Dictionary<int, EquipStatsTable> EquipStatsDict;
 
     // 페어리/트리거 테이블
     public Dictionary<int, FairyStatTable> FairyStatDict;
@@ -69,8 +70,7 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, M5FusionTable> M5FusionDict;
 
     // 패시브 테이블
-    public Dictionary<int, PassiveBalance> PassiveBalanceDict;
-    public Dictionary<int, PassiveGrowthTable> PassiveGrowthDict;
+    public Dictionary<int, PassiveGradeTable> PassiveGradeDict;
     public Dictionary<int, PassiveInfoTable> PassiveInfoDict;
     public Dictionary<int, PassiveSetTable> PassiveSetDict;
 
@@ -88,6 +88,19 @@ public class DataManager : Singleton<DataManager>
     public Dictionary<int, StoneStatProbabilityTable> StoneStatProbabilityDict;
     public Dictionary<int, StoneGradeStatUpTable> StoneGradeStatUpDict;
     public Dictionary<int, StoneTotalUpBonusTable> StoneTotalUpBonusDict;
+
+    // 빙고
+    public Dictionary<int, BoardCellTable> BoardCellDict;
+    public Dictionary<int, BoardSlotTable> BoardSlotDict;
+    public Dictionary<int, BoardSynergyTable> BoardSynergyDict;
+    public Dictionary<int, DustTable> DustDict;
+    public Dictionary<int, OneuseItemTalble> OneuseItemDict;
+    public Dictionary<int, SynergyTable> SynergyDict;
+
+    // 기타
+    public Dictionary<int, ConfigTable> ConfigDict;
+
+
     #endregion
 
     // (현재 개수, 총 개수, 현재 처리 중 파일명)

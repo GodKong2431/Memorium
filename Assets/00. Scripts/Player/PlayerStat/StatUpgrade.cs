@@ -63,6 +63,7 @@ public class StatUpgrade
 
         if (!currency.TrySpend(CurrencyType.Gold, currentCost))
         {
+            InstanceMessageManager.TryShowInsufficientGold();
             return;
         }
 

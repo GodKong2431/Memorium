@@ -13,7 +13,7 @@ public static class RarityColor
     {
         switch (type)
         {
-            case RarityType.nomal:
+            case RarityType.normal:
                 return NormalColor;
             case RarityType.uncommon:
                 return UnCommonColor;

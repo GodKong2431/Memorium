@@ -97,6 +97,7 @@ public class PlayerStatView : MonoBehaviour
                 upgradeStatUI.statUIItem.StatDescription.text = $"{statUpgrade.StatName} Enchance";
                 upgradeStatUI.statUIItem.StatLevel.text = $"Lv {statUpgrade.UpgradeCount.ToString()}";
                 upgradeStatUI.statUIItem.UpgradeCost.text = $"{statUpgrade.CurrentCost.ToString()}";
+                HoldAcceleratorAddon.Ensure(upgradeStatUI.statUIItem.UpgradeBtn);
                 upgradeStatUI.statUIItem.UpgradeBtn.onClick.AddListener(() => statUpgrade.Upgrade());
 
                 statUpgrade.UpgradeStat += SetStat;

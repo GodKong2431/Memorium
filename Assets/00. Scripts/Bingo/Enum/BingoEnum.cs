@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum BingoGrade
+public enum CellRarity
 {
     Normal = 0,
     Rare = 1,
@@ -9,8 +9,9 @@ public enum BingoGrade
     Myth = 4,
 }
 
-public enum BingoSynergyLine
+public enum SynergyDirection
 {
+    None,
     Row,
     Column,
     Diagonal
@@ -22,4 +23,9 @@ public enum BingoItemType
     Pluck,
     Recall,
     Again,
+}
+
+public enum SynergyRarity
+{
+    
 }

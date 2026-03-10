@@ -1,4 +1,6 @@
-세트효과 고유 ID,발동 요구 등급,"세트효과 능력치 타입 (경험치, 공격력, 치명타, 올스탯)",효과 적용 수치,세트 달성 이펙트 경로
-setID,reqGrade,effectType,effectValue,vfxPath
-int,int,enum,float,string
-4120001,5,2,1.2,Asset/@/VFX/Passive/Set_Aura
+세트효과 고유 ID,세트 효과 발동 요구 스킬 등급,"세트 효과 발동 요구 스킬 개수 (2, 3, 5세트)",적용 스탯 타입,적용 스탯 타입2,효과 적용 수치,효과 적용 수치2,세트 효과 달성 시 연출 프리팹 경로
+setID,reqGrade,reqCount,effectType,effectType2,effectValue,effectValue2,vfxPath
+int,int,int,statType,statType,float,float,string
+4120001,5,2,14,0,0.2,0,Asset/@/VFX/Passive/Set_Aura_2
+4120002,5,3,5,9,0.1,0.05,Asset/@/VFX/Passive/Set_Aura_3
+4120003,5,5,18,0,0.05,0,Asset/@/VFX/Passive/Set_Aura_5
