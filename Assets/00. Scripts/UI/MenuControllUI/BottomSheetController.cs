@@ -1,9 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// ���� �ϴ� �ǰ� ���� ��Ʈ/�˾� ���� UI ���� �� �ִϸ��̼��� �����ϴ� �Ŵ��� Ŭ����.
-/// �ϴ� �� ��ȯ �� �������� ��ü�ϸ�, ��Ʈ�� �˾� ���� �θ� ������ ����մϴ�.
+/// 하단 시트와 팝업 모드를 전환하며 탭/페이지 UI를 관리하는 컨트롤러.
+/// 패널 높이와 페이지 부모를 전환해 시트 모드와 팝업 모드를 연결한다.
 /// </summary>
 public class BottomSheetController : MonoBehaviour
 {
@@ -23,8 +23,8 @@ public class BottomSheetController : MonoBehaviour
     public RectTransform skillPanelRect;
     public float openHeight = 800f;
 
-    public Button btnArrowUp;    // ��Ʈ -> �˾� Ȯ�� ��ư
-    public Button btnArrowDown;  // �˾� -> ��Ʈ ��� ��ư
+    public Button btnArrowUp;    // 시트 -> 팝업 확장 버튼
+    public Button btnArrowDown;  // 팝업 -> 시트 복귀 버튼
 
     [Header("Reparenting Targets")]
     public Transform sheetContentParent;
@@ -110,7 +110,7 @@ public class BottomSheetController : MonoBehaviour
     }
 
     /// <summary>
-    /// �ϴ� ���� �� ��ȯ �� ȣ��Ǵ� �ݹ�
+    /// 하단 탭 선택/해제 시 호출되는 콜백
     /// </summary>
     public void OnMainTabChanged(int tabIndex, bool isOn)
     {
@@ -147,7 +147,7 @@ public class BottomSheetController : MonoBehaviour
     }
 
     /// <summary>
-    /// ��Ʈ ��忡�� �˾� ���� ��ȯ
+    /// 시트 모드에서 팝업 모드로 전환
     /// </summary>
     private void OpenPopup()
     {
@@ -163,7 +163,7 @@ public class BottomSheetController : MonoBehaviour
     }
 
     /// <summary>
-    /// �˾� ��忡�� ��Ʈ ���� ����
+    /// 팝업 모드에서 시트 모드로 복귀
     /// </summary>
     private void ReturnToSheet()
     {
@@ -179,7 +179,7 @@ public class BottomSheetController : MonoBehaviour
     }
 
     /// <summary>
-    /// �˾� �� ��Ʈ�� ��� �����ϰ� �ʱ� ���·� �ǵ���
+    /// 팝업과 시트를 모두 닫고 초기 상태로 되돌림
     /// </summary>
     private void CloseAll()
     {

@@ -1,4 +1,4 @@
-using AYellowpaper.SerializedCollections;
+﻿using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -69,7 +69,7 @@ public class GachaManager : Singleton<GachaManager>
         {
             var spentStr = string.Join(", ", result.SpentCurrencies.Select(kv => $"{kv.Key}:{kv.Value}"));
             var itemsStr = result.ItemIds.Count > 0 ? string.Join(", ", result.ItemIds) : "(없음)";
-            Debug.Log($"[Gacha] {gachaType} 30회 벌크 뽑기 성공 | ItemIds: [{itemsStr}] | 소비: {spentStr} | 레벨업: {result.LevelUp} | 레어: {result.HasRareItem}");
+
         }
         else
         {

@@ -1,16 +1,16 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// 蹂댁긽쨌?꾩씠???쒕엻 ?꾩뿭 愿由? ItemDropSettings ?몄뒪?댁뒪 ?앹꽦 諛??ㅽ뀒?댁?蹂??쒕∼?뚯씠釉??곸슜.
-/// StageManager.SetReward()?먯꽌 SetDropTable ?몄텧. EnemyKillRewardDispatcher??RewardManager.DropSettings ?ъ슜.
-/// ItemDropSettings??RewardManager瑜??듯빐?쒕쭔 ?묎렐.
+/// 보상용 ItemDropSettings를 관리하고 현재 스테이지 드랍 테이블을 반영한다.
+/// StageManager.SetReward()에서 SetDropTable을 호출하고, EnemyKillRewardDispatcher가 DropSettings를 사용한다.
+/// ItemDropSettings 접근은 RewardManager를 통해서만 수행한다.
 /// </summary>
 //[DefaultExecutionOrder(-100)]
 public class RewardManager : Singleton<RewardManager>
 {
     private const string ItemDropSettingsResourcePath = "ItemDropSettings";
 
-    /// <summary>?꾩옱 ?ъ슜 以묒씤 ItemDropSettings. ??긽 Awake?먯꽌 珥덇린?붾맖. (Resources ?대뜑???덈뒗 ItemDropSettings???ъ슜?⑸땲??</summary>
+    /// <summary>현재 사용 중인 ItemDropSettings. 기본적으로 Awake에서 초기화된다.</summary>
     public ItemDropSettings DropSettings { get; private set; }
 
     protected override void Awake()
@@ -19,7 +19,7 @@ public class RewardManager : Singleton<RewardManager>
         EnsureItemDropSettings();
     }
 
-    /// <summary>ItemDropSettings ?몄뒪?댁뒪 ?앹꽦/濡쒕뱶. RewardManager留??ъ슜.</summary>
+    /// <summary>ItemDropSettings를 로드하고, 없으면 기본값으로 생성한다.</summary>
     private void EnsureItemDropSettings()
     {
         var loaded = Resources.Load<ItemDropSettings>(ItemDropSettingsResourcePath);
@@ -29,16 +29,16 @@ public class RewardManager : Singleton<RewardManager>
             return;
         }
 
-        DropSettings = CreateDefaultItemDropSettings(); // ?놁쓣??留뚮뱶??嫄대뜲 ?섏쨷??鍮쇱? ?딆쓣源??띕꽕??
-        Debug.Log("[RewardManager] ItemDropSettings瑜?湲곕낯媛믪쑝濡??앹꽦?덉뒿?덈떎.");
+        DropSettings = CreateDefaultItemDropSettings(); // 리소스가 없을 때만 기본 설정으로 생성
+
     }
 
-    /// <summary>?ㅽ뀒?댁?蹂??쒕∼?뚯씠釉??곸슜</summary>
+    /// <summary>스테이지별 드랍 테이블을 현재 설정에 반영한다.</summary>
     public void SetDropTable(ItemDropTable dropTable)
     {
         if (dropTable == null)
         {
-            Debug.LogWarning("[RewardManager] dropTable??null?낅땲??");
+            Debug.LogWarning("[RewardManager] dropTable이 null입니다.");
             return;
         }
 
@@ -60,26 +60,26 @@ public class RewardManager : Singleton<RewardManager>
             DropSettings.equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight03 / fullRate);
             DropSettings.equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight04 / fullRate);
         }
-        // ItemDropTable CSV ?뺣쪧? % ?⑥쐞 (5=5%, 0.01=0.01%) ??0~1濡?蹂??
+        // ItemDropTable CSV 확률은 % 단위이므로 0~1 범위로 변환한다.
         DropSettings.equipmentChance = (float)(dropTable.equipmentRate / 100.0);
         DropSettings.pixieFragmentChance = (float)(dropTable.fairyPieceRate / 100.0);
         DropSettings.skillScrollChance = (float)(dropTable.scrollRate / 100.0 * 20000);
         DropSettings.skillGemChance = (float)(dropTable.gemRate / 100.0);
-        DropSettings.dungeonTicketChance = (float)(dropTable.keyRate / 100.0) * 20000; // ?뚯뒪?몃? ?꾪빐 ?꾩떆濡??뺣쪧 利앷?
+        DropSettings.dungeonTicketChance = (float)(dropTable.keyRate / 100.0) * 20000; // 테스트를 위해 임시로 확률을 증폭
     }
 
     /// <summary>
-    /// ?꾩씠??ID? ?섎웾??諛쏆븘 ??낅퀎濡??몃깽?좊━/?ы솕??蹂댁긽 吏湲?
-    /// (?꾩떆濡?援ы쁽?대뇬?붾뜲 萸붽? ??留덉쓬???ㅼ쭊 ?딅꽕??
+    /// 아이템 ID와 수량을 받아 인벤토리에 보상을 지급한다.
+    /// 장비와 재화 모두 InventoryManager를 통해 처리한다.
     /// </summary>
-    /// <param name="itemId">EquipListDict ?먮뒗 ItemInfoDict??ID</param>
-    /// <param name="count">吏湲됲븷 ?섎웾</param>
-    /// <returns>吏湲??깃났 ?щ?</returns>
+    /// <param name="itemId">EquipListDict 또는 ItemInfoDict 기준 ID</param>
+    /// <param name="count">지급할 수량</param>
+    /// <returns>지급 성공 여부</returns>
     public bool GrantReward(int itemId, int count)
     {
         if (itemId <= 0 || count <= 0)
         {
-            Debug.LogWarning($"[RewardManager] ?섎せ???뚮씪誘명꽣: itemId={itemId}, count={count}");
+            Debug.LogWarning($"[RewardManager] 잘못된 파라미터: itemId={itemId}, count={count}");
             return false;
         }
 
@@ -121,6 +121,5 @@ public class RewardManager : Singleton<RewardManager>
         return s;
     }
 }
-
 
 

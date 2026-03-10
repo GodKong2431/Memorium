@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -104,16 +104,21 @@ public class SaveEquipmentData
         //unlockEquipmentValueDict[context.ItemId] = equipmentItemCount;
     }
 
+    public void SaveEquipmentReinforcement(EquipmentData equipmentData)
+    {
+        unlockEquipmentDict[equipmentData.equipmentId] = equipmentData;
+    }
+
     public int FirstDictionaryKey<T>(Dictionary<int,T> table)
     {
         if (table == null)
         {
-            Debug.Log("[TestSavePlayerEquipmentData] 테이블이 비었다");
+
             return 0;
         }
         if (table.Count == 0)
         {
-            Debug.Log("[TestSavePlayerEquipmentData] 테이블 크기가 0이다");
+
             return 0;
         }
         List<int> keyList = table.Keys.ToList<int>();
@@ -248,12 +253,12 @@ public class SaveEquipmentData
     {
         if (table == null)
         {
-            Debug.Log("[TestSavePlayerEquipmentData] 테이블이 비었다");
+
             return 0;
         }
         if (table.Count == 0)
         {
-            Debug.Log("[TestSavePlayerEquipmentData] 테이블 크기가 0이다");
+
             return 0;
         }
         List<int> keyList = table.Keys.ToList<int>();

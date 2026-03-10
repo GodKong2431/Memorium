@@ -71,6 +71,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         yield return new WaitUntil(() => InventoryManager.Instance != null);
         InventoryManager.Instance.OnItemAmountChanged += saveEquipmentData.SaveEquipment;
+        EquipmentInventoryModule equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
+        equipmentModule.OnEquipmentInfoChanged += saveEquipmentData.SaveEquipmentReinforcement;
 
         TableLoad = true;
     }

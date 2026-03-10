@@ -17,6 +17,8 @@ public sealed class EquipmentInventoryModule : IInventoryModule
 
     public bool IsInitialized { get; private set; }
 
+    public event Action<EquipmentData> OnEquipmentInfoChanged; //아이템 정보 변경 이벤트
+
     public bool CanHandle(ItemType itemType)
     {
         switch (itemType)
@@ -347,6 +349,8 @@ public sealed class EquipmentInventoryModule : IInventoryModule
     public void SetEquipment(EquipmentData equipmentData)
     {
         equipmentByItemId[equipmentData.equipmentId] = equipmentData;
+
+        OnEquipmentInfoChanged.Invoke(equipmentData);
     }
 }
 

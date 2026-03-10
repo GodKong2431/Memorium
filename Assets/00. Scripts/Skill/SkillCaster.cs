@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -70,7 +70,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
     public void PlayAnim(string key)
     {
-        Debug.Log($"애니메이션 재생: {key}");
+
     }
 
     public void Init(ISkillStatProvider stat, ISkillTargetProvider target, Action<bool> onInvincible = null)

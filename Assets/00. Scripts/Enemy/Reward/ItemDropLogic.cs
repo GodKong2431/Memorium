@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -136,7 +136,7 @@ public static class ItemDropLogic
         {
             //int id = PickRandom(settings.dungeonTicketIds);
             int id = PickRandom(settings.ReturnItemTableToType(ItemType.Key));
-            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.DungeonTicket });}
+            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.DungeonTicket }); }
         }
     }
 

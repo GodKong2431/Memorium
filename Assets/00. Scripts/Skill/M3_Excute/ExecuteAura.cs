@@ -1,17 +1,35 @@
+﻿
 using UnityEngine;
 using System.Collections;
 
+//객채 생성하는걸로 바꿔야함.
 public class ExecuteAura : ISkillExecuteStrategy
 {
-    public IEnumerator Execute(ISkillHitHandler owner, ISkillDetectable bufferProvider, SkillDataContext dataContext, Vector3 startPosition, Vector3 direction, LayerMask targetLayer, GameObject prefab)
+    public IEnumerator Execute(ISkillHitHandler owner, ISkillDetectable bufferProvider, SkillDataContext dataContext, Vector3 startPosition, Vector3 direction, LayerMask targetLayer, GameObject prefab =null)
     {
-        GameObject go = Object.Instantiate(prefab, owner.transform.position, owner.transform.rotation, owner.transform);
+        SkillData data = dataContext.skillData;
+        float duration = data.m3Data.m3Duration;
+        float interval = data.m3Data.m3TickInterval;
+        float timer = 0f;
 
-        if (go.TryGetComponent<SkillObjectileBase>(out var aura))
+        var m2 = SkillStrategyContainer.GetDetect(data.m2Data.m2Type);
+        Transform targetTransform = owner.transform;
+
+        while (timer < duration)
         {
-            aura.Initialize(owner, dataContext, targetLayer);
-        }
+            if (targetTransform == null) yield break;
 
-        yield break;
+            Vector3 currentPos = targetTransform.position + (targetTransform.forward * data.m3Data.m3Distance);
+
+
+            int count = m2.Detect(currentPos, targetTransform.forward, data.m2Data, bufferProvider, targetLayer);
+
+            if (count > 0)
+            {
+                owner.HandleSkillHit(count, dataContext, bufferProvider.GetBuffer());
+            }
+            yield return CoroutineManager.waitForSeconds(interval); 
+            timer += interval;
+        }
     }
 }

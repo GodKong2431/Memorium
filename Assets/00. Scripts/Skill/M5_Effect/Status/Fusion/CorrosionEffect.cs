@@ -1,4 +1,4 @@
-
+﻿
 using UnityEngine;
 
 // 부식 출혈+독
@@ -22,12 +22,7 @@ public class CorrosionEffect : StatusEffectBase
         base.OnApply(target, buffApplicable);
         float count = poisonData.duration / poisonData.damage;
         float totalDamage = burstDamage * count;
-#if UNITY_EDITOR
-        Debug.Log($"부식 데미지 : {totalDamage}");
-        Debug.Log($"[부식] {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
-#endif
         target.TakeDamage(totalDamage);
-
     }
 
     protected override void OnTick() { }
@@ -40,12 +35,11 @@ public class CorrosionEffect : StatusEffectBase
 
         for (int i = 0; i < count; i++)
         {
-            if (buffer[i].TryGetComponent<EffectController>(out var effectController)
+            if (buffer[i].TryGetComponent<EffectController>(out var ec)
                 && buffer[i].TryGetComponent<IDamageable>(out var enemy)
                 && enemy.IsAlive && enemy != target)
             {
-                if (!effectController.HasStatusEffect())
-                    effectController.ApplyStatusEffect(new PoisonEffect(poisonData));
+                ec.ApplyStatusEffect(new PoisonEffect(poisonData));
             }
         }
     }

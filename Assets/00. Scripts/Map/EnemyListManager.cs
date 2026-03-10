@@ -1,4 +1,4 @@
-using NUnit.Framework;
+ï»¿using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +17,7 @@ public class EnemyListManager : Singleton<EnemyListManager>
         foreach (var enemy in enemyList)
         {
 
-            //Debug.Log($"[EnemyListManager] ¸ó½ºÅÍ ID {enemy.monsterIdFromDataManager}");
+            //Debug.Log($"[EnemyListManager] ëª¬ìŠ¤í„° ID {enemy.monsterIdFromDataManager}");
             enemyMap[enemy.monsterIdFromDataManager]=enemy.gameObject;
             //enemyRewardMap[enemy.monsterIdFromDataManager] = enemy.RewardData;
         }

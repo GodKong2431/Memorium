@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 using static UnityEngine.GraphicsBuffer;
 
@@ -65,22 +65,19 @@ public class PlayerStateAttack : IPlayerState
         float angle = Quaternion.Angle(ctx.PlayerTransform.rotation, targetQuat);
 
         float perSec = angle / Mathf.Max(0.0001f, ctx.AngularTime);
-        if (!ctx.playerSkillHandler.IsCasting())//스킬 중 회전 x
-        {
-            ctx.PlayerTransform.rotation = Quaternion.RotateTowards(
-                ctx.PlayerTransform.rotation,
-                targetQuat,
-                perSec * Time.deltaTime
-                );
-        }
+
+        ctx.PlayerTransform.rotation = Quaternion.RotateTowards(
+            ctx.PlayerTransform.rotation,
+            targetQuat,
+            perSec * Time.deltaTime
+            );
 
         // 치명타
         var critmult = CritCheck(ctx.StatPresenter.PlayerStat.FinalStats[StatType.CRIT_CHANCE].finalStat) ? ctx.StatPresenter.PlayerStat.FinalStats[StatType.CRIT_MULT].finalStat : 1f;
 
         ctx.SetCritMult(critmult);
 
-        // 스킬 사용시 공격 못하게하기위해 IsCasting 및 IsChanneling 체크 추가
-        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && !IsDelayAttack && !ctx.playerSkillHandler.IsCasting() &&!ctx.playerSkillHandler.IsChanneling())
+        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && !IsDelayAttack)
         {
             if (enemy.TryGetComponent<EnemyStateMachine>(out var target))
             {
@@ -89,8 +86,8 @@ public class PlayerStateAttack : IPlayerState
 
             IsDelayAttack = true;
         }
-        // 스킬 사용 중 다음 상태로 넘어가지 않도록 IsCasting 체크 추가
-        if (_attackInProgress && Time.time >= _attackEndTime  && !ctx.playerSkillHandler.IsCasting())
+
+        if (_attackInProgress && Time.time >= _attackEndTime)
         {
             IsDelayAttack = false;
             _attackInProgress = false;
@@ -115,7 +112,7 @@ public class PlayerStateAttack : IPlayerState
             var normal = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalStats[StatType.NORMAL_DMG].finalStat, 0);
             var boss = ctx.StatPresenter.PlayerStat.GatBasicDamage(ctx.StatPresenter.PlayerStat.FinalStats[StatType.BOSS_DMG].finalStat, 0);
 
-            //Debug.Log(statPresenter.IsBoss);
+
 
             var finalDamage = statPresenter.IsBoss ? boss : normal;
 

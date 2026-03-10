@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// 적의 스탯 데이터를 제공.
@@ -74,6 +74,6 @@ public class EnemyStatPresenter : MonoBehaviour
     private void LogStatDebug(string prefix, EnemyStatData data)
     {
         if (data == null) return;
-        Debug.Log($"{prefix} | {gameObject.name} | ID:{data.monsterID} {data.monsterName} | HP:{data.monsterHealth} ATK:{data.monsterAttackpoint} SPD:{data.monsterSpeed} RNG:{data.attackRange}");
+
     }
 }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public static class CheckDungeon
@@ -16,7 +16,7 @@ public static class CheckDungeon
                 return true;
             else
             {
-                Debug.Log("[CheckDungeon] 이전 스테이지를 클리어하지 못하여 입장 불가능");
+
                 return false;
             }
         }
@@ -46,13 +46,13 @@ public static class CheckDungeon
                 return true;
             else
             {
-                Debug.Log($"[CheckDungeon] 노말 스테이지{checkFirstDungeonToAccess[type]}을 클리어하지 못하여 입장 불가능");
+
                 return false;
             }
         }
         else
         {
-            Debug.Log($"[CheckDungeon] 잘못된 레벨 ({level}) 입력");
+
             return false;
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.DebugUI;
 
 // 단일 장비 탭의 티어/아이템 UI를 생성하고 갱신한다.
 public class EquipTabUIController : UIControllerBase
@@ -189,6 +190,18 @@ public class EquipTabUIController : UIControllerBase
 
         EquipItemView view = new EquipItemView(itemUI);
         int itemId = table.ID;
+        //레벨 텍스트 수정
+        //아이템 아이디 기반으로 레벨 가져오기 
+        EquipmentInventoryModule equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
+        EquipmentData equipmentData = equipmentModule.GetEquipment(itemId);
+        if (equipmentData.equipmentId == itemId)
+        {
+            levelText = "Lv. " + equipmentData.equipmentReinforcement;
+        }
+        else
+        {
+            levelText = "Lv. 0";
+        }
 
         view.Bind(() => ClickItem(itemId));
         view.Render(
@@ -203,6 +216,7 @@ public class EquipTabUIController : UIControllerBase
         views[itemId] = view;
     }
 
+
     // 생성된 모든 아이템 셀을 최신 데이터로 갱신한다.
     private void RefreshAllItems()
     {
@@ -216,6 +230,19 @@ public class EquipTabUIController : UIControllerBase
 
             view.RenderCount(ToCount(inventory.GetItemAmount(itemId)), mergeCount);
             view.SetDimmed(!equipModule.IsUnlocked(itemId));
+            //아이템 아이디 기반으로 레벨 가져오기 
+            EquipmentInventoryModule equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
+            EquipmentData equipmentData = equipmentModule.GetEquipment(itemId);
+            if (equipmentData.equipmentId == itemId)
+            {
+                levelText = "Lv. " + equipmentData.equipmentReinforcement;
+            }
+            else
+            {
+                levelText = "Lv. 0";
+            }
+            view.RenderLevel(levelText);
+
         }
     }
 
@@ -286,6 +313,6 @@ public class EquipTabUIController : UIControllerBase
     // 장비 아이템 셀 클릭 이벤트를 처리한다.
     private void ClickItem(int itemId)
     {
-        Debug.Log($"[EquipTabUIController] 장비 선택 구현 예정: {itemId}");
+
     }
 }

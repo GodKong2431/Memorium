@@ -1,4 +1,4 @@
-public static class SkillConstants
+﻿public static class SkillConstants
 {
     // 물리 탐지
     public const float DETECT_HEIGHT = 10f;

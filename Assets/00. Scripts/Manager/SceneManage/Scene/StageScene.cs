@@ -1,11 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class StageScene : SceneBase
 {
     public override IEnumerator EnterScene()
     {
-        Debug.Log("�������� �� ���� ����");
+
 
         // GameEventManager.OnQuestProgressChanged?.Invoke();
 
@@ -14,6 +14,6 @@ public class StageScene : SceneBase
 
     public override void ExitScene()
     {
-        Debug.Log("�������� �� ���� ����");
+
     }
 }

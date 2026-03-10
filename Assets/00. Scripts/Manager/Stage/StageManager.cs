@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -135,7 +135,7 @@ public class StageManager : Singleton<StageManager>
         if (isReadyToBossSpawn)
             return;
 
-        Debug.Log("[StageManager] Boss summon button clicked.");
+
         isReadyToBossSpawn = true;
     }
 
@@ -268,7 +268,7 @@ public class StageManager : Singleton<StageManager>
     // 씬 로드 완료 시 스테이지 상태를 다시 반영한다.
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log("[StageManager] Scene loaded. Refresh stage data.");
+
 
         TryApplyPendingStageEntryRequest();
 

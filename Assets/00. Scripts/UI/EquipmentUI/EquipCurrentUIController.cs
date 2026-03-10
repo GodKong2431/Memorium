@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -185,7 +185,17 @@ public class EquipCurrentUIController : UIControllerBase
 
             Sprite icon = LoadIcon(info);
             int starCount = GetStarCount(info.grade);
-
+            //아이템 아이디 기반으로 레벨 가져오기 
+            EquipmentInventoryModule equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
+            EquipmentData equipmentData = equipmentModule.GetEquipment(itemId);
+            if (equipmentData.equipmentId == itemId)
+            {
+                levelText = "Lv. "+equipmentData.equipmentReinforcement;
+            }
+            else
+            {
+                levelText = "Lv. 0";
+            }
             views[i].Render(icon, levelText, starCount, RarityColor.TierColorByTier(info.grade));
             views[i].SetFrameColor(RarityColor.ItemGradeColor(info.rarityType));
         }

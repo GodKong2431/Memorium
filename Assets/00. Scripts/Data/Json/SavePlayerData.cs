@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 using static PlayerStatView;
@@ -33,7 +33,7 @@ public class SavePlayerData
         characterStatSO = so;
         if (playerLevel <= 0)
         {
-            Debug.Log($"[SavePlaterData] {playerLevel}이므로 값 초기화");
+
             //골드 업그레이드 초기화
             playerStatType_GoldUpgrades = new List<int>();
             statUpgradeCount_GoldUpgrades = new List<int>();
@@ -61,7 +61,7 @@ public class SavePlayerData
         //타입 갯수 혹은 종류 비교 후 없으면 new로 만들던가 하자
         else
         {
-            Debug.Log($"[SavePlaterData] {playerLevel}이므로 값 불러오기");
+
             for (int i = 0; i < playerStatType_GoldUpgrades.Count; i++)
             {
                 characterStatSO.Upgrades[(StatType)playerStatType_GoldUpgrades[i]].LoadUpgrade(statUpgradeCount_GoldUpgrades[i], statUpgradeCost_GoldUpgrades[i]);
@@ -89,9 +89,9 @@ public class SavePlayerData
 
     public void SaveLevel()
     {
-        Debug.Log($"[SavePlayerData] 레벨 저장 : {CharacterStatManager.Instance.LevelBonus.CurrentLevel}");
+
         playerLevel = CharacterStatManager.Instance.LevelBonus.CurrentLevel;
-        Debug.Log($"[SavePlayerData] 레벨 저장 성공 : {playerLevel}");
+
     }
 
     public void Save()

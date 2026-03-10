@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class BuffDebuffHandler 
@@ -12,43 +12,27 @@ public class BuffDebuffHandler
 
     public void AddOrRefreshModifier(StatModifier modifier)
     {
-        for (int i = 0; i < modifiers.Count; i++)
+        foreach (var existingModifier in modifiers)
         {
-            if (modifiers[i].GetID() == modifier.GetID())
+            if (existingModifier.GetID() == modifier.GetID())
             {
-                var tmpMod = modifiers[i];
-                tmpMod.elapsedTime = 0f;
-                modifiers[i] = tmpMod;
-
-#if UNITY_EDITOR
-                Debug.Log($"스텟 버프: {tmpMod.statType} : {tmpMod.GetValue()}갱신");
-#endif
+                existingModifier.Refesh();
                 return;
             }
         }
         modifiers.Add(modifier);
-#if UNITY_EDITOR
-        Debug.Log($"스텟 버프: {modifier.statType} : {modifier.GetValue()}적용");
-#endif
     }
 
     public void Tick(float deltaTime)
     {
         for (int i = modifiers.Count - 1; i >= 0; i--)
         {
-            var tmpMod = modifiers[i];
-            tmpMod.elapsedTime += deltaTime;
-            if (tmpMod.IsExpired)
+            modifiers[i].Tick(deltaTime);
+            if (modifiers[i].IsExpired)
             {
-#if UNITY_EDITOR
-                Debug.Log($"스텟 버프: {tmpMod.statType} : {tmpMod.GetValue()} 종료");
-#endif
                 modifiers[i] = modifiers[modifiers.Count - 1];
                 modifiers.RemoveAt(modifiers.Count - 1);
-            }
-            else
-            {
-                modifiers[i] = tmpMod;
+
             }
         }
     }

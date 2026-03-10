@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// 일반 몬스터를 N마리 처치하면 보스를 (0, 1, -4) 월드좌표에 소환 (스포너 구현 전이라 임시로 지정한 좌표입니다~)
@@ -51,6 +51,6 @@ public class NormalKillBossSpawner : MonoBehaviour
         // 보스 스폰 이펙트 추가 예정
         // 보스 스폰 효과음 추가 예정
         EnemyKillRewardDispatcher.ResetKillCount();
-        Debug.Log($"[NormalKillBossSpawner] 일반 몬스터 {killThreshold}마리 처치 → 보스 소환 ({bossSpawnPosition})");
+
     }
 }

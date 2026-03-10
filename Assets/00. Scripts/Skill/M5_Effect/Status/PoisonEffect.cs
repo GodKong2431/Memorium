@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 public class PoisonEffect : StatusEffectBase
 {
     private float spreadRadius = 3f;
@@ -15,17 +15,10 @@ public class PoisonEffect : StatusEffectBase
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
-#if UNITY_EDITOR
-        Debug.Log($"[독Effect] Applied to {target.transform.name} | Duration: {duration}s | Damage per tick: {damage}");
-#endif
     }
 
     protected override void OnTick()
     {
-        if (target ==null) return;
-#if UNITY_EDITOR
-        Debug.Log($"[독데미지]{damage}");
-#endif
         target.TakeDamage(damage);
     }
     public override void OnTargetDeath()
@@ -39,8 +32,7 @@ public class PoisonEffect : StatusEffectBase
                 && buffer[i].TryGetComponent<IDamageable>(out var enemy)
                 && enemy.IsAlive && enemy != target)
             {
-                if (!effect.HasStatusEffect())
-                    effect.ApplyStatusEffect(StatusEffectFactory.Create(tableData));
+                effect.ApplyStatusEffect(StatusEffectFactory.Create(tableData));
             }
         }
     }
