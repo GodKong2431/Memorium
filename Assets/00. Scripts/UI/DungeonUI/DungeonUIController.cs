@@ -28,6 +28,7 @@ public class DungeonUIController : UIControllerBase
 
     private bool isBuilt;
     private StageType selectedStageType = StageType.None;
+    private DungeonLevelPopupUI enterPopup;
 
     private sealed class DungeonViewData
     {
@@ -37,6 +38,13 @@ public class DungeonUIController : UIControllerBase
     }
 
     public StageType SelectedStageType => selectedStageType;
+    public int RequiredKeyCount => Mathf.Max(1, requiredKeyCount);
+
+    protected override void Initialize()
+    {
+        PrepareEnterPopup();
+        HideEnterPopup();
+    }
 
     private void Update()
     {
@@ -151,6 +159,10 @@ public class DungeonUIController : UIControllerBase
         int requiredCount = Mathf.Max(1, requiredKeyCount);
         BigDouble requiredAmount = new BigDouble(requiredCount);
         bool hasEnoughKey = currentKeyAmount >= requiredAmount;
+        bool isDungeonInProgress = IsDungeonInProgress();
+
+        if (isDungeonInProgress)
+            HideEnterPopup();
 
         for (int i = 0; i < dungeonViews.Count; i++)
         {
@@ -167,14 +179,30 @@ public class DungeonUIController : UIControllerBase
 
     private void OnClickEnter(StageType stageType)
     {
+        if (IsDungeonInProgress())
+        {
+            InstanceMessageManager.TryShowDungeonInProgress();
+            return;
+        }
+
         if (!IsFirstStageUnlocked(stageType))
             return;
 
-        int requiredCount = Mathf.Max(1, requiredKeyCount);
-        if (GetCurrentDungeonKeyAmount() < new BigDouble(requiredCount))
+        if (GetCurrentDungeonKeyAmount() < new BigDouble(RequiredKeyCount))
             return;
 
         selectedStageType = stageType;
+
+        PrepareEnterPopup();
+        if (enterPopup != null)
+        {
+            enterPopup.Show(
+                stageType,
+                GetDungeonName(stageType),
+                CollectRewardItemIds(stageType),
+                RequiredKeyCount);
+            return;
+        }
 
         if (enterPopupObject != null)
             enterPopupObject.SetActive(true);
@@ -199,7 +227,32 @@ public class DungeonUIController : UIControllerBase
         RefreshStateOnly();
     }
 
-    private static string GetDungeonName(StageType stageType)
+    private void PrepareEnterPopup()
+    {
+        if (enterPopupObject == null)
+            return;
+
+        if (enterPopup == null)
+            enterPopup = enterPopupObject.GetComponent<DungeonLevelPopupUI>();
+
+        if (enterPopup == null)
+        {
+            Debug.LogWarning("[DungeonUIController] DungeonLevelPopupUI component is missing on the assigned enterPopupObject.");
+            return;
+        }
+
+        enterPopup.BindHost(this);
+    }
+
+    private void HideEnterPopup()
+    {
+        if (enterPopup != null)
+            enterPopup.Hide();
+        else if (enterPopupObject != null)
+            enterPopupObject.SetActive(false);
+    }
+
+    internal static string GetDungeonName(StageType stageType)
     {
         switch (stageType)
         {
@@ -216,7 +269,7 @@ public class DungeonUIController : UIControllerBase
         }
     }
 
-    private static Sprite LoadRewardIcon(int itemId)
+    internal static Sprite LoadRewardIcon(int itemId)
     {
         if (DataManager.Instance == null || DataManager.Instance.ItemInfoDict == null)
             return null;
@@ -251,5 +304,10 @@ public class DungeonUIController : UIControllerBase
             return BigDouble.Zero;
 
         return currencyModule.GetAmount(CurrencyType.DungeonTicket);
+    }
+
+    private static bool IsDungeonInProgress()
+    {
+        return StageManager.Instance != null && StageManager.Instance.IsDungeonInProgress;
     }
 }

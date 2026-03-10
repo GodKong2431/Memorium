@@ -20,6 +20,7 @@ public static class CSVHelper
             if (string.IsNullOrWhiteSpace(lines[i]) || lines[i].StartsWith("#")) continue;
             string[] values = SplitCsvLine(lines[i]);
             if (values.Length != headers.Length) continue;
+            if (string.IsNullOrWhiteSpace(values[0])) continue;
 
             T entry = new T();
 

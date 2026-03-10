@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
+[RequireComponent(typeof(Button))]
 public class HoldAcceleratorAddon : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
     [Header("가속 설정")]
@@ -11,6 +12,18 @@ public class HoldAcceleratorAddon : MonoBehaviour, IPointerDownHandler, IPointer
     public float maxTicksPerSecond = 20f;
 
     private Button targetButton;
+
+    public static HoldAcceleratorAddon Ensure(Button button)
+    {
+        if (button == null)
+            return null;
+
+        HoldAcceleratorAddon addon = button.GetComponent<HoldAcceleratorAddon>();
+        if (addon == null)
+            addon = button.gameObject.AddComponent<HoldAcceleratorAddon>();
+
+        return addon;
+    }
 
     private bool isPointerDown = false;
     private float timeHeld = 0f;

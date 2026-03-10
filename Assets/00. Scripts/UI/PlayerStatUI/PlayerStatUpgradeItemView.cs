@@ -15,6 +15,8 @@ public sealed class PlayerStatUpgradeItemView
 
     public void BindUpgradeButton(UnityAction onClick)
     {
+        HoldAcceleratorAddon.Ensure(item.UpgradeButton);
+
         // 재바인딩 시 중복 리스너가 쌓이지 않도록 먼저 제거한다.
         item.UpgradeButton.onClick.RemoveListener(onClick);
         item.UpgradeButton.onClick.AddListener(onClick);

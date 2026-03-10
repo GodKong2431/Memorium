@@ -130,7 +130,10 @@ public class StageUIController : UIControllerBase
         if (clampedMax <= 0 || clampedCurrent < clampedMax)
             return false;
 
-        return !StageManager.Instance.isReadyToBossSpawn;
+        if (StageManager.Instance.onBossStage)
+            return false;
+
+        return !StageManager.Instance.HasPendingBossSpawnRequest;
     }
 
     private void SyncSummonButtonState()
