@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -76,19 +76,31 @@ public class PlayerSlot
         {
             case StatType.ATK:
                 DataManager.Instance.EquipWeaponDict.TryGetValue(WeaponSlot, out var valueWeaponStat1);
-                return valueWeaponStat1?.attackPower ?? 0f;
+                //Debug.Log($"[PlayerSlot] 강화 공격력 : {ReinforecementEquipmentStat.ReturnReinforceStat(WeaponSlot, playerStatType)}  보너스 공격력 : {ReinforecementEquipmentStat.ReturnBonusStat(playerStatType)}");
+                return valueWeaponStat1?.attackPower + ReinforecementEquipmentStat.ReturnReinforceStat(WeaponSlot, playerStatType)
+                    + ReinforecementEquipmentStat.ReturnBonusStat(playerStatType)?? 0f;
             case StatType.ATK_SPEED:
                 DataManager.Instance.EquipWeaponDict.TryGetValue(WeaponSlot, out var valueWeaponStat2);
-                return valueWeaponStat2?.attackSpeed ?? 0f;
+                //Debug.Log($"[PlayerSlot] 강화 공격속도: {ReinforecementEquipmentStat.ReturnReinforceStat(WeaponSlot, playerStatType)}  보너스 공격속도 : {ReinforecementEquipmentStat.ReturnBonusStat(playerStatType)}");
+                return valueWeaponStat2?.attackSpeed + ReinforecementEquipmentStat.ReturnReinforceStat(WeaponSlot, playerStatType)
+                    + ReinforecementEquipmentStat.ReturnBonusStat(playerStatType) ?? 0f;
+
+            case StatType.PHYS_DEF:
+                DataManager.Instance.EquipHelmetDict.TryGetValue(HelmetSlot, out var valueHelmet);
+                return valueHelmet?.defense + ReinforecementEquipmentStat.ReturnReinforceStat(HelmetSlot, playerStatType)
+                    + ReinforecementEquipmentStat.ReturnBonusStat(playerStatType) ?? 0f;
             case StatType.HP:
                 DataManager.Instance.EquipArmorDict.TryGetValue(ArmorSlot, out var valueArmor);
-                return valueArmor?.hp ?? 0f;
+                return valueArmor?.hp + ReinforecementEquipmentStat.ReturnReinforceStat(ArmorSlot, playerStatType)
+                    + ReinforecementEquipmentStat.ReturnBonusStat(playerStatType) ?? 0f;
             case StatType.MAGIC_DEF:
                 DataManager.Instance.EquipGloveDict.TryGetValue(GloveSlot, out var valueGlove);
-                return valueGlove?.magicDefense ?? 0f;
+                return valueGlove?.magicDefense + ReinforecementEquipmentStat.ReturnReinforceStat(GloveSlot, playerStatType)
+                    + ReinforecementEquipmentStat.ReturnBonusStat(playerStatType) ?? 0f;
             case StatType.MOVE_SPEED:
                 DataManager.Instance.EquipBootsDict.TryGetValue(BootsSlot, out var valueBoots);
-                return valueBoots?.moveSpeed ?? 0f;
+                return valueBoots?.moveSpeed + ReinforecementEquipmentStat.ReturnReinforceStat(BootsSlot, playerStatType)
+                    + ReinforecementEquipmentStat.ReturnBonusStat(playerStatType) ?? 0f;
             default:
                 return 0f;
         }
