@@ -65,6 +65,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         //불러온 데이터 플레이어 장착 및 데이터 세팅
         if (equipmentHandler != null)
         {
+            ReinforecementEquipmentStat.InitReinforcement(saveEquipmentData.unlockEquipmentDict);
+            ReinforecementEquipmentStat.InitBonusStat(saveEquipmentData.unlockEquipmentDict);
             equipmentHandler.SetMyEquipOnStart(saveEquipmentData.weaponId, saveEquipmentData.helmetId, saveEquipmentData.gloveId, saveEquipmentData.armorId, saveEquipmentData.bootsId, 
                 saveEquipmentData.unlockEquipmentDict);
         }

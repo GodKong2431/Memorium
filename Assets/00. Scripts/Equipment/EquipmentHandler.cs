@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -208,24 +208,66 @@ public class EquipmentHandler : MonoBehaviour
             return false;  
         }
 
-        //골드 아이디 불러오기
+        //골드 아이디 불러오기 한 번 불러온 후로는 리턴
         SetGoldID();
 
-        //해당 값은 이후 테이블 기반으로 현재 장비 강화 수치에 따른 강화 비용
-        int cost = 400;
+        //아이템 정보 불러오기
+        EquipListTable equipment = DataManager.Instance.EquipListDict[itemId];
+        //보너스 스탯을 적용할 타입 불러오기
+        int Stat1Id=DataManager.Instance.EquipListDict[itemId].statType1;
+        int Stat2Id= DataManager.Instance.EquipListDict[itemId].statType2;
+        //아이템 티어 불러오기
+        int equipmentTier = equipment.equipmentTier; 
+        //아이템 타입 불러오기
+        EquipmentType equipmentType = equipment.equipmentType;
+        //강화 수치 불러오기
+        int curEquipmentReinforcement = equipmentData.equipmentReinforcement;
 
-        if (InventoryManager.Instance.GetItemAmount(goldId) <= 400)
+        
+        //기본 강화 비용 <- 테이블에서 불러와라
+        BigDouble baseCost = DataManager.Instance.EquipStatsDict[Stat1Id].baseCost;
+
+        //티어별 강화 비용 가중치 <- 테이블에서 불러와라
+        double tierWeight = DataManager.Instance.EquipStatsDict[Stat1Id].costPerTier;
+        //강화 수치별 강화 비용 가중치 <- 테이블에서 불러와라
+        float reinforcementWeight = DataManager.Instance.EquipStatsDict[Stat1Id].costPerLevel;
+
+        //강화 비용 계산
+        baseCost = baseCost * Math.Pow(tierWeight, (double)(equipmentTier - 1));
+        BigDouble cost = baseCost + (baseCost * reinforcementWeight * curEquipmentReinforcement);
+
+        //강화 비용 부족 시 False 반환
+        if (InventoryManager.Instance.GetItemAmount(goldId) <= cost)
         {
-
             return false;
         }
 
-
+        //골드 차감
         InventoryManager.Instance.RemoveItem(goldId, cost);
 
+        //강화 수치 증가
         equipmentData.equipmentReinforcement += 1;
-
         equipmentModule.SetEquipment(equipmentData);
+        
+        //스탯 성장치 <- 테이블에서 불러와라
+        //강화 수치 반영
+        ReinforecementEquipmentStat.SetReinforcement(itemId, equipmentData.equipmentReinforcement);
+
+        //강화 보너스 스탯 반영
+        ReinforecementEquipmentStat.SetBonusStat(itemId, equipmentData.equipmentReinforcement);
+
+
+        //착용 중인 아이템일 경우 다시 장착하여 스탯 적용
+        foreach (EquipmentType type in Enum.GetValues(typeof(EquipmentType)))
+        {
+            int currentItemId = playerEquipment.ReturnItemNum(type);
+
+            if (currentItemId == itemId)
+            {
+                playerEquipment.OnEqipItem(itemId);
+                break;
+            }
+        }
 
         RaiseEquipmentUiRefreshRequested();
         return true;
