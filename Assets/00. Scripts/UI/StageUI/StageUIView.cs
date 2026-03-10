@@ -1,3 +1,4 @@
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -13,6 +14,10 @@ public sealed class StageUIView
     private readonly TextMeshProUGUI mapInfoStageLevelText;
     private readonly TextMeshProUGUI progressText;
     private readonly Slider progressSlider;
+    private readonly GameObject bossPanel;
+    private readonly TextMeshProUGUI bossTimeText;
+    private readonly TextMeshProUGUI bossHpText;
+    private readonly Slider bossHpSlider;
     private readonly Button summonBossButton;
     private readonly Image summonBossButtonImage;
     private readonly Image summonBossIconImage;
@@ -25,6 +30,10 @@ public sealed class StageUIView
         TextMeshProUGUI mapInfoStageLevelText,
         TextMeshProUGUI progressText,
         Slider progressSlider,
+        GameObject bossPanel,
+        TextMeshProUGUI bossTimeText,
+        TextMeshProUGUI bossHpText,
+        Slider bossHpSlider,
         Button summonBossButton,
         Image summonBossButtonImage,
         Image summonBossIconImage,
@@ -36,6 +45,10 @@ public sealed class StageUIView
         this.mapInfoStageLevelText = mapInfoStageLevelText;
         this.progressText = progressText;
         this.progressSlider = progressSlider;
+        this.bossPanel = bossPanel;
+        this.bossTimeText = bossTimeText;
+        this.bossHpText = bossHpText;
+        this.bossHpSlider = bossHpSlider;
         this.summonBossButton = summonBossButton;
         this.summonBossButtonImage = summonBossButtonImage;
         this.summonBossIconImage = summonBossIconImage;
@@ -76,6 +89,44 @@ public sealed class StageUIView
         progressSlider.SetValueWithoutNotify(clampedCurrent);
     }
 
+    public void SetBossMode(bool active)
+    {
+        bool showBoss = active && bossPanel != null;
+        ShowProgress(!showBoss);
+        ShowBoss(showBoss);
+    }
+
+    public void SetBoss(float currentHp, float maxHp, float time)
+    {
+        if (bossTimeText != null)
+            bossTimeText.text = FormatTimer(time);
+
+        if (bossHpText != null)
+            bossHpText.text = FormatPercent(currentHp, maxHp);
+
+        if (bossHpSlider != null)
+        {
+            float clampedMax = Mathf.Max(1f, maxHp);
+            bossHpSlider.minValue = 0f;
+            bossHpSlider.maxValue = clampedMax;
+            bossHpSlider.SetValueWithoutNotify(Mathf.Clamp(currentHp, 0f, clampedMax));
+        }
+    }
+
+    public void ShowProgress(bool visible)
+    {
+        if (progressText != null)
+            progressText.gameObject.SetActive(visible);
+        if (progressSlider != null)
+            progressSlider.gameObject.SetActive(visible);
+    }
+
+    public void ShowBoss(bool visible)
+    {
+        if (bossPanel != null)
+            bossPanel.SetActive(visible);
+    }
+
     public void BindSummonButton(UnityAction onClick)
     {
         summonBossButton.onClick.RemoveListener(onClick);
@@ -92,5 +143,19 @@ public sealed class StageUIView
         summonBossButton.interactable = interactable;
         summonBossButtonImage.color = interactable ? summonBossEnabledColor : summonBossDisabledColor;
         summonBossIconImage.color = interactable ? summonBossEnabledColor : summonBossDisabledColor;
+    }
+
+    private static string FormatTimer(float seconds)
+    {
+        return Mathf.Max(0f, seconds).ToString("0.000", CultureInfo.InvariantCulture);
+    }
+
+    private static string FormatPercent(float currentHp, float maxHp)
+    {
+        if (maxHp <= 0f)
+            return "0%";
+
+        float percent = Mathf.Clamp01(currentHp / maxHp) * 100f;
+        return $"{Mathf.RoundToInt(percent)}%";
     }
 }

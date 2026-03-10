@@ -70,12 +70,12 @@ public class MonsterSpawner : MonoBehaviour
 
             ////오브젝트 풀링으로 전환
             //Instantiate(spawnBoss, spawnPos[spawnPos.Length-1].position, spawnPos[spawnPos.Length - 1].rotation);
-            ObjectPoolManager.Get(spawnBoss, spawnPos[spawnPos.Length - 1].position, spawnPos[spawnPos.Length - 1].rotation);
+            GameObject boss = ObjectPoolManager.Get(spawnBoss, spawnPos[spawnPos.Length - 1].position, spawnPos[spawnPos.Length - 1].rotation);
 
             // 보스 스폰 이펙트 추가 예정
             // 보스 스폰 효과음 추가 예정
             InstanceMessageManager.TryShowBossEnter();
-            StageManager.Instance.OnBossSpawned();
+            StageManager.Instance.StartBoss(boss);
         }
 
         curSpawnerPos++;

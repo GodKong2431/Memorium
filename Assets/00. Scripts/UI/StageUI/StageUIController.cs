@@ -1,26 +1,37 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class StageUIController : UIControllerBase
 {
-    [Header("팝업 스테이지 레벨")]
+    [Header("Popup Stage Level")]
     [SerializeField] private TextMeshProUGUI textPopupStageLevel;
 
-    [Header("MapInfo 스테이지")]
+    [Header("MapInfo Stage")]
     [SerializeField] private TextMeshProUGUI textMapInfoStageName;
     [SerializeField] private TextMeshProUGUI textMapInfoStageLevel;
 
-    [Header("진행도 UI")]
+    [Header("Stage Progress UI")]
     [SerializeField] private TextMeshProUGUI textProgress;
     [SerializeField] private Slider sliderStageProgressBar;
 
-    [Header("보스 소환")]
+    [Header("Boss HP UI")]
+    [FormerlySerializedAs("objBossHpPanelRoot")]
+    [SerializeField] private GameObject bossPanel;
+    [FormerlySerializedAs("textBossTimer")]
+    [SerializeField] private TextMeshProUGUI bossTimeText;
+    [FormerlySerializedAs("textBossHp")]
+    [SerializeField] private TextMeshProUGUI bossHpText;
+    [FormerlySerializedAs("sliderBossHp")]
+    [SerializeField] private Slider bossHpSlider;
+
+    [Header("Boss Summon")]
     [SerializeField] private Button btnSummonBoss;
     [SerializeField] private Image imageSummonBossButton;
     [SerializeField] private Image imageSummonBossIcon;
 
-    [Header("보스 소환 색상")]
+    [Header("Boss Summon Colors")]
     [SerializeField] private Color colorSummonBossEnabled = new Color(1f, 1f, 1f, 1f);
     [SerializeField] private Color colorSummonBossDisabled = new Color(0.49411765f, 0.49411765f, 0.49411765f, 1f);
 
@@ -34,12 +45,18 @@ public class StageUIController : UIControllerBase
             textMapInfoStageLevel,
             textProgress,
             sliderStageProgressBar,
+            bossPanel,
+            bossTimeText,
+            bossHpText,
+            bossHpSlider,
             btnSummonBoss,
             imageSummonBossButton,
             imageSummonBossIcon,
             colorSummonBossEnabled,
             colorSummonBossDisabled
         );
+
+        WarnBossUi();
     }
 
     protected override void Subscribe()
@@ -62,6 +79,7 @@ public class StageUIController : UIControllerBase
         {
             stageView.Render(0, 0, string.Empty, 0, 0);
             stageView.SetSummonInteractable(false);
+            stageView.SetBossMode(false);
             return;
         }
 
@@ -73,18 +91,26 @@ public class StageUIController : UIControllerBase
 
         stageView.Render(chapter, stageNumber, stageName, currentKill, maxKill);
         stageView.SetSummonInteractable(CalculateSummonInteractable(currentKill, maxKill));
+        RefreshBossUi();
+    }
+
+    private void Update()
+    {
+        RefreshBossUi();
     }
 
     private void OnStageChanged(int chapter, int stage)
     {
         stageView.SetStageLevel(chapter, stage);
         stageView.SetStageName(ResolveSceneStageName());
+        RefreshBossUi();
     }
 
     private void OnStageProgressChanged(int currentKill, int maxKill)
     {
         stageView.SetStageProgress(currentKill, maxKill);
         stageView.SetSummonInteractable(CalculateSummonInteractable(currentKill, maxKill));
+        RefreshBossUi();
     }
 
     private void OnClickSummonBoss()
@@ -148,5 +174,39 @@ public class StageUIController : UIControllerBase
             CalculateSummonInteractable(
                 StageManager.Instance.curMonsterKillCount,
                 StageManager.Instance.maxMonsterKillCount));
+    }
+
+    private void RefreshBossUi()
+    {
+        if (stageView == null)
+            return;
+
+        if (StageManager.Instance == null)
+        {
+            stageView.SetBossMode(false);
+            return;
+        }
+
+        bool isBossStage = StageManager.Instance.IsBossStage;
+        stageView.SetBossMode(isBossStage);
+
+        if (!isBossStage)
+            return;
+
+        stageView.SetBoss(
+            StageManager.Instance.BossHp,
+            StageManager.Instance.BossMaxHp,
+            StageManager.Instance.BossTime);
+    }
+
+    private void WarnBossUi()
+    {
+        if (bossPanel != null
+            && bossTimeText != null
+            && bossHpText != null
+            && bossHpSlider != null)
+            return;
+
+        Debug.LogWarning("[StageUIController] Boss HP UI references are missing. Assign (Panel)BossHp and its children in the inspector.");
     }
 }
