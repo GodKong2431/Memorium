@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
@@ -25,27 +25,12 @@ public class EnemyStateAttack : IEnemyState
 
         _isSkillAttack = ctx.IsSkillAttackType;
 
-        if (_isSkillAttack && ctx.SkillHandler != null)
-        {
-            if (ctx.SkillHandler.TryCastSkill())
-            {
-                _attackInProgress = true;
-                _attackEndTime = float.MaxValue;
-                ctx.SetAnimatorTrigger("Attack");
-            }
-            else
-            {
-                ctx.RequestState(EnemyStateType.Chase);
-                return;
-            }
-        }
-        else
+        // 일반 몬스터(근접/원거리 포함): 기존 로직 그대로 사용
+        if (!_isSkillAttack)
         {
             _damageApplied = false;
 
-            //이 부분 버프 계산된 공격속도 가져오는걸로 수정했습니다.
             float attackSpeed = ctx.AttackSpeed;
-
             float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
             _attackEndTime = Time.time + delay;
             _attackInProgress = true;
@@ -62,8 +47,44 @@ public class EnemyStateAttack : IEnemyState
                 Transform t = ctx.EnemyTransform;
                 _currentAttackEffect = Object.Instantiate(ctx.AttackEffectPrefab, t.position + Vector3.up * 1f, Quaternion.identity, t);
             }
-            // 공격 시작 효과음 추가 예정
+            return;
         }
+
+        // 보스: BossManageTable 기반 스킬 공격
+        if (ctx.BossAttackManager == null)
+        {
+            Debug.LogWarning("[EnemyStateAttack] BossAttackManager 없음 → Chase로 복귀");
+            ctx.RequestState(EnemyStateType.Chase);
+            return;
+        }
+
+        var bossAttack = ctx.BossAttackManager.SelectNextAttack();
+        if (bossAttack == null)
+        {
+            Debug.LogWarning("[EnemyStateAttack] Boss 공격 선택 실패(bossAttack == null) → Chase로 복귀");
+            ctx.RequestState(EnemyStateType.Chase);
+            return;
+        }
+
+        _damageApplied = false;
+        _attackInProgress = true;
+        _attackEndTime = Time.time + bossAttack.castingDelay + bossAttack.castingTime;
+        // Debug.Log($"[EnemyStateAttack] 보스 공격 시작 - enemy={ctx.EnemyTransform.name}, attackId={bossAttack.ID}, type={bossAttack.attackType}, delay={bossAttack.castingDelay}, cast={bossAttack.castingTime}");
+
+        // 애니메이션 트리거는 BossManageTable.animation 값을 그대로 사용한다고 가정
+        if (!string.IsNullOrEmpty(bossAttack.animation))
+            ctx.SetAnimatorTrigger(bossAttack.animation);
+        else
+            ctx.SetAnimatorTrigger("AttackBoss");
+
+        if (ctx.AttackEffectPrefab != null)
+        {
+            if (_currentAttackEffect != null)
+                Object.Destroy(_currentAttackEffect);
+            Transform t = ctx.EnemyTransform;
+            _currentAttackEffect = Object.Instantiate(ctx.AttackEffectPrefab, t.position + Vector3.up * 1f, Quaternion.identity, t);
+        }
+        // BossManageTable.effect 컬럼과 실제 파티클 매핑은 별도 세팅에서 처리
     }
 
     public void OnUpdate(EnemyStateContext ctx)
@@ -89,8 +110,40 @@ public class EnemyStateAttack : IEnemyState
 
         if (_isSkillAttack)
         {
-            if (!ctx.SkillHandler.IsCasting)
+            if (_attackInProgress && Time.time >= _attackEndTime)
             {
+                // 보스 스킬 공격: BossManageTable 기반으로 대미지/속성 적용
+                if (!_damageApplied && ctx.PlayerTransform != null)
+                {
+                    float dist = Vector3.Distance(ctx.EnemyTransform.position, ctx.PlayerTransform.position);
+                    if (dist <= ctx.AttackRange)
+                    {
+                        var damageable = ctx.PlayerTransform.GetComponent<IDamageable>();
+                        if (damageable != null)
+                        {
+                            float baseDamage = ctx.AttackPoint;
+                            float rate = 1f;
+                            DamageType damageType = DamageType.Physical;
+
+                            var current = ctx.BossAttackManager?.CurrentAttack;
+                            if (current != null)
+                            {
+                                rate = current.skillDamageRate;
+                                damageType = current.atkAttributeType == AtkAttributeType.magicalAttack
+                                    ? DamageType.Magic
+                                    : DamageType.Physical;
+                            }
+
+                            float damage = baseDamage * rate;
+                            // Debug.Log($"[EnemyStateAttack] 보스 공격 히트 - enemy={ctx.EnemyTransform.name}, base={baseDamage}, rate={rate}, final={damage}, type={damageType}");
+                            damageable.TakeDamage(damage, damageType);
+                            _damageApplied = true;
+                        }
+                    }
+                }
+
+                _attackInProgress = false;
+                ClearAttackEffect();
                 ctx.RequestState(EnemyStateType.Chase);
             }
         }
