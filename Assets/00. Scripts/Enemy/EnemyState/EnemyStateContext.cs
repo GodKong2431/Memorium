@@ -67,14 +67,18 @@ public class EnemyStateContext
     public GameObject AttackEffectPrefab { get; set; }
 
     /// <summary>
-    /// 스킬 공격형일 때 스킬 시전 핸들러. null이면 일반 근접 공격
+    /// 스킬 공격형일 때 스킬 시전 핸들러. (보스 전용/특수 케이스에서 사용)
     /// </summary>
     public EnemySkillHandler SkillHandler { get; set; }
 
+    /// <summary>보스 공격 패턴 관리(일반/스킬1/스킬2).</summary>
+    public BossAttackManager BossAttackManager { get; set; }
+
     /// <summary>
-    /// 스킬 공격형 몬스터 여부
+    /// 보스 스킬 공격을 사용할지 여부.
+    /// 일반 몬스터는 항상 false로 처리하여 "스킬 공격형 몬스터"도 로직상 일반 원거리 몬스터와 동일하게 동작하게 한다.
     /// </summary>
-    public bool IsSkillAttackType => SkillHandler != null;
+    public bool IsSkillAttackType => IsBoss && BossAttackManager != null;
 
     private Action<EnemyStateType> _requestStateChange;
 
