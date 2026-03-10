@@ -14,8 +14,8 @@ public class PixieFollower :MonoBehaviour
     private float lastUpdateTime;
     private PlayerStateContext stateContext;
 
-    private OwnedFairyData fairyData;
-    public OwnedFairyData FairyData => fairyData;
+    private OwnedPixieData fairyData;
+    public OwnedPixieData FairyData => fairyData;
 
     private void Update()
     {
@@ -36,7 +36,7 @@ public class PixieFollower :MonoBehaviour
             agent.SetDestination(followTarget.position);
         }
     }
-    public void Init(Transform target, OwnedFairyData data, EffectController playerEffectController)
+    public void Init(Transform target, OwnedPixieData data, EffectController playerEffectController)
     {
         this.followTarget = target;
         this.fairyData = data;

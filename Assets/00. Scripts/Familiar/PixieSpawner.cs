@@ -6,7 +6,7 @@ public class PixieSpawner : MonoBehaviour
     [SerializeField]private PixieFollower pixiePrefab;
 
     private PixieFollower spawnedPixie;
-    private OwnedFairyData fairyData;
+    private OwnedPixieData fairyData;
 
 
     PlayerStateMachine playerStateMachine;
@@ -19,7 +19,7 @@ public class PixieSpawner : MonoBehaviour
     }
     public bool IsSpawned => spawnedPixie != null;
 
-    public void Spawn(OwnedFairyData data)
+    public void Spawn(OwnedPixieData data)
     {
         if (pixiePrefab == null || data == null) return;
 
@@ -46,6 +46,6 @@ public class PixieSpawner : MonoBehaviour
         fairyData = null;
     }
 
-    public OwnedFairyData GetCurrentFairyData() => fairyData;
+    public OwnedPixieData GetCurrentFairyData() => fairyData;
 
 }

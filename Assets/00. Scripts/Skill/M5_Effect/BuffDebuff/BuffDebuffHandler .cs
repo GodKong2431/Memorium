@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+using System.Collections.Generic;
 
 public class BuffDebuffHandler 
 {
@@ -12,26 +11,36 @@ public class BuffDebuffHandler
 
     public void AddOrRefreshModifier(StatModifier modifier)
     {
-        foreach (var existingModifier in modifiers)
-        {
-            if (existingModifier.GetID() == modifier.GetID())
+        for (int i = 0; i < modifiers.Count; i++)
+            foreach (var existingModifier in modifiers)
             {
-                existingModifier.Refesh();
-                return;
+                if (modifiers[i].GetID() == modifier.GetID())
+                    if (existingModifier.GetID() == modifier.GetID())
+                    {
+                        var tmpMod = modifiers[i];
+                        tmpMod.elapsedTime = 0f;
+                        modifiers[i] = tmpMod;
+
+                        existingModifier.Refesh();
+                        return;
+                    }
             }
-        }
-        modifiers.Add(modifier);
     }
 
     public void Tick(float deltaTime)
     {
         for (int i = modifiers.Count - 1; i >= 0; i--)
         {
-            modifiers[i].Tick(deltaTime);
+            var tmpMod = modifiers[i];
+            tmpMod.elapsedTime += deltaTime;
             if (modifiers[i].IsExpired)
             {
                 modifiers[i] = modifiers[modifiers.Count - 1];
                 modifiers.RemoveAt(modifiers.Count - 1);
+            }
+            else
+            {
+                modifiers[i] = tmpMod;
 
             }
         }

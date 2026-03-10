@@ -197,6 +197,7 @@ public class InventoryManager : Singleton<InventoryManager>
         RegisterModule(new SkillInventoryModule());
         RegisterModule(new StackItemInventoryModule());
         RegisterModule(new EquipmentInventoryModule());
+        RegisterModule(new PixieInventoryModule());
 
         StartCoroutine(LoadData());
     }

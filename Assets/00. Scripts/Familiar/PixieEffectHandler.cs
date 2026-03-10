@@ -12,7 +12,7 @@ public enum FairyGrade
 }
 public class PixieEffectProvider : MonoBehaviour
 {
-    private OwnedFairyData fairyData;
+    private OwnedPixieData fairyData;
     private FairyInfoTable fairyInfo;
     private FairyEffectTable effectData;
     private TriggerInfoTable triggerData;
@@ -28,7 +28,7 @@ public class PixieEffectProvider : MonoBehaviour
 
 
     private static readonly Collider[] hitBuffer = new Collider[SkillConstants.HIT_BUFFER_SIZE];
-    public void Init(OwnedFairyData data, Transform target, EffectController playerEffectController,PlayerStateContext stateContext)
+    public void Init(OwnedPixieData data, Transform target, EffectController playerEffectController,PlayerStateContext stateContext)
     {
         this.playerTransform = target;
         this.playerEffectController = playerEffectController;
@@ -37,7 +37,7 @@ public class PixieEffectProvider : MonoBehaviour
 
 
         var dataManager = DataManager.Instance;
-        if (!dataManager.FairyInfoDict.TryGetValue(data.fairyID, out fairyInfo)) return;
+        if (!dataManager.FairyInfoDict.TryGetValue(data.fairyTable.ID, out fairyInfo)) return;
         if (!dataManager.FairyEffectDict.TryGetValue(fairyInfo.effectID, out effectData)) return;
         if (!dataManager.TriggerInfoDict.TryGetValue(effectData.triggerID, out triggerData)) return;
         dataManager.FairyGradeDict.TryGetValue(fairyInfo.gradeID, out gradeData);

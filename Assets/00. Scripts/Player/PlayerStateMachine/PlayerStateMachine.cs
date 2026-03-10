@@ -73,7 +73,6 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
 
-        SpawnPixie();
     }
 
     private void OnDisable()
@@ -159,12 +158,5 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         _ctx.TakeDamage(damage, damageType);
     }
 
-    public void SpawnPixie()
-    {
-        if (pixieSpawner != null)
-        {
-            pixieSpawner.Spawn(new OwnedFairyData(5000001));
-        }
-    }
 
 }
