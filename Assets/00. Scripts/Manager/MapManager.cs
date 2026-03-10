@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MapManager : Singleton<MapManager>
@@ -57,15 +57,22 @@ public class MapManager : Singleton<MapManager>
         //처음 쵝화 시에는 현재 층이 0이라 스테이지 타입 같아도 상관 없음
         if (curMapFloor == curFloor && curMapStageType == curStageType)
             return;
+
+        //이전 층의 맵은 비활성화
+        if (mapGroups.ContainsKey(curMapFloor))
+            mapGroups[curMapFloor].SetActive(false);
+
         curMapFloor = curFloor;
         curMapStageType = curStageType;
-
         mapGroupPrefab = mapGroupPrefabByStageType[curStageType];
         if (maps == null)
             maps = new List<GameObject>();
         //층이 올라가거나 내려가는 것 모두 대비 <- 1층의 맵은 ~~다
         if (!mapGroups.ContainsKey(curFloor) || mapGroups[curFloor] == null)
             mapGroups[curFloor] = Instantiate(mapGroupPrefab[curFloor - 1]);
+
+        mapGroups[curMapFloor].SetActive(true);
+
         maps.Clear();
         for (int i = 0; i < mapGroups[curFloor].transform.childCount; i++)
         {

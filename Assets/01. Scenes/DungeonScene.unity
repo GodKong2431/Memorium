@@ -3271,6 +3271,7 @@ GameObject:
   - component: {fileID: 786364379}
   - component: {fileID: 786364378}
   - component: {fileID: 786364377}
+  - component: {fileID: 786364380}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3396,6 +3397,28 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &786364380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 786364375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4f6d9f7e0c84ae8b4d6d7be74e5d6fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  targetTag: Player
+  findOnStart: 1
+  distance: 14
+  height: 6
+  yaw: 45
+  pitch: 35
+  targetOffset: {x: 0, y: 1.2, z: 0}
+  moveSmooth: 10
+  turnSmooth: 12
 --- !u!1 &963482702
 GameObject:
   m_ObjectHideFlags: 0

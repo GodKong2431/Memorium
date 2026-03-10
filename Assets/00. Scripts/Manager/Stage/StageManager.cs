@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 // 스테이지 진행 상태, 보상 세팅, 처치 진행도, 씬 전환 시 진입 상태를 관리한다.
 public class StageManager : Singleton<StageManager>
 {
+    private const string BossTimeKey = "bossTimelimit";
+    private const float DefaultBossTime = 60f;
+
     // 현재 진행 스테이지(1부터 시작)
     public int curStage = 1;
     //public int maxStage = 1;
@@ -37,6 +40,9 @@ public class StageManager : Singleton<StageManager>
 
     // 현재 보스 스테이지 흐름 안에 있는지 여부
     public bool onBossStage = false;
+    private EnemyStateMachine boss;
+    private float bossTimeLimit = DefaultBossTime;
+    private float bossTime = 0f;
 
     // 현재 스테이지 타입과 일반 스테이지 진행 값
     [SerializeField] private StageType curStageType;
@@ -45,6 +51,11 @@ public class StageManager : Singleton<StageManager>
     public StageType CurrentStageType => curStageType;
     public bool IsDungeonInProgress => curStageType != StageType.None && curStageType != StageType.NormalStage;
     public bool HasPendingBossSpawnRequest => hasPendingBossSpawnRequest || isReadyToBossSpawn;
+    public bool IsBossStage => onBossStage;
+    public float BossTimeLimit => bossTimeLimit;
+    public float BossTime => bossTime;
+    public float BossHp => boss != null ? Mathf.Max(0f, boss.Context.CurrentHealth) : 0f;
+    public float BossMaxHp => boss != null ? Mathf.Max(0f, boss.Context.MaxHealth) : 0f;
     public bool RequiresManualBossSummonForCurrentStage =>
         manualBossSummonRequiredStageType == curStageType &&
         manualBossSummonRequiredStageLevel == curStage;
@@ -122,6 +133,11 @@ public class StageManager : Singleton<StageManager>
         base.OnDestroy();
     }
 
+    private void Update()
+    {
+        UpdateBossTime(Time.deltaTime);
+    }
+
     // 스테이지 서비스와 씬 의존 객체를 초기화한다.
     private void Init()
     {
@@ -189,9 +205,7 @@ public class StageManager : Singleton<StageManager>
     // 처치 진행 상태를 초기화하고 현재 스테이지 목표 처치 수를 설정한다.
     public void SetKillCount()
     {
-        onBossStage = false;
-        isReadyToBossSpawn = false;
-        hasPendingBossSpawnRequest = false;
+        ResetBoss();
 
         curMonsterKillCount = 0;
         EnemyKillRewardDispatcher.ResetKillCount();
@@ -209,6 +223,8 @@ public class StageManager : Singleton<StageManager>
     // 스테이지 클리어 처리
     public void StageClear()
     {
+        ResetBoss();
+
         if (curStageType == StageType.NormalStage)
         {
             onFailedStage = false;
@@ -245,11 +261,16 @@ public class StageManager : Singleton<StageManager>
     {
         bool failedDuringBossStage = onBossStage;
 
+        if (failedDuringBossStage)
+            RemoveBoss();
+
+        ResetBoss();
+
         if (curStageType == StageType.NormalStage)
         {
             onFailedStage = true;
 
-            if (curStage - 2 >= 0 && !onBossStage)
+            if (curStage - 2 >= 0 && !failedDuringBossStage)
                 curStage--;
 
             normalStage = curStage;
@@ -286,8 +307,6 @@ public class StageManager : Singleton<StageManager>
     // 씬 로드 완료 시 스테이지 상태를 다시 반영한다.
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-
-
         TryApplyPendingStageEntryRequest();
 
         Init();
@@ -296,11 +315,14 @@ public class StageManager : Singleton<StageManager>
         EnemyKillRewardDispatcher.ResetKillCount();
     }
 
-    public void OnBossSpawned()
+    public void StartBoss(GameObject bossObject)
     {
+        boss = GetBoss(bossObject);
         onBossStage = true;
         isReadyToBossSpawn = false;
         hasPendingBossSpawnRequest = false;
+        bossTimeLimit = GetBossTimeLimit();
+        bossTime = bossTimeLimit;
         EnemyKillRewardDispatcher.ResetKillCount();
     }
 
@@ -408,6 +430,77 @@ public class StageManager : Singleton<StageManager>
     {
         manualBossSummonRequiredStageType = curStageType;
         manualBossSummonRequiredStageLevel = curStage;
+    }
+
+    private void UpdateBossTime(float deltaTime)
+    {
+        if (!onBossStage || bossTime <= 0f)
+            return;
+
+        bossTime = Mathf.Max(0f, bossTime - Mathf.Max(0f, deltaTime));
+
+        if (bossTime > 0f)
+            return;
+
+        StageFailed();
+    }
+
+    private void ResetBoss()
+    {
+        onBossStage = false;
+        boss = null;
+        bossTimeLimit = DefaultBossTime;
+        bossTime = 0f;
+        isReadyToBossSpawn = false;
+        hasPendingBossSpawnRequest = false;
+    }
+
+    private void RemoveBoss()
+    {
+        if (boss == null)
+            return;
+
+        GameObject bossObject = boss.gameObject;
+        boss = null;
+
+        if (bossObject == null)
+            return;
+
+        if (ObjectPoolManager.IsPooled(bossObject))
+            ObjectPoolManager.Return(bossObject);
+        else
+            Destroy(bossObject);
+    }
+
+    private static EnemyStateMachine GetBoss(GameObject bossObject)
+    {
+        if (bossObject == null)
+            return null;
+
+        EnemyStateMachine bossStateMachine = bossObject.GetComponent<EnemyStateMachine>();
+        if (bossStateMachine != null)
+            return bossStateMachine;
+
+        return bossObject.GetComponentInChildren<EnemyStateMachine>();
+    }
+
+    private float GetBossTimeLimit()
+    {
+        if (DataManager.Instance?.ConfigDict == null)
+            return DefaultBossTime;
+
+        foreach (ConfigTable config in DataManager.Instance.ConfigDict.Values)
+        {
+            if (config == null)
+                continue;
+
+            if (!string.Equals(config.valueName, BossTimeKey, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            return Mathf.Max(1f, config.value);
+        }
+
+        return DefaultBossTime;
     }
 
     // Stage 관련 서비스 의존성을 준비한다.
