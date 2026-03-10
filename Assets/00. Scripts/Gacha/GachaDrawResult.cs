@@ -6,8 +6,11 @@ using System.Collections.Generic;
 /// </summary>
 public struct GachaDrawResult
 {
-    /// <summary>획득한 장비 아이템 ID 목록 (EquipListTable ID)</summary>
+    /// <summary>획득한 장비/스킬 주문서 아이템 ID 목록 (EquipListTable 또는 ItemInfoTable ID)</summary>
     public List<int> ItemIds;
+
+    /// <summary>획득한 Pixie ID 목록 (FairyInfoTable ID)</summary>
+    public List<int> PixieIds;
 
     /// <summary>뽑기 레벨이 상승했는지</summary>
     public bool LevelUp;
@@ -24,6 +27,7 @@ public struct GachaDrawResult
         return new GachaDrawResult
         {
             ItemIds = new List<int>(),
+            PixieIds = new List<int>(),
             SpentCurrencies = new Dictionary<CurrencyType, int>()
         };
     }

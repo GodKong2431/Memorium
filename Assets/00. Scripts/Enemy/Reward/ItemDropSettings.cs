@@ -22,7 +22,7 @@ public class ItemDropSettings : ScriptableObject
     [Range(0f, 1f)]
     public float equipmentChance = 0.05f;
 
-    [Tooltip("수호요정 조각 0.01%")]
+    [Tooltip("픽시 조각 0.01%")]
     [Range(0f, 1f)]
     public float pixieFragmentChance = 0.0001f;
 
