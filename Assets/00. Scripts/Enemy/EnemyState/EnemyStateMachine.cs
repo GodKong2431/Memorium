@@ -43,12 +43,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<EnemyStatPresenter>();
         var skillHandler = GetComponent<EnemySkillHandler>();
-        // 스킬 공격형 몬스터는 EnemySkillHandler+SkillCaster가 있는 프리팹 사용 필요 (예: EarthWizardEnemy)
-        if (statPresenter != null && statPresenter.monsterIdFromDataManager != 0 && skillHandler == null)
-        {
-            if (MonsterDataProvider.IsSkillAttackMonster(statPresenter.monsterIdFromDataManager))
-                Debug.LogWarning($"[EnemyStateMachine] 스킬 공격형 몬스터(ID:{statPresenter.monsterIdFromDataManager})에 EnemySkillHandler가 없습니다. EnemyListManager에서 해당 프리팹을 스킬용 프리팹으로 교체하세요.");
-        }
 
         var effectController = GetComponent<EffectController>();
 
@@ -82,11 +76,20 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     {
         RefreshPlayerTransform();
 
-        if (_ctx.SkillHandler != null)
+        // 일반 몬스터는 모두 기본 근접/원거리 로직을 사용하고,
+        // 보스 몬스터만 BossManageTable 기반 스킬 패턴을 사용하도록 설정.
+        if (_ctx.IsBoss)
         {
-            _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
-            // 스킬 몬스터의 스킬 ID는 EnemySkillHandler 인스펙터의 skillId 값을 기본으로 사용
-            _ctx.SkillHandler.Init();
+            if (DataManager.Instance?.BossManageDict != null && DataManager.Instance.BossManageDict.Count > 0)
+            {
+                _ctx.BossAttackManager = new BossAttackManager(DataManager.Instance.BossManageDict.Values);
+            }
+
+            if (_ctx.SkillHandler != null && _ctx.PlayerTransform != null)
+            {
+                _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
+                _ctx.SkillHandler.Init();
+            }
         }
 
         EnemyStatData data = _ctx.StatPresenter?.Data;
@@ -119,6 +122,13 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     private void Update()
     {
         if (_current == null) return;
+
+        // 보스 공격 패턴 쿨타임/가중치 갱신
+        if (_ctx.IsBoss && _ctx.BossAttackManager != null)
+        {
+            _ctx.BossAttackManager.Tick(Time.deltaTime);
+        }
+
         _current.OnUpdate(_ctx);
     }
 
