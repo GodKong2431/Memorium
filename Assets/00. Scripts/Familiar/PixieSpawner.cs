@@ -8,42 +8,46 @@ public class PixieSpawner : MonoBehaviour
     private PixieFollower spawnedPixie;
     private OwnedPixieData fairyData;
 
-
     PlayerStateMachine playerStateMachine;
     EffectController effectController;
+
+    public bool IsSpawned =>spawnedPixie != null && spawnedPixie.gameObject.activeSelf;
 
     private void Awake()
     {
         playerStateMachine = GetComponent<PlayerStateMachine>();
         effectController = GetComponent<EffectController>();
     }
-
-    private void Start()
+    public void OnEnable()
     {
         var module = InventoryManager.Instance.GetModule<PixieInventoryModule>();
         if (module == null) return;
 
-        if (module.EquippedPixiedID() != 0)
+        module.OnPixieEquipped += SpawnPixie;
+        int equippedId = module.EquippedPixiedID();
+        if (equippedId != 0)
         {
-            var data = module.GetOwnedPixieData(module.EquippedPixiedID());
-            if (data != null)
-            {
-                Spawn(data); 
-            }
+            SpawnPixie(equippedId);
         }
-        module.OnPixieEquipped += Spawn;
-
     }
-    public bool IsSpawned => spawnedPixie != null;
 
-    public void OnEnable()
+    private void OnDisable()
     {
-        if (fairyData != null)
+        var module = InventoryManager.Instance?.GetModule<PixieInventoryModule>();
+        if (module != null)
         {
-            Spawn(fairyData); 
+            module.OnPixieEquipped -= SpawnPixie;
         }
+        Despawn();
     }
-    public void Spawn(OwnedPixieData data)
+    public void SpawnPixie(int pixieID)
+    {
+        var module = InventoryManager.Instance.GetModule<PixieInventoryModule>();
+        var data = module.GetOwnedPixieData(pixieID);
+        if (data == null) return; 
+        SpawnPixie(data);
+    }
+    public void SpawnPixie(OwnedPixieData data)
     {
         if (data == null)
         {
@@ -58,26 +62,17 @@ public class PixieSpawner : MonoBehaviour
             spawnedPixie = Instantiate(pixiePrefab, transform.position, Quaternion.identity);
         
         spawnedPixie.gameObject.SetActive(true);
-        spawnedPixie.Init(transform, data, effectController);
+        spawnedPixie.Init(transform, data, effectController,playerStateMachine._ctx);
     }
 
     public void Despawn()
     {
-        if (spawnedPixie != null)
+        if (IsSpawned)
         {
             spawnedPixie.gameObject.SetActive(false);
         }
     }
 
-    private void OnDisable()
-    {
-        var module = InventoryManager.Instance?.GetModule<PixieInventoryModule>();
-        if (module != null)
-        {
-            module.OnPixieEquipped -= Spawn;    
-        }
-        Despawn();
-    }
 
     public OwnedPixieData GetCurrentFairyData() => fairyData;
 

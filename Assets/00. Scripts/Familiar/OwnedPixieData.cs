@@ -39,10 +39,17 @@ public class OwnedPixieData
         if (_gradeTable != null) gradeTable = _gradeTable;
 
     }
-    public bool CanEvolve() => level >= gradeTable.maxLevel;
+    public bool IsMaxLevel() => level >= gradeTable.maxLevel;
+    public bool CanEvolve() => IsMaxLevel() && fairyTable.nextID != 0;
+    public bool CanLevelUp() => !IsMaxLevel();
     public BigDouble GetLevelUpCost() => gradeTable.costBase + (1f + (level - 1f) * gradeTable.costSlope);
+
+    /// <summary>
+    /// 신화등급 한정이고, 나머지 등급에선 조각 사용 코스트 없습니다
+    /// </summary>
+    /// <returns></returns>
     public float GetFragmentCost() => gradeTable.fragmentCostBase + (1f + (level - 1f) * gradeTable.fragmentCostSlope);
-    public bool IsMaxLevel => level >= gradeTable.maxLevel;
+
     public void ExecuteLevelUp() => level++;
 }
 

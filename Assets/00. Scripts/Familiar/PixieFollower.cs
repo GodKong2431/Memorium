@@ -17,6 +17,12 @@ public class PixieFollower :MonoBehaviour
     private OwnedPixieData fairyData;
     public OwnedPixieData FairyData => fairyData;
 
+
+    private void Awake()
+    {
+
+        agent = GetComponent<NavMeshAgent>();
+    }
     private void Update()
     {
         if (followTarget == null || agent == null) return;
@@ -36,14 +42,13 @@ public class PixieFollower :MonoBehaviour
             agent.SetDestination(followTarget.position);
         }
     }
-    public void Init(Transform target, OwnedPixieData data, EffectController playerEffectController)
+    public void Init(Transform target, OwnedPixieData data, EffectController playerEffectController, PlayerStateContext stateContext)
     {
         this.followTarget = target;
         this.fairyData = data;
-        agent = GetComponent<NavMeshAgent>();
         agent.stoppingDistance = stoppingDistance;
-        agent.speed = CharacterStatManager.Instance.GetFinalStat(StatType.MOVE_SPEED) * 1.2f; 
-
+        agent.speed = CharacterStatManager.Instance.GetFinalStat(StatType.MOVE_SPEED) * 1.2f;
+        this.stateContext = stateContext;
         var effectProvider = GetComponent<PixieEffectProvider>();
         effectProvider.Init(data, target, playerEffectController, stateContext);
         Warp();
