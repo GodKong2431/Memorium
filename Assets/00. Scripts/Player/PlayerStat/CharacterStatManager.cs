@@ -28,7 +28,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
     [SerializeField] private PlayerLevel levelBonus;
 
-    [SerializeField] public PlayerSlot playerSlot;
+    [SerializeField] private PlayerSlot playerSlot;
 
     public SerializedDictionary<StatType, StatUpgrade> Upgrades = new SerializedDictionary<StatType, StatUpgrade>();
     public SerializedDictionary<StatType, PlayerTrait> Traits = new SerializedDictionary<StatType, PlayerTrait>();
