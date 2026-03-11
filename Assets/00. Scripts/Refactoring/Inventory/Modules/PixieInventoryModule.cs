@@ -7,11 +7,13 @@ public sealed class PixieInventoryModule : IInventoryModule
 {
     private readonly Dictionary<int, OwnedPixieData> pixieDict = new Dictionary<int, OwnedPixieData>();
     public IEnumerable<OwnedPixieData> GetAllPixies() => pixieDict.Values;
-    public event Action OnPixieInventoryChanged;
     public int goldId = 0;
+    private int equippedPixieId  = 0;
+    public int EquippedPixiedID() => equippedPixieId;
 
-
-    //구조체 리스트는 저장 할수 있다고 이해해서 이렇게 만?들어놨는데 이상하다 싶으시면 지우셔도 됩니다 - 이동현
+    public event Action OnPixieInventoryChanged;
+    public event Action<OwnedPixieData> OnPixieEquipped;
+    //구조체 리스트는 저장 할 수 있다고 이해해서 이렇게 만?들어놨는데 이상하다 싶으시면 지우셔도 됩니다
     public List<PixieSaveData> GetSaveList()
     {
         List<PixieSaveData> saveList = new List<PixieSaveData>();
@@ -36,13 +38,36 @@ public sealed class PixieInventoryModule : IInventoryModule
     #region IInventoryModule //픽시 조각은 StackItemInventoryModule에서 관리하도록 유지.
     public bool CanHandle(ItemType itemType)
     {
-        // 추후 픽시조각->픽시가 아니라 직접 추가하는 기능이 생긴다면, pixie Enum추가해서 여기서 검사
-        return false; 
+        return itemType == ItemType.Pixie;
     }
     public bool TryAdd(InventoryItemContext item, BigDouble amount)
     {
-        // 추후 픽시 직접 추가하는 기능이 생긴다면, pixie Enum후 여기서 추가로직
-        return false;
+        if (!CanHandle(item.ItemType)) return false;
+
+        int addCount = (int)Math.Floor(amount.ToDouble());
+        if (addCount <= 0) return false;
+
+        int pixieId = item.ItemId;
+        bool isChanged = false;
+
+        for (int i = 0; i < addCount; i++)
+        {
+            if (pixieDict.ContainsKey(pixieId))
+            {
+                //중복 획득? 조각으로 변환?
+            }
+            else
+            {
+                pixieDict[pixieId] = new OwnedPixieData(new PixieSaveData(pixieId, 1));
+                isChanged = true;
+            }
+        }
+
+        if (isChanged)
+        {
+            OnPixieInventoryChanged?.Invoke();
+        }
+        return true;
     }
 
     public bool TryRemove(InventoryItemContext item, BigDouble amount)
@@ -51,10 +76,28 @@ public sealed class PixieInventoryModule : IInventoryModule
     }
     public BigDouble GetAmount(InventoryItemContext item)
     {
+        if (!CanHandle(item.ItemType)) return BigDouble.Zero;
         return BigDouble.Zero;
     }
     #endregion
 
+    public void EquipPixie(int fairyId)
+    {
+        if (!pixieDict.TryGetValue(fairyId, out var pixie)) return;
+
+        equippedPixieId = fairyId;
+        OnPixieEquipped?.Invoke(pixie);
+    }
+    public void UnequipPixie()
+    {
+        equippedPixieId = 0;
+        OnPixieEquipped?.Invoke(null); // null을 보내서 소환 해제 알림
+    }
+    public OwnedPixieData GetOwnedPixieData(int pixieId)
+    {
+        if (!pixieDict.TryGetValue(pixieId, out var pixie)) return null;
+        return pixie;
+    }
     public bool TryUnlockPixie(int fairyId)
     {
         if (pixieDict.ContainsKey(fairyId)) return false;
@@ -80,7 +123,7 @@ public sealed class PixieInventoryModule : IInventoryModule
         pixie.pixieId = nextId;
         pixie.level = 1; 
         
-        pixie.TryGetTables(); 
+        pixie.TryGetData(); 
         pixieDict[nextId] = pixie;
 
         OnPixieInventoryChanged?.Invoke();
@@ -94,7 +137,7 @@ public sealed class PixieInventoryModule : IInventoryModule
         if (pixie.IsMaxLevel) return false;
         var goldCost = pixie.GetLevelUpCost();
         var fragCost = pixie.GetFragmentCost();
-        bool isMythic = pixie.gradeTable.gradeName == "Mythic";
+        bool isMythic = pixie.gradeTable.fairyGrade == FairyGrade.Mythic;
 
         SetGoldID();
         if (!InventoryManager.Instance.HasEnoughItem(goldId, goldCost)) return false;

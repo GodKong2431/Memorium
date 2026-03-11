@@ -17,33 +17,66 @@ public class PixieSpawner : MonoBehaviour
         playerStateMachine = GetComponent<PlayerStateMachine>();
         effectController = GetComponent<EffectController>();
     }
+
+    private void Start()
+    {
+        var module = InventoryManager.Instance.GetModule<PixieInventoryModule>();
+        if (module == null) return;
+
+        if (module.EquippedPixiedID() != 0)
+        {
+            var data = module.GetOwnedPixieData(module.EquippedPixiedID());
+            if (data != null)
+            {
+                Spawn(data); 
+            }
+        }
+        module.OnPixieEquipped += Spawn;
+
+    }
     public bool IsSpawned => spawnedPixie != null;
 
+    public void OnEnable()
+    {
+        if (fairyData != null)
+        {
+            Spawn(fairyData); 
+        }
+    }
     public void Spawn(OwnedPixieData data)
     {
-        if (pixiePrefab == null || data == null) return;
-
-        if (spawnedPixie != null)
+        if (data == null)
+        {
             Despawn();
+            return;
+        }
 
         fairyData = data;
 
         if (playerStateMachine == null || effectController == null) return;
-
-        spawnedPixie = Instantiate(pixiePrefab, transform.position, Quaternion.identity);
-
-        if (spawnedPixie.TryGetComponent<PixieFollower>(out var follower))
-            follower.Init(transform, data, effectController);
+        if (spawnedPixie == null)
+            spawnedPixie = Instantiate(pixiePrefab, transform.position, Quaternion.identity);
+        
+        spawnedPixie.gameObject.SetActive(true);
+        spawnedPixie.Init(transform, data, effectController);
     }
 
     public void Despawn()
     {
         if (spawnedPixie != null)
         {
-            Destroy(spawnedPixie);
-            spawnedPixie = null;
+            spawnedPixie.gameObject.SetActive(false);
         }
-        fairyData = null;
+    }
+
+    private void OnDisable()
+    {
+        var module = InventoryManager.Instance?.GetModule<PixieInventoryModule>();
+        if (module != null)
+        {
+            module.OnPixieEquipped -= Spawn;    
+        }
+        Despawn();
     }
 
     public OwnedPixieData GetCurrentFairyData() => fairyData;

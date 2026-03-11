@@ -59,6 +59,7 @@ public class PixieEffectProvider : MonoBehaviour
     private void Update()
     {
         if (effectData == null || statDatas == null) return;
+        if (effectData.tickRate <= 0.01f) return;
 
         tickTimer += Time.deltaTime;
         if (tickTimer < effectData.tickRate) return;
@@ -71,25 +72,31 @@ public class PixieEffectProvider : MonoBehaviour
     private bool CheckTriggerCondition()
     {
         return triggerData.triggerType switch
-        { 
-          TriggerType.Range => true,
-          TriggerType.hp => CheckHP(),
-          _ => true
+        {
+            TriggerType.Range => CheckEnemiesInRange(),
+            TriggerType.hp => CheckHP(),
+            //TriggerType.BattleState => CheckBattleState(),
+            _ => false 
         };
+    }
+
+    private bool CheckEnemiesInRange()
+    {
+        int count = DetectEnemies(triggerData.triggerValue);
+        return count > 0;
     }
 
     private bool CheckHP()
     {
         float max = CharacterStatManager.Instance.GetFinalStat(StatType.HP);
         float current = context.CurrentHealth;
-        return EvaluateCondition(max * triggerData.triggerValue,current );
-    }
 
+        return EvaluateCondition(max * triggerData.triggerValue, current);
+    }
     private bool EvaluateCondition(float value, float target)
     {
         return triggerData.conditionOpType switch
         {
-
             ConditionOpType.more => value <= target,
             ConditionOpType.below => value >= target,
             ConditionOpType.agreement => Mathf.Approximately(value, target),
@@ -97,6 +104,9 @@ public class PixieEffectProvider : MonoBehaviour
         };
     }
 
+    //private bool CheckBattleState()
+    //{
+    //}
     private void ApplyEffects()
     {
         for (int i = 0; i < statDatas.Count; i++)
@@ -113,9 +123,7 @@ public class PixieEffectProvider : MonoBehaviour
     private float CalculateStatValue(FairyStatTable stat)
     {
         int level = fairyData != null ? fairyData.level : 1;
-        int gradeBonus = 0;
-        if (gradeData != null && Enum.TryParse<FairyGrade>(gradeData.gradeName, out var grade))
-            gradeBonus = (int)grade;
+        int gradeBonus = (int)gradeData.fairyGrade;
 
         return stat.baseValue + (level * stat.lvGrowth) + (gradeBonus * stat.grdGrowth);
     }
@@ -135,31 +143,32 @@ public class PixieEffectProvider : MonoBehaviour
 
     private void ApplyEnemyDebuff(FairyStatTable stat, float value)
     {
-        int count = DetectEnemies(triggerData.triggerValue);
-
+        float effectRadius = 100f; 
+        int count = DetectEnemies(effectRadius);
         for (int i = 0; i < count; i++)
         {
-            if (hitBuffer[i].TryGetComponent<EffectController>(out var effectController))
+            if (hitBuffer[i].TryGetComponent<EffectController>(out var enemyEffectController))
             {
-                effectController.ApplyBuff(new StatModifier
+                enemyEffectController.ApplyBuff(new StatModifier
                 {
                     id = stat.ID,
                     statType = stat.statType,
-                    value = value,
+                    value = value, 
                     duration = effectData.duration
                 });
             }
         }
     }
-
     private int DetectEnemies(float radius)
     {
+
         float halfHeight = SkillConstants.DETECT_HEIGHT;
         Vector3 center = transform.position;
         Vector3 bottom = center - Vector3.up * halfHeight;
         Vector3 top = center + Vector3.up * halfHeight;
 
-        return Physics.OverlapCapsuleNonAlloc(bottom, top, radius, hitBuffer, layerMask);
-    }
 
+        return Physics.OverlapCapsuleNonAlloc(bottom, top, radius, hitBuffer, layerMask);
+
+    }
 }

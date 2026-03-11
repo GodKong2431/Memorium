@@ -28,13 +28,16 @@ public class OwnedPixieData
     {
         pixieId = save.pixieId;
         level = save.level;
-        TryGetTables();
+        TryGetData();
     }
 
-    public void TryGetTables()
+    public void TryGetData()
     {
-        if (DataManager.Instance.FairyInfoDict.TryGetValue(pixieId, out var _fairyTable)) fairyTable = _fairyTable;
-        if (fairyTable != null && DataManager.Instance.FairyGradeDict.TryGetValue(this.fairyTable.gradeID, out var _gradeTable)) gradeTable = _gradeTable;
+        if (DataManager.Instance.FairyInfoDict.TryGetValue(pixieId, out var _fairyTable)) 
+        if (_fairyTable != null) fairyTable = _fairyTable;
+        if (fairyTable != null && DataManager.Instance.FairyGradeDict.TryGetValue(this.fairyTable.gradeID, out var _gradeTable))
+        if (_gradeTable != null) gradeTable = _gradeTable;
+
     }
     public bool CanEvolve() => level >= gradeTable.maxLevel;
     public BigDouble GetLevelUpCost() => gradeTable.costBase + (1f + (level - 1f) * gradeTable.costSlope);
