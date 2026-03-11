@@ -49,6 +49,7 @@ public class MonsterSpawner : MonoBehaviour
 
     }
 
+
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player"))
@@ -172,7 +173,7 @@ public class MonsterSpawner : MonoBehaviour
     {
         foreach (GameObject enemy in enemyGroup)
         {
-            if(enemy.activeSelf)
+            if(enemy.activeSelf && enemy!=null)
                 ObjectPoolManager.Return(enemy);
         }
     }
