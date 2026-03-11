@@ -6,6 +6,48 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class DungeonLevelPopupUI : MonoBehaviour
 {
+    private struct RectTransformState
+    {
+        public Vector2 anchorMin;
+        public Vector2 anchorMax;
+        public Vector2 anchoredPosition;
+        public Vector2 sizeDelta;
+        public Vector2 pivot;
+        public Vector2 offsetMin;
+        public Vector2 offsetMax;
+        public Vector3 localScale;
+        public Quaternion localRotation;
+
+        public static RectTransformState Capture(RectTransform target)
+        {
+            return new RectTransformState
+            {
+                anchorMin = target.anchorMin,
+                anchorMax = target.anchorMax,
+                anchoredPosition = target.anchoredPosition,
+                sizeDelta = target.sizeDelta,
+                pivot = target.pivot,
+                offsetMin = target.offsetMin,
+                offsetMax = target.offsetMax,
+                localScale = target.localScale,
+                localRotation = target.localRotation
+            };
+        }
+
+        public void Apply(RectTransform target)
+        {
+            target.anchorMin = anchorMin;
+            target.anchorMax = anchorMax;
+            target.pivot = pivot;
+            target.anchoredPosition = anchoredPosition;
+            target.sizeDelta = sizeDelta;
+            target.offsetMin = offsetMin;
+            target.offsetMax = offsetMax;
+            target.localScale = localScale;
+            target.localRotation = localRotation;
+        }
+    }
+
     private readonly StageKeyCatalog stageKeyCatalog = new StageKeyCatalog();
     private readonly List<int> currentRewardItemIds = new List<int>();
 
@@ -22,15 +64,23 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     [SerializeField] private GameObject maximumUsePanel;
 
     private bool isButtonBound;
+    private bool isPresentedAsOverlay;
     private StageType currentStageType = StageType.None;
     private int currentLevel = 1;
     private int maxUnlockedLevel = 1;
     private int maxLevelCount = 1;
     private int currentRequiredKeyCount = 1;
+    private RectTransform popupRect;
+    private RectTransform originalParent;
+    private RectTransform rootCanvasRect;
+    private RectTransformState originalRectState;
+    private int originalSiblingIndex;
 
     public void Hide()
     {
+        EnsureRuntimeReferences();
         currentStageType = StageType.None;
+        RestoreOriginalPresentation();
 
         if (gameObject.activeSelf)
             gameObject.SetActive(false);
@@ -39,6 +89,29 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     public void BindHost(DungeonUIController controller)
     {
         BindButtons();
+    }
+
+    private void Awake()
+    {
+        EnsureRuntimeReferences();
+    }
+
+    private void EnsureRuntimeReferences()
+    {
+        popupRect = transform as RectTransform;
+        if (popupRect != null && originalParent == null)
+        {
+            originalParent = popupRect.parent as RectTransform;
+            originalSiblingIndex = popupRect.GetSiblingIndex();
+            originalRectState = RectTransformState.Capture(popupRect);
+        }
+
+        if (rootCanvasRect == null)
+        {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas != null && canvas.rootCanvas != null)
+                rootCanvasRect = canvas.rootCanvas.transform as RectTransform;
+        }
     }
 
     private void OnEnable()
@@ -66,6 +139,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         }
 
         BindButtons();
+        EnsureRuntimeReferences();
 
         currentStageType = stageType;
         currentRequiredKeyCount = Mathf.Max(1, requiredKeyCount);
@@ -83,12 +157,16 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         ApplyDungeonPreview(stageType);
         RebuildRewards(currentRewardItemIds);
 
+        PresentAsOverlay();
         gameObject.SetActive(true);
         RefreshState();
     }
 
     private void BindButtons()
     {
+        if (isButtonBound)
+            return;
+
         beforeButton.onClick.AddListener(OnClickBefore);
         afterButton.onClick.AddListener(OnClickAfter);
         sweepButton.onClick.AddListener(OnClickSweep);
@@ -191,7 +269,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         StageManager.Instance.SetStageType(currentStageType, currentLevel);
 
         Hide();
-        SceneController.Instance.LoadScene(SceneType.StageScene);
+        SceneController.Instance.LoadScene(SceneType.DungeonScene);
     }
 
     private void OnCurrencyChanged(CurrencyType type, BigDouble amount)
@@ -305,5 +383,71 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     private bool IsMaximumUseEnabled()
     {
         return maximumUsePanel != null && maximumUsePanel.activeSelf;
+    }
+
+    private void PresentAsOverlay()
+    {
+        EnsureRuntimeReferences();
+        if (popupRect == null)
+            return;
+
+        if (!isPresentedAsOverlay)
+        {
+            originalParent = popupRect.parent as RectTransform;
+            originalSiblingIndex = popupRect.GetSiblingIndex();
+            originalRectState = RectTransformState.Capture(popupRect);
+            isPresentedAsOverlay = true;
+        }
+
+        RectTransform overlayRoot = ResolveOverlayRoot();
+        if (overlayRoot == null)
+            return;
+
+        if (popupRect.parent != overlayRoot)
+            popupRect.SetParent(overlayRoot, false);
+
+        StretchToParent(popupRect);
+        popupRect.SetAsLastSibling();
+    }
+
+    private void RestoreOriginalPresentation()
+    {
+        EnsureRuntimeReferences();
+        if (!isPresentedAsOverlay || popupRect == null)
+            return;
+
+        if (originalParent != null && popupRect.parent != originalParent)
+            popupRect.SetParent(originalParent, false);
+
+        originalRectState.Apply(popupRect);
+
+        if (originalParent != null)
+        {
+            int maxSiblingIndex = Mathf.Max(0, originalParent.childCount - 1);
+            popupRect.SetSiblingIndex(Mathf.Clamp(originalSiblingIndex, 0, maxSiblingIndex));
+        }
+
+        isPresentedAsOverlay = false;
+    }
+
+    private RectTransform ResolveOverlayRoot()
+    {
+        EnsureRuntimeReferences();
+        if (rootCanvasRect != null)
+            return rootCanvasRect;
+
+        return rootCanvasRect != null ? rootCanvasRect : originalParent;
+    }
+
+    private static void StretchToParent(RectTransform target)
+    {
+        target.anchorMin = Vector2.zero;
+        target.anchorMax = Vector2.one;
+        target.pivot = new Vector2(0.5f, 0.5f);
+        target.anchoredPosition = Vector2.zero;
+        target.offsetMin = Vector2.zero;
+        target.offsetMax = Vector2.zero;
+        target.localScale = Vector3.one;
+        target.localRotation = Quaternion.identity;
     }
 }
