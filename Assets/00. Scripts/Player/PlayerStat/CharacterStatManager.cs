@@ -40,6 +40,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
     [SerializeField] public bool TableLoad = false;
 
+    [SerializeField] private float attackPoint;
+    [SerializeField] private float defensePoint;
     [SerializeField] private float normalPower;
 
     [SerializeField] private float expectedCrit;
@@ -187,13 +189,27 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         FinalStats.TryGetValue(StatType.CRIT_MULT, out var critMult);
 
         expectedCrit = 1 + (crit.finalStat * (critMult.finalStat - 1f));
-
+        
+        // 공격 점수
         FinalStats.TryGetValue(StatType.ATK, out var atk);
         FinalStats.TryGetValue(StatType.ATK_SPEED, out var atkSPD);
         FinalStats.TryGetValue(StatType.DMG_MULT, out var dmgMult);
         FinalStats.TryGetValue(StatType.NORMAL_DMG, out var normalDmg);
-
-        normalPower = (atk.finalStat * atkSPD.finalStat * expectedCrit) * (1 + dmgMult.finalStat) * (1 + normalDmg.finalStat);
+        FinalStats.TryGetValue(StatType.BOSS_DMG, out var bossDmg);
+        
+        // 방어 점수
+        FinalStats.TryGetValue(StatType.HP, out var hp);
+        FinalStats.TryGetValue(StatType.PHYS_DEF, out var physDef);
+        FinalStats.TryGetValue(StatType.MAGIC_DEF, out var magicDef);
+        FinalStats.TryGetValue(StatType.HP_REGEN, out var hpRegen);
+        
+        //
+        FinalStats.TryGetValue(StatType.MP, out var mp);
+        FinalStats.TryGetValue(StatType.MP_REGEN, out var mpRegen);
+        
+        attackPoint = (atk.finalStat * atkSPD.finalStat * expectedCrit) * (1 + dmgMult.finalStat) * (1 + (normalDmg.finalStat + bossDmg.finalStat) / 2);
+        defensePoint = (hp.finalStat * (1 + physDef.finalStat + magicDef.finalStat) / 100) * (hpRegen.finalStat * 0.2f);
+        normalPower = (attackPoint * defensePoint) + (mp.finalStat * 0.1f) + (mpRegen.finalStat * 0.2f);
     }
 
     public float GetFinalStat(StatType statType)
