@@ -19,6 +19,9 @@ public sealed class EquipmentInventoryModule : IInventoryModule
 
     public event Action<EquipmentData> OnEquipmentInfoChanged; //아이템 정보 변경 이벤트
 
+    //아이템 합성 결과 저장 딕셔너리
+    //public Dictionary<EquipmentType, (int id, int count)> equipmentMergeResult = new Dictionary<EquipmentType, (int id, int count)>();
+    private Dictionary<EquipmentType, int> equipmentMergeResult = new Dictionary<EquipmentType, int>();
     public bool CanHandle(ItemType itemType)
     {
         switch (itemType)
@@ -82,7 +85,7 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             foreach (KeyValuePair<int, EquipmentData> pair in initialCountByItemId)
             {
                 unlockedItemIds.Add(pair.Key);
-                if (pair.Value.equipmentValue <= 0)
+                if (pair.Value.equipmentValue < 0)
                     continue;
 
                 equipmentByItemId[pair.Key] = pair.Value;
@@ -95,6 +98,9 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         return true;
     }
 
+
+
+
     public bool RunAutoMerge()
     {
         if (!EnsureEquipmentTable())
@@ -102,6 +108,8 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         InventoryManager manager = InventoryManager.Instance;
         if (manager == null)
             return false;
+
+        equipmentMergeResult.Clear();
 
         // 합성은 InventoryManager 경유로 처리해 저장/이벤트를 공통 경로로 통일한다.
         bool mergedAny = false;
@@ -135,6 +143,9 @@ public sealed class EquipmentInventoryModule : IInventoryModule
                 continue;
             }
 
+            //최종 결과물 아이템 아이디 및 추가 갯수 저장
+            //equipmentMergeResult[DataManager.Instance.EquipListDict[nextItemId].equipmentType] = (nextItemId,mergedCount);
+            equipmentMergeResult[DataManager.Instance.EquipListDict[nextItemId].equipmentType] = nextItemId;
             mergedAny = true;
         }
 
@@ -142,6 +153,19 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             return false;
 
         RefreshFinalEquipment();
+        return true;
+    }
+
+    public bool TryReturnMergeResult(EquipmentType type, out int id)
+    {
+        id= 0; 
+        //count = 0;
+        if (!equipmentMergeResult.ContainsKey(type))
+            return false;
+
+        //id = equipmentMergeResult[type].id;
+        //count = equipmentMergeResult[type].count;
+        id = equipmentMergeResult[type];
         return true;
     }
 

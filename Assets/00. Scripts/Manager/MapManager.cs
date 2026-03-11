@@ -59,7 +59,7 @@ public class MapManager : Singleton<MapManager>
             return;
 
         //이전 층의 맵은 비활성화
-        if (mapGroups.ContainsKey(curMapFloor))
+        if (mapGroups.ContainsKey(curMapFloor) && mapGroups[curMapFloor]!=null)
             mapGroups[curMapFloor].SetActive(false);
 
         curMapFloor = curFloor;

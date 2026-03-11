@@ -15,7 +15,7 @@ public class EquipmentHandler : MonoBehaviour
 
     public void TestEquipmentReinforcement()
     {
-
+        Debug.Log("[EquipmentHandler] 강화 시작");
         ReinforceEquipment(playerEquipment.weapon.ID);
     }
 
@@ -47,6 +47,12 @@ public class EquipmentHandler : MonoBehaviour
         dataLoad = true;
         RaiseEquipmentUiRefreshRequested();
     }
+
+    public void RefreshMyEquip()
+    {
+        RaiseEquipmentUiRefreshRequested();
+    }
+
 
     // 외부 시스템에서 현재 PlayerEquipment를 안전하게 가져오도록 제공한다.
     public bool TryGetPlayerEquipment(out PlayerEquipment equipment)
@@ -90,6 +96,19 @@ public class EquipmentHandler : MonoBehaviour
             return false;
         if (!equipmentModule.RunAutoMerge())
             return false;
+
+        //장비 합성 결과 확인 메서드
+        foreach (EquipmentType type in Enum.GetValues(typeof(EquipmentType)))
+        {
+            //if (equipmentModule.TryReturnMergeResult(type, out int id, out int count))
+            //{
+            //    Debug.Log($"[EquipmentHandler] 장비 합성 결과 {type} 아이디 : {id} 갯수 : {count}");
+            //}
+            if (equipmentModule.TryReturnMergeResult(type, out int id))
+            {
+                Debug.Log($"[EquipmentHandler] 장비 합성 결과 {type} 아이디 : {id}");
+            }
+        }
 
         // 합성 후 장비 관련 UI를 한 번에 갱신한다.
         RaiseEquipmentUiRefreshRequested();
@@ -195,16 +214,19 @@ public class EquipmentHandler : MonoBehaviour
     public bool ReinforceEquipment(int itemId)
     {
         if (!TryGetEquipmentModule(out EquipmentInventoryModule equipmentModule))
+        {
+            Debug.Log("[EquipmentHandler] 강화 물품 가져오기 실패");
             return false;
+        }
         EquipmentData equipmentData = equipmentModule.GetEquipment(itemId);
         if (equipmentData.equipmentId == 0)
         {
-
+            Debug.Log($"[EquipmentHandler] 강화 물품 아이디 오류 기존 아이템 아이디 {itemId} 변경 후 아이템 아이디 {equipmentData.equipmentId}");
             return false;
         }
         else if (equipmentData.equipmentReinforcement >= 100)
-        {            
-
+        {
+            Debug.Log("[EquipmentHandler] 강화 물품 강화레벨 최대치 도달");
             return false;  
         }
 
@@ -239,6 +261,7 @@ public class EquipmentHandler : MonoBehaviour
         //강화 비용 부족 시 False 반환
         if (InventoryManager.Instance.GetItemAmount(goldId) <= cost)
         {
+            Debug.Log("[EquipmentHandler] 강화비용 부족");
             return false;
         }
 
