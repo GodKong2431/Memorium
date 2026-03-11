@@ -79,8 +79,8 @@ public class SaveEquipmentData
         this.armorId=armorId;
         this.bootsId = bootsId;
 
-        unLockEquipment.Clear();
-        unLockEquipment = unlockEquipmentDict.Values.ToList<EquipmentData>();
+        //unLockEquipment.Clear();
+        //unLockEquipment = unlockEquipmentDict.Values.ToList<EquipmentData>();
     }
 
     public void SaveEquipment(InventoryItemContext context, BigDouble amount)
@@ -95,13 +95,28 @@ public class SaveEquipmentData
         {
             equipmentData = unlockEquipmentDict[context.ItemId];
             equipmentData.equipmentValue = equipmentItemCount;
+
+            for (int i = 0; i < unLockEquipment.Count; i++)
+            {
+                if (unLockEquipment[i].equipmentId == equipmentData.equipmentId)
+                {
+                    unLockEquipment[i] = equipmentData;
+                    break;
+                }
+            }
         }
         else
         {
             equipmentData = new EquipmentData(context.ItemId, equipmentItemCount);
+
+            unLockEquipment.Add(equipmentData);
         }
         unlockEquipmentDict[context.ItemId] = equipmentData;
+
+
         //unlockEquipmentValueDict[context.ItemId] = equipmentItemCount;
+
+
     }
 
     public void SaveEquipmentReinforcement(EquipmentData equipmentData)
