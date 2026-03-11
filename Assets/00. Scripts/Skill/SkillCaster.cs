@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.UI.GridLayoutGroup;
+using UnityEngine.AI;
 
 /// <summary>
 /// 스킬 실행하는 컴포넌트, 플레이어/몬스터/분신 어디든 붙여도 나가도록
@@ -18,12 +17,15 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     [Header("테스트")]
     [SerializeField] SkillProjectile projectilePrefab;
     [SerializeField] SkillDeploy deployPrefab;
+    [SerializeField] GameObject auraPrefab;
     [SerializeField] GameObject shadowPrepab;
-    [SerializeField] FireZone fireZonePrefab;
+    [SerializeField] FireZone fireZonePrefab; 
 
     private SkillDataContext skillDataContext;
     private bool isCasting = false;
-    public bool IsCasting => isCasting;
+    private bool isChanneling = false;
+    public bool IsCasting() => isCasting;
+    public bool IsChanneling() => isChanneling;
     private Coroutine currentSkillRoutine;
 
     private Action<bool> onInvincibleChanged;       
@@ -42,16 +44,29 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     public Vector3 CastDirection => castDirection;//스킬 시전 방향 저장용
     public Vector3 Position => transform.position;
     public event Action OnSkillEnd;
+    private NavMeshAgent agent; 
+
+    private void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+    }
 
     public void SetPosition(Vector3 position)
     {
-        transform.position = position;
+        if (position == transform.position) return;
+            transform.position = position;
     }
 
     public void SetInvincible(bool active)
     {
         onInvincibleChanged?.Invoke(active);
     }
+
+    public void SetChanneling(bool active)
+    {
+        isChanneling = active;
+    }
+
 
     public void PlayAnim(string key)
     {
@@ -98,15 +113,17 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     }
     public void CastSkill(SkillDataContext dataContext, float extraDelay = 0, bool applyAddon = true)
     {
-        if (isCasting) return;
-        else
-        {
-            skillDataContext= dataContext;
-        }
-       
+        if (isCasting || isChanneling) return;
+
+        skillDataContext= dataContext;
+
+        if (applyAddon)
+            dataContext.ResetAddonState();
         if (currentSkillRoutine != null)
             StopCoroutine(currentSkillRoutine);
         CacheCastState();
+
+
         currentSkillRoutine = StartCoroutine(SkillSequence(skillDataContext, extraDelay));
     }
 
@@ -129,14 +146,22 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         {
             yield return CoroutineManager.waitForSeconds(extraDelay);
         }
-
         yield return SkillSequenceMove(data);
 
+        ResetAgentWarp();
+
+        debugLastCastPos = transform.position + debugLastCastDir * dataContext.skillData.m3Data.m3Distance;
         yield return SkillSequenceExecute(dataContext);
 
-        OnSkillEnd?.Invoke();
+        SkillEnd();
+    }
 
-        isCasting = false;
+    private void ResetAgentWarp()
+    {
+        if (agent == null || !agent.isActiveAndEnabled) return;
+
+        //agent.ResetPath();
+        //agent.Warp(transform.position);
     }
 
     /// <summary>
@@ -145,6 +170,12 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     private IEnumerator SkillSequenceMove(SkillData data)
     {
         Vector3 targetPosition = GetTargetPosition();
+        debugLastCastDir = GetTargetDirection();
+        if (agent != null)
+        {
+            agent.isStopped = true;
+            agent.updateRotation = false;
+        }
         if (data.m1Data.m1Delay > 0)
         {
             yield return CoroutineManager.waitForSeconds(data.m1Data.m1Delay);
@@ -163,7 +194,6 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     {
         M3Type m3Type = dataContext.skillData.m3Data.m3Type;
         float delay = dataContext.skillData.m3Data.m3Delay;
-        Vector3 castDirection = GetTargetDirection();
         Vector3 executePivot = transform.position;
 
         if (delay > 0)
@@ -178,15 +208,27 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
             prefab = projectilePrefab.gameObject;
         else if (m3Strategy is ExecuteDeploy)
             prefab = deployPrefab.gameObject;
+        else if (m3Strategy is ExecuteAura)
+            prefab = auraPrefab.gameObject;
 
         yield return m3Strategy.Execute(this, this, dataContext, executePivot, castDirection, targetLayer, prefab);
+
+    }
+
+    private void SkillEnd()
+    {
+        isCasting = false;
+        if(agent != null)
+        {
+            agent.isStopped = false;
+            agent.updateRotation = true;
+        }
+        OnSkillEnd?.Invoke();
     }
     public void StopSkill()
     {
         if (currentSkillRoutine != null) StopCoroutine(currentSkillRoutine);
-
-        isCasting = false;
-        OnSkillEnd?.Invoke();
+        SkillEnd();
     }
     private void OnDrawGizmos()
     {
@@ -196,6 +238,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
         Vector3 drawPos = isCasting ? transform.position : debugLastCastPos;
         Vector3 drawDir = isCasting ? transform.forward : debugLastCastDir;
+
         if (drawDir == Vector3.zero)
         {
             drawDir = transform.forward;
@@ -235,8 +278,9 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
             m4Strategy = SkillStrategyContainer.GetAddon(data.m4Data.m4Type);
         }
 
-        if (m4Strategy is ISkillCastAddon castAddon)
+        if (m4Strategy is ISkillCastAddon castAddon && data.GetAddonTriggerCount()==0)//추후 횟수제한 스킬나오면 csv에 필드만들고 체크하는식으로
         {
+            data.RecordAddonTrigger();
             castAddon.OnCast(this,this,statProvider,targetProvider, skillDataContext, shadowPrepab);
         }
 
@@ -268,13 +312,14 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         var activeData = m5A ?? m5B;
         if (activeData ==  null) return;
 
+
         if (m5A != null && m5B != null)
         {
             var effect = StatusEffectFactory.CreateFusion(m5A, m5B);
-            if (effect != null) controller.ApplyStatusEffect(effect);
+            if (effect != null&&!controller.HasStatusEffect()) 
+                controller.ApplyStatusEffect(effect);
             return;
         }
-
         if (activeData.applyType == ApplyType.strikeLocation)
         {
             SpawnFireZone(activeData, hitPos);
@@ -282,7 +327,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         else
         {
             var effect = StatusEffectFactory.Create(activeData);
-            if (effect != null) controller.ApplyStatusEffect(effect);
+            if (effect != null&& !controller.HasStatusEffect()) 
+                controller.ApplyStatusEffect(effect);
         }
     }
 

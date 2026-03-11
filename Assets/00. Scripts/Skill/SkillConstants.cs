@@ -2,7 +2,7 @@
 {
     // 물리 탐지
     public const float DETECT_HEIGHT = 10f;
-    public const int HIT_BUFFER_SIZE = 20;
+    public const int HIT_BUFFER_SIZE = 99;
 
     // 이동 보정
     public const float NAV_SEARCH_RADIUS = 3f;

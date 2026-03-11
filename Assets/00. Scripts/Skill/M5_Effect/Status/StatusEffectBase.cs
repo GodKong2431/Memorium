@@ -17,7 +17,7 @@ public abstract class StatusEffectBase
     private static readonly Collider[] hitBuffer = new Collider[20];
 
     protected static Collider[] GetHitBuffer() => hitBuffer;
-    public bool IsExpired => 0 > duration && elapsedTime >= duration;
+    public bool IsExpired => duration > 0 && elapsedTime >= duration;
 
     public virtual void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {

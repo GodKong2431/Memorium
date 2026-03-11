@@ -7,6 +7,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(PlayerStatPresenter))]
 [RequireComponent(typeof(PlayerSkillHandler))]
 [RequireComponent(typeof(EffectController))]
+[RequireComponent(typeof(PixieSpawner))]
 public class PlayerStateMachine : MonoBehaviour, IDamageable
 {
     [SerializeField]
@@ -37,6 +38,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         var statPresenter = GetComponent<PlayerStatPresenter>();
         var _playerSkillHandler = GetComponent<PlayerSkillHandler>();
         var effectController =GetComponent<EffectController>();
+
         CharacterStatManager.Instance.RegisterEffectController(effectController);
 
         _ctx = new PlayerStateContext
@@ -68,8 +70,9 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         };
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
-    }
 
+
+    }
     private void OnDisable()
     {
         _ctx.ObjDisable();
@@ -97,6 +100,9 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         if (DataManager.Instance.DataLoad)
         {
             _ctx.playerSkillHandler.InitFromPreset();
+
+
+            PixieSpawnTest();//TO DO: UI 연동시 삭제 할것
         }
         else
         {
@@ -106,6 +112,25 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         playerStateMachine.ChangeState(PlayerStateType.Idle);
 
         IsComplete = true;
+    }
+
+    [ContextMenu("픽시소환")]
+    public void PixieSpawnTest()//TO DO:UI 연동시 삭제
+    {
+        InventoryManager.Instance.AddItem(3310001, 100);
+
+        var pixieModule = InventoryManager.Instance.GetModule<PixieInventoryModule>();
+        if (pixieModule != null)
+        {
+            int targetFairyID = 5000001;
+            bool isUnlocked = pixieModule.TryUnlockPixie(targetFairyID);
+
+            if (isUnlocked)
+            {
+                pixieModule.EquipPixie(targetFairyID);
+                Debug.Log("픽시");
+            }
+        }
     }
     private void OnDataLoaded()
     {
@@ -152,5 +177,6 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     {
         _ctx.TakeDamage(damage, damageType);
     }
+
 
 }

@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CharacterStatManager : Singleton<CharacterStatManager>
 {
@@ -79,6 +80,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         equipmentModule.OnEquipmentInfoChanged += saveEquipmentData.SaveEquipmentReinforcement;
 
         TableLoad = true;
+
+        //SceneManager.sceneLoaded += OnSceneChanged;
     }
 
     public CharacterBaseStat BaseStat { get { return baseStat; } }
@@ -274,6 +277,11 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         JSONService.Save(savePlayerData);
     }
 
+    //public void OnSceneChanged(Scene scene, LoadSceneMode mode)
+    //{
+    //    if(TableLoad)
+    //        equipmentHandler.RefreshMyEquip();
+    //}
     #region 버서커 모드 Berserker Mode
     private const float BerserkerStatMultiplier = 2f;
 

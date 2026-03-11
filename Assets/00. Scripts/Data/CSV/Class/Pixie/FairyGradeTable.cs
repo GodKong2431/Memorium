@@ -4,7 +4,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class FairyGradeTable : TableBase
 {
-    public string gradeName;
+    public FairyGrade fairyGrade;
     public int maxLevel;
     public int costBase;
     public float costSlope;

@@ -9,6 +9,7 @@ public enum ItemType
     ElementGem = 22,
     UniqueGem = 23,
     PixiePiece = 31,
+    Pixie,
     FreeCurrency = 81,
     PaidCurrency = 82,
     Key = 83

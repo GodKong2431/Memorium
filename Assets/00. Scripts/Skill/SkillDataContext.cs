@@ -26,6 +26,9 @@ public class SkillDataContext
 
     [Header("M4: 추가 효과")]
     public SkillModule4Table m4Data;
+    //m4 애드온 발동 횟수/ 현재는 한번만 이지만 추후 여러번 발동하는 애드온이 나올상황을 대비해서 만들어둠
+    private int addonTriggerCount = 0;
+    public int GetAddonTriggerCount() => addonTriggerCount;
 
     [Header("M5: 상태 이상")]
     public SkillModule5Table m5DataA;
@@ -47,5 +50,13 @@ public class SkillDataContext
         m4Data = DataManager.Instance.SkillModule4Dict.GetValueOrDefault(m4ID);
         m5DataA = DataManager.Instance.SkillModule5Dict.GetValueOrDefault(m5IDa);
         m5DataB = DataManager.Instance.SkillModule5Dict.GetValueOrDefault(m5IDb);
+    }
+    public void RecordAddonTrigger()
+    {
+        addonTriggerCount++;
+    }
+    public void ResetAddonState()
+    {
+        addonTriggerCount = 0;
     }
 }

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 드랍 아이템을 플레이어에게 끌어당기고, 획득 시 인벤토리에 반영한다.
@@ -29,6 +29,9 @@ public class DropItemController : MonoBehaviour
         var col = GetComponent<Collider>();
         if (col != null && !col.isTrigger)
             col.isTrigger = true;
+
+        //스테이지 클리어 혹은 실패 시 현존 아이템 모두 획득
+        StageManager.Instance.OnStageClearOrFailed += Collect;
     }
 
     private void Update()
@@ -104,5 +107,10 @@ public class DropItemController : MonoBehaviour
 
         if (other.CompareTag("Player"))
             Collect();
+    }
+
+    private void OnDisable()
+    {
+        Collect();
     }
 }

@@ -80,14 +80,14 @@ public class GachaManager : Singleton<GachaManager>
     /// <summary>가챠 유형별 레벨 상태 초기화 (아마 나중에 저장하는 기능 연동 필요)</summary>
     private void InitializeLevelStates()
     {
-        saveGachaData = JSONService.Load<SaveGachaData>();
-        saveGachaData.InitGachaData();
-        foreach (GachaType type in Enum.GetValues(typeof(GachaType)))
-        {
-            if (!levelStates.ContainsKey(type))
-                levelStates[type] = saveGachaData.GetGachaData(type);
-                //levelStates[type] = new GachaLevelState { GachaType = type };
-        }
+        //saveGachaData = JSONService.Load<SaveGachaData>();
+        //saveGachaData.InitGachaData();
+        //foreach (GachaType type in Enum.GetValues(typeof(GachaType)))
+        //{
+        //    if (!levelStates.ContainsKey(type))
+        //        levelStates[type] = saveGachaData.GetGachaData(type);
+        //        //levelStates[type] = new GachaLevelState { GachaType = type };
+        //}
     }
 
     /// <summary>가챠 유형별 레벨 상태 조회</summary>

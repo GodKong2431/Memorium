@@ -16,7 +16,7 @@ public class EnemySkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarget
     private SkillDataContext _skillDataContext;
     private float _cooldownTimer;
 
-    public bool IsCasting => _skillCaster != null && _skillCaster.IsCasting;
+    public bool IsCasting => _skillCaster != null && _skillCaster.IsCasting();
     public bool IsCooldownReady => _cooldownTimer <= 0f;
 
     private void Awake()
@@ -61,7 +61,7 @@ public class EnemySkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarget
     /// <returns>시전 성공 여부</returns>
     public bool TryCastSkill()
     {
-        if (_skillCaster == null || _skillCaster.IsCasting) return false;
+        if (_skillCaster == null || _skillCaster.IsCasting()) return false;
         if (_cooldownTimer > 0f) return false;
         if (_playerTransform == null) return false;
 

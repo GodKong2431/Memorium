@@ -6,6 +6,7 @@ public class SkillDeploy : SkillObjectileBase
     public override void Initialize(ISkillHitHandler owner, SkillDataContext skillDataContext, LayerMask layer)
     {
         base.Initialize(owner, skillDataContext, layer);
+        debugLastCastPos = skillDataContext.skillData.m3Data.m3Distance * transform.forward;
         StartCoroutine(RoutineTick());
     }
 
