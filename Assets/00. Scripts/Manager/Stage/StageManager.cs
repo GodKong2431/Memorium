@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -296,6 +296,7 @@ public class StageManager : Singleton<StageManager>
     // 스테이지 타입/레벨 변경 요청을 큐에 저장하고 즉시 상태에 반영한다.
     public void SetStageType(StageType dungeonType, int level)
     {
+        //monsterSpawner.ClearMonster();
         monsterSpawner = null;
 
         int requestedLevel = Mathf.Max(1, level);

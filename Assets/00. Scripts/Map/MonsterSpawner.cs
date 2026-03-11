@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -6,26 +6,32 @@ using UnityEngine;
 public class MonsterSpawner : MonoBehaviour
 {
 
+    [Header("몬스터 프리팹")]
+    // 일반 몬스터 프리팹 목록 (EnemyListManager.enemyMap에서 동적 로드하므로 여기선 미사용. 새 몬스터 프리팹은 EnemyListManager.enemyList에 추가)
+    [SerializeField] List<GameObject> enemyPrefab; // 몬스터 프리팹 추가 예정
+    //[SerializeField] GameObject bossPrefab;         // 보스 몬스터 프리팹 추가 예정
+
+    // 현재 그룹의 일반 몬스터 테이블
+    [SerializeField] List<MonsterGroupTable> curSpawnGroupMonsterTable;
+    [SerializeField] MonsterGroupTable curSpawnGroupBossMonsterTable; // 현재 그룹의 보스 몬스터 테이블
+    //[SerializeField] List<MonsterGroupTable> curSpawnGroupBossMonsterTable;
+
+    [Header("소환 정보")]
     // 스폰 위치 목록
     [SerializeField] Transform[] spawnPos;
 
-    // 일반 몬스터 프리팹 목록 (EnemyListManager.enemyMap에서 동적 로드하므로 여기선 미사용. 새 몬스터 프리팹은 EnemyListManager.enemyList에 추가)
-    [SerializeField] List<GameObject> enemyPrefab; // 몬스터 프리팹 추가 예정
-    [SerializeField] GameObject bossPrefab;         // 보스 몬스터 프리팹 추가 예정
     // 현재 적용 중인 스폰 그룹 번호
     [SerializeField] int curSpawnGroup = 1;
-    // 현재 그룹의 일반 몬스터 테이블
-    [SerializeField] List<MonsterGroupTable> curSpawnGroupMonsterTable;
-    //[SerializeField] List<MonsterGroupTable> curSpawnGroupBossMonsterTable;
-    [SerializeField] MonsterGroupTable curSpawnGroupBossMonsterTable; // 현재 그룹의 보스 몬스터 테이블
 
     [SerializeField] float randomRange=4f;
 
+    [Header("소환될 맵")]
     [SerializeField] List<GameObject> maps;
-    [SerializeField] private GameObject[] mapGroups;
     private int curSpawnerPos = 0;
-    Vector3 originPos;
+    //[SerializeField] private GameObject[] mapGroups;
+    //Vector3 originPos;
 
+    List<GameObject> enemyGroup=new List<GameObject>();
 
     // 매니저와 맵 설정이 준비될 때까지 대기한 뒤 맵 참조를 가져온다.
     IEnumerator Start()
@@ -35,6 +41,11 @@ public class MonsterSpawner : MonoBehaviour
 
         //매니저에 있는 맵 참조<- 주소를 참조하여 이후에도 동기화 진행
         maps = MapManager.Instance.maps;
+
+        yield return new WaitUntil(() => StageManager.Instance != null);
+
+        //스테이지 클리어 혹은 패배 시 몬스터 청소
+        StageManager.Instance.OnStageClearOrFailed += ClearMonster;
 
     }
 
@@ -53,9 +64,11 @@ public class MonsterSpawner : MonoBehaviour
                 {
                     Vector3 randX = Random.Range(-randomRange, randomRange) * Vector3.right;
                     Vector3 randZ = Random.Range(-randomRange, randomRange) * Vector3.forward;
-                    ////오브젝트 풀링으로 전환
-                    //Instantiate(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
-                    ObjectPoolManager.Get(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+                    //오브젝트 풀링으로 전환
+                    GameObject enemy = ObjectPoolManager.Get(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+
+                    if(!enemyGroup.Contains(enemy))
+                        enemyGroup.Add(enemy);
 
                     // 스폰 이펙트 추가 예정
                     // 스폰 효과음 추가 예정
@@ -69,8 +82,10 @@ public class MonsterSpawner : MonoBehaviour
             GameObject spawnBoss = EnemyListManager.Instance.enemyMap[curSpawnGroupBossMonsterTable.MonsterID];
 
             ////오브젝트 풀링으로 전환
-            //Instantiate(spawnBoss, spawnPos[spawnPos.Length-1].position, spawnPos[spawnPos.Length - 1].rotation);
             GameObject boss = ObjectPoolManager.Get(spawnBoss, spawnPos[spawnPos.Length - 1].position, spawnPos[spawnPos.Length - 1].rotation);
+
+            if(!enemyGroup.Contains(boss))
+                enemyGroup.Add(boss);
 
             // 보스 스폰 이펙트 추가 예정
             // 보스 스폰 효과음 추가 예정
@@ -151,6 +166,20 @@ public class MonsterSpawner : MonoBehaviour
     {
         curSpawnerPos = 0;
         ChangeParent(maps[curSpawnerPos].transform);
+    }
+
+    public void ClearMonster()
+    {
+        foreach (GameObject enemy in enemyGroup)
+        {
+            if(enemy.activeSelf)
+                ObjectPoolManager.Return(enemy);
+        }
+    }
+
+    private void OnDisable()
+    {
+        ClearMonster();
     }
 
     //curFloor-1 맵을 불러와 맵을 바꾸는 것을 목적으로 함
