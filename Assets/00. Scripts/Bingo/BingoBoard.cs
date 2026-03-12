@@ -57,15 +57,14 @@ public class BingoBoard : Singleton<BingoBoard>
 
     void Start()
     {
-        LoadBingo = true;
         
-        DropdownSet<CellRarity>(ref dropdown, value => test1 = value);
-        DropdownSet<RarityType>(ref RarityDropDown, value => synergyMgr.rarity = value);
-        DropdownSet<SynergyStat>(ref StatDropDown, value => synergyMgr.stat = value);
+        // DropdownSet<CellRarity>(ref dropdown, value => test1 = value);
+        // DropdownSet<RarityType>(ref RarityDropDown, value => synergyMgr.rarity = value);
+        // DropdownSet<SynergyStat>(ref StatDropDown, value => synergyMgr.stat = value);
         
-        bingoButton.onClick.AddListener(() => OnClick(bingoItemManager.itemBase));
-        slotTest.onClick.RemoveAllListeners();
-        slotTest.onClick.AddListener(()=> Testpe());
+        // bingoButton.onClick.AddListener(() => OnClick(bingoItemManager.itemBase));
+        // slotTest.onClick.RemoveAllListeners();
+        // slotTest.onClick.AddListener(()=> Testpe());
         
         foreach (var slotColumn in SlotColumns)
         {
@@ -75,6 +74,11 @@ public class BingoBoard : Singleton<BingoBoard>
         foreach(CellRarity grade in Enum.GetValues(typeof(CellRarity)))
         {
             SlotGradeList.Add(grade, new List<BingoSlot>());
+        }
+        
+        if (transform1 == null && transform2 == null)
+        {
+            return;
         }
         
         foreach (var synergy in bingoBoardSO.bingoSynergy)
