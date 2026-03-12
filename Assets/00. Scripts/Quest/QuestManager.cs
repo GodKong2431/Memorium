@@ -1,4 +1,5 @@
-﻿using System.Collections;
+using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 
 // GameEventManager.OnQuestActionUpdated?.Invoke(QuestType.questElimination, 1);
@@ -15,6 +16,8 @@ public class QuestManager : Singleton<QuestManager>
     public int currentProgress = 0;
 
     public SaveQuestData saveQuestData;
+
+    public bool DataLoad = false;
 
     // Current quest row.
     public LineQuestTable CurrentQuestData
@@ -49,6 +52,12 @@ public class QuestManager : Singleton<QuestManager>
         // Delay first UI broadcast until quest table is loaded.
         yield return new WaitUntil(() => IsQuestDataReady);
         GameEventManager.OnQuestProgressChanged?.Invoke();
+
+        GameEventManager.OnQuestProgressChanged += ()=>
+        {
+            saveQuestData.SaveProgress(currentProgress);
+        };
+        DataLoad = true;
     }
 
     protected override void OnDestroy()
@@ -133,11 +142,17 @@ public class QuestManager : Singleton<QuestManager>
         DataManager.Instance.LineQuestDict != null;
 
 
-    protected override void OnApplicationQuit()
-    {
-        base.OnApplicationQuit();
-        saveQuestData.Save(currentQuestID, currentProgress);
-        JSONService.Save(saveQuestData);
+    //protected override void OnApplicationQuit()
+    //{
+    //    base.OnApplicationQuit();
+    //    saveQuestData.Save(currentQuestID, currentProgress);
+    //    JSONService.Save(saveQuestData);
+    //}
 
-    }
+    //public async Task AutoSaveTask()
+    //{
+    //    Debug.Log("[QuestManager] 퀘스트 변경사항 확인 및 데이터 저장");
+    //    await JSONService.SaveFileOnAsync(saveQuestData);
+    //    saveQuestData.ClearDirty();
+    //}
 }

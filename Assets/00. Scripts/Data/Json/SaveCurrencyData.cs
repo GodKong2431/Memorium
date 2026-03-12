@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class SaveCurrencyData
+public class SaveCurrencyData : ISaveData
 {
     [Header("저장할 재화")]
     //현재 json 상에 딕셔너리가 저장이 안되어 사싱상 currencyTypes 의 인덱스를 키 값으로 currencyValue를 저장
@@ -19,6 +19,10 @@ public class SaveCurrencyData
     public List<BigDouble> itemValue;
 
     public SerializedDictionary<CurrencyType, int> currencyTypeToKey = new SerializedDictionary<CurrencyType, int>();
+
+    //변경 여부 체크
+    private bool isDirty = false;
+    public bool IsDirty => isDirty;
 
     public SaveCurrencyData()
     { }
@@ -112,6 +116,8 @@ public class SaveCurrencyData
         //int index = currencyTypes.IndexOf((int)context.ItemType);
         //Debug.Log($"[InventoryManager] {context.ItemType}의 인덱스 : {index} 증가량 {amount}");
         //currencyValues[index] = amount;
+
+        isDirty = true;
     }
     public void Save(CurrencyType type, BigDouble amount)
     {
@@ -121,16 +127,9 @@ public class SaveCurrencyData
         int index = currencyTypes.IndexOf((int)type);
         //Debug.Log($"[InventoryManager] {type}의 인덱스 : {index} 증가량 {amount}");
         currencyValues[index] = amount;
-    }
 
-    ////이걸 OnApplicationQuit에서 사용할 거임 <- 어차피 데이터 값 변환시마다 변동되어 마지막에 저장 필요 x
-    //public void SaveBeforeQuit(CurrencyType currencyType, BigDouble amount)
-    //{
-    //    //값을 찾을 인덱스
-    //    int index = currencyTypes.IndexOf((int)currencyType);
-    //    Debug.Log($"[InventoryManager] {currencyType}의 인덱스 : {index} 증가량 {amount}");
-    //    currencyValues[index] = amount;
-    //}
+        isDirty = true;
+    }
 
     public void SetData()
     {
@@ -140,22 +139,17 @@ public class SaveCurrencyData
 
             var currencyModule = InventoryManager.Instance != null ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>() : null;
             currencyModule?.AddCurrency((CurrencyType)currencyType, currencyValues[index]);
-
-            //if (currencyTypeToKey.ContainsKey((CurrencyType)currencyType))
-            //{
-            //    InventoryManager.Instance.AddItem(currencyTypeToKey[(CurrencyType)currencyType], currencyValues[index]);
-            //}
-            //else
-            //{
-            //    var currencyModule = InventoryManager.Instance != null? InventoryManager.Instance.GetModule<CurrencyInventoryModule>(): null;
-            //    currencyModule?.AddCurrency((CurrencyType)currencyType, currencyValues[index]);
-            //}
         }
 
         for (int i = 0; i < itemId.Count; i++)
         {
             InventoryManager.Instance.AddItem(itemId[i], itemValue[i]);
         }
+    }
+
+    public void ClearDirty()
+    {
+        isDirty = false;
     }
 
     //public void SetOtherCurrencyData()

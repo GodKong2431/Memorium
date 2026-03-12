@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
 //나중엔 해당 클래스를 매니저에서 관리하지만 현재는 테스트를 위해 해당 데이터에 Singleton 적용
-public class SaveEquipmentData
+public class SaveEquipmentData : ISaveData
 {
     //정해야할 데이터 플레이어가 장착한 아이템 정보들, 각 아이템 갯수, 아이템 해금 정보, 패밀리어랑, 패밀리어 주문서 양
     [Header("저장된 장착 장비")]
@@ -15,13 +15,10 @@ public class SaveEquipmentData
     public int armorId;
     public int bootsId;
     [Header("저장된 해금 장비")]
-    ////해금된 아이템 키
-    //public List<int> unLockEquipmentKey;
-    ////해금된 아이템 갯수
-    //public List<int> unLockEquipmentValue;
-    ////해금된 아이템 강화수치
-    //public List<int> unLockEquipmentReinforcement;
     public List<EquipmentData> unLockEquipment;
+
+    private bool isDirty = false;
+    public bool IsDirty => isDirty;
 
 
     //해당 값은 Dictionary이므로 Json에 저장되지 않음, 다른 스크립트에서 참고하거나 풀어서 위 리스트에 저장용
@@ -79,8 +76,29 @@ public class SaveEquipmentData
         this.armorId=armorId;
         this.bootsId = bootsId;
 
+        isDirty = true;
         //unLockEquipment.Clear();
         //unLockEquipment = unlockEquipmentDict.Values.ToList<EquipmentData>();
+    }
+
+    public void SaveOnEquip(int id, EquipmentType type)
+    {
+        switch (type)
+        {
+            case EquipmentType.Weapon:
+                weaponId = id; break;
+            case EquipmentType.Helmet:
+                helmetId = id; break;
+            case EquipmentType.Armor:
+                armorId = id; break;
+            case EquipmentType.Glove:
+                gloveId = id; break;
+            case EquipmentType.Boots:
+                bootsId = id; break;
+            default:
+                return;
+        }
+        isDirty = true;
     }
 
     public void SaveEquipment(InventoryItemContext context, BigDouble amount)
@@ -113,15 +131,22 @@ public class SaveEquipmentData
         }
         unlockEquipmentDict[context.ItemId] = equipmentData;
 
-
+        isDirty = true;
         //unlockEquipmentValueDict[context.ItemId] = equipmentItemCount;
-
-
     }
 
     public void SaveEquipmentReinforcement(EquipmentData equipmentData)
     {
         unlockEquipmentDict[equipmentData.equipmentId] = equipmentData;
+        for (int i = 0; i < unLockEquipment.Count; i++)
+        {
+            if (unLockEquipment[i].equipmentId == equipmentData.equipmentId)
+            {
+                unLockEquipment[i] = equipmentData;
+                break;
+            }
+        }
+        isDirty = true;
     }
 
     public int FirstDictionaryKey<T>(Dictionary<int,T> table)
@@ -139,6 +164,11 @@ public class SaveEquipmentData
         List<int> keyList = table.Keys.ToList<int>();
         keyList.Sort();
         return keyList[0];
+    }
+
+    public void ClearDirty()
+    {
+        isDirty = false;
     }
 }
 
