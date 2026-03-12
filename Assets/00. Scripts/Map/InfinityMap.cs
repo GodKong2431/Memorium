@@ -126,10 +126,10 @@ public class InfinityMap : MonoBehaviour
         goal.transform.localPosition = Vector3.zero;
 
         NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
-        agent.enabled = false;
+        //agent.enabled = false;
         //player.position = originPlayerPos;
         PlayerPosInit();
-        agent.enabled = true;
+        //agent.enabled = true;
     }
 
     public void PlayerPosInit()
@@ -142,6 +142,7 @@ public class InfinityMap : MonoBehaviour
         }
         else
         {
+
             NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
             agent.enabled = false;
             player.position = originPlayerPos;
