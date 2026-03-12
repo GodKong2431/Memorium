@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -19,7 +19,9 @@ public class InfinityMap : MonoBehaviour
     //목표 위치
     [SerializeField] Transform goal;
 
+    //플레이어
     [SerializeField] Transform player;
+    [SerializeField] Transform pixie;
 
     [SerializeField] private GameObject[] mapGroupsPrefab;
     //key == Floor
@@ -27,6 +29,8 @@ public class InfinityMap : MonoBehaviour
     public List<GameObject> mapGroups;
     public List<GameObject> maps;
     public bool firstMapSetting=false;
+
+    PixieSpawner pixieSpawner;
 
     IEnumerator Start()
     {
@@ -66,7 +70,8 @@ public class InfinityMap : MonoBehaviour
 
         originTriggerPos = mapMoveTrigger.transform.position;
 
-        originPlayerPos = player.position;
+        //originPlayerPos = player.position;
+        PlayerPosInit();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -121,11 +126,44 @@ public class InfinityMap : MonoBehaviour
         goal.transform.localPosition = Vector3.zero;
 
         NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
-        agent.enabled = false;
-        player.position = originPlayerPos;
-        agent.enabled = true;
+        //agent.enabled = false;
+        //player.position = originPlayerPos;
+        PlayerPosInit();
+        //agent.enabled = true;
     }
 
+    public void PlayerPosInit()
+    {
+        if (player == null)
+        {
+            player = GameObject.FindAnyObjectByType<PlayerStatPresenter>().transform;
+            pixieSpawner = player.GetComponent<PixieSpawner>();
+            originPlayerPos = player.position;
+        }
+        else
+        {
+
+            NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
+            agent.enabled = false;
+            player.position = originPlayerPos;
+            agent.enabled = true;
+
+            pixie = pixieSpawner.SpawnedPixie;
+            if (pixie != null)
+            {
+                NavMeshAgent pixieAgent = pixie.GetComponent<NavMeshAgent>();
+                pixieAgent.enabled = false;
+                Debug.Log("[InfinityMap] 픽시 이동");
+                pixie.position = originPlayerPos;
+                pixieAgent.enabled = true;
+            }
+            else
+            {
+                Debug.Log("[InfinityMap] 픽시가 없다");
+            }
+                
+        }
+    }
 
     ////curFloor-1 맵을 불러와 맵을 바꾸는 것을 목적으로 함
     //public void SetMap(int curFloor)
@@ -151,10 +189,10 @@ public class InfinityMap : MonoBehaviour
     //    //}
     //}
 
-    //플로어 변경 시 infinitymap.mapChange 후 monsterSpawner.mapChange
-    public void MapChange(int curFloor)
-    {
-        MapInit();
-        MapReset();
-    }
+    ////플로어 변경 시 infinitymap.mapChange 후 monsterSpawner.mapChange
+    //public void MapChange(int curFloor)
+    //{
+    //    MapInit();
+    //    MapReset();
+    //}
 }

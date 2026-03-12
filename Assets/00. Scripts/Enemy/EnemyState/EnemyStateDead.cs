@@ -17,7 +17,7 @@ public class EnemyStateDead : IEnemyState
     {
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = true;
-        ctx.SetAnimatorTrigger("Dead");
+        ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Dead);
         // 사망 이펙트 추가 예정
         // 사망 효과음 추가 예정
         _destroyTime = Time.time + DestroyDelay;

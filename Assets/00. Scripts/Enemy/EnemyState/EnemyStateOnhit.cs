@@ -13,7 +13,7 @@ public class EnemyStateOnhit : IEnemyState
     public void OnEnter(EnemyStateContext ctx)
     {
         _endTime = Time.time + OnhitDuration;
-        ctx.SetAnimatorTrigger("Onhit");
+        ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Onhit);
         // 피격 이펙트 추가 예정
         // 피격 효과음 추가 예정
     }

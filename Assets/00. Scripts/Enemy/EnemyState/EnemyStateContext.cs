@@ -17,6 +17,11 @@ public class EnemyStateContext
     public Animator Animator { get; set; }
 
     /// <summary>
+    /// 애니메이션 트리거/파라미터 이름 매핑. null이면 기본값(enum 이름) 사용.
+    /// </summary>
+    public MonsterAnimationConfig AnimationConfig { get; set; }
+
+    /// <summary>
     /// 최초 스폰 위치 (리스폰 시 사용)
     /// </summary>
     public Vector3 SpawnPosition { get; set; }
@@ -123,7 +128,19 @@ public class EnemyStateContext
     }
 
     /// <summary>
-    /// 애니메이터 트리거 설정. Animator가 있고 trigger가 유효할 때만 호출.
+    /// 설정(AnimationConfig)에 따라 트리거 이름을 조회한 뒤 Animator에 설정. 하드코딩 없음.
+    /// </summary>
+    public void SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey key)
+    {
+        string trigger = AnimationConfig != null
+            ? AnimationConfig.GetTrigger(key)
+            : MonsterAnimationConfig.GetDefaultTrigger(key);
+        if (Animator != null && !string.IsNullOrEmpty(trigger))
+            Animator.SetTrigger(trigger);
+    }
+
+    /// <summary>
+    /// 커스텀 트리거명 직접 지정 시 사용 (예: BossManageTable.animation 등).
     /// </summary>
     public void SetAnimatorTrigger(string trigger)
     {
