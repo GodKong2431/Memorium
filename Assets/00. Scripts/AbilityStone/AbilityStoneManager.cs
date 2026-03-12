@@ -200,10 +200,10 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         {
             if (item.Value.statType == statType)
             {
-                return item.Value.isUnlock ? (1 + item.Value.increaseStat) : 1f;
+                return item.Value.isUnlock ? item.Value.increaseStat : 0f;
             }
         }
         
-        return 1f;
+        return 0f;
     }
 }
