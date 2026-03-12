@@ -19,13 +19,15 @@ public sealed class PixieInventoryModule : IInventoryModule
 
     //구조체 리스트는 저장 할 수 있다고 이해해서 이렇게 만?들어놨는데 이상하다 싶으시면 다른 방식으로 하셔도 괜찮습니다.
 
+    public List<PixieSaveData> saveList = new List<PixieSaveData>();
+
     /// <summary>
     /// 가지고 있는 모든 Pixie의 id와 레벨을 담은 구조체 리스트 반환, UI랑 저장에 쓰시면 될?듯
     /// </summary>
     /// <returns></returns>
     public List<PixieSaveData> GetSaveList()
     {
-        List<PixieSaveData> saveList = new List<PixieSaveData>();
+        saveList.Clear();
         foreach (var pixie in pixieDict.Values)
         {
             saveList.Add(new PixieSaveData(pixie.pixieId, pixie.level));
