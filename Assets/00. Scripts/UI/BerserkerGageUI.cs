@@ -1,127 +1,154 @@
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
-/// <summary>
-/// SkillPanel 내 BerserkerGage UI. PlayerBerserkerOrb 버서커 오브 수치 표시 및 버서커 모드 버튼 연동.
-/// 스킬 UI(BattleSkillPresenter) 초기화 후 실행되도록 ExecutionOrder 지연.
-/// </summary>
 [RequireComponent(typeof(Button))]
 [DefaultExecutionOrder(100)]
 public class BerserkerGageUI : MonoBehaviour
 {
-    [Header("버서커 게이지 UI")]
-    [SerializeField] private TextMeshProUGUI orbText;
+    [Header("References")]
     [SerializeField] private Image fillImage;
+    [SerializeField] private PlayerBerserkerOrb berserkerOrb;
+    [SerializeField] private BerserkerModeController berserkerModeController;
 
-    private PlayerBerserkerOrb _berserkerOrb;
+    [Header("Colors")]
+    [SerializeField] private Color chargingColor = new Color(0f, 0f, 0f, 0f);
+    [SerializeField] private Color readyColor = new Color(1f, 0.35f, 0.2f, 1f);
+    [SerializeField] private Color activeColor = new Color(1f, 0.15f, 0.15f, 1f);
+
+    private static readonly HashSet<BerserkerGageUI> ActiveUis = new HashSet<BerserkerGageUI>();
+
     private Button _button;
+    private Color _resolvedChargingColor;
+    private bool _hasResolvedChargingColor;
 
     private void Awake()
     {
-        if (orbText == null) orbText = GetComponentInChildren<TextMeshProUGUI>();
-        if (fillImage == null) fillImage = GetComponent<Image>();
         _button = GetComponent<Button>();
         if (_button != null)
+        {
+            _button.onClick.RemoveListener(OnBerserkerModeClicked);
             _button.onClick.AddListener(OnBerserkerModeClicked);
+        }
+
+        ResolveChargingColor();
     }
 
     private void OnEnable()
     {
-        EnemyKillRewardDispatcher.OnBerserkerOrbEarned += OnOrbEarned;
+        ActiveUis.Add(this);
+
+        if (berserkerOrb != null)
+            berserkerOrb.OnBerserkerOrbChanged += Refresh;
+
         BerserkerModeController.OnBerserkerModeStarted += Refresh;
         BerserkerModeController.OnBerserkerModeEnded += Refresh;
-        TryBindBerserkerOrb();
+
         Refresh();
     }
 
     private void OnDisable()
     {
-        EnemyKillRewardDispatcher.OnBerserkerOrbEarned -= OnOrbEarned;
+        ActiveUis.Remove(this);
+
+        if (berserkerOrb != null)
+            berserkerOrb.OnBerserkerOrbChanged -= Refresh;
+
         BerserkerModeController.OnBerserkerModeStarted -= Refresh;
         BerserkerModeController.OnBerserkerModeEnded -= Refresh;
-        if (_berserkerOrb != null)
-        {
-            _berserkerOrb.OnBerserkerOrbChanged -= Refresh;
-            _berserkerOrb = null;
-        }
     }
 
-    private void Start()
+    private void OnDestroy()
     {
-        StartCoroutine(RetryBindBerserkerOrb());
+        if (_button != null)
+            _button.onClick.RemoveListener(OnBerserkerModeClicked);
     }
 
-    private void OnOrbEarned(int _)
+    private void Update()
     {
-        TryBindBerserkerOrb();
-        Refresh();
+        if (berserkerModeController != null && berserkerModeController.IsActive)
+            ApplyGaugeVisual();
     }
 
-    private void TryBindBerserkerOrb()
-    {
-        if (_berserkerOrb != null) return;
-        var orb = PlayerBerserkerOrb.Instance ?? FindAnyObjectByType<PlayerBerserkerOrb>();
-        if (orb == null) return;
-        _berserkerOrb = orb;
-        _berserkerOrb.OnBerserkerOrbChanged += Refresh;
-    }
-
-    private IEnumerator RetryBindBerserkerOrb()
-    {
-        for (int i = 0; i < 60 && _berserkerOrb == null; i++)
-        {
-            yield return null;
-            TryBindBerserkerOrb();
-            if (_berserkerOrb != null)
-            {
-                Refresh();
-                yield break;
-            }
-        }
-    }
-
-    /// <summary>외부에서 호출 (비활성 UI 포함 전체 갱신). PlayerBerserkerOrb에서 사용.</summary>
     public static void RefreshAll()
     {
-        foreach (var ui in FindObjectsOfType<BerserkerGageUI>(true))
+        foreach (var ui in ActiveUis)
             ui.Refresh();
     }
 
     private void Refresh()
     {
-        if (orbText == null) orbText = GetComponentInChildren<TextMeshProUGUI>();
-        if (fillImage == null) fillImage = GetComponent<Image>();
-        TryBindBerserkerOrb();
+        ApplyGaugeVisual();
 
-        if (_berserkerOrb == null)
+        if (_button == null)
+            return;
+
+        int current = berserkerOrb != null ? berserkerOrb.BerserkerOrb : 0;
+        int max = PlayerBerserkerOrb.MaxBerserkerOrb;
+
+        bool canUseMode =
+            berserkerOrb != null &&
+            berserkerModeController != null &&
+            !berserkerModeController.IsActive &&
+            current >= max;
+
+        _button.interactable = canUseMode;
+    }
+
+    private void ApplyGaugeVisual()
+    {
+        if (fillImage == null)
+            return;
+
+        ResolveChargingColor();
+
+        if (berserkerModeController != null && berserkerModeController.IsActive)
         {
-            if (orbText) orbText.text = "0 / 50";
-            if (fillImage) fillImage.fillAmount = 0f;
-            if (_button) _button.interactable = false;
+            fillImage.fillAmount = berserkerModeController.RemainingDurationNormalized;
+            fillImage.color = activeColor;
             return;
         }
 
-        int current = _berserkerOrb.BerserkerOrb;
+        int current = berserkerOrb != null ? berserkerOrb.BerserkerOrb : 0;
         int max = PlayerBerserkerOrb.MaxBerserkerOrb;
-        if (orbText)
-            orbText.text = $"{current} / {max}";
-        if (fillImage)
-            fillImage.fillAmount = Mathf.Clamp01((float)current / max);
+        float normalized = max > 0 ? Mathf.Clamp01((float)current / max) : 0f;
 
-        var berserker = BerserkerModeController.Instance ?? FindAnyObjectByType<BerserkerModeController>();
-        if (_button)
-            _button.interactable = berserker != null && !berserker.IsActive && current >= max;
+        fillImage.fillAmount = normalized;
+        fillImage.color = normalized >= 1f ? readyColor : _resolvedChargingColor;
     }
 
-    private static void OnBerserkerModeClicked()
+    private void ResolveChargingColor()
     {
-        var orb = PlayerBerserkerOrb.Instance ?? FindAnyObjectByType<PlayerBerserkerOrb>();
-        var berserker = BerserkerModeController.Instance ?? FindAnyObjectByType<BerserkerModeController>();
-        if (orb == null || berserker == null) return;
-        if (berserker.IsActive) return;
-        if (!orb.TryConsumeBerserkerOrbs(PlayerBerserkerOrb.MaxBerserkerOrb)) return;
-        berserker.Activate();
+        if (_hasResolvedChargingColor)
+            return;
+
+        if (chargingColor.a > 0f)
+        {
+            _resolvedChargingColor = chargingColor;
+        }
+        else if (fillImage != null)
+        {
+            _resolvedChargingColor = fillImage.color;
+        }
+        else
+        {
+            _resolvedChargingColor = Color.white;
+        }
+
+        _hasResolvedChargingColor = true;
+    }
+
+    private void OnBerserkerModeClicked()
+    {
+        if (berserkerOrb == null || berserkerModeController == null)
+            return;
+
+        if (berserkerModeController.IsActive)
+            return;
+
+        if (!berserkerOrb.TryConsumeBerserkerOrbs(PlayerBerserkerOrb.MaxBerserkerOrb))
+            return;
+
+        berserkerModeController.Activate();
     }
 }
