@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public sealed class PixieInventoryModule : IInventoryModule
 {
     private readonly Dictionary<int, OwnedPixieData> pixieDict = new Dictionary<int, OwnedPixieData>();
-    public IEnumerable<OwnedPixieData> GetAllPixies() => pixieDict.Values;
+    
     public int goldId = 0;
 
     const int UNLOCK_COST = 50;
@@ -91,7 +91,7 @@ public sealed class PixieInventoryModule : IInventoryModule
         return BigDouble.Zero;
     }
     #endregion
-
+    
 
     #region UI 표시용
     /// <summary>
@@ -100,6 +100,14 @@ public sealed class PixieInventoryModule : IInventoryModule
     public bool IsOwned(int fairyId)
     {
         return pixieDict.ContainsKey(fairyId);
+    }
+
+    /// <summary>
+    /// 보유 픽시 데이터 목록 반환
+    /// </summary>
+    public IEnumerable<OwnedPixieData> GetAllPixies()
+    {
+        return pixieDict.Values;
     }
 
     /// <summary>
@@ -188,7 +196,7 @@ public sealed class PixieInventoryModule : IInventoryModule
     // 아니면 스트링 자체를 반환하게해서 그대로 띄우게 해도 괜찮을 것 같습니다.
 
     /// <summary>
-    /// 모든 업그레이드(해금/레벨업/성장) 호출
+    /// 모든 업그레이드(해금/레벨업/성장) 호출 , 하나라도 성공시 종료 => true 반환
     /// </summary>
     /// <param name="fairyId"></param>
     /// <returns></returns>

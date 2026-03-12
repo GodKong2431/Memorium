@@ -78,25 +78,21 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     }
     private void OnEnable()
     {
-        var skillModule = InventoryManager.Instance != null
-            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
-            : null;
+        var skillModule = InventoryManager.Instance != null? InventoryManager.Instance.GetModule<SkillInventoryModule>(): null;
         if (skillModule != null)
             skillModule.OnPresetChanged += OnPresetChanged;
     }
 
     private void OnDisable()
     {
-        var skillModule = InventoryManager.Instance != null
-            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
-            : null;
+        var skillModule = InventoryManager.Instance != null? InventoryManager.Instance.GetModule<SkillInventoryModule>(): null;
         if (skillModule != null)
             skillModule.OnPresetChanged -= OnPresetChanged;
     }
 
     private void OnPresetChanged(int presetIndex)
     {
-        InitFromPreset();
+        RefreshFromPreset();
     }
     public void InitFromPreset()
     {
@@ -105,8 +101,32 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         Init(skillModule.GetCurrentPreset().slots);
     }
 
+    public void RefreshFromPreset()
+    {
+        var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
+        if (skillModule == null || skilldataContexts == null) return;
 
-    // 이거 왜만들었던 건지 까먹음
+        var slots = skillModule.GetCurrentPreset().slots;
+
+        if (slots.Length != skilldataContexts.Length)
+        {
+            Init(slots);
+            return;
+        }
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            var slot = slots[i];
+            if (skilldataContexts[i] != null)
+            {
+                skilldataContexts[i].SetSkillContext(slot.skillID, slot.m4JemID, slot.m5JemIDs[0], slot.m5JemIDs[1]);
+            }
+            else
+            {
+                skilldataContexts[i] = new SkillDataContext(slot.skillID, slot.m4JemID, slot.m5JemIDs[0], slot.m5JemIDs[1]);
+            }
+        }
+    }
     public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb =-1)
     {
         if (index < 0 || index >= skilldataContexts.Length) return;
