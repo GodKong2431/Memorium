@@ -4,6 +4,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class SkillModule5Table : TableBase
 {
+    public int m5ItemID;
     public int skillID;
     public int m5ItemID;
     public M5Type m5Type;

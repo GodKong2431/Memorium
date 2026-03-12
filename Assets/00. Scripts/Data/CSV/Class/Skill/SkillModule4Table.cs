@@ -4,6 +4,8 @@ using System.Collections.Generic;
 [System.Serializable]
 public class SkillModule4Table : TableBase
 {
+    public int m4ItemID;
+    public int skillID;
     public M4Type m4Type;
     public int m4ItemID;
     public float m4Delay;
