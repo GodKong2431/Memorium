@@ -18,9 +18,9 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     [SerializeField] private int characterTableKey;
     [SerializeField] private int level;
 
-    [SerializeField] SaveEquipmentData saveEquipmentData;
+    public SaveEquipmentData saveEquipmentData;
     [SerializeField] EquipmentHandler equipmentHandler;
-    [SerializeField] SavePlayerData savePlayerData;
+    public SavePlayerData savePlayerData;
 
     [SerializeField] private TraitManager traitManager;
 
@@ -73,7 +73,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
             equipmentHandler.SetMyEquipOnStart(saveEquipmentData.weaponId, saveEquipmentData.helmetId, saveEquipmentData.gloveId, saveEquipmentData.armorId, saveEquipmentData.bootsId, 
                 saveEquipmentData.unlockEquipmentDict);
         }
-
+        yield return new WaitUntil(() => equipmentHandler.dataLoad);
         yield return new WaitUntil(() => InventoryManager.Instance != null);
         InventoryManager.Instance.OnItemAmountChanged += saveEquipmentData.SaveEquipment;
         EquipmentInventoryModule equipmentModule = InventoryManager.Instance.GetModule<EquipmentInventoryModule>();
@@ -106,6 +106,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         levelBonus.OnLevelUp += savePlayerData.SaveLevel;
 
         playerSlot.OnSlotUpdate += AllUpdate;
+
+        StatUpdate += savePlayerData.Save;
 
         BerserkerModeController.OnBerserkerModeStarted += OnBerserkerModeChanged;
         BerserkerModeController.OnBerserkerModeEnded += OnBerserkerModeChanged;
@@ -219,7 +221,9 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     {
         float baseValue = FinalStats.TryGetValue(statType, out var finalStat) ? finalStat.finalStat : 0f;
         baseValue = ApplyBerserkerMultiplier(statType, baseValue);
-        baseValue = _playerEffectController.GetModifiedStat(statType, baseValue);
+        // PlayerStateMachine에서 EffectController를 등록하기 전에도 전투력 계산이 먼저 호출될 수 있다.
+        if (_playerEffectController != null)
+            baseValue = _playerEffectController.GetModifiedStat(statType, baseValue);
         return baseValue;
     }
 
@@ -258,24 +262,28 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         var FinalDamageMult = FinalStats.TryGetValue(StatType.DMG_MULT, out var dmgMult) ? dmgMult.finalStat : 0f;
         return FinalATK * (1 + damageMult) * (1 + FinalDamageMult) * (1 - monsterDef / 100);
     }
-
-    protected override void OnApplicationQuit()
+    public void SaveOnEquip(int itemId, EquipmentType type)
     {
-        base.OnApplicationQuit();
-        if (equipmentHandler == null || !equipmentHandler.dataLoad)
-            return;
-        if (!equipmentHandler.TryGetPlayerEquipment(out var playerEquipment))
-            return;
-        if (saveEquipmentData == null)
-            return;
-
-        saveEquipmentData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
-        JSONService.Save(saveEquipmentData);
-
-
-        savePlayerData.Save();
-        JSONService.Save(savePlayerData);
+        saveEquipmentData.SaveOnEquip(itemId, type);
     }
+
+    //protected override void OnApplicationQuit()
+    //{
+    //    base.OnApplicationQuit();
+    //    if (equipmentHandler == null || !equipmentHandler.dataLoad)
+    //        return;
+    //    if (!equipmentHandler.TryGetPlayerEquipment(out var playerEquipment))
+    //        return;
+    //    if (saveEquipmentData == null)
+    //        return;
+
+    //    saveEquipmentData.SaveBeforeQuit(playerEquipment.weapon.ID, playerEquipment.helmet.ID, playerEquipment.glove.ID, playerEquipment.armor.ID, playerEquipment.boots.ID);
+    //    JSONService.Save(saveEquipmentData);
+
+
+    //    savePlayerData.Save();
+    //    JSONService.Save(savePlayerData);
+    //}
 
     //public void OnSceneChanged(Scene scene, LoadSceneMode mode)
     //{

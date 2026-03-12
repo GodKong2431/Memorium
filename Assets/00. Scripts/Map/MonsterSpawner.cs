@@ -171,11 +171,20 @@ public class MonsterSpawner : MonoBehaviour
 
     public void ClearMonster()
     {
-        foreach (GameObject enemy in enemyGroup)
+        for (int i = enemyGroup.Count - 1; i >= 0; i--)
         {
-            if(enemy.activeSelf && enemy!=null)
+            GameObject enemy = enemyGroup[i];
+            if (enemy == null)
+            {
+                enemyGroup.RemoveAt(i);
+                continue;
+            }
+
+            if (enemy.activeSelf)
                 ObjectPoolManager.Return(enemy);
         }
+
+        enemyGroup.Clear();
     }
 
     private void OnDisable()
