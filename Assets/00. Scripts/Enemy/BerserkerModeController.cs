@@ -19,10 +19,17 @@ public class BerserkerModeController : MonoBehaviour
     [SerializeField] private Transform vfxParent;
 
     public bool IsActive { get; private set; }
+    public float DurationSeconds => durationSeconds;
+    public float RemainingDurationSeconds => IsActive ? Mathf.Max(0f, _endTime - Time.time) : 0f;
+    public float RemainingDurationNormalized =>
+        IsActive && durationSeconds > 0f
+            ? Mathf.Clamp01(RemainingDurationSeconds / durationSeconds)
+            : 0f;
 
     private Transform VfxParent => vfxParent != null ? vfxParent : transform;
     private GameObject _berserkerVfx;
     private Coroutine _durationCoroutine;
+    private float _endTime;
 
     private void Awake()
     {
@@ -52,6 +59,7 @@ public class BerserkerModeController : MonoBehaviour
         if (IsActive) return;
 
         IsActive = true;
+        _endTime = Time.time + durationSeconds;
         AddVfx();
         OnBerserkerModeStarted?.Invoke();
 
@@ -89,6 +97,7 @@ public class BerserkerModeController : MonoBehaviour
         if (IsActive)
         {
             IsActive = false;
+            _endTime = 0f;
             if (notifyEvent)
                 OnBerserkerModeEnded?.Invoke();
         }

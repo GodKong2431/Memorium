@@ -1,168 +1,237 @@
+using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
+/// <summary>
+/// 스킬 아이템 카드가 가질 수 있는 표시 상태입니다.
+/// </summary>
 public enum ActiveSkillItemVisualState
 {
+    // 조각이 부족한 잠금 상태입니다.
     NotEnough,
+    // 잠금 해제가 가능한 상태입니다.
     Enough,
+    // 이미 소유 중이며 승급 가능한 상태입니다.
     Upgrade
 }
 
-public readonly struct ActiveSkillItemRenderData
+/// <summary>
+/// 스킬 아이템 카드에 그릴 표시 데이터를 묶은 값 타입입니다.
+/// </summary>
+public readonly struct ActiveSkillItemDisplayData
 {
+    // 표시 대상 스킬 ID입니다.
+    public readonly int SkillId;
+    // 표시 대상 스킬 이름입니다.
     public readonly string SkillName;
-    public readonly Sprite SkillIcon;
-    public readonly int CurrentCount;
-    public readonly int RequiredCount;
+    // 표시할 스킬 아이콘입니다.
+    public readonly Sprite Icon;
+    // 표시할 스킬 레벨입니다.
     public readonly int Level;
-    public readonly bool CanClickAction;
-    public readonly ActiveSkillItemVisualState State;
+    // 열린 젬 슬롯 개수입니다.
+    public readonly int OpenGemCount;
+    // 장착 버튼을 활성화할지 여부입니다.
+    public readonly bool CanEquip;
+    // 현재 카드의 시각 상태입니다.
+    public readonly ActiveSkillItemVisualState VisualState;
+    // 현재 조각 수입니다.
+    public readonly int CurrentCount;
+    // 필요한 조각 수입니다.
+    public readonly int RequiredCount;
+    // 잠금 해제/승급 버튼을 눌러도 되는지 여부입니다.
+    public readonly bool CanTriggerStateAction;
 
-    public ActiveSkillItemRenderData(
+    // 카드 표시 데이터 전체를 초기화합니다.
+    public ActiveSkillItemDisplayData(
+        int skillId,
         string skillName,
-        Sprite skillIcon,
+        Sprite icon,
+        int level,
+        int openGemCount,
+        bool canEquip,
+        ActiveSkillItemVisualState visualState,
         int currentCount,
         int requiredCount,
-        int level,
-        bool canClickAction,
-        ActiveSkillItemVisualState state)
+        bool canTriggerStateAction)
     {
+        SkillId = skillId;
         SkillName = skillName;
-        SkillIcon = skillIcon;
+        Icon = icon;
+        Level = level;
+        OpenGemCount = openGemCount;
+        CanEquip = canEquip;
+        VisualState = visualState;
         CurrentCount = currentCount;
         RequiredCount = requiredCount;
-        Level = level;
-        CanClickAction = canClickAction;
-        State = state;
+        CanTriggerStateAction = canTriggerStateAction;
     }
 }
 
 /// <summary>
-/// ActiveSkill 아이템 1개의 렌더링과 상태 전환을 담당한다.
+/// 액티브 스킬 아이템 한 개의 텍스트, 아이콘, 버튼 상태를 갱신합니다.
 /// </summary>
 public sealed class ActiveSkillItemView
 {
-    private readonly RectTransform root;
-    private readonly LayoutElement layout;
-    private readonly Image iconImage;
-    private readonly TMP_Text nameLabel;
-    private readonly GameObject lockedSharedRoot;
-    private readonly GameObject notEnoughRoot;
-    private readonly GameObject enoughRoot;
-    private readonly GameObject upgradeRoot;
-    private readonly TMP_Text lockedCountLabel;
-    private readonly TMP_Text upgradeCountLabel;
-    private readonly Button unlockButton;
-    private readonly Button upgradeButton;
-    private readonly TMP_Text levelLabel;
+    // 프리팹에서 받아온 UI 참조 묶음입니다.
+    private readonly ActiveSkillItemBinding binding;
 
-    private readonly float lockedHeight;
-    private readonly float upgradeHeight;
+    // 현재 카드가 가리키는 스킬 ID입니다.
+    private int currentSkillId = -1;
+    // 아이콘 클릭 시 호출할 콜백입니다.
+    private Action<int> onSkillClick;
+    // 장착 버튼 클릭 시 호출할 콜백입니다.
+    private Action<int> onEquipClick;
+    // 잠금 해제/승급 버튼 클릭 시 호출할 콜백입니다.
+    private Action<int> onStateActionClick;
 
-    public ActiveSkillItemView(ActiveSkillItemBinding binding, float lockedHeight, float upgradeHeight)
+    // 카드 뷰를 바인딩 참조와 함께 생성합니다.
+    public ActiveSkillItemView(ActiveSkillItemBinding binding)
     {
-        if (binding == null)
-            throw new System.ArgumentNullException(nameof(binding));
-
-        root = binding.Root;
-        layout = binding.Layout;
-        iconImage = binding.IconImage;
-        nameLabel = binding.NameLabel;
-        lockedSharedRoot = binding.LockedSharedRoot;
-        notEnoughRoot = binding.NotEnoughRoot;
-        enoughRoot = binding.EnoughRoot;
-        upgradeRoot = binding.UpgradeRoot;
-        lockedCountLabel = binding.LockedCountLabel;
-        upgradeCountLabel = binding.UpgradeCountLabel;
-        unlockButton = binding.UnlockButton;
-        upgradeButton = binding.UpgradeButton;
-        levelLabel = binding.LevelLabel;
-        this.lockedHeight = lockedHeight;
-        this.upgradeHeight = upgradeHeight;
+        this.binding = binding;
+        BindButtonsOnce();
     }
 
-    public void SetMergeClickHandler(UnityAction onClick)
+    // 전달받은 데이터로 카드 전체 표시를 갱신합니다.
+    public void Bind(
+        ActiveSkillItemDisplayData data,
+        Action<int> skillClickHandler,
+        Action<int> equipClickHandler,
+        Action<int> stateActionClickHandler)
     {
-        SetClickHandler(unlockButton, onClick);
-        SetClickHandler(upgradeButton, onClick);
+        currentSkillId = data.SkillId;
+        onSkillClick = skillClickHandler;
+        onEquipClick = equipClickHandler;
+        onStateActionClick = stateActionClickHandler;
+
+        if (binding.SkillIconDisplay != null)
+            binding.SkillIconDisplay.sprite = data.Icon;
+
+        if (binding.IconImage != null)
+            binding.IconImage.sprite = data.Icon;
+
+        if (binding.NameLabel != null)
+            binding.NameLabel.text = data.SkillName;
+
+        SetLevelText(binding.IconLevelLabel, data.Level);
+        SetLevelText(binding.LevelLabel, data.Level);
+        SetGemIcons(data.OpenGemCount);
+        SetVisualState(data.VisualState);
+        SetCountLabels(data);
+        SetStateButtonInteractable(data);
+
+        if (binding.EquipButton != null)
+            binding.EquipButton.interactable = data.CanEquip;
     }
 
-    public void Render(ActiveSkillItemRenderData data)
+    // 버튼 리스너를 한 번만 연결합니다.
+    private void BindButtonsOnce()
     {
-        if (nameLabel != null)
-            nameLabel.text = string.IsNullOrEmpty(data.SkillName) ? "-" : data.SkillName;
+        if (binding.SkillButton != null)
+        {
+            binding.SkillButton.onClick.RemoveListener(HandleSkillClick);
+            binding.SkillButton.onClick.AddListener(HandleSkillClick);
+        }
 
-        if (iconImage != null && data.SkillIcon != null)
-            iconImage.sprite = data.SkillIcon;
+        if (binding.EquipButton != null)
+        {
+            binding.EquipButton.onClick.RemoveListener(HandleEquipClick);
+            binding.EquipButton.onClick.AddListener(HandleEquipClick);
+        }
 
-        int clampedCurrent = Mathf.Max(0, data.CurrentCount);
-        int clampedRequired = Mathf.Max(1, data.RequiredCount);
-        string countText = $"{clampedCurrent} / {clampedRequired}";
+        if (binding.UnlockButton != null)
+        {
+            binding.UnlockButton.onClick.RemoveListener(HandleStateActionClick);
+            binding.UnlockButton.onClick.AddListener(HandleStateActionClick);
+        }
 
-        if (lockedCountLabel != null)
-            lockedCountLabel.text = countText;
-
-        if (upgradeCountLabel != null)
-            upgradeCountLabel.text = countText;
-
-        if (levelLabel != null)
-            levelLabel.text = $"LV. {Mathf.Max(0, data.Level)}";
-
-        if (unlockButton != null)
-            unlockButton.interactable = data.State == ActiveSkillItemVisualState.Enough && data.CanClickAction;
-
-        if (upgradeButton != null)
-            upgradeButton.interactable = data.State == ActiveSkillItemVisualState.Upgrade && data.CanClickAction;
-
-        SetVisualState(data.State);
+        if (binding.UpgradeButton != null)
+        {
+            binding.UpgradeButton.onClick.RemoveListener(HandleStateActionClick);
+            binding.UpgradeButton.onClick.AddListener(HandleStateActionClick);
+        }
     }
 
+    // 아이콘 버튼 클릭을 외부로 전달합니다.
+    private void HandleSkillClick()
+    {
+        if (currentSkillId >= 0)
+            onSkillClick?.Invoke(currentSkillId);
+    }
+
+    // 장착 버튼 클릭을 외부로 전달합니다.
+    private void HandleEquipClick()
+    {
+        if (currentSkillId >= 0)
+            onEquipClick?.Invoke(currentSkillId);
+    }
+
+    // 잠금 해제/승급 버튼 클릭을 외부로 전달합니다.
+    private void HandleStateActionClick()
+    {
+        if (currentSkillId >= 0)
+            onStateActionClick?.Invoke(currentSkillId);
+    }
+
+    // 열린 젬 슬롯 개수만큼 아이콘을 표시합니다.
+    private void SetGemIcons(int openGemCount)
+    {
+        if (binding.GemPanelRoot != null)
+            binding.GemPanelRoot.gameObject.SetActive(openGemCount > 0);
+
+        if (binding.GemPanelRoot == null)
+            return;
+
+        for (int i = 0; i < binding.GemPanelRoot.childCount; i++)
+            binding.GemPanelRoot.GetChild(i).gameObject.SetActive(i < openGemCount);
+    }
+
+    // 현재 카드 상태에 맞는 루트 오브젝트만 표시합니다.
     private void SetVisualState(ActiveSkillItemVisualState state)
     {
-        bool isUpgrade = state == ActiveSkillItemVisualState.Upgrade;
+        if (binding.LockedSharedRoot != null)
+            binding.LockedSharedRoot.SetActive(state != ActiveSkillItemVisualState.Upgrade);
 
-        SetActive(lockedSharedRoot, !isUpgrade);
-        SetActive(notEnoughRoot, state == ActiveSkillItemVisualState.NotEnough);
-        SetActive(enoughRoot, state == ActiveSkillItemVisualState.Enough);
-        SetActive(upgradeRoot, isUpgrade);
+        if (binding.NotEnoughRoot != null)
+            binding.NotEnoughRoot.SetActive(state == ActiveSkillItemVisualState.NotEnough);
 
-        SetHeight(isUpgrade ? upgradeHeight : lockedHeight);
+        if (binding.EnoughRoot != null)
+            binding.EnoughRoot.SetActive(state == ActiveSkillItemVisualState.Enough);
+
+        if (binding.UpgradeRoot != null)
+            binding.UpgradeRoot.SetActive(state == ActiveSkillItemVisualState.Upgrade);
     }
 
-    private void SetHeight(float height)
+    // 조각 수 텍스트를 상태별 라벨에 반영합니다.
+    private void SetCountLabels(ActiveSkillItemDisplayData data)
     {
-        if (layout != null)
-        {
-            layout.minHeight = height;
-            layout.preferredHeight = height;
-            layout.flexibleHeight = 0f;
-        }
+        string countText = $"{data.CurrentCount}/{data.RequiredCount}";
 
-        if (root == null)
+        if (binding.LockedCountLabel != null)
+            binding.LockedCountLabel.text = countText;
+
+        if (binding.UpgradeCountLabel != null)
+            binding.UpgradeCountLabel.text = countText;
+    }
+
+    // 잠금 해제/승급 버튼의 interactable 상태를 갱신합니다.
+    private void SetStateButtonInteractable(ActiveSkillItemDisplayData data)
+    {
+        if (binding.UnlockButton != null)
+            binding.UnlockButton.interactable = data.VisualState == ActiveSkillItemVisualState.Enough
+                && data.CanTriggerStateAction;
+
+        if (binding.UpgradeButton != null)
+            binding.UpgradeButton.interactable = data.VisualState == ActiveSkillItemVisualState.Upgrade
+                && data.CanTriggerStateAction;
+    }
+
+    // 레벨 텍스트를 공통 포맷으로 설정합니다.
+    private static void SetLevelText(TMP_Text label, int level)
+    {
+        if (label == null)
             return;
 
-        Vector2 size = root.sizeDelta;
-        if (!Mathf.Approximately(size.y, height))
-        {
-            size.y = height;
-            root.sizeDelta = size;
-        }
-    }
-
-    private static void SetActive(GameObject target, bool value)
-    {
-        if (target != null && target.activeSelf != value)
-            target.SetActive(value);
-    }
-
-    private static void SetClickHandler(Button button, UnityAction onClick)
-    {
-        if (button == null || onClick == null)
-            return;
-
-        button.onClick.RemoveListener(onClick);
-        button.onClick.AddListener(onClick);
+        label.text = level > 0 ? $"Lv.{level}" : string.Empty;
     }
 }
