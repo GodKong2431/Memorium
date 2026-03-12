@@ -21,6 +21,7 @@ public interface ISkillCooldownProvider
 
 public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTargetProvider, ISkillCooldownProvider
 {
+    [SerializeField] private BattleSkillPresenter battleSkillPresenter;
     private SkillCaster skillCaster;
     private SkillDataContext[] skilldataContexts;
     private float[] cooldownTimers;
@@ -28,8 +29,8 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     private PlayerStateMachine playerStateMachine;
 
     public int SkillCount => skilldataContexts?.Length ?? 0;
-    [SerializeField] private BattleSkillPresenter battleSkillPresenter;
 
+    private SkillInventoryModule subscribedSkillModule;
     public bool IsCasting() => skillCaster != null && skillCaster.IsCasting();
     public bool IsChanneling() => skillCaster != null && skillCaster.IsChanneling();
 
@@ -41,10 +42,9 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
     private void Start()
     {
-        if (battleSkillPresenter == null)
-            battleSkillPresenter = FindAnyObjectByType<BattleSkillPresenter>();
         if (DataManager.Instance.DataLoad)
         {
+            EnsureSkillModuleSubscription();
             InitFromPreset();
         }
         else
@@ -56,6 +56,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     private void OnDataLoaded()
     {
         DataManager.Instance.OnComplete -= OnDataLoaded;
+        EnsureSkillModuleSubscription();
         InitFromPreset();
     }
     public void Init(SkillPresetSlot[] slots)
@@ -73,22 +74,18 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
             cooldownTimeMax[i] = 0;
         }
         skillCaster.Init(this, this, SetInvincible);
-        if (battleSkillPresenter != null)
-            battleSkillPresenter.Init(this);
+        battleSkillPresenter?.BindCooldownProvider(this);
     }
     private void OnEnable()
     {
-        var skillModule = InventoryManager.Instance != null? InventoryManager.Instance.GetModule<SkillInventoryModule>(): null;
-        if (skillModule != null)
-            skillModule.OnPresetChanged += OnPresetChanged;
+        EnsureSkillModuleSubscription();
     }
 
     private void OnDisable()
     {
-        var skillModule = InventoryManager.Instance != null? InventoryManager.Instance.GetModule<SkillInventoryModule>(): null;
-        if (skillModule != null)
-            skillModule.OnPresetChanged -= OnPresetChanged;
+        UnsubscribeSkillModule();
     }
+
 
     private void OnPresetChanged(int presetIndex)
     {
@@ -137,7 +134,32 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
     private void Update()
     {
+        EnsureSkillModuleSubscription();
         CooldownLoop();
+    }
+    private void EnsureSkillModuleSubscription()
+    {
+        var skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        if (skillModule == null || subscribedSkillModule == skillModule)
+            return;
+
+        UnsubscribeSkillModule();
+        subscribedSkillModule = skillModule;
+        subscribedSkillModule.OnPresetChanged += OnPresetChanged;
+
+        if (DataManager.Instance != null && DataManager.Instance.DataLoad)
+            InitFromPreset();
+    }
+
+    private void UnsubscribeSkillModule()
+    {
+        if (subscribedSkillModule == null)
+            return;
+
+        subscribedSkillModule.OnPresetChanged -= OnPresetChanged;
+        subscribedSkillModule = null;
     }
 
     private void CooldownLoop()
