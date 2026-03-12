@@ -33,10 +33,14 @@ public class FinalStat
         
         float abilityStoneStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetStat(playerStatType) : 0f; 
         
-        float ablityStoneBonusStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetBonusStat(playerStatType) : 1f;
+        float ablityStoneBonusStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetBonusStat(playerStatType) : 0f;
         
-        finalStat = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat) * ablityStoneBonusStat;
-
+        float bingoSynergyStat = BingoBoard.Instance.LoadBingo ? BingoBoard.Instance.GetSynergyStat(playerStatType) : 0f;
+        
+        Debug.Log(bingoSynergyStat);
+        
+        finalStat = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat) * (1 + ablityStoneBonusStat + bingoSynergyStat);
+        
         return finalStat;
     }
 

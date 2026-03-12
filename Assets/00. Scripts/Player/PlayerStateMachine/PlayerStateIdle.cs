@@ -9,7 +9,7 @@ public class PlayerStateIdle : IPlayerState
     public PlayerStateType Type => PlayerStateType.Idle;
     public void OnEnter(PlayerStateContext ctx)
     {
-        if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
+        if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = true;
         SetAnimatorTrigger(ctx, "Idle");
     }

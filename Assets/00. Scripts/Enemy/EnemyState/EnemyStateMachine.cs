@@ -18,15 +18,15 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     [SerializeField][Tooltip("추적할 플레이어. 비워두면 'Player' 태그를 가진 오브젝트를 자동 검색합니다.")]
     private Transform playerTransformOverride;
 
-    [SerializeField][Tooltip("현재 적 개체가 사용할 애니메이터입니다.")]
-    private Animator animator; // 애니메이터는 현재 미구현, 향후 추가를 위해 직렬화만 해둠
-    [SerializeField][Tooltip("현재 적 개체의 보스 몬스터 여부입니다.")]
-    private bool isBoss;
-    [SerializeField][Tooltip("공격 시 나타나는 이펙트 프리팹입니다.")]
-    private GameObject attackEffectPrefab; // 공격 이펙트 추가 예정 (인스펙터 할당)
-    // [SerializeField] AudioClip attackSound; // 공격 효과음 추가 예정
-    // [SerializeField] AudioClip hitSound;    // 피격 효과음 추가 예정
-    // [SerializeField] AudioClip deathSound;  // 사망 효과음 추가 예정
+    [Header("에셋 (비워두면 몬스터 ID로 MonsterAssetDatabase에서 자동 조회)")]
+    [SerializeField][Tooltip("비워두면 본인/자식에서 Animator 자동 검색.")]
+    private Animator animator;
+    [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
+    private MonsterAnimationConfig animationConfig;
+    [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
+    private GameObject attackEffectPrefab;
+    [SerializeField][Tooltip("비워두면 Resources 또는 전역 DB 사용.")]
+    private MonsterAssetDatabase assetDatabaseOverride;
 
     private EnemyStateContext _ctx;
     private Dictionary<EnemyStateType, IEnemyState> _states;
@@ -43,8 +43,9 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<EnemyStatPresenter>();
         var skillHandler = GetComponent<EnemySkillHandler>();
-
         var effectController = GetComponent<EffectController>();
+
+        ResolveAssets(statPresenter);
 
         _ctx = new EnemyStateContext
         {
@@ -54,7 +55,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             Agent = agent,
             StatPresenter = statPresenter,
             Animator = animator,
-            IsBoss = isBoss,
+            AnimationConfig = animationConfig,
+            IsBoss = statPresenter != null && statPresenter.IsBoss,
             AttackEffectPrefab = attackEffectPrefab,
             SkillHandler = skillHandler,
             EnemyEffectController = effectController
@@ -70,6 +72,28 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             { EnemyStateType.Onhit, new EnemyStateOnhit() },
             { EnemyStateType.Dead, new EnemyStateDead() }
         };
+    }
+
+    /// <summary>
+    /// 프리팹에 넣지 않은 에셋을 DB 또는 자동 검색으로 채움. Animator, AnimationConfig, AttackEffectPrefab.
+    /// </summary>
+    private void ResolveAssets(EnemyStatPresenter statPresenter)
+    {
+        if (animator == null)
+            animator = GetComponent<Animator>() ?? GetComponentInChildren<Animator>();
+
+        var db = assetDatabaseOverride != null ? assetDatabaseOverride : MonsterAssetDatabase.Instance;
+        if (db != null && statPresenter != null && statPresenter.monsterIdFromDataManager != 0)
+        {
+            var entry = db.GetEntry(statPresenter.monsterIdFromDataManager);
+            if (entry != null)
+            {
+                if (animationConfig == null && entry.animationConfig != null)
+                    animationConfig = entry.animationConfig;
+                if (attackEffectPrefab == null && entry.attackEffectPrefab != null)
+                    attackEffectPrefab = entry.attackEffectPrefab;
+            }
+        }
     }
 
     private void Start()
