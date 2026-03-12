@@ -1,4 +1,8 @@
-﻿using System.IO;
+using Google.MiniJSON;
+using System;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 
@@ -22,6 +26,29 @@ public static class JSONService
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(savePath, json);
 
+    }
+
+    public static async Task SaveFileOnAsync<T>(T data)
+    {
+        savePath = Application.persistentDataPath + "/" + typeof(T).Name + ".json";
+        if (savePath == null)
+        {
+            return;
+        }
+        string json = JsonUtility.ToJson(data, true);
+        try
+        {
+            await Task.Run(() =>
+            {
+                File.WriteAllText(savePath, json);
+            });
+
+            Debug.Log($"[SaveSystem] {savePath} 저장");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[SaveSystem] 저장 실패: {e.Message}");
+        }
     }
 
     //파일 로드
