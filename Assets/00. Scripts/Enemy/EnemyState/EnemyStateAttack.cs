@@ -36,9 +36,9 @@ public class EnemyStateAttack : IEnemyState
             _attackInProgress = true;
 
             if (ctx.IsBoss)
-                ctx.SetAnimatorTrigger("AttackBoss");
+                ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.AttackBoss);
             else
-                ctx.SetAnimatorTrigger("Attack");
+                ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
 
             if (ctx.AttackEffectPrefab != null)
             {
@@ -75,7 +75,7 @@ public class EnemyStateAttack : IEnemyState
         if (!string.IsNullOrEmpty(bossAttack.animation))
             ctx.SetAnimatorTrigger(bossAttack.animation);
         else
-            ctx.SetAnimatorTrigger("AttackBoss");
+            ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.AttackBoss);
 
         if (ctx.AttackEffectPrefab != null)
         {

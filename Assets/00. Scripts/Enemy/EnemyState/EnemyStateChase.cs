@@ -18,7 +18,7 @@ public class EnemyStateChase : IEnemyState
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = false;
         _lastDestinationTime = -DestinationRefreshInterval;
-        ctx.SetAnimatorTrigger("Chase");
+        ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Chase);
         // 이동/발소리 효과음 추가 예정 (선택)
     }
 
