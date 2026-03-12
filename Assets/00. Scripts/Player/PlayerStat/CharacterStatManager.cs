@@ -107,6 +107,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         playerSlot.OnSlotUpdate += AllUpdate;
 
+        StatUpdate += savePlayerData.Save;
+
         BerserkerModeController.OnBerserkerModeStarted += OnBerserkerModeChanged;
         BerserkerModeController.OnBerserkerModeEnded += OnBerserkerModeChanged;
     }
