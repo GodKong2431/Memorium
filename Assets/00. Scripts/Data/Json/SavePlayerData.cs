@@ -1,10 +1,10 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 using static PlayerStatView;
 
 [System.Serializable]
-public class SavePlayerData
+public class SavePlayerData : ISaveData
 {
     //현재 플레이어의 레벨, 골드 강화, 특성을 저장하는 cs
     //플레이어 레벨
@@ -25,6 +25,11 @@ public class SavePlayerData
     private Dictionary<int, PlayerTrait> traits =new Dictionary<int, PlayerTrait>();
 
     //특성은 CurrentLevel만
+
+
+    private bool isDirty = false;
+    public bool IsDirty => isDirty;
+
 
     public SavePlayerData() { }
 
@@ -92,6 +97,8 @@ public class SavePlayerData
 
         playerLevel = CharacterStatManager.Instance.LevelBonus.CurrentLevel;
 
+        isDirty = true;
+
     }
 
     public void Save()
@@ -106,5 +113,12 @@ public class SavePlayerData
         {
             currentLevel_Traits[i] = traits[playerStatType_Traits[i]].CurrentLevel;
         }
+
+        isDirty = true;
+    }
+
+    public void ClearDirty()
+    {
+        isDirty = false;
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -75,6 +76,8 @@ public class StageManager : Singleton<StageManager>
     // 스테이지 키 캐시/해석 서비스
     private StageKeyCatalog stageKeyCatalog;
 
+    public bool DataLoad = false;
+
     private IEnumerator Start()
     {
         // 데이터 테이블 로드 완료까지 대기
@@ -121,6 +124,8 @@ public class StageManager : Singleton<StageManager>
         EnemyKillRewardDispatcher.OnBossKilled += StageClear;
         GameEventManager.OnSummonBossClicked += OnClickBossSummonButtonClick;
         SceneManager.sceneLoaded += OnSceneLoaded;
+
+        DataLoad = true;
     }
 
     protected override void OnDestroy()
@@ -516,10 +521,17 @@ public class StageManager : Singleton<StageManager>
         return true;
     }
 
-    protected override void OnApplicationQuit()
-    {
-        // 종료 시 저장 데이터 기록
-        base.OnApplicationQuit();
-        JSONService.Save(saveStageData);
-    }
+    //protected override void OnApplicationQuit()
+    //{
+    //    // 종료 시 저장 데이터 기록
+    //    base.OnApplicationQuit();
+    //    JSONService.Save(saveStageData);
+    //}
+
+    //public async Task AutoSaveTask()
+    //{
+    //    Debug.Log("[StageManager] 스테이지 변경사항 확인 및 데이터 저장");
+    //    await JSONService.SaveFileOnAsync(saveStageData);
+    //    saveStageData.ClearDirty();
+    //}
 }

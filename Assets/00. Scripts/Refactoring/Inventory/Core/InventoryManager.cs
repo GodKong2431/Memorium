@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class InventoryManager : Singleton<InventoryManager>
@@ -209,16 +210,24 @@ public class InventoryManager : Singleton<InventoryManager>
         saveCurrencyData = JSONService.Load<SaveCurrencyData>();
         saveCurrencyData.InitCurrencyData();
         saveCurrencyData.SetData();
-        DataLoad = true;
         OnItemAmountChanged += saveCurrencyData.Save;
+        DataLoad = true;
     }
-    private void OnDisable ()
-    {
-        if (!DataLoad)
-            return;
+    //private void OnDisable ()
+    //{
+    //    if (!DataLoad)
+    //        return;
 
-        JSONService.Save(saveCurrencyData);
-    }
+    //    JSONService.Save(saveCurrencyData);
+    //}
+
+    //public async Task AutoSaveTask()
+    //{
+    //    Debug.Log("[InventoryManager] 재화 변경사항 확인 및 데이터 저장");
+    //    await JSONService.SaveFileOnAsync(saveCurrencyData);
+    //    saveCurrencyData.ClearDirty();
+    //}
+
     //protected override void OnApplicationQuit()
     //{
     //    if (!DataLoad)

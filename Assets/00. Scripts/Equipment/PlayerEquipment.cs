@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 public class PlayerEquipment : MonoBehaviour
@@ -45,6 +45,7 @@ public class PlayerEquipment : MonoBehaviour
                 break;
         }
 
+        CharacterStatManager.Instance.SaveOnEquip(itemId, equipment.equipmentType);
         RaiseEquippedItemChanged(equipment.equipmentType, itemId);
     }
 
