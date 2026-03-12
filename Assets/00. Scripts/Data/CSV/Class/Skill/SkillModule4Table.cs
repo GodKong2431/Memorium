@@ -7,7 +7,6 @@ public class SkillModule4Table : TableBase
     public int m4ItemID;
     public int skillID;
     public M4Type m4Type;
-    public int m4ItemID;
     public float m4Delay;
     public float m4Distance;
     public float m4Duration;

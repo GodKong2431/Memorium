@@ -6,7 +6,6 @@ public class SkillModule5Table : TableBase
 {
     public int m5ItemID;
     public int skillID;
-    public int m5ItemID;
     public M5Type m5Type;
     public float damage;
     public ApplyType applyType;
