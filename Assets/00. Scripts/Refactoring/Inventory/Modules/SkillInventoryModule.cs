@@ -66,7 +66,15 @@ public sealed class SkillInventoryModule : IInventoryModule
     // 스킬 주문서 보유량은 별도 저장하지 않으므로 0을 반환한다.
     public BigDouble GetAmount(InventoryItemContext item)
     {
-        return BigDouble.Zero;
+        if (!TryGetRandomSkillIdByScroll(item.ItemId, out int skillId))
+            return BigDouble.Zero;
+
+        if (!skillDataById.TryGetValue(skillId, out OwnedSkillData skillData))
+        {
+            return BigDouble.Zero;
+        }
+        BigDouble count = skillData.GetCount(SkillGrade.Scroll);
+        return count;
     }
     #endregion
 
