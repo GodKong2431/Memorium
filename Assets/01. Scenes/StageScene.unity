@@ -10307,6 +10307,7 @@ MonoBehaviour:
   defensePoint: 0
   normalPower: 0
   expectedCrit: 0
+  isBerserker: 0
 --- !u!4 &326619662
 Transform:
   m_ObjectHideFlags: 0
@@ -38239,6 +38240,8 @@ MonoBehaviour:
   textRepeatCount: {fileID: 1689590565}
   textRepeatRequireCount: {fileID: 402318889}
   imageRepeatCurrencyIcon: {fileID: 330036194}
+  ticketRepeatCurrencyIcon: {fileID: 0}
+  crystalRepeatCurrencyIcon: {fileID: 0}
 --- !u!1 &1418028765
 GameObject:
   m_ObjectHideFlags: 0
@@ -58688,6 +58691,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6789012345678abcdef12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BerserkerModeController
+  _berserkModeSo: {fileID: 11400000, guid: b5d6e4be408638d4bb6276e709d4d7f8, type: 2}
   durationSeconds: 60
   vfxParent: {fileID: 2138513678}
 --- !u!114 &9999990003
