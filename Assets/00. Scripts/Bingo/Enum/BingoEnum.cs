@@ -45,3 +45,8 @@ public enum Direction
     Up,
     Down,
 }
+
+public enum SynergyRarity
+{
+    
+}
