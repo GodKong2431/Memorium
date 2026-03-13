@@ -138,11 +138,23 @@ public class InfinityMap : MonoBehaviour
         if (player == null)
         {
             player = GameObject.FindAnyObjectByType<PlayerStatPresenter>().transform;
+            
+            originPlayerPos = player.position;
+
             if (player != null)
             {
+                agent = player.GetComponent<NavMeshAgent>();
+                NavMeshHit hit;
+                agent.enabled = false;
+                if (NavMesh.SamplePosition(player.position, out hit, 1.0f, NavMesh.AllAreas))
+                {
+                    player.position = hit.position;
+                    agent.Warp(hit.position);
+                }
+                agent.enabled = true;
+
                 pixieSpawner = player.GetComponent<PixieSpawner>();
                 originPlayerPos = player.position;
-                agent = player.GetComponent<NavMeshAgent>();
             }
         }
         else
