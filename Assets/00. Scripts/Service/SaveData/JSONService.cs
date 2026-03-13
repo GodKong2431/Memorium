@@ -30,7 +30,7 @@ public static class JSONService
 
     public static async Task SaveFileOnAsync<T>(T data)
     {
-        savePath = Application.persistentDataPath + "/" + typeof(T).Name + ".json";
+        string localSavePath = Application.persistentDataPath + "/" + typeof(T).Name + ".json";
         if (savePath == null)
         {
             return;
@@ -40,10 +40,10 @@ public static class JSONService
         {
             await Task.Run(() =>
             {
-                File.WriteAllText(savePath, json);
+                File.WriteAllText(localSavePath, json);
             });
 
-            Debug.Log($"[SaveSystem] {savePath} 저장");
+            Debug.Log($"[SaveSystem] {localSavePath} 저장");
         }
         catch (Exception e)
         {
