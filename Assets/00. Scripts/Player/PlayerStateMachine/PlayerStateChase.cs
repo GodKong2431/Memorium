@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.AI;
 
 public class PlayerStateChase : IPlayerState
@@ -12,7 +12,7 @@ public class PlayerStateChase : IPlayerState
 
     public void OnEnter(PlayerStateContext ctx)
     {
-        if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
+        if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = false;
         _lastDestinationTime = -DestinationRefreshInterval;
         SetAnimatorTrigger(ctx, "Chase");

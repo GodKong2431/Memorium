@@ -30,6 +30,7 @@ public class InfinityMap : MonoBehaviour
     public List<GameObject> maps;
     public bool firstMapSetting=false;
 
+    NavMeshAgent agent;
     PixieSpawner pixieSpawner;
 
     IEnumerator Start()
@@ -125,7 +126,7 @@ public class InfinityMap : MonoBehaviour
         goal.SetParent(maps[maps.Count - 1].transform);
         goal.transform.localPosition = Vector3.zero;
 
-        NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
+        //NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
         //agent.enabled = false;
         //player.position = originPlayerPos;
         PlayerPosInit();
@@ -137,24 +138,49 @@ public class InfinityMap : MonoBehaviour
         if (player == null)
         {
             player = GameObject.FindAnyObjectByType<PlayerStatPresenter>().transform;
-            pixieSpawner = player.GetComponent<PixieSpawner>();
-            originPlayerPos = player.position;
+            if (player != null)
+            {
+                pixieSpawner = player.GetComponent<PixieSpawner>();
+                originPlayerPos = player.position;
+                agent = player.GetComponent<NavMeshAgent>();
+            }
         }
         else
         {
+            //NavMeshHit hit;
+            //if (NavMesh.SamplePosition(originPlayerPos, out hit, 1.0f, NavMesh.AllAreas))
+            //{
+            //    player.position = hit.position;
+            //    agent.enabled = true;
+            //    agent.Warp(hit.position);
+            //}
+            //else
+            //{
 
-            NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
+            //    player.position = originPlayerPos;
+            //    agent.enabled = true;
+            //    agent.Warp(originPlayerPos);
+            //}
+
+            //if (agent.isOnNavMesh)
+            //{
+            //    agent.ResetPath();
+            //}
+
             agent.enabled = false;
             player.position = originPlayerPos;
+            agent.Warp(originPlayerPos);
             agent.enabled = true;
 
             pixie = pixieSpawner.SpawnedPixie;
             if (pixie != null)
             {
+                //픽시는 중간에 바뀐 가능성이 있어 매번 가져옴
                 NavMeshAgent pixieAgent = pixie.GetComponent<NavMeshAgent>();
                 pixieAgent.enabled = false;
                 Debug.Log("[InfinityMap] 픽시 이동");
-                pixie.position = originPlayerPos;
+                pixie.position = player.position;
+                pixieAgent.Warp(player.position);
                 pixieAgent.enabled = true;
             }
             else
