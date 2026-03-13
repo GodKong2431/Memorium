@@ -143,7 +143,8 @@ public class SaveCurrencyData : ISaveData
 
         for (int i = 0; i < itemId.Count; i++)
         {
-            InventoryManager.Instance.AddItem(itemId[i], itemValue[i]);
+            //InventoryManager.Instance.AddItem(itemId[i], itemValue[i]);
+            InventoryManager.Instance.SetItem(itemId[i], itemValue[i]);
         }
     }
 
