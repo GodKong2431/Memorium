@@ -174,7 +174,9 @@ public class StageManager : Singleton<StageManager>
     {
         curMonsterKillCount = Mathf.Clamp(totalKillCount, 0, maxMonsterKillCount);
 
-        if (CanAutoQueueBossSpawn())
+        if (curStageType == StageType.NormalStage && CanAutoQueueBossSpawn() && !onFailedStage)
+            QueueBossSpawnRequest();
+        else if(curStageType != StageType.NormalStage && CanAutoQueueBossSpawn())
             QueueBossSpawnRequest();
 
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);

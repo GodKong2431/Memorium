@@ -159,6 +159,10 @@ public class StageUIController : UIControllerBase
         if (StageManager.Instance.onBossStage)
             return false;
 
+        //실패한 스테이지일 경우 
+        if (StageManager.Instance.onFailedStage && StageManager.Instance.CurrentStageType==StageType.NormalStage) 
+            return true;
+
         return !StageManager.Instance.HasPendingBossSpawnRequest;
     }
 
