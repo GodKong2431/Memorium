@@ -49,7 +49,7 @@ public class PlayerStateAttack : IPlayerState
 
         float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
         
-        if (dist > ctx.AttackRange)
+        if (!ctx.playerSkillHandler.ReadySkill(dist) && dist > ctx.AttackRange)
         {
             ctx.RequestState(PlayerStateType.Chase);
             return;
