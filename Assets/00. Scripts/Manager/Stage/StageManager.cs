@@ -78,6 +78,10 @@ public class StageManager : Singleton<StageManager>
 
     public bool DataLoad = false;
 
+    public float waitNextStageTime = 0.5f;
+
+    Coroutine stageMoveCoroutine;
+
     private IEnumerator Start()
     {
         // 데이터 테이블 로드 완료까지 대기
@@ -228,7 +232,14 @@ public class StageManager : Singleton<StageManager>
     // 스테이지 클리어 처리
     public void StageClear()
     {
+        if (stageMoveCoroutine == null)
+            StartCoroutine(StageClearCoroutine());
+    }
+    IEnumerator StageClearCoroutine()
+    {
         ResetBoss();
+
+        yield return CoroutineManager.waitForSeconds(waitNextStageTime);
 
         if (curStageType == StageType.NormalStage)
         {
@@ -244,7 +255,7 @@ public class StageManager : Singleton<StageManager>
             if (curStage > maxStage[0])
             {
                 maxStage[0] = curStage - 1;
-                saveStageData.SetMaxStage(curStageType, curStage-1);
+                saveStageData.SetMaxStage(curStageType, curStage - 1);
             }
 
             OnStageClearOrFailed.Invoke();
@@ -259,10 +270,17 @@ public class StageManager : Singleton<StageManager>
             SetStageType(StageType.NormalStage, normalStage);
             SceneController.Instance.LoadScene(SceneType.StageScene);
         }
+
+        stageMoveCoroutine = null;
     }
 
     // 스테이지 실패 처리
     public void StageFailed()
+    {
+        if(stageMoveCoroutine==null)
+            StartCoroutine(StageFailedCoroutine());
+    }
+    IEnumerator StageFailedCoroutine()
     {
         bool failedDuringBossStage = onBossStage;
 
@@ -270,6 +288,8 @@ public class StageManager : Singleton<StageManager>
             RemoveBoss();
 
         ResetBoss();
+
+        yield return CoroutineManager.waitForSeconds(waitNextStageTime);
 
         if (curStageType == StageType.NormalStage)
         {
@@ -296,8 +316,8 @@ public class StageManager : Singleton<StageManager>
             SetStageType(StageType.NormalStage, normalStage);
             SceneController.Instance.LoadScene(SceneType.StageScene);
         }
+        stageMoveCoroutine = null;
     }
-
     // 스테이지 타입/레벨 변경 요청을 큐에 저장하고 즉시 상태에 반영한다.
     public void SetStageType(StageType dungeonType, int level)
     {

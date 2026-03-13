@@ -24,8 +24,7 @@ public class InfinityMap : MonoBehaviour
     [SerializeField] Transform pixie;
 
     [SerializeField] private GameObject[] mapGroupsPrefab;
-    //key == Floor
-    //Dictionary<int, GameObject> mapGroups= new Dictionary<int, GameObject>();
+
     public List<GameObject> mapGroups;
     public List<GameObject> maps;
     public bool firstMapSetting=false;
@@ -40,12 +39,10 @@ public class InfinityMap : MonoBehaviour
         
         //매니저에 있는 맵 참조<- 주소를 참조하여 이후에도 동기화 진행
         maps=MapManager.Instance.maps;
-        //현재는 MVP 단계이므로 1을 직접적으로 넣으나 나중엔 데이터매니저에서든 아니면 플레이어 세이브데이터에서든 저장한 단계의 Floor 불러옴
-        //SetMap(1);
-        MapInit();
-
         yield return new WaitUntil(() => StageManager.Instance != null);
         StageManager.Instance.infinityMap = this;
+
+        MapInit();
     }
 
     public void MapInit()
@@ -71,7 +68,6 @@ public class InfinityMap : MonoBehaviour
 
         originTriggerPos = mapMoveTrigger.transform.position;
 
-        //originPlayerPos = player.position;
         PlayerPosInit();
     }
 
@@ -84,7 +80,6 @@ public class InfinityMap : MonoBehaviour
 
     public void MapMove()
     {
-
         //현재 딛고 있는 맵 이전 맵 주소
         int moveMapIndex = curMapIndex - 1;
         if (moveMapIndex < 0)
@@ -126,11 +121,7 @@ public class InfinityMap : MonoBehaviour
         goal.SetParent(maps[maps.Count - 1].transform);
         goal.transform.localPosition = Vector3.zero;
 
-        //NavMeshAgent agent = player.GetComponent<NavMeshAgent>();
-        //agent.enabled = false;
-        //player.position = originPlayerPos;
         PlayerPosInit();
-        //agent.enabled = true;
     }
 
     public void PlayerPosInit()
@@ -159,26 +150,6 @@ public class InfinityMap : MonoBehaviour
         }
         else
         {
-            //NavMeshHit hit;
-            //if (NavMesh.SamplePosition(originPlayerPos, out hit, 1.0f, NavMesh.AllAreas))
-            //{
-            //    player.position = hit.position;
-            //    agent.enabled = true;
-            //    agent.Warp(hit.position);
-            //}
-            //else
-            //{
-
-            //    player.position = originPlayerPos;
-            //    agent.enabled = true;
-            //    agent.Warp(originPlayerPos);
-            //}
-
-            //if (agent.isOnNavMesh)
-            //{
-            //    agent.ResetPath();
-            //}
-
             agent.enabled = false;
             player.position = originPlayerPos;
             agent.Warp(originPlayerPos);
@@ -202,35 +173,4 @@ public class InfinityMap : MonoBehaviour
                 
         }
     }
-
-    ////curFloor-1 맵을 불러와 맵을 바꾸는 것을 목적으로 함
-    //public void SetMap(int curFloor)
-    //{
-    //    if (maps == null)
-    //        maps = new List<GameObject>();
-    //    maps.Clear();
-    //    for (int i = 0; i < mapGroups[0].transform.childCount; i++)
-    //    {
-    //        maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
-    //    }
-
-    //    //프리팹 받아 와서 하려고 하였으나, 현재 던전 입장 시 오류가 발생하여 일단 보류
-    //    //if (maps == null)
-    //    //    maps = new List<GameObject>();
-    //    ////층이 올라가거나 내려가는 것 모두 대비
-    //    //if (!mapGroups.ContainsKey(curFloor))
-    //    //    mapGroups[curFloor] = Instantiate(mapGroupsPrefab[curFloor-1]);
-    //    //maps.Clear();
-    //    //for (int i = 0; i < mapGroups[curFloor].transform.childCount; i++)
-    //    //{
-    //    //    maps.Add(mapGroups[curFloor].transform.GetChild(i).gameObject);
-    //    //}
-    //}
-
-    ////플로어 변경 시 infinitymap.mapChange 후 monsterSpawner.mapChange
-    //public void MapChange(int curFloor)
-    //{
-    //    MapInit();
-    //    MapReset();
-    //}
 }
