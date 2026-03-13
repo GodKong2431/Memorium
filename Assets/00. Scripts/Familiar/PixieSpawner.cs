@@ -11,7 +11,20 @@ public class PixieSpawner : MonoBehaviour
     PlayerStateMachine playerStateMachine;
     EffectController effectController;
 
-    public Transform SpawnedPixie => spawnedPixie.gameObject.transform;
+    public Transform SpawnedPixie
+    {
+        get 
+        {
+            if (spawnedPixie == null)
+            {
+                return null;
+            }
+            else
+            {
+                return spawnedPixie.transform;
+            }
+        }
+    }
 
     public bool IsSpawned =>spawnedPixie != null && spawnedPixie.gameObject.activeSelf;
 
