@@ -6,7 +6,7 @@ public class FinalStat
     public float finalStat;
 
     public StatType playerStatType;
-
+    
     public FinalStat(StatType statType)
     {
         playerStatType = statType;
@@ -36,10 +36,14 @@ public class FinalStat
         float ablityStoneBonusStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetBonusStat(playerStatType) : 0f;
         
         float bingoSynergyStat = BingoBoard.Instance.LoadBingo ? BingoBoard.Instance.GetSynergyStat(playerStatType) : 0f;
-        
-        Debug.Log(bingoSynergyStat);
-        
+                
         finalStat = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat) * (1 + ablityStoneBonusStat + bingoSynergyStat);
+        
+        if (CharacterStatManager.Instance.isBerserker)
+        {
+            float value = BerserkerModeController.Instance._berserkModeSo.BserserkMultStatSo.TryGetValue(playerStatType, out var v) ? v : 1f;
+            finalStat = finalStat * value;
+        }
         
         return finalStat;
     }

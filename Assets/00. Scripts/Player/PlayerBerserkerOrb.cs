@@ -10,7 +10,11 @@ public class PlayerBerserkerOrb : MonoBehaviour
 {
     public static PlayerBerserkerOrb Instance { get; private set; }
 
-    public const int MaxBerserkerOrb = 50;
+    public static int MaxBerserkerOrb{get; private set;}
+
+    public static int NormalBerserkerOrb{get; private set;}
+    public static int BossBerserkerOrb{get; private set;}
+
 
     private int _berserkerOrb;
 
@@ -28,6 +32,16 @@ public class PlayerBerserkerOrb : MonoBehaviour
         Instance = this;
 
         EnemyKillRewardDispatcher.OnBerserkerOrbEarned += AddBerserkerOrb;
+    }
+
+    public void Init(BerserkmodeManageTable table)
+    {
+        MaxBerserkerOrb = table.berserkCounter;
+        Debug.Log(MaxBerserkerOrb);
+        NormalBerserkerOrb = table.normalDropQty;
+        Debug.Log(NormalBerserkerOrb);
+        BossBerserkerOrb = table.bossDropQty;
+        Debug.Log(BossBerserkerOrb);
     }
 
     private void OnDestroy()

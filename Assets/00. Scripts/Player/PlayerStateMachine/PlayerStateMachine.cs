@@ -57,8 +57,8 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);
 
-        BerserkerModeController.OnBerserkerModeStarted += OnBerserkerModeStarted;
-        BerserkerModeController.OnBerserkerModeEnded += OnBerserkerModeEnded;
+        BerserkerModeController.OnBerserkerModeChanged += OnBerserkerModeChanged;
+
 
         _states = new Dictionary<PlayerStateType, IPlayerState>
         {
@@ -166,11 +166,26 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         if (_ctx != null)
             _ctx.RefreshMaxStats();
     }
+    
+    private void OnBerserkerModeChanged(bool berserkerState)
+    {
+        if (_ctx != null)
+        {
+            if (berserkerState)
+            {
+                _ctx.SetHealthAndManaToMax();
+            }
+            
+            else
+            {
+                _ctx.RefreshMaxStats();
+            }
+        }
+    }
 
     private void OnDestroy()
     {
-        BerserkerModeController.OnBerserkerModeStarted -= OnBerserkerModeStarted;
-        BerserkerModeController.OnBerserkerModeEnded -= OnBerserkerModeEnded;
+        BerserkerModeController.OnBerserkerModeChanged -= OnBerserkerModeChanged;
     }
 
     public void TakeDamage(float damage, DamageType damageType)

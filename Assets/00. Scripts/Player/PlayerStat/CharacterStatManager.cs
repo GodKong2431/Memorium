@@ -48,7 +48,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     [SerializeField] private float expectedCrit;
 
     private EffectController _playerEffectController;
-
+    
+    public bool isBerserker;
     IEnumerator Start()
     {
         yield return new WaitUntil(() => DataManager.Instance != null);
@@ -102,23 +103,23 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         GameEventManager.OnCurrencyChanged += levelBonus.ExpCheck;
 
-        levelBonus.OnLevelUp += AllUpdate;
+        levelBonus.OnLevelUp += AllStatUpdate;
         levelBonus.OnLevelUp += savePlayerData.SaveLevel;
 
-        playerSlot.OnSlotUpdate += AllUpdate;
+        playerSlot.OnSlotUpdate += AllStatUpdate;
 
         StatUpdate += savePlayerData.Save;
 
-        BerserkerModeController.OnBerserkerModeStarted += OnBerserkerModeChanged;
-        BerserkerModeController.OnBerserkerModeEnded += OnBerserkerModeChanged;
+        BerserkerModeController.OnBerserkerModeChanged += OnBerserkerModeChanged;
     }
 
-    private void OnBerserkerModeChanged()
+    private void OnBerserkerModeChanged(bool changeState)
     {
         if (!TableLoad || !isActiveAndEnabled)
             return;
 
-        StatUpdate?.Invoke();
+        isBerserker = changeState;
+        AllStatUpdate();
     }
 
     private void OnDisable()
@@ -135,12 +136,11 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         GameEventManager.OnCurrencyChanged -= levelBonus.ExpCheck;
 
-        levelBonus.OnLevelUp -= AllUpdate;
+        levelBonus.OnLevelUp -= AllStatUpdate;
 
-        playerSlot.OnSlotUpdate -= AllUpdate;
+        playerSlot.OnSlotUpdate -= AllStatUpdate;
 
-        BerserkerModeController.OnBerserkerModeStarted -= OnBerserkerModeChanged;
-        BerserkerModeController.OnBerserkerModeEnded -= OnBerserkerModeChanged;
+        BerserkerModeController.OnBerserkerModeChanged -= OnBerserkerModeChanged;
     }
 
     public void LoadTable()
@@ -180,6 +180,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
     public void FinalStat(StatType playerStatType)
     {
+        if (playerStatType == StatType.None)
+            return;
         FinalStats.TryGetValue(playerStatType, out var finalStat);
         finalStat.FinalStatCalculate();
 
@@ -227,7 +229,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         return baseValue;
     }
 
-    public void AllUpdate()
+    public void AllStatUpdate()
     {
         foreach (StatType statType in Enum.GetValues(typeof(StatType)))
         {

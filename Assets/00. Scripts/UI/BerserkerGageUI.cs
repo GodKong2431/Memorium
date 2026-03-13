@@ -41,8 +41,7 @@ public class BerserkerGageUI : MonoBehaviour
         if (berserkerOrb != null)
             berserkerOrb.OnBerserkerOrbChanged += Refresh;
 
-        BerserkerModeController.OnBerserkerModeStarted += Refresh;
-        BerserkerModeController.OnBerserkerModeEnded += Refresh;
+        BerserkerModeController.OnBerserkerModeChanged += _ => Refresh();
 
         Refresh();
     }
@@ -54,8 +53,7 @@ public class BerserkerGageUI : MonoBehaviour
         if (berserkerOrb != null)
             berserkerOrb.OnBerserkerOrbChanged -= Refresh;
 
-        BerserkerModeController.OnBerserkerModeStarted -= Refresh;
-        BerserkerModeController.OnBerserkerModeEnded -= Refresh;
+        BerserkerModeController.OnBerserkerModeChanged -= _ => Refresh();
     }
 
     private void OnDestroy()
@@ -148,7 +146,7 @@ public class BerserkerGageUI : MonoBehaviour
 
         if (!berserkerOrb.TryConsumeBerserkerOrbs(PlayerBerserkerOrb.MaxBerserkerOrb))
             return;
-
+        
         berserkerModeController.Activate();
     }
 }
