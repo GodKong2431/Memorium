@@ -34,6 +34,8 @@ public sealed class CachaResultPopupUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textRepeatCount;
     [SerializeField] private TextMeshProUGUI textRepeatRequireCount;
     [SerializeField] private Image imageRepeatCurrencyIcon;
+    [SerializeField] private Sprite ticketRepeatCurrencyIcon;
+    [SerializeField] private Sprite crystalRepeatCurrencyIcon;
 
     private readonly List<CachaResultItemUI> resultItemUIs = new List<CachaResultItemUI>();
     private Action repeatAction;
@@ -139,8 +141,7 @@ public sealed class CachaResultPopupUI : MonoBehaviour
             return;
 
         GachaManager manager = GachaManager.Instance;
-        if (manager == null ||
-            !manager.TryGetSpendPreview(gachaType, drawCount, out CurrencyType spendCurrencyType, out int spendAmount, out _, out _))
+        if (manager == null)
         {
             buttonRepeat.interactable = false;
 
@@ -153,13 +154,25 @@ public sealed class CachaResultPopupUI : MonoBehaviour
             return;
         }
 
-            buttonRepeat.interactable = true;
+        bool canRepeat = manager.TryGetSpendPreview(
+            gachaType,
+            drawCount,
+            out CurrencyType spendCurrencyType,
+            out int spendAmount,
+            out _,
+            out _);
+        CurrencyType displayCurrencyType = spendCurrencyType;
+        int displayAmount = spendCurrencyType == CurrencyType.Crystal
+            ? GetCrystalCost(drawCount, spendAmount)
+            : GetTicketCost(drawCount);
+
+        buttonRepeat.interactable = canRepeat;
 
         if (textRepeatRequireCount != null)
-            textRepeatRequireCount.text = spendAmount.ToString();
+            textRepeatRequireCount.text = displayAmount.ToString();
 
         if (imageRepeatCurrencyIcon != null)
-            imageRepeatCurrencyIcon.sprite = GetRepeatCurrencyIcon(gachaType, spendCurrencyType) ?? defaultRepeatCurrencyIcon;
+            imageRepeatCurrencyIcon.sprite = GetRepeatCurrencyIcon(gachaType, displayCurrencyType) ?? defaultRepeatCurrencyIcon;
     }
 
     private void RefreshLayout(int drawCount)
@@ -232,9 +245,37 @@ public sealed class CachaResultPopupUI : MonoBehaviour
     private Sprite GetRepeatCurrencyIcon(GachaType gachaType, CurrencyType spendCurrencyType)
     {
         if (spendCurrencyType == CurrencyType.Crystal)
-            return LoadCrystalIcon();
+            return crystalRepeatCurrencyIcon != null ? crystalRepeatCurrencyIcon : LoadCrystalIcon();
 
-        return LoadTicketIcon(gachaType);
+        return ticketRepeatCurrencyIcon != null ? ticketRepeatCurrencyIcon : LoadTicketIcon(gachaType);
+    }
+
+    private static CurrencyType GetTicketCurrency(GachaType gachaType)
+    {
+        switch (gachaType)
+        {
+            case GachaType.Armor:
+                return CurrencyType.ArmorDrawTicket;
+            case GachaType.SkillScroll:
+                return CurrencyType.SkillScrollDrawTicket;
+            case GachaType.Weapon:
+            default:
+                return CurrencyType.WeaponDrawTicket;
+        }
+    }
+
+    private static int GetTicketCost(int drawCount)
+    {
+        return drawCount * GachaConfig.TicketCostPerDraw;
+    }
+
+    private static int GetCrystalCost(int drawCount, int previewSpendAmount)
+    {
+        if (previewSpendAmount > 0)
+            return previewSpendAmount;
+
+        int purchaseCount = ((drawCount - 1) / GachaConfig.TicketCostPerDraw + 1) * GachaConfig.TicketCostPerDraw;
+        return purchaseCount * GachaConfig.CrystalCostPerDraw;
     }
 
     private Sprite LoadTicketIcon(GachaType gachaType)
