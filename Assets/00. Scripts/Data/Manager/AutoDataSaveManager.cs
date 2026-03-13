@@ -40,7 +40,9 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         stageData = StageManager.Instance.saveStageData;
 
         //스킬 데이터, 가챠 데이터
-
+        yield return new WaitUntil(() => GachaManager.Instance != null);
+        yield return new WaitUntil(() => GachaManager.Instance.DataLoad);
+        gachaData = GachaManager.Instance.saveGachaData;
 
         StartCoroutine(AutoSaveCoroutine());
     }
@@ -67,7 +69,7 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         if (equipmentData.IsDirty && equipmentData != null) saveTask.Add(AutoSaveTaskStart(equipmentData));
         if (playerData.IsDirty && playerData!=null) saveTask.Add(AutoSaveTaskStart(playerData));
         if (questData.IsDirty && questData!=null) saveTask.Add(AutoSaveTaskStart(questData));
-
+        if(gachaData.IsDirty && gachaData!=null) saveTask.Add(AutoSaveTaskStart(gachaData));
 
         if (saveTask.Count > 0)
         {

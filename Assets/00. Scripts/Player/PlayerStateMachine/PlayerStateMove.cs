@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.AI;
 
 public class PlayerStateMove : IPlayerState
@@ -42,7 +42,7 @@ public class PlayerStateMove : IPlayerState
         {
             if (!agent.hasPath || agent.velocity.sqrMagnitude < 0.01f)
             {
-                ctx.isGoal = true;
+                //ctx.isGoal = true;
                 ctx.RequestState(PlayerStateType.Idle);
             }
         }

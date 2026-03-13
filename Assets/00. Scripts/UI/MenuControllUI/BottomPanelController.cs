@@ -145,7 +145,6 @@ public class BottomPanelController : MonoBehaviour
         contentsAreaHeightOffset = GetHeightOffset(contentsArea);
         contentsContainerHeightOffset = GetHeightOffset(contentsContainer);
 
-        EnsureSheetMask();
         SetupHeaderGestureArea();
         ApplySheetHeight(initialSheetHeight);
     }
@@ -163,12 +162,6 @@ public class BottomPanelController : MonoBehaviour
         return target == null ? 0f : initialSheetHeight - target.sizeDelta.y;
     }
 
-    // 시트 밖으로 내용이 새지 않도록 마스크를 보장한다.
-    private void EnsureSheetMask()
-    {
-        if (sheetPanel != null && sheetPanel.GetComponent<RectMask2D>() == null)
-            sheetPanel.AddComponent<RectMask2D>();
-    }
 
     // 헤더 제스처 영역은 scene에 직렬화된 참조만 사용한다.
     private void SetupHeaderGestureArea()
