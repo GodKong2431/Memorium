@@ -138,7 +138,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1983798
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2039,7 +2039,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &56758103
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17905,6 +17905,7 @@ GameObject:
   - component: {fileID: 627993378}
   - component: {fileID: 627993380}
   - component: {fileID: 627993379}
+  - component: {fileID: 627993381}
   m_Layer: 5
   m_Name: (Panel)Stat
   m_TagString: Untagged
@@ -17973,6 +17974,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 627993377}
   m_CullTransparentMesh: 1
+--- !u!114 &627993381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 627993377}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f99f2b5201445efbead6d0da6dbcb39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipReinforceStatRowUI
+  root: {fileID: 627993378}
+  icon: {fileID: 1920657873}
+  statNameText: {fileID: 561584441}
+  beforeText: {fileID: 8375922}
+  afterText: {fileID: 1772540628}
 --- !u!1 &628895596
 GameObject:
   m_ObjectHideFlags: 0
@@ -19248,7 +19266,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &687433158
 RectTransform:
   m_ObjectHideFlags: 0
@@ -38240,8 +38258,13 @@ MonoBehaviour:
   textRepeatCount: {fileID: 1689590565}
   textRepeatRequireCount: {fileID: 402318889}
   imageRepeatCurrencyIcon: {fileID: 330036194}
+<<<<<<< Updated upstream
   ticketRepeatCurrencyIcon: {fileID: 0}
   crystalRepeatCurrencyIcon: {fileID: 0}
+=======
+  ticketRepeatCurrencyIcon: {fileID: 21300000, guid: a2bb4afd799cc44388a14e8764f21ad9, type: 3}
+  crystalRepeatCurrencyIcon: {fileID: 21300000, guid: 08f350ce50ebc1d41bd39eb18fbbbfd9, type: 3}
+>>>>>>> Stashed changes
 --- !u!1 &1418028765
 GameObject:
   m_ObjectHideFlags: 0
@@ -43869,19 +43892,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1649886957}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1988957294}
-        m_TargetAssemblyTypeName: EquipmentHandler, Assembly-CSharp
-        m_MethodName: TestEquipmentReinforcement
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1649886957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54315,6 +54326,7 @@ GameObject:
   - component: {fileID: 1988957293}
   - component: {fileID: 1988957296}
   - component: {fileID: 1988957297}
+  - component: {fileID: 1988957298}
   m_Layer: 0
   m_Name: PlayerEquipment
   m_TagString: Untagged
@@ -54399,11 +54411,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipCurrentUIController
   handler: {fileID: 1988957294}
+  reinforceController: {fileID: 1988957298}
   mergeButton: {fileID: 1880989251}
   equipButton: {fileID: 1976987106}
   root: {fileID: 574341930}
   itemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}
+  mergeResultPanelRoot: {fileID: 56758103}
+  mergeResultTitle: {fileID: 728182316}
+  mergeResultScrollView: {fileID: 695588380}
+  mergeResultContentRoot: {fileID: 566759912}
+  mergeResultItemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}
   levelText: Lv. 0
+  mergeResultTitleText: "\uD569\uC131 \uACB0\uACFC"
+  mergeResultCountFormat: x{0}
 --- !u!114 &1988957297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54423,6 +54443,52 @@ MonoBehaviour:
   - {fileID: 9094916844828136789}
   - {fileID: 7634626771478219803}
   - {fileID: 2046230227857388952}
+--- !u!114 &1988957298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1988957291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9a2418778374a8f95555a4f4c98e2ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipReinforceUIController
+  handler: {fileID: 1988957294}
+  panelRoot: {fileID: 687433158}
+  popupRoot: {fileID: 1146942030}
+  reinforceButton: {fileID: 413784976}
+  costText: {fileID: 1792803216}
+  maxCostText: MAX
+  previewButton: {fileID: 7158883344651108910}
+  previewIcon: {fileID: 4599057567840755086}
+  previewNameText: {fileID: 1262566095}
+  previewLevelRoot: {fileID: 32304443907643101}
+  previewLevelText: {fileID: 6374821599800014649}
+  previewTierPanel: {fileID: 8690892452860952961}
+  previewTierRoot: {fileID: 1859969198094788398}
+  previewTierStarTemplate: {fileID: 1198535630}
+  previewFrames:
+  - {fileID: 7563357358453490411}
+  - {fileID: 3073902278582256303}
+  - {fileID: 2369341244035885691}
+  - {fileID: 4484886868176440694}
+  - {fileID: 1759517606467901733}
+  statRowTemplate: {fileID: 627993381}
+  statIcons:
+  - statType: 1
+    icon: {fileID: 21300000, guid: c55f443156bfe423a9041e55ab7f669f, type: 3}
+  - statType: 5
+    icon: {fileID: 21300000, guid: 955349bdf9af94f67a275cd95eacc26e, type: 3}
+  - statType: 6
+    icon: {fileID: 21300000, guid: 7e3ca31cf77764d3b95b5085cf1a95fd, type: 3}
+  - statType: 7
+    icon: {fileID: 21300000, guid: 3dfe5b5109b67429dae6b016513faeec, type: 3}
+  - statType: 8
+    icon: {fileID: 21300000, guid: 26663fb4a821a4425819e3f3e1dc4aca, type: 3}
+  - statType: 11
+    icon: {fileID: 21300000, guid: a2646f4f567c14e9ba80f11f76857220, type: 3}
 --- !u!1 &1996558625
 GameObject:
   m_ObjectHideFlags: 0
@@ -60142,6 +60208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipTabUIController
   tabType: 11
+  reinforceController: {fileID: 1988957298}
   root: {fileID: 501954657}
   tierPrefab: {fileID: 6322871757969214031, guid: 61850d1617f9f5449953b3b2b5036767, type: 3}
   itemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}
@@ -60161,6 +60228,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipTabUIController
   tabType: 12
+  reinforceController: {fileID: 1988957298}
   root: {fileID: 2078418430}
   tierPrefab: {fileID: 6322871757969214031, guid: 61850d1617f9f5449953b3b2b5036767, type: 3}
   itemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}
@@ -60180,6 +60248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipTabUIController
   tabType: 14
+  reinforceController: {fileID: 1988957298}
   root: {fileID: 964364848}
   tierPrefab: {fileID: 6322871757969214031, guid: 61850d1617f9f5449953b3b2b5036767, type: 3}
   itemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}
@@ -60199,6 +60268,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipTabUIController
   tabType: 13
+  reinforceController: {fileID: 1988957298}
   root: {fileID: 907703205}
   tierPrefab: {fileID: 6322871757969214031, guid: 61850d1617f9f5449953b3b2b5036767, type: 3}
   itemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}
@@ -60218,6 +60288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipTabUIController
   tabType: 15
+  reinforceController: {fileID: 1988957298}
   root: {fileID: 1577524509}
   tierPrefab: {fileID: 6322871757969214031, guid: 61850d1617f9f5449953b3b2b5036767, type: 3}
   itemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}

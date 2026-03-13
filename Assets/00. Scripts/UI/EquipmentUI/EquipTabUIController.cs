@@ -8,6 +8,8 @@ public class EquipTabUIController : UIControllerBase
 {
     // 이 탭이 표시할 장비 타입이다.
     [SerializeField] private EquipmentType tabType = EquipmentType.Weapon;
+    // 리스트 아이템 클릭 시 열 강화 패널 컨트롤러다.
+    [SerializeField] private EquipReinforceUIController reinforceController;
     // 티어 그룹을 생성할 루트 트랜스폼이다.
     [SerializeField] private RectTransform root;
     // 티어 그룹 프리팹이다.
@@ -313,6 +315,9 @@ public class EquipTabUIController : UIControllerBase
     // 장비 아이템 셀 클릭 이벤트를 처리한다.
     private void ClickItem(int itemId)
     {
+        if (reinforceController == null || itemId == 0)
+            return;
 
+        reinforceController.Show(itemId);
     }
 }

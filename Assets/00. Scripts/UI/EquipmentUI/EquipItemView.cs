@@ -21,6 +21,8 @@ public sealed class EquipItemView
             stars.Add(this.ui.TierStar);
     }
 
+    public GameObject GameObject => ui != null ? ui.gameObject : null;
+
     public void Bind(UnityAction onClick)
     {
         if (ui.Button == null)

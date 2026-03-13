@@ -5,6 +5,18 @@ using UnityEngine;
 
 public sealed class EquipmentInventoryModule : IInventoryModule
 {
+    public readonly struct MergeResultEntry
+    {
+        public readonly int ItemId;
+        public readonly int Count;
+
+        public MergeResultEntry(int itemId, int count)
+        {
+            ItemId = itemId;
+            Count = count;
+        }
+    }
+
     // itemId -> 보유 개수
     //private readonly Dictionary<int, int> equipmentCountByItemId = new Dictionary<int, int>();
     private readonly Dictionary<int, EquipmentData> equipmentByItemId = new Dictionary<int, EquipmentData>();
@@ -21,7 +33,7 @@ public sealed class EquipmentInventoryModule : IInventoryModule
 
     //아이템 합성 결과 저장 딕셔너리
     //public Dictionary<EquipmentType, (int id, int count)> equipmentMergeResult = new Dictionary<EquipmentType, (int id, int count)>();
-    private Dictionary<EquipmentType, int> equipmentMergeResult = new Dictionary<EquipmentType, int>();
+    private readonly List<MergeResultEntry> mergeResults = new List<MergeResultEntry>();
     public bool CanHandle(ItemType itemType)
     {
         switch (itemType)
@@ -109,7 +121,8 @@ public sealed class EquipmentInventoryModule : IInventoryModule
         if (manager == null)
             return false;
 
-        equipmentMergeResult.Clear();
+        mergeResults.Clear();
+        Dictionary<int, int> mergeDeltaByItemId = new Dictionary<int, int>();
 
         // 합성은 InventoryManager 경유로 처리해 저장/이벤트를 공통 경로로 통일한다.
         bool mergedAny = false;
@@ -145,28 +158,115 @@ public sealed class EquipmentInventoryModule : IInventoryModule
 
             //최종 결과물 아이템 아이디 및 추가 갯수 저장
             //equipmentMergeResult[DataManager.Instance.EquipListDict[nextItemId].equipmentType] = (nextItemId,mergedCount);
-            equipmentMergeResult[DataManager.Instance.EquipListDict[nextItemId].equipmentType] = nextItemId;
+            AddMergeDelta(mergeDeltaByItemId, itemId, -consumeCount);
+            AddMergeDelta(mergeDeltaByItemId, nextItemId, mergedCount);
             mergedAny = true;
         }
 
         if (!mergedAny)
             return false;
 
+        RebuildMergeResults(mergeDeltaByItemId);
         RefreshFinalEquipment();
         return true;
     }
 
     public bool TryReturnMergeResult(EquipmentType type, out int id)
     {
-        id= 0; 
-        //count = 0;
-        if (!equipmentMergeResult.ContainsKey(type))
-            return false;
+        id = 0;
 
-        //id = equipmentMergeResult[type].id;
-        //count = equipmentMergeResult[type].count;
-        id = equipmentMergeResult[type];
-        return true;
+        for (int i = 0; i < mergeResults.Count; i++)
+        {
+            int itemId = mergeResults[i].ItemId;
+            if (!DataManager.Instance.EquipListDict.TryGetValue(itemId, out EquipListTable table))
+                continue;
+            if (table.equipmentType != type)
+                continue;
+
+            id = itemId;
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool TryReturnMergeResult(EquipmentType type, out int id, out int count)
+    {
+        id = 0;
+        count = 0;
+
+        for (int i = 0; i < mergeResults.Count; i++)
+        {
+            MergeResultEntry entry = mergeResults[i];
+            if (!DataManager.Instance.EquipListDict.TryGetValue(entry.ItemId, out EquipListTable table))
+                continue;
+            if (table.equipmentType != type)
+                continue;
+
+            id = entry.ItemId;
+            count = entry.Count;
+            return true;
+        }
+
+        return false;
+    }
+
+    public void CopyMergeResults(List<MergeResultEntry> buffer)
+    {
+        if (buffer == null)
+            return;
+
+        buffer.Clear();
+        buffer.AddRange(mergeResults);
+    }
+
+    private static void AddMergeDelta(Dictionary<int, int> mergeDeltaByItemId, int itemId, int amount)
+    {
+        if (mergeDeltaByItemId == null || itemId <= 0 || amount == 0)
+            return;
+
+        if (mergeDeltaByItemId.TryGetValue(itemId, out int existing))
+            mergeDeltaByItemId[itemId] = existing + amount;
+        else
+            mergeDeltaByItemId[itemId] = amount;
+
+        if (mergeDeltaByItemId[itemId] == 0)
+            mergeDeltaByItemId.Remove(itemId);
+    }
+
+    private void RebuildMergeResults(Dictionary<int, int> mergeDeltaByItemId)
+    {
+        mergeResults.Clear();
+
+        if (mergeDeltaByItemId == null || mergeDeltaByItemId.Count == 0)
+            return;
+
+        foreach (KeyValuePair<int, int> pair in mergeDeltaByItemId)
+        {
+            if (pair.Key <= 0 || pair.Value <= 0)
+                continue;
+
+            mergeResults.Add(new MergeResultEntry(pair.Key, pair.Value));
+        }
+
+        mergeResults.Sort(CompareMergeResultEntry);
+    }
+
+    private static int CompareMergeResultEntry(MergeResultEntry lhs, MergeResultEntry rhs)
+    {
+        if (!EnsureEquipmentTable())
+            return lhs.ItemId.CompareTo(rhs.ItemId);
+
+        bool hasLeft = DataManager.Instance.EquipListDict.TryGetValue(lhs.ItemId, out EquipListTable lhsInfo);
+        bool hasRight = DataManager.Instance.EquipListDict.TryGetValue(rhs.ItemId, out EquipListTable rhsInfo);
+        if (!hasLeft || !hasRight)
+            return lhs.ItemId.CompareTo(rhs.ItemId);
+
+        int typeCompare = lhsInfo.equipmentType.CompareTo(rhsInfo.equipmentType);
+        if (typeCompare != 0)
+            return typeCompare;
+
+        return CompareEquipmentRank(rhs.ItemId, lhs.ItemId);
     }
 
     public bool CanAutoMerge()
