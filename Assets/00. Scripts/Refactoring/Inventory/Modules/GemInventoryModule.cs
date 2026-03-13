@@ -64,7 +64,6 @@ public sealed class GemInventoryModule : IInventoryModule
     /// <summary>
     /// 가지고 있는 모든 젬의 id와 등급/ 갯수를 담은 구조체 리스트 반환, UI랑 저장에 쓰시면 될?듯
     /// </summary>
-    /// <returns></returns>
     public List<GemSaveData> GetSaveList()
     {
         saveList.Clear();
@@ -136,7 +135,7 @@ public sealed class GemInventoryModule : IInventoryModule
     #region UI 표시용
 
     /// <summary>
-    /// 스킬 ID로 해당 스킬의 M4 슬롯 해금 여부를 반환
+    /// 스킬 ID로 해당 스킬의 M4 슬롯 해금 여부를 반환 / 마지막칸
     /// </summary>
     public bool IsM4SlotUnlocked(int skillId)
     {
@@ -147,7 +146,7 @@ public sealed class GemInventoryModule : IInventoryModule
     }
 
     /// <summary>
-    /// 스킬 ID로 직접 전달받아 해당 스킬의 M5 슬롯 해금 여부를 반환
+    /// 스킬 ID로 해당 스킬의 M5 슬롯 해금 여부를 반환 / m5SlotIndex=0 첫번째칸 10 제한 /m5SlotIndex=1 두번째칸 100제한
     /// </summary>
     public bool IsM5SlotUnlocked(int skillId, int m5SlotIndex)
     {
@@ -187,7 +186,7 @@ public sealed class GemInventoryModule : IInventoryModule
     /// <summary>
     /// 보유한 젬 목록중 장착 가능한 m5 모듈 젬 리스트 반환
     /// </summary>
-    public List<OwnedGemData> GetAllOwnedM5Gems()
+    public List<OwnedGemData> GetEquippableOwnedM5Gems()
     {
         List<OwnedGemData> result = new List<OwnedGemData>();
 
@@ -232,7 +231,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
         return TryEquipM5Gem(presetSlotIndex, m5SlotIndex, gemId);
     }
-
+    #region Private
     /// <summary>
     /// 현재 프리셋에서 특정 스킬 ID가 몇 번째 슬롯에 있는지 확인
     /// </summary>
@@ -299,7 +298,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
         return skillModule.SetM5Jem(presetSlotIndex, m5SlotIndex, gemId);
     }
-
+    #endregion
     #endregion
 
     #region 매핑
