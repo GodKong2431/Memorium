@@ -22,16 +22,15 @@ public interface ISkillCooldownProvider
 public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTargetProvider, ISkillCooldownProvider
 {
     [SerializeField] private BattleSkillPresenter battleSkillPresenter;
-
     private SkillCaster skillCaster;
     private SkillDataContext[] skilldataContexts;
     private float[] cooldownTimers;
     private float[] cooldownTimeMax;
     private PlayerStateMachine playerStateMachine;
-    private SkillInventoryModule subscribedSkillModule;
 
     public int SkillCount => skilldataContexts?.Length ?? 0;
 
+    private SkillInventoryModule subscribedSkillModule;
     public bool IsCasting() => skillCaster != null && skillCaster.IsCasting();
     public bool IsChanneling() => skillCaster != null && skillCaster.IsChanneling();
 
@@ -65,15 +64,40 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         skilldataContexts = new SkillDataContext[slots.Length];
         cooldownTimers = new float[slots.Length];
         cooldownTimeMax = new float[slots.Length];
+
+        var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
+
         for (int i = 0; i < slots.Length; i++)
         {
-            var s = slots[i];
+            var slot = slots[i];
+            int m4Id = -1;
+            int m5A = -1;
+            int m5B = -1;
+            if (gemModule != null)
+            {
+                if (slot.m4JemID > 0)
+                    m4Id = gemModule.GetM4IdByItemId(slot.m4JemID);
+
+                if (slot.m5JemIDs != null)
+                {
+                    if (slot.m5JemIDs.Length > 0 && slot.m5JemIDs[0] > 0)
+                        m5A = gemModule.GetM5IdByItemId(slot.m5JemIDs[0]);
+
+                    if (slot.m5JemIDs.Length > 1 && slot.m5JemIDs[1] > 0)
+                        m5B = gemModule.GetM5IdByItemId(slot.m5JemIDs[1]);
+                }
+            }
             skilldataContexts[i] = new SkillDataContext(
-                s.skillID, s.m4JemID, s.m5JemIDs[0], s.m5JemIDs[1]
+                slot.skillID,
+                m4Id,
+                m5A,
+                m5B
             );
-            cooldownTimers[i] = 0;
-            cooldownTimeMax[i] = 0;
+
+            cooldownTimers[i] = 0f;
+            cooldownTimeMax[i] = 0f;
         }
+
         skillCaster.Init(this, this, SetInvincible);
         battleSkillPresenter?.BindCooldownProvider(this);
     }
@@ -87,9 +111,10 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         UnsubscribeSkillModule();
     }
 
+
     private void OnPresetChanged(int presetIndex)
     {
-        InitFromPreset();
+        RefreshFromPreset();
     }
     public void InitFromPreset()
     {
@@ -98,8 +123,32 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         Init(skillModule.GetCurrentPreset().slots);
     }
 
+    public void RefreshFromPreset()
+    {
+        var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
+        if (skillModule == null || skilldataContexts == null) return;
 
-    // 이거 왜만들었던 건지 까먹음
+        var slots = skillModule.GetCurrentPreset().slots;
+
+        if (slots.Length != skilldataContexts.Length)
+        {
+            Init(slots);
+            return;
+        }
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            var slot = slots[i];
+            if (skilldataContexts[i] != null)
+            {
+                skilldataContexts[i].SetSkillContext(slot.skillID, slot.m4JemID, slot.m5JemIDs[0], slot.m5JemIDs[1]);
+            }
+            else
+            {
+                skilldataContexts[i] = new SkillDataContext(slot.skillID, slot.m4JemID, slot.m5JemIDs[0], slot.m5JemIDs[1]);
+            }
+        }
+    }
     public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb =-1)
     {
         if (index < 0 || index >= skilldataContexts.Length) return;
@@ -113,7 +162,6 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         EnsureSkillModuleSubscription();
         CooldownLoop();
     }
-
     private void EnsureSkillModuleSubscription()
     {
         var skillModule = InventoryManager.Instance != null

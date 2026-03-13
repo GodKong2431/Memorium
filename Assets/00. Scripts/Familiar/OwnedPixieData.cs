@@ -24,10 +24,21 @@ public class OwnedPixieData
     public FairyInfoTable fairyTable;
     public FairyGradeTable gradeTable;
 
-    public OwnedPixieData(PixieSaveData save)
+    public OwnedPixieData(PixieSaveData save, FairyInfoTable fairyTable = null, FairyGradeTable gradeTable = null)
     {
         pixieId = save.pixieId;
         level = save.level;
+        if (fairyTable == null || gradeTable == null)
+            TryGetData();
+    }
+
+    public OwnedPixieData(int pixieId, int level, FairyInfoTable fairyTable=null, FairyGradeTable gradeTable = null)
+    {
+        this.pixieId = pixieId;
+        this.level = level;
+        this.fairyTable = fairyTable;
+        this.gradeTable = gradeTable;
+        if (fairyTable == null || gradeTable==null) 
         TryGetData();
     }
 

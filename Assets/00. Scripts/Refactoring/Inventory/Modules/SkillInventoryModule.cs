@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public sealed class SkillInventoryModule : IInventoryModule
 {
@@ -17,6 +16,8 @@ public sealed class SkillInventoryModule : IInventoryModule
 
     public event Action OnInventoryChanged; // 스킬 인벤토리 변경 이벤트.
     public event Action<int> OnPresetChanged; // 프리셋 변경 이벤트.
+    
+    public int GetPresstNum => presets.Length;
 
     public int CurrentPresetIndex => presetHandler.CurrentPresetIndex; // 현재 선택된 프리셋 인덱스.
 
@@ -266,5 +267,9 @@ public sealed class SkillInventoryModule : IInventoryModule
 
         count = (int)floored;
         return true;
+    }
+    public void NotifyPresetChanged()
+    {
+        OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
     }
 }
