@@ -1,18 +1,12 @@
 ﻿using UnityEngine;
-using UnityEngine.Rendering;
-using static UnityEngine.GraphicsBuffer;
 
+[System.Serializable]
 public class PlayerStateAttack : IPlayerState
 {
-    private float _attackEndTime;
-    private bool _attackInProgress;
     private GameObject _currentAttackEffect;
-
-    private bool IsDelayAttack = false;
-
     public PlayerStateType Type => PlayerStateType.Attack;
 
-    private Transform enemy;
+    [SerializeField] private Transform enemy;
 
     public void OnEnter(PlayerStateContext ctx)
     {
@@ -23,12 +17,6 @@ public class PlayerStateAttack : IPlayerState
             ctx.Agent.isStopped = true;
             ctx.Agent.velocity = Vector3.zero;
         }
-            
-        
-        float attackSpeed = ctx.StatPresenter?.PlayerStat?.FinalStats[StatType.ATK_SPEED].finalStat ?? 1f;
-        float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
-        _attackEndTime = Time.time + delay;
-        _attackInProgress = true;
 
         if (ctx.AttackEffectPrefab != null)
         {
@@ -45,21 +33,28 @@ public class PlayerStateAttack : IPlayerState
 
     public void OnUpdate(PlayerStateContext ctx)
     {
-        if (enemy == null && EnemyRegistry.isEnemyExist == false)
+        if (EnemyRegistry.isEnemyExist == false)
+        {
+            ctx.RequestState(PlayerStateType.Idle);
+            return;
+        }
+        
+        enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position)?.transform;
+        
+        if (enemy == null)
         {
             ctx.RequestState(PlayerStateType.Idle);
             return;
         }
 
-        if (enemy == null)
-        {
-            enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position).transform;
-        }
-
-        //enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position).transform;
-
         float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
-
+        
+        if (!ctx.playerSkillHandler.ReadySkill(dist) && dist > ctx.AttackRange)
+        {
+            ctx.RequestState(PlayerStateType.Chase);
+            return;
+        }
+        
         Vector3 dir = enemy.position - ctx.PlayerTransform.position;
 
         dir.y = 0f;
@@ -80,23 +75,19 @@ public class PlayerStateAttack : IPlayerState
         var critmult = CritCheck(ctx.StatPresenter.PlayerStat.FinalStats[StatType.CRIT_CHANCE].finalStat) ? ctx.StatPresenter.PlayerStat.FinalStats[StatType.CRIT_MULT].finalStat : 1f;
 
         ctx.SetCritMult(critmult);
-
-        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && !IsDelayAttack)
+    
+        float attackSpeed = ctx.StatPresenter?.PlayerStat?.FinalStats[StatType.ATK_SPEED].finalStat ?? 1f;
+        float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
+        
+    
+        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && Time.time >= ctx.NextAttackTime)
         {
+            ctx.NextAttackTime = Time.time + delay;
+            
             if (enemy.TryGetComponent<EnemyStateMachine>(out var target))
             {
                 BossChecker(target, ctx);
             }
-
-            IsDelayAttack = true;
-        }
-
-        if (_attackInProgress && Time.time >= _attackEndTime)
-        {
-            IsDelayAttack = false;
-            _attackInProgress = false;
-            ClearAttackEffect();
-            ctx.RequestState(PlayerStateType.Chase);
         }
     }
 

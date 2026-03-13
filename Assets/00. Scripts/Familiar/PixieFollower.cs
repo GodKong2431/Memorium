@@ -1,75 +1,96 @@
 using UnityEngine;
-using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(PixieEffectProvider))]
-public class PixieFollower :MonoBehaviour
-{
-    [SerializeField] private float followDelay = 0.25f;
-    [SerializeField] private float teleportDistance = 1000f;
-    [SerializeField] private float stoppingDistance = 3.0f;
+public class PixieFollower : MonoBehaviour
+{   
+    [SerializeField] private float slowingDistance = 5f;
+    [SerializeField] private float stoppingDistance = 0.2f;
+    [SerializeField] private float teleportDistance = 100f;
+    [SerializeField] private float updateInterval = 0.1f;
+    [SerializeField] private float decelerationRate = 10f; // 정지 시 Lerp 감속 배율
 
-    private NavMeshAgent agent;
     private Transform followTarget;
-    private float lastUpdateTime;
     private PlayerStateContext stateContext;
-
     private OwnedPixieData fairyData;
     public OwnedPixieData FairyData => fairyData;
 
+    private float lastUpdateTime = 0f;
+    private Vector3 moveDirection = Vector3.zero; 
+    private float currentSpeed = 0f;
+    private float maxSpeed = 10f;
+    private bool isStopping = false;
 
-    private void Awake()
-    {
-
-        agent = GetComponent<NavMeshAgent>();
-    }
     private void Update()
     {
-        if (followTarget == null || agent == null) return;
-        if (!agent.isOnNavMesh) return;
+        if (followTarget == null) return;
 
-        float dist = GetDistance();
-
-        if (dist >= teleportDistance)
-        {
-            Warp();
-            return;
-        }
-        if (dist <= stoppingDistance)   return;
-        if (Time.time - lastUpdateTime >= followDelay)
+        if (Time.time - lastUpdateTime >= updateInterval)
         {
             lastUpdateTime = Time.time;
-            agent.SetDestination(followTarget.position);
+            CalculateMovement();
+        }
+        if (isStopping)
+        {
+            currentSpeed = Mathf.Lerp(currentSpeed, 0f, Time.deltaTime * decelerationRate);
+        }
+        if (currentSpeed > 0f)
+        {
+            transform.position += moveDirection * currentSpeed * Time.deltaTime;
         }
     }
+
     public void Init(Transform target, OwnedPixieData data, EffectController playerEffectController, PlayerStateContext stateContext)
     {
         this.followTarget = target;
         this.fairyData = data;
-        agent.stoppingDistance = stoppingDistance;
-        agent.speed = CharacterStatManager.Instance.GetFinalStat(StatType.MOVE_SPEED) * 1.2f;
         this.stateContext = stateContext;
+
+        maxSpeed = CharacterStatManager.Instance.GetFinalStat(StatType.MOVE_SPEED) * 1.2f;
+
         var effectProvider = GetComponent<PixieEffectProvider>();
         effectProvider.Init(data, target, playerEffectController, stateContext);
-        Warp();
-        
 
+        Warp();
     }
-    
-    public float GetDistance()
+
+    private void CalculateMovement()
     {
-        var position = transform.position;
-        var targetPosition = followTarget.position;
-        position.y = 0;
-        targetPosition.y = 0;
-        var distance = Vector3.Distance(position, targetPosition);
-        return distance;
+        Vector3 currentPos = transform.position;
+        Vector3 targetPos = followTarget.position;
+        currentPos.y = 0;
+        targetPos.y = 0;
+
+        float dist = Vector3.Distance(currentPos, targetPos);
+
+        if (dist >= teleportDistance)
+        {
+            Warp();
+            currentSpeed = 0f; 
+            return;
+        }
+        if (dist <= stoppingDistance)
+        {
+            isStopping = true;
+            return;
+        }
+        isStopping = false;
+        moveDirection = (targetPos - currentPos).normalized;
+
+        if (dist < slowingDistance)
+        {
+            currentSpeed = maxSpeed * (dist / slowingDistance);
+        }
+        else
+        {
+            currentSpeed = maxSpeed;
+        }
     }
 
     public void Warp()
     {
-        agent.Warp(followTarget.position);
-        agent.ResetPath();
+        transform.position = followTarget.position;
+        currentSpeed = 0f;
+        moveDirection = Vector3.zero;
         lastUpdateTime = Time.time;
     }
 }

@@ -70,6 +70,44 @@ public class InventoryManager : Singleton<InventoryManager>
         return AddItem(itemId, new BigDouble(amount));
     }
 
+
+    public bool SetItem(int itemId, BigDouble amount)
+    {
+        BigDouble curCount=GetItemAmount(itemId);
+        if ((curCount>0))
+        {
+            if (!RemoveItem(itemId, curCount))
+            {
+                return false;
+            }
+        }
+
+        if (!AddItem(itemId, amount))
+        {
+            return false;
+        }
+
+        return true;
+    }
+    public bool SetItem(int itemId, int amount)
+    {
+        BigDouble curCount=GetItemAmount(itemId);
+        if ((curCount>0))
+        {
+            if (!RemoveItem(itemId, curCount))
+            {
+                return false;
+            }
+        }
+
+        if (!AddItem(itemId, amount))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     // itemId를 해석해 적절한 모듈에 아이템 차감을 요청한다.
     public bool RemoveItem(int itemId, BigDouble amount)
     {
@@ -199,6 +237,7 @@ public class InventoryManager : Singleton<InventoryManager>
         RegisterModule(new StackItemInventoryModule());
         RegisterModule(new EquipmentInventoryModule());
         RegisterModule(new PixieInventoryModule());
+        RegisterModule(new GemInventoryModule());
 
         StartCoroutine(LoadData());
     }
@@ -212,6 +251,8 @@ public class InventoryManager : Singleton<InventoryManager>
         saveCurrencyData.SetData();
         OnItemAmountChanged += saveCurrencyData.Save;
         DataLoad = true;
+
+        GetModule<GemInventoryModule>()?.InitGemMappingData();
     }
     //private void OnDisable ()
     //{

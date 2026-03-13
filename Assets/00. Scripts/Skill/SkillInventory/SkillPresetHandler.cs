@@ -52,8 +52,6 @@ public class SkillPresetHandler
         if (slotIndex < 0 || slotIndex >= preset.slots.Length) return;
         preset.slots[slotIndex].Clear();
     }
-
-
     public bool SetM5Jem(int presetSlotIndex, int m5SlotIndex, int jemID)
     {
         var preset = presets[currentPresetIndex];
@@ -64,6 +62,13 @@ public class SkillPresetHandler
 
         if (!inventory.TryGetValue(slot.skillID, out var skillData)) return false;
         if (!skillData.IsM5JemSlotOpen(m5SlotIndex)) return false;
+
+        if (jemID != -1)
+        {
+            int otherSlotIndex = m5SlotIndex == 0 ? 1 : 0;
+
+            if (slot.m5JemIDs[otherSlotIndex] == jemID) return false;
+        }
 
         slot.m5JemIDs[m5SlotIndex] = jemID;
         return true;

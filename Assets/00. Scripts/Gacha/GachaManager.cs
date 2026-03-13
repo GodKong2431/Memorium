@@ -21,11 +21,14 @@ public class GachaManager : Singleton<GachaManager>
 
     public int crystalId = 0;
 
+    public bool DataLoad=false;
+
     protected override void Awake()
     {
-        StartCoroutine(CheckCrystalId());
         base.Awake();
-        InitializeLevelStates();
+        //InitializeLevelStates();
+        StartCoroutine(CheckCrystalId());
+        StartCoroutine(LoadData());
     }
 
     IEnumerator CheckCrystalId()
@@ -41,14 +44,28 @@ public class GachaManager : Singleton<GachaManager>
             }
         }
     }
-
-    private void InitializeLevelStates()
+    IEnumerator LoadData()
     {
+        yield return new WaitUntil(() => DataManager.Instance != null);
+        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        saveGachaData = JSONService.Load<SaveGachaData>();
+        saveGachaData.InitGachaData();
+
         levelStates.Clear();
 
         foreach (GachaType type in Enum.GetValues(typeof(GachaType)))
-            levelStates[type] = new GachaLevelState(type, 1, 0);
+            levelStates[type] = saveGachaData.GetGachaData(type);
+
+        DataLoad = true;
     }
+
+    //private void InitializeLevelStates()
+    //{
+    //    levelStates.Clear();
+
+    //    foreach (GachaType type in Enum.GetValues(typeof(GachaType)))
+    //        levelStates[type] = new GachaLevelState(type, 1, 0);
+    //}
 
     public GachaLevelState GetLevelState(GachaType gachaType)
     {
@@ -237,6 +254,9 @@ public class GachaManager : Singleton<GachaManager>
         }
 
         result.LevelUp = state.Level > levelBefore;
+
+        //가차 데이터 저장
+        saveGachaData.SaveGachaLevel(gachaType, state.Level, state.DrawCountInCurrentLevel);
         return true;
     }
 

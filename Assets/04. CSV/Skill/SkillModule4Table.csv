@@ -1,7 +1,7 @@
-고유 키,"모듈4 타입 (pull=0, push=1, shadow=2, impact= 3)",시전 딜레이,시전 범위1,시전 시간,사운드 경로,VFX 경로,주석
-m4ID,m4Type,m4Delay,m4Distance,m4Duration,m4Sound,m4VFX,desc
-int,enum,float,float,float,string,string,string
-4040001,0,0.01,5,1.1,,,
-4040002,1,0.03,5.5,1,,,
-4040003,2,0.06,6,0.9,,,
-4040004,3,0.09,6.5,0.8,,,
+고유 키,아이템 키 참조여부,스킬ID 참조여부,"모듈4 타입 (pull=0, push=1, shadow=2, impact= 3)",시전 딜레이,시전 범위1,시전 시간,사운드 경로,VFX 경로,주석
+m4ID,m4ItemID,skillID,m4Type,m4Delay,m4Distance,m4Duration,m4Sound,m4VFX,desc
+int,int,int,enum,float,float,float,string,string,string
+4040001,3230001,4000001,0,0.01,5,1.1,,,
+4040002,3230002,4000002,1,0.03,5.5,1,,,
+4040003,3230003,4000003,2,0.06,6,0.9,,,
+4040004,3230004,4000004,3,0.09,6.5,0.8,,,

@@ -45,6 +45,9 @@ public class PlayerStateContext : BaseStateContext
     public PlayerSkillHandler playerSkillHandler;
     //초당 회복
     private float regenTimer = 0f;
+    
+    public float NextAttackTime;
+    
     private const float REGEN_INTERVAL = 1f;
     public void Initialize(float? startHealth = null, float? startMana = null)
     {
@@ -96,6 +99,7 @@ public class PlayerStateContext : BaseStateContext
     }
     public void RequestState(PlayerStateType next)
     {
+        
         _requestStateChange?.Invoke(next);
     }
 

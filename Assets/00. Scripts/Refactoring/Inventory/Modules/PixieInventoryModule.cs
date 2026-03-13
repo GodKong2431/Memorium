@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public sealed class PixieInventoryModule : IInventoryModule
 {
     private readonly Dictionary<int, OwnedPixieData> pixieDict = new Dictionary<int, OwnedPixieData>();
-    public IEnumerable<OwnedPixieData> GetAllPixies() => pixieDict.Values;
+    
     public int goldId = 0;
 
     const int UNLOCK_COST = 50;
@@ -19,13 +19,15 @@ public sealed class PixieInventoryModule : IInventoryModule
 
     //구조체 리스트는 저장 할 수 있다고 이해해서 이렇게 만?들어놨는데 이상하다 싶으시면 다른 방식으로 하셔도 괜찮습니다.
 
+    public List<PixieSaveData> saveList = new List<PixieSaveData>();
+
     /// <summary>
     /// 가지고 있는 모든 Pixie의 id와 레벨을 담은 구조체 리스트 반환, UI랑 저장에 쓰시면 될?듯
     /// </summary>
     /// <returns></returns>
     public List<PixieSaveData> GetSaveList()
     {
-        List<PixieSaveData> saveList = new List<PixieSaveData>();
+        saveList.Clear();
         foreach (var pixie in pixieDict.Values)
         {
             saveList.Add(new PixieSaveData(pixie.pixieId, pixie.level));
@@ -91,7 +93,7 @@ public sealed class PixieInventoryModule : IInventoryModule
         return BigDouble.Zero;
     }
     #endregion
-
+    
 
     #region UI 표시용
     /// <summary>
@@ -100,6 +102,14 @@ public sealed class PixieInventoryModule : IInventoryModule
     public bool IsOwned(int fairyId)
     {
         return pixieDict.ContainsKey(fairyId);
+    }
+
+    /// <summary>
+    /// 보유 픽시 데이터 목록 반환
+    /// </summary>
+    public IEnumerable<OwnedPixieData> GetAllPixies()
+    {
+        return pixieDict.Values;
     }
 
     /// <summary>
@@ -188,7 +198,7 @@ public sealed class PixieInventoryModule : IInventoryModule
     // 아니면 스트링 자체를 반환하게해서 그대로 띄우게 해도 괜찮을 것 같습니다.
 
     /// <summary>
-    /// 모든 업그레이드(해금/레벨업/성장) 호출
+    /// 모든 업그레이드(해금/레벨업/성장) 호출 , 하나라도 성공시 종료 => true 반환
     /// </summary>
     /// <param name="fairyId"></param>
     /// <returns></returns>

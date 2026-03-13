@@ -161,7 +161,7 @@ public class BattleSkillSlotView : MonoBehaviour
             rootButton.colors = defaultButtonColors;
     }
 
-    // 버튼 클릭을 외부 콜백으로 전달합니다.
+    // 버튼 클릭을 외부 콜백으로 전달합니다.    
     private void HandleSlotClick()
     {
         clickListener?.Invoke();

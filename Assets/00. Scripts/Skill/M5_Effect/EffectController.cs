@@ -14,11 +14,15 @@ public class EffectController : MonoBehaviour, IBuffApplicable
             StatusEffect = new StatusEffectHandler(this, enemy);
     }
 
-
     private void Update()
     {
         BuffDebuff?.Tick(Time.deltaTime);
         StatusEffect?.Tick(Time.deltaTime);
+    }
+
+    private void OnDisable()
+    {
+        ClearAll();
     }
 
     public void ApplyBuff(StatModifier modifier)
