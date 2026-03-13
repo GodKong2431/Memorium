@@ -18,10 +18,11 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
 
     private IEnumerator Start()
     {
-        //CurrencyData
+        //CurrencyData, SkillData
         yield return new WaitUntil(() => InventoryManager.Instance != null);
         yield return new WaitUntil(() => InventoryManager.Instance.DataLoad);
         currencyData = InventoryManager.Instance.saveCurrencyData;
+        skillData = InventoryManager.Instance.saveSkillData;
 
         //PlayerData, equipmentData
         yield return new WaitUntil(() => CharacterStatManager.Instance != null);
@@ -39,10 +40,12 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         yield return new WaitUntil(() => StageManager.Instance.DataLoad);
         stageData = StageManager.Instance.saveStageData;
 
-        //스킬 데이터, 가챠 데이터
+        //가챠 데이터
         yield return new WaitUntil(() => GachaManager.Instance != null);
         yield return new WaitUntil(() => GachaManager.Instance.DataLoad);
         gachaData = GachaManager.Instance.saveGachaData;
+
+        //스킬 데이터
 
         StartCoroutine(AutoSaveCoroutine());
     }
@@ -70,6 +73,7 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         if (playerData.IsDirty && playerData!=null) saveTask.Add(AutoSaveTaskStart(playerData));
         if (questData.IsDirty && questData!=null) saveTask.Add(AutoSaveTaskStart(questData));
         if(gachaData.IsDirty && gachaData!=null) saveTask.Add(AutoSaveTaskStart(gachaData));
+        if(skillData.IsDirty && skillData!=null) saveTask.Add(AutoSaveTaskStart(skillData));
 
         if (saveTask.Count > 0)
         {

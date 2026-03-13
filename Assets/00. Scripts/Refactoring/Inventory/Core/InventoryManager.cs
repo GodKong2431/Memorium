@@ -17,6 +17,9 @@ public class InventoryManager : Singleton<InventoryManager>
     public SaveCurrencyData saveCurrencyData;
     public bool DataLoad = false;
 
+    //스킬 데이터를 저장할 객체
+    public SaveSkillData saveSkillData;
+
     protected override void Awake()
     {
         base.Awake();

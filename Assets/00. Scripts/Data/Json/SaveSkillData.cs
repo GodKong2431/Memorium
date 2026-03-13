@@ -1,92 +1,117 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
-[System.Serializable]
+[Serializable]
 public class SaveSkillData :ISaveData
 {
     //현재 장착중인 스킬 데이터 및 스크롤 갯수 및 순서를 기억하고 있는 cs
     //갯수 및 순서는 리스트로 add
 
-    public int presetCount = 3;
+    //저장할 것 : 프리셋 3개, 각 스킬 단계별 갯수
+    int presetCount = 3;
+    //하나의 프리셋당 저장할 스킬의 갯수
+    int skillCountByPreset = 3;
+    //m5 젬 갯수
+    int m5JemCount = 2;
 
-    //저장할 스킬 스크롤 아이디
-    public List<int> skillScrollId;
-    //각 스킬 스크롤 아이디 별 갯수
-    public List<int> skillScrollIdToCount;
+    public List<SkillInfoData> skillInfoData;
 
-    ////그냥 9개씩 저장하자 그리고 3개씩 반환하면 될 듯
-    //public int[] skillId;
-    //public int[,] m5JemIDs;
-    //public int[] m4JemId;
-
-    ////이건 3개(PresetCount)
-    //SkillPreset[] presets;
-    ////이건 presetCount * a긴 한데 현재 3개이므로 9개
-    //SkillPresetSlot[] slots;
-
+    public List<SkillPresetData> skillPresetData;
 
     //변경 여부 체크
     private bool isDirty = false;
     public bool IsDirty => isDirty;
     public SaveSkillData() { }
 
-    public void ClearDirty()
-    {
-        isDirty = true;
-    }
+    public int SkillCountByPreset => skillCountByPreset;
 
     public void InitSkillData()
     {
-        ////값 초기화해서 반환
-        //if (skillScrollId == null)
-        //{
-        //    skillScrollId = new List<int>();
-        //    skillScrollIdToCount = new List<int>();
-        //    skillId = new int[presetCount * presetCount];
-        //    m5JemIDs = new int[presetCount * presetCount * 2,2];
-        //    m4JemId = new int[presetCount * presetCount];
+        Debug.Log("[SaveSkillData] 데이터 초기 설정 시작");
+        if (skillInfoData == null)
+        {
+            skillInfoData = new List<SkillInfoData>();
+        }
 
+        if (skillPresetData == null)
+        {
+            skillPresetData = new List<SkillPresetData>();
+        }
 
+        if (skillPresetData.Count < presetCount)
+        {
+            //정해진 프리셋 갯수보다 부족할 경우
+            while (skillPresetData.Count < presetCount)
+            {
+                //스킬 프리셋 데이터 생성
+                SkillPresetData presetData = new SkillPresetData();
+                presetData.skillPresetSlotData = new List<SkillPresetSlotData>();
 
+                //하나의 스킬 프리셋 당 저장할 스킬 횟수만큼 추가
+                for (int i = 0; i < skillCountByPreset; i++)
+                    presetData.skillPresetSlotData.Add(new SkillPresetSlotData(m5JemCount));
+                
+                skillPresetData.Add(presetData);
+            }
+        }
 
-
-        //    slots = new SkillPresetSlot[presetCount * presetCount];
-        //    for (int i = 0; i < presetCount; i++)
-        //    {
-        //        slots[i] = new SkillPresetSlot();
-        //    }
-        //}
-
-        ////데이터 기반으로 스킬 슬롯 생성
-        //else
-        //{
-        //    int[] m5Jem = new int[2];
-        //    slots = new SkillPresetSlot[presetCount * presetCount];
-        //    for (int i = 0; i < presetCount; i++)
-        //    {
-        //        m5Jem[0] = m5JemIDs[i, 0];
-        //        m5Jem[1] = m5JemIDs[i, 1];
-        //        slots[i] = new SkillPresetSlot(skillId[i], m5Jem, m4JemId[i]);
-        //    }
-        //}
-        //SetPrest();
+        Debug.Log("[SaveSkillData] 데이터 초기 설정 성공");
     }
 
-    //public void SetPrest()
-    //{
-    //    presets = new SkillPreset[presetCount];
-    //    for (int i = 0; i < presetCount; i++)
-    //    {
-    //        int startIndex = i * presetCount;
-    //        int endIndex = i * presetCount + presetCount;
-    //        presets[i] = new SkillPreset(presetCount, slots[startIndex..endIndex]);
-    //    }
-    //}
+    public SkillPreset LoadSkillPreset(int index)
+    {
+        SkillPresetSlot[] presetSlots = new SkillPresetSlot[skillCountByPreset];
+        for (int i = 0; i < skillCountByPreset; i++)
+        {
+            presetSlots[i] = new SkillPresetSlot(skillPresetData[index].skillPresetSlotData[i].skillId,
+                skillPresetData[index].skillPresetSlotData[i].m5JemIDs.ToArray(),
+                skillPresetData[index].skillPresetSlotData[i].m4JemID);
+        }
+        SkillPreset preset = new SkillPreset(presetSlots);
 
-    //public SkillPreset[] LoadPrest()
-    //{
-    //    return presets;
-    //}
+        if (preset == null)
+        {
+            Debug.Log("[SaveSkillData] 프리셋 데이터 제작 실패");
+        }
+        else
+        {
+            Debug.Log("[SaveSkillData] 프리셋 데이터 제작 성공");
+        }
+        return preset;
+    }
 
+    public void SaveSkillPreset(int index ,SkillPreset preset)
+    {
+        Debug.Log($"[SaveSkillData] {index} 번 프리셋에 데이터 저장 시작, 스킬 갯수 {preset.slots.Length}");
+        for (int i = 0; i < presetCount; i++)
+        {
+            SkillPresetSlotData slotData = skillPresetData[index].skillPresetSlotData[i];
+            slotData.skillId = preset.slots[i].skillID;
+            Debug.Log($"[SaveSkillData] {index} 번 프리셋 {i}번 스킬 id = {slotData.skillId}");
+            Debug.Log($"[SaveSkillData] {index} 번 프리셋 {i}번 스킬 m5젬 저장 시작");
+            for (int j = 0; j < preset.slots[i].m5JemIDs.Length; j++)
+            {
+                if (slotData.m5JemIDs.Count <= j)
+                {
+                    slotData.m5JemIDs.Add(-1);
+                }
+                slotData.m5JemIDs[j] = preset.slots[i].m5JemIDs[j];
+            }
+            Debug.Log($"[SaveSkillData] {index} 번 프리셋 {i}번 스킬 m5젬 저장 종료");
+            slotData.m4JemID = preset.slots[i].m4JemID;
+            Debug.Log($"[SaveSkillData] {index} 번 프리셋 {i}번 스킬 m4젬 저장 종료");
+
+            skillPresetData[index].skillPresetSlotData[i]=slotData;
+            Debug.Log($"[SaveSkillData] {index} 번 프리셋 {i}번 스킬 저장 완료");
+        }
+
+        isDirty = true;
+    }
+
+    public void ClearDirty()
+    {
+        isDirty = false;
+    }
 
 }
