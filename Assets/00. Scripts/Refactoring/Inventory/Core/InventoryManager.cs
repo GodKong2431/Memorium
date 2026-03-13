@@ -199,6 +199,7 @@ public class InventoryManager : Singleton<InventoryManager>
         RegisterModule(new StackItemInventoryModule());
         RegisterModule(new EquipmentInventoryModule());
         RegisterModule(new PixieInventoryModule());
+        RegisterModule(new GemInventoryModule());
 
         StartCoroutine(LoadData());
     }
@@ -212,6 +213,8 @@ public class InventoryManager : Singleton<InventoryManager>
         saveCurrencyData.SetData();
         OnItemAmountChanged += saveCurrencyData.Save;
         DataLoad = true;
+
+        GetModule<GemInventoryModule>()?.InitGemMappingData();
     }
     //private void OnDisable ()
     //{

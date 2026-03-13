@@ -64,15 +64,40 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         skilldataContexts = new SkillDataContext[slots.Length];
         cooldownTimers = new float[slots.Length];
         cooldownTimeMax = new float[slots.Length];
+
+        var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
+
         for (int i = 0; i < slots.Length; i++)
         {
-            var s = slots[i];
+            var slot = slots[i];
+            int m4Id = -1;
+            int m5A = -1;
+            int m5B = -1;
+            if (gemModule != null)
+            {
+                if (slot.m4JemID > 0)
+                    m4Id = gemModule.GetM4IdByItemId(slot.m4JemID);
+
+                if (slot.m5JemIDs != null)
+                {
+                    if (slot.m5JemIDs.Length > 0 && slot.m5JemIDs[0] > 0)
+                        m5A = gemModule.GetM5IdByItemId(slot.m5JemIDs[0]);
+
+                    if (slot.m5JemIDs.Length > 1 && slot.m5JemIDs[1] > 0)
+                        m5B = gemModule.GetM5IdByItemId(slot.m5JemIDs[1]);
+                }
+            }
             skilldataContexts[i] = new SkillDataContext(
-                s.skillID, s.m4JemID, s.m5JemIDs[0], s.m5JemIDs[1]
+                slot.skillID,
+                m4Id,
+                m5A,
+                m5B
             );
-            cooldownTimers[i] = 0;
-            cooldownTimeMax[i] = 0;
+
+            cooldownTimers[i] = 0f;
+            cooldownTimeMax[i] = 0f;
         }
+
         skillCaster.Init(this, this, SetInvincible);
         battleSkillPresenter?.BindCooldownProvider(this);
     }
