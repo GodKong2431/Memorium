@@ -22,8 +22,6 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     [SerializeField] EquipmentHandler equipmentHandler;
     public SavePlayerData savePlayerData;
 
-    [SerializeField] private TraitManager traitManager;
-
     [SerializeField] private CharacterBaseStat baseStat;
 
     [SerializeField] private PlayerLevel levelBonus;
