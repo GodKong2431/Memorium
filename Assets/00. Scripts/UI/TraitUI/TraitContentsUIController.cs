@@ -18,6 +18,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private sealed class TierRuntime
     {
+        // 화면에 생성된 티어 그룹과 그 안의 노드를 함께 보관합니다.
         public int TierNumber;
         public string TierLabel;
         public TraitGroupItemUI GroupUI;
@@ -26,62 +27,38 @@ public class TraitContentsUIController : UIControllerBase
 
     private sealed class TraitRuntime
     {
+        // 실제 특성 데이터와 생성된 노드 UI를 묶어 둡니다.
         public PlayerTrait Trait;
         public TraitNodeItemUI ItemUI;
     }
 
-    private sealed class TraitInfoPopupRuntime
-    {
-        public GameObject RootObject;
-        public Image BackgroundImage;
-        public Button BackgroundButton;
-        public Image CardImage;
-        public Image StatIconImage;
-        public TextMeshProUGUI StatText;
-        public TextMeshProUGUI BeforeStatText;
-        public TextMeshProUGUI AfterStatText;
-        public Button UpgradeButton;
-        public Image UpgradeButtonImage;
-        public TextMeshProUGUI RequirePointText;
-        public Image GrowthIconImage;
-        public TextMeshProUGUI GrowthText;
+    [Header("런타임 참조")]
+    [SerializeField] private CharacterStatManager statManager;
 
-        public bool HasCoreBindings =>
-            RootObject != null &&
-            StatText != null &&
-            BeforeStatText != null &&
-            AfterStatText != null &&
-            UpgradeButton != null &&
-            RequirePointText != null &&
-            GrowthText != null;
-
-        public bool IsVisible => RootObject != null && RootObject.activeSelf;
-
-        public void Show()
-        {
-            if (RootObject == null)
-                return;
-
-            RootObject.SetActive(true);
-            RootObject.transform.SetAsLastSibling();
-        }
-
-        public void Hide()
-        {
-            if (RootObject == null)
-                return;
-
-            RootObject.SetActive(false);
-        }
-    }
-
-    [Header("Scene Binding")]
+    [Header("목록 참조")]
     [SerializeField] private RectTransform contentRoot;
     [SerializeField] private TextMeshProUGUI pointText;
     [SerializeField] private GameObject groupPrefab;
     [SerializeField] private GameObject itemPrefab;
 
-    [Header("Visual")]
+    [Header("팝업 루트")]
+    [SerializeField] private GameObject popupRootObject;
+    [SerializeField] private Button popupCloseButton;
+
+    [Header("팝업 정보")]
+    [SerializeField] private Image popupStatIconImage;
+    [SerializeField] private TextMeshProUGUI popupStatText;
+    [SerializeField] private TextMeshProUGUI popupBeforeStatText;
+    [SerializeField] private TextMeshProUGUI popupAfterStatText;
+
+    [Header("팝업 성장 버튼")]
+    [SerializeField] private Button popupUpgradeButton;
+    [SerializeField] private Image popupUpgradeButtonImage;
+    [SerializeField] private TextMeshProUGUI popupRequirePointText;
+    [SerializeField] private Image popupGrowthIconImage;
+    [SerializeField] private TextMeshProUGUI popupGrowthText;
+
+    [Header("비주얼 설정")]
     [SerializeField] private List<StatIconEntry> statIcons = new List<StatIconEntry>();
     [SerializeField] private Color availableAccent = new Color(1f, 0.83137256f, 0.22745098f, 1f);
     [SerializeField] private Color lockedAccent = new Color(0.59607846f, 0.627451f, 0.6862745f, 1f);
@@ -94,24 +71,35 @@ public class TraitContentsUIController : UIControllerBase
 
     private readonly Dictionary<StatType, Sprite> iconByStat = new Dictionary<StatType, Sprite>();
     private readonly List<TierRuntime> tierRuntimes = new List<TierRuntime>();
-    private readonly TraitInfoPopupRuntime popupRuntime = new TraitInfoPopupRuntime();
 
     private Coroutine bootstrapRoutine;
-    private CharacterStatManager statManager;
-    private InventoryManager inventoryManager;
     private CurrencyInventoryModule currencyModule;
     private bool traitEventsSubscribed;
+    private bool popupEventsConfigured;
     private bool isBuilt;
     private bool missingBindingsLogged;
     private bool missingPopupBindingsLogged;
     private int builtTraitCount;
     private PlayerTrait selectedTrait;
 
+    private bool HasPopupBindings =>
+        popupRootObject != null &&
+        popupCloseButton != null &&
+        popupStatText != null &&
+        popupBeforeStatText != null &&
+        popupAfterStatText != null &&
+        popupUpgradeButton != null &&
+        popupRequirePointText != null &&
+        popupGrowthText != null;
+
     protected override void Initialize()
     {
-        AutoBindSceneReferences();
-        AutoBindPopup();
+        // 인스펙터에서 받은 스탯 아이콘을 빠르게 찾을 수 있게 캐시합니다.
         CacheStatIcons();
+
+        // 팝업 버튼은 인스펙터 참조를 기준으로 한 번만 연결합니다.
+        ConfigurePopupEvents();
+        HideTraitPopup();
     }
 
     protected override void Subscribe()
@@ -154,6 +142,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private IEnumerator BootstrapRoutine()
     {
+        // 데이터 매니저와 인벤토리가 준비될 때까지 대기합니다.
         while (!TryPrepareRuntime())
             yield return null;
 
@@ -176,99 +165,47 @@ public class TraitContentsUIController : UIControllerBase
         }
     }
 
-    private void AutoBindSceneReferences()
+    private void ConfigurePopupEvents()
     {
-        if (contentRoot == null)
-        {
-            ScrollRect scrollRect = GetComponentInChildren<ScrollRect>(true);
-            if (scrollRect != null)
-                contentRoot = scrollRect.content;
-        }
-
-        if (pointText == null)
-        {
-            Transform pointPanel = FindDescendantByName(transform, "(Panel)TraitPoint");
-            if (pointPanel != null)
-                pointText = pointPanel.GetComponentInChildren<TextMeshProUGUI>(true);
-        }
-    }
-
-    private void AutoBindPopup()
-    {
-        if (popupRuntime.HasCoreBindings)
+        // 팝업 관련 버튼 이벤트는 인스펙터 참조를 기준으로 연결합니다.
+        if (popupEventsConfigured)
             return;
 
-        Transform popupRoot = FindTraitPopupRoot(transform.root != null ? transform.root : transform);
-        if (popupRoot == null)
-            return;
-
-        Transform background = FindDirectChild(popupRoot, "(Panel)Background");
-        Transform card = FindPopupCard(popupRoot, background);
-        Transform statPanel = FindDirectChild(card, "(Img)StatIcon");
-        Transform upgradeButton = FindDirectChild(card, "(Btn)Growth");
-        Transform requirePointRoot = FindDescendantByName(upgradeButton, "(Text)RequirePoint");
-
-        popupRuntime.RootObject = popupRoot.gameObject;
-        popupRuntime.BackgroundImage = background != null ? background.GetComponent<Image>() : null;
-        popupRuntime.CardImage = card != null ? card.GetComponent<Image>() : null;
-        popupRuntime.StatIconImage = statPanel != null ? statPanel.GetComponent<Image>() : null;
-        popupRuntime.StatText = GetTextComponent(statPanel, "(Text)Stat");
-        popupRuntime.BeforeStatText = GetTextComponent(statPanel, "(Text)BeforeStat");
-        popupRuntime.AfterStatText = GetTextComponent(statPanel, "(Text)AfterStat");
-        popupRuntime.UpgradeButton = upgradeButton != null ? upgradeButton.GetComponent<Button>() : null;
-        popupRuntime.UpgradeButtonImage = upgradeButton != null ? upgradeButton.GetComponent<Image>() : null;
-        popupRuntime.RequirePointText = requirePointRoot != null ? requirePointRoot.GetComponent<TextMeshProUGUI>() : null;
-        popupRuntime.GrowthIconImage = GetImageComponent(requirePointRoot, "(Img)TraitIcon");
-        popupRuntime.GrowthText = GetTextComponent(requirePointRoot, "(Text)Growth");
-
-        if (popupRuntime.BackgroundImage != null)
+        if (popupCloseButton != null)
         {
-            popupRuntime.BackgroundButton = popupRuntime.BackgroundImage.GetComponent<Button>();
-            if (popupRuntime.BackgroundButton == null)
-            {
-                popupRuntime.BackgroundButton = popupRuntime.BackgroundImage.gameObject.AddComponent<Button>();
-                popupRuntime.BackgroundButton.transition = Selectable.Transition.None;
-                popupRuntime.BackgroundButton.targetGraphic = popupRuntime.BackgroundImage;
-            }
-
-            popupRuntime.BackgroundButton.onClick.RemoveListener(CloseTraitPopup);
-            popupRuntime.BackgroundButton.onClick.AddListener(CloseTraitPopup);
+            popupCloseButton.onClick.RemoveListener(CloseTraitPopup);
+            popupCloseButton.onClick.AddListener(CloseTraitPopup);
         }
 
-        if (popupRuntime.UpgradeButton != null)
+        if (popupUpgradeButton != null)
         {
-            popupRuntime.UpgradeButton.onClick.RemoveListener(OnPopupUpgradeClicked);
-            popupRuntime.UpgradeButton.onClick.AddListener(OnPopupUpgradeClicked);
+            popupUpgradeButton.onClick.RemoveListener(OnPopupUpgradeClicked);
+            popupUpgradeButton.onClick.AddListener(OnPopupUpgradeClicked);
         }
 
-        popupRuntime.Hide();
+        popupEventsConfigured = true;
     }
 
     private bool TryPrepareRuntime()
     {
-        AutoBindSceneReferences();
-        AutoBindPopup();
+        // 런타임에 필요한 씬 바인딩과 매니저 준비 상태를 확인합니다.
+        ConfigurePopupEvents();
 
         if (contentRoot == null || pointText == null || groupPrefab == null || itemPrefab == null)
         {
             if (!missingBindingsLogged)
             {
-                Debug.LogWarning("[TraitContentsUIController] Missing TraitContents bindings. Assign contentRoot, pointText, groupPrefab and itemPrefab in StageScene.");
+                Debug.LogWarning("[TraitContentsUIController] TraitContents 바인딩이 비어 있습니다. 인스펙터의 목록 참조를 확인해 주세요.");
                 missingBindingsLogged = true;
             }
 
             return false;
         }
 
-        if (statManager == null)
-            statManager = FindFirstObjectByType<CharacterStatManager>();
-
         if (statManager == null || !statManager.TableLoad || statManager.Traits == null)
             return false;
 
-        if (inventoryManager == null)
-            inventoryManager = InventoryManager.Instance != null ? InventoryManager.Instance : FindFirstObjectByType<InventoryManager>();
-
+        InventoryManager inventoryManager = InventoryManager.Instance;
         if (inventoryManager == null)
             return false;
 
@@ -296,6 +233,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private void BuildIfNeeded()
     {
+        // 특성 개수가 바뀌지 않았다면 기존 생성 결과를 재사용합니다.
         List<PlayerTrait> orderedTraits = CollectOrderedTraits();
         if (isBuilt && builtTraitCount == orderedTraits.Count)
             return;
@@ -305,6 +243,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private List<PlayerTrait> CollectOrderedTraits()
     {
+        // 딕셔너리 순서에 의존하지 않도록 티어와 ID 기준으로 정렬합니다.
         List<PlayerTrait> orderedTraits = new List<PlayerTrait>();
 
         foreach (KeyValuePair<StatType, PlayerTrait> pair in statManager.Traits)
@@ -323,6 +262,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private void Rebuild(List<PlayerTrait> orderedTraits)
     {
+        // 현재 테이블 기준으로 그룹과 노드를 모두 다시 생성합니다.
         ClearContentRoot();
         tierRuntimes.Clear();
 
@@ -359,6 +299,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private void ClearContentRoot()
     {
+        // 이전에 생성한 런타임 UI를 모두 제거합니다.
         if (contentRoot == null)
             return;
 
@@ -375,6 +316,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private TierRuntime CreateTierRuntime(int tierNumber, string tierLabel)
     {
+        // 티어 그룹 프리팹을 생성하고 그룹 UI를 묶어 둡니다.
         GameObject groupObject = Instantiate(groupPrefab, contentRoot, false);
         if (groupObject == null)
             return null;
@@ -384,7 +326,7 @@ public class TraitContentsUIController : UIControllerBase
         TraitGroupItemUI groupUI = groupObject.GetComponent<TraitGroupItemUI>();
         if (groupUI == null)
         {
-            Debug.LogWarning("[TraitContentsUIController] Trait group prefab requires TraitGroupItemUI.");
+            Debug.LogWarning("[TraitContentsUIController] 특성 그룹 프리팹에 TraitGroupItemUI가 필요합니다.");
             Destroy(groupObject);
             return null;
         }
@@ -401,6 +343,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private TraitRuntime CreateTraitRuntime(TierRuntime tierRuntime, PlayerTrait trait)
     {
+        // 각 특성 노드 프리팹을 생성하고 클릭 시 팝업이 열리도록 연결합니다.
         if (tierRuntime.GroupUI == null || tierRuntime.GroupUI.ButtonRoot == null)
             return null;
 
@@ -413,7 +356,7 @@ public class TraitContentsUIController : UIControllerBase
         TraitNodeItemUI itemUI = itemObject.GetComponent<TraitNodeItemUI>();
         if (itemUI == null)
         {
-            Debug.LogWarning("[TraitContentsUIController] Trait item prefab requires TraitNodeItemUI.");
+            Debug.LogWarning("[TraitContentsUIController] 특성 노드 프리팹에 TraitNodeItemUI가 필요합니다.");
             Destroy(itemObject);
             return null;
         }
@@ -439,6 +382,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private void RefreshAll()
     {
+        // 포인트, 티어 상태, 노드 상태, 팝업 상태를 한 번에 갱신합니다.
         if (!isBuilt || currencyModule == null)
             return;
 
@@ -474,6 +418,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private void RefreshTierHeader(TierRuntime tierRuntime, bool tierUnlocked, bool tierMastered)
     {
+        // 티어 잠금 여부와 마스터 여부에 따라 헤더 상태를 바꿉니다.
         if (tierRuntime == null || tierRuntime.GroupUI == null)
             return;
 
@@ -497,6 +442,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private void RefreshTraitItem(TraitRuntime traitRuntime, bool tierUnlocked, BigDouble points)
     {
+        // 노드마다 잠금, 만렙, 강화 가능 상태를 색과 텍스트에 반영합니다.
         if (traitRuntime == null || traitRuntime.Trait == null || traitRuntime.ItemUI == null)
             return;
 
@@ -516,6 +462,7 @@ public class TraitContentsUIController : UIControllerBase
                 : lockedAccent;
 
         if (itemUI.Button != null)
+            // 노드 선택은 항상 가능해야 하므로 버튼은 막지 않습니다.
             itemUI.Button.interactable = true;
 
         if (itemUI.AmountText != null)
@@ -541,15 +488,15 @@ public class TraitContentsUIController : UIControllerBase
 
     private void OpenTraitPopup(PlayerTrait trait)
     {
+        // 선택한 특성을 팝업에 표시합니다.
         if (trait == null || !TryPrepareRuntime())
             return;
 
-        AutoBindPopup();
-        if (!popupRuntime.HasCoreBindings)
+        if (!HasPopupBindings)
         {
             if (!missingPopupBindingsLogged)
             {
-                Debug.LogWarning("[TraitContentsUIController] Missing TraitInfo popup bindings in StageScene.");
+                Debug.LogWarning("[TraitContentsUIController] TraitInfo 팝업 바인딩이 비어 있습니다. 인스펙터의 팝업 참조를 확인해 주세요.");
                 missingPopupBindingsLogged = true;
             }
 
@@ -557,24 +504,43 @@ public class TraitContentsUIController : UIControllerBase
         }
 
         selectedTrait = trait;
-        popupRuntime.Show();
+        ShowTraitPopup();
         RefreshTraitPopup(currencyModule.GetAmount(CurrencyType.TraitPoint));
+    }
+
+    private void ShowTraitPopup()
+    {
+        if (popupRootObject == null)
+            return;
+
+        popupRootObject.SetActive(true);
+        popupRootObject.transform.SetAsLastSibling();
+    }
+
+    private void HideTraitPopup()
+    {
+        if (popupRootObject == null)
+            return;
+
+        popupRootObject.SetActive(false);
     }
 
     private void CloseTraitPopup()
     {
+        // 팝업을 닫을 때 선택 상태도 함께 해제합니다.
         selectedTrait = null;
-        popupRuntime.Hide();
+        HideTraitPopup();
     }
 
     private void RefreshTraitPopup(BigDouble points)
     {
-        if (!popupRuntime.HasCoreBindings)
+        // 현재 선택된 특성 기준으로 팝업 내용을 다시 그립니다.
+        if (!HasPopupBindings)
             return;
 
         if (selectedTrait == null)
         {
-            popupRuntime.Hide();
+            HideTraitPopup();
             return;
         }
 
@@ -583,61 +549,58 @@ public class TraitContentsUIController : UIControllerBase
         bool hasEnoughPoints = points >= new BigDouble(selectedTrait.DecreasePoint);
         bool canUpgrade = tierUnlocked && !isMaxed && hasEnoughPoints;
 
-        float beforeStat = statManager != null
-            ? statManager.GetPreviewFinalStat(selectedTrait.statType, 0f)
-            : 0f;
-        float afterStat = statManager != null
-            ? statManager.GetPreviewFinalStat(selectedTrait.statType, isMaxed ? 0f : selectedTrait.StatUP)
-            : beforeStat;
+        float beforeStat = statManager.GetPreviewFinalStat(selectedTrait.statType, 0f);
+        float afterStat = statManager.GetPreviewFinalStat(selectedTrait.statType, isMaxed ? 0f : selectedTrait.StatUP);
 
         Sprite icon = ResolveTraitIcon(selectedTrait);
         if (icon != null)
         {
-            if (popupRuntime.StatIconImage != null)
-                popupRuntime.StatIconImage.sprite = icon;
+            if (popupStatIconImage != null)
+                popupStatIconImage.sprite = icon;
 
-            if (popupRuntime.GrowthIconImage != null)
-                popupRuntime.GrowthIconImage.sprite = icon;
+            if (popupGrowthIconImage != null)
+                popupGrowthIconImage.sprite = icon;
         }
 
-        if (popupRuntime.StatText != null)
-            popupRuntime.StatText.text = BuildPopupTitle(selectedTrait);
+        if (popupStatText != null)
+            popupStatText.text = BuildPopupTitle(selectedTrait);
 
-        if (popupRuntime.BeforeStatText != null)
+        if (popupBeforeStatText != null)
         {
-            popupRuntime.BeforeStatText.text = FormatStatValue(beforeStat, selectedTrait.statType);
-            popupRuntime.BeforeStatText.color = DisabledTextColor;
+            popupBeforeStatText.text = FormatStatValue(beforeStat, selectedTrait.statType);
+            popupBeforeStatText.color = DisabledTextColor;
         }
 
-        if (popupRuntime.AfterStatText != null)
+        if (popupAfterStatText != null)
         {
-            popupRuntime.AfterStatText.text = isMaxed ? "MAX" : FormatStatValue(afterStat, selectedTrait.statType);
-            popupRuntime.AfterStatText.color = isMaxed ? maxedAccent : Color.white;
+            popupAfterStatText.text = isMaxed ? "MAX" : FormatStatValue(afterStat, selectedTrait.statType);
+            popupAfterStatText.color = isMaxed ? maxedAccent : Color.white;
         }
 
-        if (popupRuntime.RequirePointText != null)
+        if (popupRequirePointText != null)
         {
-            popupRuntime.RequirePointText.text = selectedTrait.DecreasePoint.ToString(CultureInfo.InvariantCulture);
-            popupRuntime.RequirePointText.color = hasEnoughPoints ? Color.white : lockedAccent;
+            popupRequirePointText.text = selectedTrait.DecreasePoint.ToString(CultureInfo.InvariantCulture);
+            popupRequirePointText.color = hasEnoughPoints ? Color.white : lockedAccent;
         }
 
-        if (popupRuntime.GrowthText != null)
+        if (popupGrowthText != null)
         {
-            popupRuntime.GrowthText.text = isMaxed ? "MAX" : FormatSignedStatValue(selectedTrait.StatUP, selectedTrait.statType);
-            popupRuntime.GrowthText.color = isMaxed ? maxedAccent : tierUnlocked ? Color.white : DisabledTextColor;
+            popupGrowthText.text = isMaxed ? "MAX" : FormatSignedStatValue(selectedTrait.StatUP, selectedTrait.statType);
+            popupGrowthText.color = isMaxed ? maxedAccent : tierUnlocked ? Color.white : DisabledTextColor;
         }
 
-        if (popupRuntime.UpgradeButton != null)
-            popupRuntime.UpgradeButton.interactable = canUpgrade;
+        if (popupUpgradeButton != null)
+            popupUpgradeButton.interactable = canUpgrade;
 
-        if (popupRuntime.UpgradeButtonImage != null)
-            popupRuntime.UpgradeButtonImage.color = canUpgrade ? Color.white : PopupLockedTint;
+        if (popupUpgradeButtonImage != null)
+            popupUpgradeButtonImage.color = canUpgrade ? Color.white : PopupLockedTint;
 
-        popupRuntime.Show();
+        ShowTraitPopup();
     }
 
     private void OnPopupUpgradeClicked()
     {
+        // 팝업의 성장 버튼은 현재 선택된 특성만 강화합니다.
         if (selectedTrait == null)
             return;
 
@@ -646,6 +609,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private void TryUpgradeTrait(PlayerTrait trait)
     {
+        // 해금 조건, 만렙 여부, 포인트를 확인한 뒤 실제 강화 로직을 호출합니다.
         if (trait == null || !TryPrepareRuntime())
             return;
 
@@ -666,6 +630,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private bool IsTierUnlocked(int tierNumber)
     {
+        // 이전 티어가 모두 마스터된 경우에만 다음 티어를 엽니다.
         for (int i = 0; i < tierRuntimes.Count; i++)
         {
             TierRuntime tierRuntime = tierRuntimes[i];
@@ -681,6 +646,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private bool IsTierMastered(TierRuntime tierRuntime)
     {
+        // 티어 안의 모든 특성이 만렙이어야 마스터로 판정합니다.
         if (tierRuntime == null || tierRuntime.Items.Count == 0)
             return false;
 
@@ -699,6 +665,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private Sprite ResolveTraitIcon(PlayerTrait trait)
     {
+        // 인스펙터 매핑이 없으면 현재 노드에 붙은 아이콘을 그대로 사용합니다.
         if (trait == null)
             return null;
 
@@ -733,6 +700,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private void OnCurrencyChanged(CurrencyType type, BigDouble amount)
     {
+        // 특성 포인트가 바뀌면 전체 상태를 다시 갱신합니다.
         if (type != CurrencyType.TraitPoint)
             return;
 
@@ -741,6 +709,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private void OnTraitUpdated(int traitId, int currentLevel, int maxLevel)
     {
+        // 특성 레벨이 바뀌면 리스트와 팝업을 함께 갱신합니다.
         RefreshAll();
     }
 
@@ -794,6 +763,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private static string FormatStatValue(float value, StatType statType)
     {
+        // 퍼센트형 스탯은 보기 좋은 형태로 변환합니다.
         float displayValue = StatGroups.MultTypes.Contains(statType) ? value * 100f : value;
         string number = displayValue.ToString("0.##", CultureInfo.InvariantCulture);
         return StatGroups.MultTypes.Contains(statType) ? number + "%" : number;
@@ -809,6 +779,7 @@ public class TraitContentsUIController : UIControllerBase
 
     private string BuildPopupTitle(PlayerTrait trait)
     {
+        // 팝업 상단에는 현재 레벨과 누적 특성 수치를 함께 표시합니다.
         string statName = GetPopupStatName(trait);
         string currentValue = FormatSignedStatValue(trait.CurrentStat, trait.statType);
         return string.Format(
@@ -832,105 +803,5 @@ public class TraitContentsUIController : UIControllerBase
             return trait.TraitName;
 
         return trait.statType.ToString();
-    }
-
-    private static Transform FindTraitPopupRoot(Transform searchRoot)
-    {
-        Transform popupRoot = FindTraitPopupRootIn(searchRoot);
-        if (popupRoot != null)
-            return popupRoot;
-
-        Transform[] sceneTransforms = FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        return FindTraitPopupRootIn(sceneTransforms);
-    }
-
-    private static Transform FindTraitPopupRootIn(Transform searchRoot)
-    {
-        if (searchRoot == null)
-            return null;
-
-        return FindTraitPopupRootIn(searchRoot.GetComponentsInChildren<Transform>(true));
-    }
-
-    private static Transform FindTraitPopupRootIn(Transform[] transforms)
-    {
-        if (transforms == null)
-            return null;
-
-        for (int i = 0; i < transforms.Length; i++)
-        {
-            Transform current = transforms[i];
-            if (current == null || current.name != "(Panel)TraitInfo")
-                continue;
-
-            if (FindDirectChild(current, "(Panel)Background") == null)
-                continue;
-
-            if (FindPopupCard(current, FindDirectChild(current, "(Panel)Background")) != null)
-                return current;
-        }
-
-        return null;
-    }
-
-    private static Transform FindPopupCard(Transform popupRoot, Transform background)
-    {
-        if (popupRoot == null)
-            return null;
-
-        for (int i = 0; i < popupRoot.childCount; i++)
-        {
-            Transform child = popupRoot.GetChild(i);
-            if (child == null || child == background)
-                continue;
-
-            if (child.name == "(Panel)TraitInfo")
-                return child;
-        }
-
-        return null;
-    }
-
-    private static Transform FindDirectChild(Transform parent, string childName)
-    {
-        if (parent == null || string.IsNullOrEmpty(childName))
-            return null;
-
-        for (int i = 0; i < parent.childCount; i++)
-        {
-            Transform child = parent.GetChild(i);
-            if (child != null && child.name == childName)
-                return child;
-        }
-
-        return null;
-    }
-
-    private static Transform FindDescendantByName(Transform parent, string childName)
-    {
-        if (parent == null || string.IsNullOrEmpty(childName))
-            return null;
-
-        Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
-        for (int i = 0; i < transforms.Length; i++)
-        {
-            Transform current = transforms[i];
-            if (current != null && current.name == childName)
-                return current;
-        }
-
-        return null;
-    }
-
-    private static TextMeshProUGUI GetTextComponent(Transform parent, string childName)
-    {
-        Transform child = FindDescendantByName(parent, childName);
-        return child != null ? child.GetComponent<TextMeshProUGUI>() : null;
-    }
-
-    private static Image GetImageComponent(Transform parent, string childName)
-    {
-        Transform child = FindDescendantByName(parent, childName);
-        return child != null ? child.GetComponent<Image>() : null;
     }
 }
