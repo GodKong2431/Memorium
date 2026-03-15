@@ -229,6 +229,49 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         return baseValue;
     }
 
+    public float GetPreviewFinalStat(StatType statType, float additionalTraitValue = 0f)
+    {
+        if (statType == StatType.None)
+            return 0f;
+
+        float baseStatValue = BaseStat != null && BaseStat.baseStatValues.TryGetValue(statType, out var baseValue) ? baseValue : 0f;
+        float upgradeStatValue = Upgrades.TryGetValue(statType, out var upgrade) ? upgrade?.Stat ?? 0f : 0f;
+        float levelBonusValue = LevelBonus != null && LevelBonus.BonusValues.TryGetValue(statType, out var levelValue) ? levelValue : 0f;
+
+        float traitStatValue = 0f;
+        if (Traits.TryGetValue(statType, out var trait) && trait != null)
+            traitStatValue = trait.CurrentStat;
+
+        float equipStatValue = PlayerSlot != null ? PlayerSlot.GetStat(statType) : 0f;
+
+        float abilityStoneStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
+            ? AbilityStoneManager.Instance.GetStat(statType)
+            : 0f;
+        float abilityStoneBonusStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
+            ? AbilityStoneManager.Instance.GetBonusStat(statType)
+            : 0f;
+        float bingoSynergyStat = BingoBoard.Instance != null && BingoBoard.Instance.LoadBingo
+            ? BingoBoard.Instance.GetSynergyStat(statType)
+            : 0f;
+
+        float previewValue =
+            (baseStatValue + upgradeStatValue + levelBonusValue + traitStatValue + additionalTraitValue + equipStatValue + abilityStoneStat) *
+            (1 + abilityStoneBonusStat + bingoSynergyStat);
+
+        if (isBerserker && BerserkerModeController.Instance != null)
+        {
+            float berserkerValue = BerserkerModeController.Instance._berserkModeSo.BserserkMultStatSo.TryGetValue(statType, out var value) ? value : 1f;
+            previewValue *= berserkerValue;
+        }
+
+        previewValue = ApplyBerserkerMultiplier(statType, previewValue);
+
+        if (_playerEffectController != null)
+            previewValue = _playerEffectController.GetModifiedStat(statType, previewValue);
+
+        return previewValue;
+    }
+
     public void AllStatUpdate()
     {
         foreach (StatType statType in Enum.GetValues(typeof(StatType)))
@@ -242,10 +285,16 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         statUpgrade.Upgrade();
     }
 
-    public void TraitUpgrade(PlayerTrait playerTrait)
+    public bool TraitUpgrade(PlayerTrait playerTrait)
     {
-        playerTrait.Upgrade();
+        if (playerTrait == null)
+            return false;
+
+        if (!playerTrait.Upgrade())
+            return false;
+
         TraitUpdate?.Invoke(playerTrait.ID, playerTrait.CurrentLevel, playerTrait.MaxLevel);
+        return true;
     }
 
     public PlayerTrait GetTrait(StatType playerStatType)
