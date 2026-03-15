@@ -13,4 +13,9 @@ public class SkillPreset
         for (int i = 0; i < SLOT_COUNT; i++)
             slots[i] = new SkillPresetSlot();
     }
+
+    public SkillPreset(SkillPresetSlot[] slots)
+    {
+        this.slots = slots;
+    }
 }

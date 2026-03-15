@@ -21,13 +21,30 @@ public sealed class SkillInventoryModule : IInventoryModule
 
     public int CurrentPresetIndex => presetHandler.CurrentPresetIndex; // 현재 선택된 프리셋 인덱스.
 
+
+    
     public SkillInventoryModule()
     {
+        InventoryManager.Instance.saveSkillData = JSONService.Load<SaveSkillData>();
+        InventoryManager.Instance.saveSkillData.InitSkillData();
+
+        //for (int i = 0; i < PresetCount; i++)
+        //    presets[i] = new SkillPreset();
         for (int i = 0; i < PresetCount; i++)
-            presets[i] = new SkillPreset();
+            presets[i] = InventoryManager.Instance.saveSkillData.LoadSkillPreset(i);
 
         mergeHandler = new SkillMergeHandler(skillDataById);
         presetHandler = new SkillPresetHandler(skillDataById, presets);
+
+        OnPresetChanged += (ctx) => { InventoryManager.Instance.saveSkillData.SaveSkillPreset(ctx, GetPreset(ctx)); };
+        for (int i = 0; i < PresetCount; i++)
+        {
+            SwitchPreset(i);
+            for (int j = 0; i < InventoryManager.Instance.saveSkillData.SkillCountByPreset; i++)
+            {
+                SetPresetSlot(j, presets[i].slots[j].skillID);
+            }
+        }
     }
 
     #region IInventoryModule
