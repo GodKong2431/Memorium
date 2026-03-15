@@ -12,4 +12,5 @@ public class EnemyStatData
     public float monsterAttackspeed;
     public float monsterSpeed;
     public float attackRange;
+    public float monsterDefense;
 }

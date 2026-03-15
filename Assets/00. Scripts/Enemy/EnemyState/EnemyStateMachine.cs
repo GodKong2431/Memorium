@@ -12,7 +12,7 @@ using static UnityEngine.GraphicsBuffer;
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyStatPresenter))]
 [RequireComponent(typeof(EffectController))]
-public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageable
+public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageable,IKnockbackable
 {
     [Header("플레이어 참조 설정")]
     [SerializeField][Tooltip("추적할 플레이어. 비워두면 'Player' 태그를 가진 오브젝트를 자동 검색합니다.")]
@@ -178,10 +178,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     /// <summary>
     /// 외부(플레이어 공격 등)에서 피격 시 호출. 데미지 적용 후 Onhit 상태로 전환
     /// </summary>
-    public void TakeDamage(float damage, DamageType type= DamageType.Physical)
+    public void TakeDamage(float damage, DamageType type = DamageType.Physical)
     {
         if (!IsAlive) return;
-        _ctx.TakeDamage(damage);
+        _ctx.TakeDamage(damage,type);
 
         if (_ctx.CurrentHealth <= 0f)
         {
@@ -193,6 +193,29 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             ChangeState(EnemyStateType.Onhit);
         else if (_currentType != EnemyStateType.Onhit && _currentType != EnemyStateType.Dead)
             ChangeState(EnemyStateType.Onhit);
+    }
+
+    /// <summary>
+    /// 외부에서 넉백 또는 당기기시 호출
+    /// </summary>
+    /// <param name="direction"></param>
+    /// <param name="distance"></param>
+    /// <param name="duration"></param>
+    public void ApplyKnockback(Vector3 direction, float distance, float duration)
+    {
+        if (!IsAlive) return;
+
+        _ctx.PendingKnockback = new KnockbackInfo
+        {
+            direction = direction,
+            distance = distance,
+            duration = duration
+        };
+
+        if (_currentType != EnemyStateType.Onhit && _currentType != EnemyStateType.Dead)
+        {
+            ChangeState(EnemyStateType.Onhit);
+        }
     }
 
     /// <summary>

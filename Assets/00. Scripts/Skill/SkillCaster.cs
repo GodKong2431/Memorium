@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -50,7 +50,6 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     {
         agent = GetComponent<NavMeshAgent>();
     }
-
     public void SetPosition(Vector3 position)
     {
         if (position == transform.position) return;

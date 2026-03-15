@@ -6,12 +6,16 @@ public class AddonPull : ISkillHitAddon
     {
         Transform casterTransform = caster.transform;
 
-        Vector3 Direction = (casterTransform.position - target.transform.position);
-        Direction.y = 0; 
-        Direction = Direction.normalized;
+        Vector3 direction = (casterTransform.position - target.transform.position);
+        direction.y = 0; 
+        direction = direction.normalized;
 
-        float force = dataContext.m4Data.m4Distance;
+        float distance = dataContext.m4Data.m4Distance;
+        float duration = dataContext.m4Data.m4Duration;
 
-        target.transform.Translate(Direction * force, Space.World);
+        if (target.TryGetComponent<IKnockbackable>(out var damageable))
+        {
+            damageable.ApplyKnockback(direction, distance, duration);
+        }
     }
 }

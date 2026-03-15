@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+using UnityEngine;
 public class AddonImpact : ISkillHitAddon
 {
     public void OnHit(ISkillHitHandler owner, Transform target, SkillDataContext dataContext, LayerMask targetLayer, GameObject prefab = null)

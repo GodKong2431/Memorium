@@ -10,8 +10,12 @@ public class AddonPush : ISkillHitAddon
         direction.y = 0;
         direction = direction.normalized;
 
-        float force = dataContext.m4Data.m4Distance;
+        float distance = dataContext.m4Data.m4Distance;
+        float duration = dataContext.m4Data.m4Duration;
 
-        target.transform.Translate(direction * force, Space.World);
+        if (target.TryGetComponent<IKnockbackable>(out var damageable))
+        {
+            damageable.ApplyKnockback(direction, distance, duration);
+        }
     }
 }

@@ -35,7 +35,8 @@ public static class MonsterDataProvider
             monsterAttackpoint = table.attackPoint,
             monsterAttackspeed = table.attackSpeed,
             monsterSpeed = table.speed,
-            attackRange = table.attackRange
+            attackRange = table.attackRange,
+            monsterDefense = table.baseDef,
         };
     }
 

@@ -38,8 +38,8 @@ public class EnemyStateContext
     public float BaseAttackPoint => StatPresenter?.Data?.monsterAttackpoint ?? 10f;
     public float BaseAttackSpeed => StatPresenter?.Data?.monsterAttackspeed ?? 1f;
     public float BaseMoveSpeed => StatPresenter?.Data?.monsterSpeed ?? 3f;
-    // public float BaseDefense => StatPresenter?.Data?.monsterDefense ?? 0f; // 방어력 추가 시
-
+   public float BaseDefense => StatPresenter?.Data?.monsterDefense ?? 0f; // 방어력 추가 시
+    public KnockbackInfo? PendingKnockback { get; set; }
     // 디버프 반영 최종값
 
     /// <summary>
@@ -57,10 +57,10 @@ public class EnemyStateContext
     /// </summary>
     public float MoveSpeed => GetModifiedStat(StatType.MOVE_SPEED, BaseMoveSpeed);
 
-    ///// <summary>
-    ///// 버프/디버프 적용된 방어력. 방어력 추가 시
-    ///// <summary>
-    //public float Defense => GetModifiedStat(StatType.PHYS_DEF, BaseDefense); // 방어력 추가 시
+    /// <summary>
+    /// 버프/디버프 적용된 방어력
+    /// <summary>
+    public float Defense => GetModifiedStat(StatType.PHYS_DEF, BaseDefense);
 
     /// <summary>StatPresenter.IsBoss 또는 인스펙터 isBoss 중 하나라도 true면 보스. (인스펙터 명시적 설정 우선)</summary>
     private bool _isBossFallback;
@@ -105,18 +105,18 @@ public class EnemyStateContext
     /// <summary>
     /// 피격 시 호출. 데미지 적용 후 Onhit 상태로 전환할지 등은 StateMachine에서 처리
     /// </summary>
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, DamageType type = DamageType.Physical)
     {
         //Debug.Log($"[EnemyStateContext] TakeDamage: {damage}");
 
-
-        //float def = Defense;
-        //TO DO:방어력 추가 되면 데미지 계산식에 방어력 적용
-
-
-        CurrentHealth -= damage;
+        if (type == DamageType.FixedPercentageDamage)
+        {
+            CurrentHealth -= CurrentHealth * (damage * 0.01f);
+            return;
+        }
+        damage = Mathf.Max(0f, damage - Defense);
+        CurrentHealth -= (damage);
     }
-
     /// <summary>
     /// 플레이어가 존재하고 살아있는지. (PlayerHealth 등 체력 컴포넌트가 있으면 해당 로직으로 확장 가능)
     /// </summary>
