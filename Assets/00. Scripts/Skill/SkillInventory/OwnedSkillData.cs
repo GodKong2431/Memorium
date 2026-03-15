@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 [System.Serializable]
 public class OwnedSkillData
@@ -7,8 +9,17 @@ public class OwnedSkillData
     public int level;
     public List<int> gradeCountMap = new List<int>(new int[(int)SkillGrade.Count]);
 
+    public void SetCount(SkillGrade grade, int count)
+    {
+        Debug.Log($"[OwnedSkillData] 가져올 등급 {(int)grade} 리스트 크기 {gradeCountMap.Count}");
+        gradeCountMap[(int)grade]=count;
+    }
     public int GetCount(SkillGrade grade)
     {
+        //값의 범위를 벗어날 경우
+        if ((int)grade < 0 || (int)grade >= gradeCountMap.Count)
+            return 0;
+
         return gradeCountMap[(int)grade];
     }
 

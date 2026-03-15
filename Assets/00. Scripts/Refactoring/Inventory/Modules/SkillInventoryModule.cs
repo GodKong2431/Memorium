@@ -15,6 +15,7 @@ public sealed class SkillInventoryModule : IInventoryModule
     private bool isScrollMapReady; // 스크롤 매핑 초기화 여부.
 
     public event Action OnInventoryChanged; // 스킬 인벤토리 변경 이벤트.
+    public event Action<OwnedSkillData> OnInventoryChagedByData; // 스킬 인벤토리 변경 이벤트(데이터를 매개변수로 함)
     public event Action<int> OnPresetChanged; // 프리셋 변경 이벤트.
     
     public int GetPresstNum => presets.Length;
@@ -36,7 +37,12 @@ public sealed class SkillInventoryModule : IInventoryModule
         mergeHandler = new SkillMergeHandler(skillDataById);
         presetHandler = new SkillPresetHandler(skillDataById, presets);
 
-        OnPresetChanged += (ctx) => { InventoryManager.Instance.saveSkillData.SaveSkillPreset(ctx, GetPreset(ctx)); };
+        //프리셋 데이터 혹은 프리셋 변경 시 이벤트
+        OnPresetChanged += (ctx) => { 
+            InventoryManager.Instance.saveSkillData.SaveSkillPreset(ctx, GetPreset(ctx));
+        };
+
+        //프리셋에 저장된 데이터 불러오기
         for (int i = 0; i < PresetCount; i++)
         {
             SwitchPreset(i);
@@ -45,6 +51,23 @@ public sealed class SkillInventoryModule : IInventoryModule
                 SetPresetSlot(j, presets[i].slots[j].skillID);
             }
         }
+
+
+        List<OwnedSkillData> ownedSkillDatas = InventoryManager.Instance.saveSkillData.LoadSkillData();
+        if (ownedSkillDatas.Count > 0)
+        {
+            foreach (OwnedSkillData data in ownedSkillDatas)
+            {
+                skillDataById[data.skillID] = data;
+            }
+        }
+
+        OnPresetChanged += InventoryManager.Instance.saveSkillData.SavePresetNum;
+        //저장된 프리셋 번호 불러오기
+        SwitchPreset(InventoryManager.Instance.saveSkillData.SavedPresetNum);
+
+        OnInventoryChagedByData += InventoryManager.Instance.saveSkillData.SaveSkillInfoData;
+        OnInventoryChanged?.Invoke();
     }
 
     #region IInventoryModule
@@ -63,12 +86,14 @@ public sealed class SkillInventoryModule : IInventoryModule
         if (!TryConvertAmountToInt(amount, out int count))
             return false;
 
+        int skillIdData = 0;
         for (int i = 0; i < count; i++)
         {
             if (!TryGetRandomSkillIdByScroll(item.ItemId, out int skillId))
                 return false;
 
             AddSkill(skillId, SkillGrade.Scroll, 1, notify: false);
+            skillIdData = skillId;
         }
 
         OnInventoryChanged?.Invoke();
@@ -119,6 +144,8 @@ public sealed class SkillInventoryModule : IInventoryModule
         data.AddCount(grade, amount);
         if (notify)
             OnInventoryChanged?.Invoke();
+        OnInventoryChagedByData?.Invoke(skillDataById[skillId]);
+
     }
 
     // 스킬 레벨업에 필요한 골드 비용을 계산한다.
@@ -147,8 +174,10 @@ public sealed class SkillInventoryModule : IInventoryModule
 
         data.level++;
         if (notify)
+        { 
             OnInventoryChanged?.Invoke();
-
+            OnInventoryChagedByData?.Invoke(skillDataById[skillId]);
+        }
         return true;
     }
 

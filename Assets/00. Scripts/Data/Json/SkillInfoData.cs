@@ -8,7 +8,49 @@ public struct SkillInfoData
 {
     public int skillId;
     public int skillLevel;
-    public int skillGrade;
+    public List<SkillGradeData> gradeData;
+
+    public SkillInfoData(int skillId, int skillLevel=0)
+    {
+        this.skillId = skillId;
+        this.skillLevel = skillLevel;
+        gradeData = new List<SkillGradeData>();
+        foreach (SkillGrade grade in Enum.GetValues(typeof(SkillGrade)))
+        {
+            gradeData.Add(new SkillGradeData(grade));
+        }
+    }
+
+    public int FindGradeIndex(int grade)
+    {
+        int index = gradeData.FindIndex
+            (x => x.grade == grade);
+        if (index == -1)
+        {
+            gradeData.Add(new SkillGradeData((SkillGrade) grade));
+            index = gradeData.Count - 1;
+        }
+        return index;
+    }
+}
+
+[Serializable]
+public struct SkillGradeData
+{
+    public int grade;
+    public int count;
+
+    public SkillGradeData(SkillGrade grade)
+    {
+        this.grade = (int)grade;
+        count = 0;
+    }
+
+    public void SetCount(int count)
+    {
+        this.count = count;
+    }
+
 }
 
 [Serializable]

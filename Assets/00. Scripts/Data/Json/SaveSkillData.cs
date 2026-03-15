@@ -19,6 +19,10 @@ public class SaveSkillData :ISaveData
 
     public List<SkillPresetData> skillPresetData;
 
+    public int presetNum = 0;
+    int savedPresetNum = 0;
+    public int SavedPresetNum=>savedPresetNum;
+
     //변경 여부 체크
     private bool isDirty = false;
     public bool IsDirty => isDirty;
@@ -26,8 +30,17 @@ public class SaveSkillData :ISaveData
 
     public int SkillCountByPreset => skillCountByPreset;
 
+    //List<SkillGrade> skillGrades= new List<SkillGrade>();
+    Dictionary<int, SkillGrade> skillGrades = new Dictionary<int, SkillGrade>();
     public void InitSkillData()
     {
+        savedPresetNum=presetNum;
+
+        foreach (SkillGrade grade in Enum.GetValues(typeof(SkillGrade)))
+        {
+            skillGrades[(int)grade]=grade;
+        }
+
         Debug.Log("[SaveSkillData] 데이터 초기 설정 시작");
         if (skillInfoData == null)
         {
@@ -106,6 +119,70 @@ public class SaveSkillData :ISaveData
             Debug.Log($"[SaveSkillData] {index} 번 프리셋 {i}번 스킬 저장 완료");
         }
 
+        isDirty = true;
+    }
+
+    public void SaveSkillInfoData(OwnedSkillData skillData)
+    {
+        int index = skillInfoData.FindIndex
+            (x => x.skillId == skillData.skillID);
+        if (index == -1)
+        {
+            skillInfoData.Add(new SkillInfoData(skillData.skillID));
+            index = skillInfoData.Count - 1;
+        }
+
+        SkillInfoData infoData = skillInfoData[index];
+
+        infoData.skillLevel = skillData.level;
+
+        foreach (SkillGrade grade in skillGrades.Values)
+        {
+            int gradeIndex = infoData.FindGradeIndex((int)grade);
+            SkillGradeData gradeData = infoData.gradeData[gradeIndex];
+            gradeData.count = skillData.GetCount(grade);
+            infoData.gradeData[gradeIndex] = gradeData;
+        }
+        skillInfoData[index] = infoData;
+
+        isDirty = true;
+    }
+
+    public List<OwnedSkillData> LoadSkillData()
+    {
+        List<OwnedSkillData> ownedSkillDatas = new List<OwnedSkillData>();
+
+        if (skillInfoData == null || skillInfoData.Count == 0)
+            return ownedSkillDatas;
+
+
+        foreach (SkillInfoData infoData in skillInfoData)
+        {
+            OwnedSkillData ownedSkillData = new OwnedSkillData();
+
+            ownedSkillData.skillID = infoData.skillId;
+            ownedSkillData.level = infoData.skillLevel;
+
+            if (infoData.gradeData == null)
+                continue;
+
+            foreach (SkillGradeData gradeData in infoData.gradeData)
+            {
+                //스크롤 갯수 추가는 CurrencyManager에서 관리하므로 스크롤 제외한 값을 넣는다
+                if ((SkillGrade)gradeData.grade == SkillGrade.Scroll)
+                    continue;
+                if ((SkillGrade)gradeData.grade == SkillGrade.Count)
+                    continue;
+                ownedSkillData.SetCount((SkillGrade)gradeData.grade, gradeData.count);
+            }
+            ownedSkillDatas.Add(ownedSkillData);
+        }
+        return ownedSkillDatas;
+    }
+
+    public void SavePresetNum(int presetNum)
+    {
+        this.presetNum=presetNum;
         isDirty = true;
     }
 
