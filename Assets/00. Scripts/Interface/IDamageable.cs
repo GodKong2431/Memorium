@@ -7,3 +7,8 @@ public interface IDamageable
    bool IsAlive { get; }
    bool isMoving { get; }
 }
+
+public interface IKnockbackable
+{
+    void ApplyKnockback(Vector3 direction, float distance, float duration);
+}
