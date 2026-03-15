@@ -29,7 +29,8 @@ public class PlayerStatUpgradeUIController : UIControllerBase
     [Header("Color")]
     [SerializeField] private Color consumeCurrencyCanAffordColor = Color.white;
     [SerializeField] private Color consumeCurrencyLackColor = Color.red;
-
+    [SerializeField] private StatIconSO statIconSO;
+    
     private readonly Dictionary<StatType, PlayerStatUpgradeItemView> itemViewByStat = new Dictionary<StatType, PlayerStatUpgradeItemView>();
     private readonly Dictionary<StatType, Sprite> iconByStat = new Dictionary<StatType, Sprite>();
 
@@ -212,7 +213,8 @@ public class PlayerStatUpgradeUIController : UIControllerBase
 
     private Sprite GetIcon(StatType statType)
     {
-        return iconByStat.TryGetValue(statType, out Sprite icon) ? icon : null;
+        if (statIconSO == null) return null;
+        return statIconSO.StatIconDict.TryGetValue(statType, out Sprite icon) ? icon : null;
     }
 
     private static string FormatCurrentStatText(StatType statType, float statValue)
