@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PixieSpawner : MonoBehaviour
 {
-    [SerializeField]private PixieFollower pixiePrefab;
+    [SerializeField] private GameObject pixiePrefab;
 
     private PixieFollower spawnedPixie;
     private OwnedPixieData fairyData;
@@ -11,21 +11,7 @@ public class PixieSpawner : MonoBehaviour
     PlayerStateMachine playerStateMachine;
     EffectController effectController;
 
-    public Transform SpawnedPixie
-    {
-        get 
-        {
-            if (spawnedPixie == null)
-            {
-                return null;
-            }
-            else
-            {
-                return spawnedPixie.transform;
-            }
-        }
-    }
-
+    public Transform SpawnedPixie => spawnedPixie != null ? spawnedPixie.transform : null;
     public bool IsSpawned =>spawnedPixie != null && spawnedPixie.gameObject.activeSelf;
 
     private void Awake()
@@ -55,6 +41,21 @@ public class PixieSpawner : MonoBehaviour
         }
         Despawn();
     }
+    private GameObject GetPrefab(int fairyID)
+    {
+        if (!DataManager.Instance.FairyInfoDict.TryGetValue(fairyID, out var info)
+            || string.IsNullOrEmpty(info.prefabPath))
+            return pixiePrefab;
+
+        var prefab = Resources.Load<GameObject>(info.prefabPath);
+        if (prefab == null)
+        {
+            Debug.LogWarning($"[PixieSpawner] 로드 실패: {info.prefabPath}, fallback 사용");
+            return pixiePrefab;
+        }
+        return prefab;
+    }
+
     public void SpawnPixie(int pixieID)
     {
         var module = InventoryManager.Instance.GetModule<PixieInventoryModule>();
@@ -73,9 +74,20 @@ public class PixieSpawner : MonoBehaviour
         fairyData = data;
 
         if (playerStateMachine == null || effectController == null) return;
-        if (spawnedPixie == null)
-            spawnedPixie = Instantiate(pixiePrefab, transform.position, Quaternion.identity);
-        
+
+
+        if (spawnedPixie != null)
+        {
+            Destroy(spawnedPixie.gameObject);
+            spawnedPixie = null;
+        }
+
+        var prefab = GetPrefab(data.pixieId);
+        if (prefab == null) return;
+
+        spawnedPixie = Instantiate(prefab, transform.position, Quaternion.identity)
+            .GetComponent<PixieFollower>();
+
         spawnedPixie.gameObject.SetActive(true);
         spawnedPixie.Init(transform, data, effectController,playerStateMachine._ctx);
     }
