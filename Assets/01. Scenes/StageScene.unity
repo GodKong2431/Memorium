@@ -268,9 +268,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2043202361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 275, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2018708
@@ -1938,9 +1938,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2043202361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 175, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &44012421
@@ -3748,9 +3748,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 537600096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 425, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &82323135
@@ -5065,9 +5065,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2043202361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 25, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &120935384
@@ -5986,7 +5986,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 136801972}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnResetCancelClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &136801972
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7286,9 +7298,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 537600096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 225, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &170761666
@@ -8205,9 +8217,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2043202361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 125, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &196597612
@@ -10118,9 +10130,9 @@ RectTransform:
   - {fileID: 761402195}
   m_Father: {fileID: 1543537497}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 185, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &253705791
@@ -10166,7 +10178,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 253705792}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnRerollClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &253705792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10474,9 +10498,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 862503437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 225, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &256120187
@@ -10529,6 +10553,7 @@ GameObject:
   - component: {fileID: 257468107}
   - component: {fileID: 257468106}
   - component: {fileID: 257468105}
+  - component: {fileID: 257468108}
   m_Layer: 5
   m_Name: "\uBC84\uD2BC_\uC2A4\uD1A4 \uBC30\uACBD (2)"
   m_TagString: Untagged
@@ -10601,7 +10626,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 257468106}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnStoneClick
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &257468106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10640,6 +10677,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 257468103}
   m_CullTransparentMesh: 1
+--- !u!114 &257468108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 257468103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aa18b6f7c4d47f9a1b2c3d4e5f60718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneItemUI
+  button: {fileID: 257468105}
+  frameImage: {fileID: 277876499}
+  gradeText: {fileID: 1017410494}
+  slotRoots:
+  - {fileID: 951597572}
+  - {fileID: 1593858921}
+  - {fileID: 546964478}
+  slotTexts:
+  - {fileID: 708226090}
+  - {fileID: 1023550284}
+  - {fileID: 2125147822}
+  lockObject: {fileID: 0}
 --- !u!1 &262211253
 GameObject:
   m_ObjectHideFlags: 0
@@ -11319,7 +11380,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 186, y: -396}
+  m_AnchoredPosition: {x: 186, y: -679}
   m_SizeDelta: {x: 400, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &275142454
@@ -13213,9 +13274,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 537600096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 375, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &299225941
@@ -13425,9 +13486,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 862503437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 425, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &304935591
@@ -14083,6 +14144,7 @@ GameObject:
   - component: {fileID: 321462390}
   - component: {fileID: 321462389}
   - component: {fileID: 321462388}
+  - component: {fileID: 321462391}
   m_Layer: 5
   m_Name: "\uBC84\uD2BC_\uC2A4\uD1A4 \uBC30\uACBD"
   m_TagString: Untagged
@@ -14155,7 +14217,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 321462389}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnStoneClick
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &321462389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14194,6 +14268,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 321462386}
   m_CullTransparentMesh: 1
+--- !u!114 &321462391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321462386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aa18b6f7c4d47f9a1b2c3d4e5f60718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneItemUI
+  button: {fileID: 321462388}
+  frameImage: {fileID: 338437504}
+  gradeText: {fileID: 1075501565}
+  slotRoots:
+  - {fileID: 1349832648}
+  - {fileID: 233971211}
+  - {fileID: 2106032045}
+  slotTexts:
+  - {fileID: 1949197710}
+  - {fileID: 1691747970}
+  - {fileID: 2070983619}
+  lockObject: {fileID: 0}
 --- !u!1 &323245016
 GameObject:
   m_ObjectHideFlags: 0
@@ -14206,6 +14304,7 @@ GameObject:
   - component: {fileID: 323245020}
   - component: {fileID: 323245019}
   - component: {fileID: 323245018}
+  - component: {fileID: 323245021}
   m_Layer: 5
   m_Name: "\uBC84\uD2BC_\uC2A4\uD1A4 \uBC30\uACBD (1)"
   m_TagString: Untagged
@@ -14279,7 +14378,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 323245019}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnStoneClick
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &323245019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14318,6 +14429,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 323245016}
   m_CullTransparentMesh: 1
+--- !u!114 &323245021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323245016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aa18b6f7c4d47f9a1b2c3d4e5f60718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneItemUI
+  button: {fileID: 323245018}
+  frameImage: {fileID: 1345905515}
+  gradeText: {fileID: 40378445}
+  slotRoots:
+  - {fileID: 347744273}
+  - {fileID: 1903347135}
+  - {fileID: 502022464}
+  slotTexts:
+  - {fileID: 1406274981}
+  - {fileID: 722411968}
+  - {fileID: 520584285}
+  lockObject: {fileID: 325901380}
 --- !u!1 &325901380
 GameObject:
   m_ObjectHideFlags: 0
@@ -14442,7 +14577,6 @@ MonoBehaviour:
     statUpgradeCost_GoldUpgrades: []
     playerStatType_Traits: 
     currentLevel_Traits: 
-  traitManager: {fileID: 0}
   baseStat:
     classType: 0
     baseStatValues:
@@ -16909,9 +17043,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2043202361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 375, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &391804627
@@ -18012,6 +18146,7 @@ GameObject:
   - component: {fileID: 426450578}
   - component: {fileID: 426450580}
   - component: {fileID: 426450579}
+  - component: {fileID: 426450581}
   m_Layer: 5
   m_Name: (Panel)AdditionalAbilities
   m_TagString: Untagged
@@ -18080,6 +18215,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 426450577}
   m_CullTransparentMesh: 1
+--- !u!114 &426450581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 426450577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b29c8d1e2f340d7a9b8c7d6e5f40192, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneBonusItemUI
+  backgroundImage: {fileID: 426450579}
+  requirementText: {fileID: 2113214377}
+  statIcons:
+  - {fileID: 844443423}
+  - {fileID: 1800064127}
+  valueText: {fileID: 773414006}
 --- !u!1 &428133347
 GameObject:
   m_ObjectHideFlags: 0
@@ -20343,6 +20496,7 @@ GameObject:
   - component: {fileID: 477961668}
   - component: {fileID: 477961670}
   - component: {fileID: 477961669}
+  - component: {fileID: 477961671}
   m_Layer: 5
   m_Name: "\uD328\uB110_\uAC15\uD654 (1)"
   m_TagString: Untagged
@@ -20368,9 +20522,9 @@ RectTransform:
   - {fileID: 1834866721}
   m_Father: {fileID: 2077324300}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 328.21, y: -140.5375}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 556.42, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &477961669
@@ -20411,6 +20565,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 477961667}
   m_CullTransparentMesh: 1
+--- !u!114 &477961671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 477961667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3da9410b4e41a4b2c3d4e5f6a70819, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneSlotItemUI
+  upgradeButton: {fileID: 1834866722}
+  backgroundImage: {fileID: 477961669}
+  statIconImage: {fileID: 1777388117}
+  statNameText: {fileID: 1453080662}
+  successCountText: {fileID: 1204027896}
+  progressIconRoot: {fileID: 862503437}
+  upgradeButtonText: {fileID: 1702384710}
+  costText: {fileID: 2056174399}
 --- !u!1 &492477885
 GameObject:
   m_ObjectHideFlags: 0
@@ -22215,9 +22389,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 537600096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 75, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &527342397
@@ -24087,9 +24261,9 @@ RectTransform:
   - {fileID: 453825013}
   m_Father: {fileID: 1543537497}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 515, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &573976632
@@ -24135,7 +24309,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 573976633}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnResetClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &573976633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25549,7 +25735,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 607269816}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnResetOkClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &607269816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33345,9 +33543,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 537600096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 475, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &804642360
@@ -33765,9 +33963,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 862503437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 175, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &819752353
@@ -35537,9 +35735,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 862503437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 375, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &894525138
@@ -35886,9 +36084,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 537600096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 175, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &903710879
@@ -36105,9 +36303,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 862503437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 325, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &911084676
@@ -40392,6 +40590,7 @@ GameObject:
   - component: {fileID: 1019649383}
   - component: {fileID: 1019649385}
   - component: {fileID: 1019649384}
+  - component: {fileID: 1019649386}
   m_Layer: 5
   m_Name: "\uD328\uB110_\uAC15\uD654 (2)"
   m_TagString: Untagged
@@ -40417,9 +40616,9 @@ RectTransform:
   - {fileID: 1153750636}
   m_Father: {fileID: 2077324300}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 328.21, y: -309.46252}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 556.42, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1019649384
@@ -40460,6 +40659,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1019649382}
   m_CullTransparentMesh: 1
+--- !u!114 &1019649386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1019649382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3da9410b4e41a4b2c3d4e5f6a70819, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneSlotItemUI
+  upgradeButton: {fileID: 1153750637}
+  backgroundImage: {fileID: 1019649384}
+  statIconImage: {fileID: 57149242}
+  statNameText: {fileID: 787368658}
+  successCountText: {fileID: 1282494446}
+  progressIconRoot: {fileID: 2043202361}
+  upgradeButtonText: {fileID: 252605350}
+  costText: {fileID: 1879581118}
 --- !u!1 &1023550282
 GameObject:
   m_ObjectHideFlags: 0
@@ -41974,6 +42193,7 @@ MonoBehaviour:
   statIcons: []
   consumeCurrencyCanAffordColor: {r: 1, g: 1, b: 1, a: 1}
   consumeCurrencyLackColor: {r: 1, g: 0, b: 0, a: 1}
+  statIconSO: {fileID: 0}
 --- !u!1 &1053806436
 GameObject:
   m_ObjectHideFlags: 0
@@ -43201,7 +43421,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1074001712}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnSlotClick
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1074001712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43463,6 +43695,7 @@ GameObject:
   - component: {fileID: 1079174228}
   - component: {fileID: 1079174230}
   - component: {fileID: 1079174229}
+  - component: {fileID: 1079174231}
   m_Layer: 5
   m_Name: AbilityStoneContents
   m_TagString: Untagged
@@ -43530,6 +43763,46 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1079174227}
   m_CullTransparentMesh: 1
+--- !u!114 &1079174231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1079174227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4d12a2e7d3b4d5fa8e9c1b2d3e4f501, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneUI
+  stats: {fileID: 326619661}
+  icons: {fileID: 11400000, guid: c323e624a4b022344895edb7c6a5d331, type: 2}
+  stoneRoot: {fileID: 2039703901}
+  stoneViews:
+  - {fileID: 321462391}
+  - {fileID: 257468108}
+  - {fileID: 323245021}
+  stoneItem: {fileID: 323245021}
+  infoPanel: {fileID: 1378708149}
+  bonusViews:
+  - {fileID: 1999527732}
+  - {fileID: 426450581}
+  - {fileID: 1495452085}
+  - {fileID: 1716565914}
+  bonusItem: {fileID: 1999527732}
+  upgradePanel: {fileID: 1414622959}
+  totalText: {fileID: 2066457632}
+  goldText: {fileID: 609233224}
+  selectedStoneColor: {r: 1, g: 0.92, b: 0.68, a: 1}
+  unlockedStoneColor: {r: 1, g: 1, b: 1, a: 1}
+  lockedStoneColor: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+  unlockedBonusColor: {r: 1, g: 1, b: 1, a: 1}
+  lockedBonusColor: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+  positiveResultColor: {r: 0.36, g: 0.88, b: 1, a: 1}
+  penaltyResultColor: {r: 1, g: 0.46, b: 0.46, a: 1}
+  failResultColor: {r: 0.35, g: 0.35, b: 0.35, a: 1}
+  waitingResultColor: {r: 1, g: 1, b: 1, a: 1}
+  disabledTextColor: {r: 0.65, g: 0.65, b: 0.65, a: 1}
 --- !u!1 &1080054867
 GameObject:
   m_ObjectHideFlags: 0
@@ -45201,7 +45474,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 186, y: -911.81}
+  m_AnchoredPosition: {x: 186, y: -1199}
   m_SizeDelta: {x: 400, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1127844960
@@ -46309,7 +46582,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1153750638}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnSlotClick
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1153750638
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47333,9 +47618,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2043202361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 225, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1178044780
@@ -48358,7 +48643,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: ""
+  m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
     m_Mode: 3
@@ -52391,9 +52676,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 537600096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 325, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1320219869
@@ -52619,7 +52904,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1324309098}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnBonusClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1324309098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -52812,9 +53109,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 537600096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 275, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1328908119
@@ -53127,9 +53424,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 862503437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 75, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1338757212
@@ -54423,6 +54720,7 @@ GameObject:
   - component: {fileID: 1378708146}
   - component: {fileID: 1378708148}
   - component: {fileID: 1378708147}
+  - component: {fileID: 1378708149}
   m_Layer: 5
   m_Name: (Panel)StatInfo
   m_TagString: Untagged
@@ -54489,6 +54787,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1378708145}
   m_CullTransparentMesh: 1
+--- !u!114 &1378708149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1378708145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d4eb0521c5f42b5c3d4e5f6a7b8092a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneInfoPanelUI
+  titleText: {fileID: 546579316}
+  summaryText: {fileID: 872219743}
+  currentUpgradeValueText: {fileID: 694525930}
+  contentRoot: {fileID: 132289308}
+  panelRoot: {fileID: 471803880}
 --- !u!1 &1385416960
 GameObject:
   m_ObjectHideFlags: 0
@@ -55227,13 +55542,14 @@ GameObject:
   - component: {fileID: 1414622956}
   - component: {fileID: 1414622958}
   - component: {fileID: 1414622957}
+  - component: {fileID: 1414622959}
   m_Layer: 5
   m_Name: (Panel)StatUpgrade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1414622956
 RectTransform:
   m_ObjectHideFlags: 0
@@ -55296,6 +55612,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1414622955}
   m_CullTransparentMesh: 1
+--- !u!114 &1414622959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1414622955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e5fc1632d6a43c6d4e5f6a7b8c90a3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneUpgradePanelUI
+  panelRoot: {fileID: 548858940}
+  gradeText: {fileID: 1341855175}
+  probabilityTexts:
+  - {fileID: 275142454}
+  - {fileID: 1127844960}
+  slotItems:
+  - {fileID: 477961671}
+  - {fileID: 1019649386}
+  - {fileID: 2083677598}
+  nextGradeButton: {fileID: 1640363187}
+  nextGradeButtonText: {fileID: 1927404893}
+  rerollButton: {fileID: 253705791}
+  resetButton: {fileID: 573976632}
+  rerollButtonText: {fileID: 761402196}
+  resetButtonText: {fileID: 453825014}
+  reconfigurePopupRoot: {fileID: 1988751682}
+  reconfigureInfoText: {fileID: 1173544900}
+  reconfigureSlotTexts:
+  - {fileID: 1546583916}
+  - {fileID: 2091151038}
+  - {fileID: 1313364946}
+  reconfigureConfirmButton: {fileID: 2018413524}
+  reconfigureConfirmCostText: {fileID: 471348036}
+  reconfigureCancelButton: {fileID: 2023055209}
+  reconfigurePopupContentRoot: {fileID: 1846328762}
+  resetPopupRoot: {fileID: 2115499798}
+  resetInfoText: {fileID: 961368077}
+  resetSlotTexts:
+  - {fileID: 1203483271}
+  - {fileID: 789788237}
+  - {fileID: 301575640}
+  resetConfirmButton: {fileID: 607269815}
+  resetConfirmCostText: {fileID: 1835159631}
+  resetCancelButton: {fileID: 136801971}
+  resetPopupContentRoot: {fileID: 595124798}
 --- !u!1 &1414923860
 GameObject:
   m_ObjectHideFlags: 0
@@ -57402,6 +57765,7 @@ GameObject:
   - component: {fileID: 1495452082}
   - component: {fileID: 1495452084}
   - component: {fileID: 1495452083}
+  - component: {fileID: 1495452085}
   m_Layer: 5
   m_Name: (Panel)AdditionalAbilities
   m_TagString: Untagged
@@ -57470,6 +57834,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1495452081}
   m_CullTransparentMesh: 1
+--- !u!114 &1495452085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1495452081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b29c8d1e2f340d7a9b8c7d6e5f40192, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneBonusItemUI
+  backgroundImage: {fileID: 1495452083}
+  requirementText: {fileID: 1623662627}
+  statIcons:
+  - {fileID: 55106523}
+  - {fileID: 429775397}
+  valueText: {fileID: 819012003}
 --- !u!1 &1498887556
 GameObject:
   m_ObjectHideFlags: 0
@@ -61705,9 +62087,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 862503437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 25, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1611393801
@@ -62612,7 +62994,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1640363188}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnNextClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1640363188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62758,9 +63152,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 862503437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 475, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1644548583
@@ -65483,6 +65877,7 @@ GameObject:
   - component: {fileID: 1716565911}
   - component: {fileID: 1716565913}
   - component: {fileID: 1716565912}
+  - component: {fileID: 1716565914}
   m_Layer: 5
   m_Name: (Panel)AdditionalAbilities
   m_TagString: Untagged
@@ -65551,6 +65946,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1716565910}
   m_CullTransparentMesh: 1
+--- !u!114 &1716565914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1716565910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b29c8d1e2f340d7a9b8c7d6e5f40192, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneBonusItemUI
+  backgroundImage: {fileID: 1716565912}
+  requirementText: {fileID: 556236054}
+  statIcons:
+  - {fileID: 19204114}
+  - {fileID: 70933922}
+  valueText: {fileID: 1917239002}
 --- !u!1001 &1719571413
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -68518,9 +68931,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2043202361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 425, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1798683458
@@ -69759,7 +70172,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1834866723}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnSlotClick
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1834866723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75914,9 +76339,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2043202361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 475, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1970277008
@@ -75989,9 +76414,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2043202361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 325, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1976540641
@@ -76729,9 +77154,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 862503437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 125, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1991269660
@@ -76871,6 +77296,7 @@ GameObject:
   - component: {fileID: 1999527729}
   - component: {fileID: 1999527731}
   - component: {fileID: 1999527730}
+  - component: {fileID: 1999527732}
   m_Layer: 5
   m_Name: (Panel)AdditionalAbilities
   m_TagString: Untagged
@@ -76939,6 +77365,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1999527728}
   m_CullTransparentMesh: 1
+--- !u!114 &1999527732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1999527728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b29c8d1e2f340d7a9b8c7d6e5f40192, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneBonusItemUI
+  backgroundImage: {fileID: 1999527730}
+  requirementText: {fileID: 722111118}
+  statIcons:
+  - {fileID: 1792319187}
+  - {fileID: 1061813938}
+  valueText: {fileID: 612307175}
 --- !u!1 &2001019029
 GameObject:
   m_ObjectHideFlags: 0
@@ -78205,7 +78649,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2018413525}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnRerollOkClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2018413525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78326,7 +78782,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2023055210}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1079174231}
+        m_TargetAssemblyTypeName: StoneUI, Assembly-CSharp
+        m_MethodName: OnRerollCancelClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2023055210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78771,9 +79239,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 537600096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 25, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2035013261
@@ -79322,9 +79790,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 862503437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 275, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2055764313
@@ -80679,6 +81147,7 @@ GameObject:
   - component: {fileID: 2083677595}
   - component: {fileID: 2083677597}
   - component: {fileID: 2083677596}
+  - component: {fileID: 2083677598}
   m_Layer: 5
   m_Name: "\uD328\uB110_\uAC15\uD654 (1)"
   m_TagString: Untagged
@@ -80704,9 +81173,9 @@ RectTransform:
   - {fileID: 1074001710}
   m_Father: {fileID: 82439452}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 328.21, y: -112.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 556.42, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2083677596
@@ -80747,6 +81216,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2083677594}
   m_CullTransparentMesh: 1
+--- !u!114 &2083677598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2083677594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3da9410b4e41a4b2c3d4e5f6a70819, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StoneSlotItemUI
+  upgradeButton: {fileID: 1074001711}
+  backgroundImage: {fileID: 2083677596}
+  statIconImage: {fileID: 96646311}
+  statNameText: {fileID: 572178917}
+  successCountText: {fileID: 1229335733}
+  progressIconRoot: {fileID: 537600096}
+  upgradeButtonText: {fileID: 406961472}
+  costText: {fileID: 714649653}
 --- !u!1 &2088940753
 GameObject:
   m_ObjectHideFlags: 0
@@ -80779,9 +81268,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 537600096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 125, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2088940755
@@ -81792,9 +82281,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2043202361}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 75, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2108946901

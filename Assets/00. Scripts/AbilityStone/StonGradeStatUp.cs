@@ -26,11 +26,11 @@ public class StoneGradeStatUp
         return stoneGrade switch
         {
             StoneGrade.Normal => table.stoneNormal,
-            StoneGrade.Rare => table.stoneUnique,
+            StoneGrade.Rare => table.stoneRare,
             StoneGrade.Unique => table.stoneUnique,
             StoneGrade.Legendy => table.stoneLegend,
             StoneGrade.Myth => table.stoneMyth,
-            _ => throw new ArgumentOutOfRangeException(nameof(stoneGrade), "범위 벗아남")
+            _ => throw new ArgumentOutOfRangeException(nameof(stoneGrade), "Stone grade is out of range.")
         };
     }
 }
