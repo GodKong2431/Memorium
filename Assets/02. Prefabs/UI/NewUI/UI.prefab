@@ -48780,6 +48780,7 @@ GameObject:
   - component: {fileID: 2175999211456855107}
   - component: {fileID: 3905574487525160078}
   - component: {fileID: 4521718865091337710}
+  - component: {fileID: 7201842338811420192}
   m_Layer: 5
   m_Name: CharactorInfoContents
   m_TagString: Untagged
@@ -48890,6 +48891,39 @@ MonoBehaviour:
   pageTitle: Character
   showSubMenu: 0
   useLegacyScrollResize: 0
+--- !u!114 &7201842338811420192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4410235410293571169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23dd7d09b7d24b5588fd6780cb6824e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterInfoPanelController
+  panelRoot: {fileID: 5888879913068260513}
+  characterPreviewRoot: {fileID: 8813992054589535779}
+  leftEquipmentGroup: {fileID: 7671708786202642156}
+  rightEquipmentGroup: {fileID: 8053439209800116827}
+  combatPowerLabel: {fileID: 8245511137717403501}
+  statListScrollRect: {fileID: 2800330012629959661}
+  statListContentRoot: {fileID: 9100261233453936181}
+  equipmentSlotItemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}
+  previewStagePosition: {x: 5000, y: 5000, z: 5000}
+  previewCameraOffset: {x: 0, y: 1.15, z: -3.6}
+  previewLookOffset: {x: 0, y: 0.95, z: 0}
+  previewModelEuler: {x: 0, y: 180, z: 0}
+  previewBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
+  previewTextureSize: 512
+  previewLayer: 30
+  combatPowerFormat: "\uC804\uD22C\uB825: {0}"
+  emptyEquipmentName: '-'
+  equipmentLevelFormat: 'Lv. {0}'
+  attackSectionTitle: "\uACF5\uACA9"
+  defenseSectionTitle: "\uBC29\uC5B4"
+  utilitySectionTitle: "\uC720\uD2F8\uB9AC\uD2F0"
 --- !u!1 &4414642347157323040
 GameObject:
   m_ObjectHideFlags: 0
