@@ -6,6 +6,6 @@ public class BoardCellTable : TableBase
 {
     public int cellLocationX;
     public int cellLocationY;
-    public string cellRarity;
+    public RarityType cellRarity;
     public int maxStack;
 }

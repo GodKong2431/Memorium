@@ -201,7 +201,7 @@ public class BossAttackManager
         }
 
         // 스킬 사용 후 가중치 초기화 옵션
-        if (table != null && string.Equals(table.resetBiasCheck, "TRUE", StringComparison.OrdinalIgnoreCase))
+        if (table != null && string.Equals(table.resetBiasCheck, true))
         {
             foreach (var kv in _tableByType)
                 _currentBias[kv.Key] = kv.Value.baseAtkCastRate;
