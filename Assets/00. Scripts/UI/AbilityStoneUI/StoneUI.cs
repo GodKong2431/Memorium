@@ -221,12 +221,12 @@ public sealed partial class StoneUI : UIControllerBase
     {
         iconByStat.Clear();
 
-        if (icons == null || icons.StatIconDict == null)
+        if (IconManager.StatIconSO == null || IconManager.StatIconSO.StatIconDict == null)
         {
             return;
         }
 
-        foreach (KeyValuePair<StatType, Sprite> pair in icons.StatIconDict)
+        foreach (KeyValuePair<StatType, Sprite> pair in IconManager.StatIconSO.StatIconDict)
         {
             if (pair.Value != null)
             {
