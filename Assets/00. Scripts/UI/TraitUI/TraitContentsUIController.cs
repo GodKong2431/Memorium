@@ -536,6 +536,11 @@ public class TraitContentsUIController : UIControllerBase
         HideTraitPopup();
     }
 
+    public void ResetForSceneChange()
+    {
+        CloseTraitPopup();
+    }
+
     private void RefreshTraitPopup(BigDouble points)
     {
         // 현재 선택된 특성 기준으로 팝업 내용을 다시 그립니다.

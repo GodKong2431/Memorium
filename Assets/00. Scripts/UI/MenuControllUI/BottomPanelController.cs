@@ -379,6 +379,11 @@ public class BottomPanelController : MonoBehaviour
         ShowManagedPage(page);
     }
 
+    public void ResetForSceneChange()
+    {
+        SelectMain(-1, true);
+    }
+
     private bool TryFindManagedPage(RectTransform page, out int tabIndex, out int pageIndex)
     {
         for (int i = 0; i < tabs.Count; i++)

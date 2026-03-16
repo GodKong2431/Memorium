@@ -107,4 +107,9 @@ public class GlobalPopupManager : MonoBehaviour
             if (panel != null) panel.SetActive(false);
         }
     }
+
+    public void ResetForSceneChange()
+    {
+        ClosePopup();
+    }
 }

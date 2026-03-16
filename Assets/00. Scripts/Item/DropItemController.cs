@@ -46,11 +46,10 @@ public class DropItemController : MonoBehaviour
             return;
         }
 
-        var player = GameObject.FindGameObjectWithTag("Player");
-        if (player == null)
+        if (!ScenePlayerLocator.TryGetPlayerTransform(out Transform playerTransform))
             return;
 
-        Vector3 toPlayer = player.transform.position - transform.position;
+        Vector3 toPlayer = playerTransform.position - transform.position;
         if (toPlayer.magnitude <= collectRadius)
         {
             Collect();
