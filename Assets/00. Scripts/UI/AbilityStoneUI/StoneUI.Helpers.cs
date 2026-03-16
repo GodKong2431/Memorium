@@ -512,7 +512,7 @@ public sealed partial class StoneUI
         RefreshResetPopup(stoneData, true, totalAttemptCount);
     }
 
-    private void UpdateNextGradeButton(StoneGrade grade, AbilityStone stoneData, bool unlocked)
+    private void UpdateNextGradeButton(StoneGrade grade, bool unlocked)
     {
         if (upgradePanel == null || upgradePanel.NextGradeButton == null)
         {
@@ -554,7 +554,7 @@ public sealed partial class StoneUI
         {
             nextText.text = nextUnlocked
                 ? $"{GetGradeName(nextGrade)} {TextOpen}"
-                : $"{GetGradeName(nextGrade)} {stoneData.GetUpCount()} / {stoneData.NeedUp}";
+                : GetUnlockReason(nextGrade);
             nextText.color = nextUnlocked ? Color.white : disabledTextColor;
         }
     }
@@ -765,8 +765,178 @@ public sealed partial class StoneUI
         return bonusDataList;
     }
 
+    private int GetTotalSuccessCount()
+    {
+        AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
+        if (abilityStoneManager == null || !abilityStoneManager.LoadStone || abilityStoneManager.so == null)
+        {
+            return 0;
+        }
+
+        int totalSuccessCount = 0;
+        foreach (AbilityStone stoneData in abilityStoneManager.so.AbilityStoneDict.Values)
+        {
+            if (stoneData != null)
+            {
+                totalSuccessCount += stoneData.GetUpCount();
+            }
+        }
+
+        return totalSuccessCount;
+    }
+
+    private bool CanAfford(int goldCost)
+    {
+        CurrencyInventoryModule currentCurrencyModule = currencyModule;
+        if (currentCurrencyModule == null && InventoryManager.Instance != null)
+        {
+            currentCurrencyModule = InventoryManager.Instance.GetModule<CurrencyInventoryModule>();
+            currencyModule = currentCurrencyModule;
+        }
+
+        return currentCurrencyModule != null
+            && currentCurrencyModule.HasEnough(CurrencyType.Gold, new BigDouble(goldCost));
+    }
+
+    private bool TrySpendGold(int goldCost)
+    {
+        CurrencyInventoryModule currentCurrencyModule = currencyModule;
+        if (currentCurrencyModule == null && InventoryManager.Instance != null)
+        {
+            currentCurrencyModule = InventoryManager.Instance.GetModule<CurrencyInventoryModule>();
+            currencyModule = currentCurrencyModule;
+        }
+
+        if (currentCurrencyModule == null)
+        {
+            return false;
+        }
+
+        if (currentCurrencyModule.TrySpend(CurrencyType.Gold, new BigDouble(goldCost)))
+        {
+            return true;
+        }
+
+        InstanceMessageManager.TryShowInsufficientGold();
+        return false;
+    }
+
+    private void ApplyStatIcon(Image targetImage, StatType statType, bool isEnabled)
+    {
+        if (targetImage == null)
+        {
+            return;
+        }
+
+        Sprite icon = null;
+        bool hasIcon = statType != StatType.None
+            && iconByStat.TryGetValue(statType, out icon)
+            && icon != null;
+
+        targetImage.sprite = hasIcon ? icon : null;
+        targetImage.enabled = hasIcon;
+
+        if (hasIcon)
+        {
+            targetImage.color = isEnabled ? Color.white : disabledTextColor;
+        }
+    }
+
+    private static string GetGradeName(StoneGrade grade)
+    {
+        return grade switch
+        {
+            StoneGrade.Normal => "일반",
+            StoneGrade.Rare => "희귀",
+            StoneGrade.Unique => "유니크",
+            StoneGrade.Legendy => "전설",
+            StoneGrade.Myth => "신화",
+            _ => grade.ToString()
+        };
+    }
+
+    private string GetUnlockReason(StoneGrade grade)
+    {
+        AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
+        if (abilityStoneManager == null || !abilityStoneManager.LoadStone || abilityStoneManager.so == null)
+        {
+            return TextDataLoading;
+        }
+
+        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(grade, out AbilityStone stoneData) || stoneData == null)
+        {
+            return TextNoData;
+        }
+
+        int currentLevel = stats != null && stats.LevelBonus != null
+            ? stats.LevelBonus.CurrentLevel
+            : 0;
+        if (currentLevel < stoneData.UnlockLevel)
+        {
+            return $"Lv.{stoneData.UnlockLevel} {TextNeed}";
+        }
+
+        if (grade == StoneGrade.Normal)
+        {
+            return TextOpen;
+        }
+
+        StoneGrade previousGrade = (StoneGrade)((int)grade - 1);
+        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(previousGrade, out AbilityStone previousStone) || previousStone == null)
+        {
+            return TextNoData;
+        }
+
+        int currentUpCount = previousStone.GetUpCount();
+        if (currentUpCount < stoneData.NeedUp)
+        {
+            return $"{currentUpCount} / {stoneData.NeedUp}{TextTimesNeed}";
+        }
+
+        return TextOpen;
+    }
+
     private bool IsStoneUnlocked(StoneGrade grade)
     {
+        AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
+        if (abilityStoneManager == null || !abilityStoneManager.LoadStone || abilityStoneManager.so == null)
+        {
+            return false;
+        }
+
+        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(grade, out AbilityStone stoneData) || stoneData == null)
+        {
+            return false;
+        }
+
+        int currentLevel = stats != null && stats.LevelBonus != null
+            ? stats.LevelBonus.CurrentLevel
+            : 0;
+        if (currentLevel < stoneData.UnlockLevel)
+        {
+            return false;
+        }
+
+        if (grade == StoneGrade.Normal)
+        {
+            return true;
+        }
+
+        StoneGrade previousGrade = (StoneGrade)((int)grade - 1);
+        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(previousGrade, out AbilityStone previousStone) || previousStone == null)
+        {
+            return false;
+        }
+
+        return previousStone.GetUpCount() >= stoneData.NeedUp;
+    }
+
+    private static string GetStatName(StatType statType)
+    {
+        if (statType == StatType.None)
+        {
+            return TextNotConfigured;
+        }
         // 상위 스톤은 레벨과 이전 등급 강화 수를 같이 확인한다.
         AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
         if (abilityStoneManager != null && abilityStoneManager.LoadStone && abilityStoneManager.so != null)

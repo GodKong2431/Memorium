@@ -603,7 +603,7 @@ public sealed partial class StoneUI : UIControllerBase
             upgradePanel.ResetButton.interactable = unlocked && stoneData.IsConfigured && totalAttemptCount > 0;
         }
 
-        UpdateNextGradeButton(grade, stoneData, unlocked);
+        UpdateNextGradeButton(grade, unlocked);
 
         StoneSlotItemUI[] slotViews = upgradePanel.SlotItems;
         for (int i = 0; i < slotViews.Length; i++)
