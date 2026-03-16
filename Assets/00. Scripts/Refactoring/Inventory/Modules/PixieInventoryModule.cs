@@ -200,8 +200,6 @@ public sealed class PixieInventoryModule : IInventoryModule
     /// <summary>
     /// 모든 업그레이드(해금/레벨업/성장) 호출 , 하나라도 성공시 종료 => true 반환
     /// </summary>
-    /// <param name="fairyId"></param>
-    /// <returns></returns>
     public bool TryUpgradePixie(int fairyId)
     {
         if (TryEvolvePixie(fairyId)) return true;
