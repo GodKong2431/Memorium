@@ -36,8 +36,11 @@ public class FinalStat
         float ablityStoneBonusStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetBonusStat(playerStatType) : 0f;
         
         float bingoSynergyStat = BingoBoard.Instance.LoadBingo ? BingoBoard.Instance.GetSynergyStat(playerStatType) : 0f;
+        
+        float passiveStat = InventoryManager.Instance.DataLoad ? InventoryManager.Instance.GetModule<PassiveSkillModule>().GetPassiveStat(playerStatType) : 0f;
+        
                 
-        finalStat = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat) * (1 + ablityStoneBonusStat + bingoSynergyStat);
+        finalStat = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat + passiveStat) * (1 + ablityStoneBonusStat + bingoSynergyStat);
         
         if (CharacterStatManager.Instance.isBerserker)
         {
