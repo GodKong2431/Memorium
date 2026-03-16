@@ -95,7 +95,7 @@ public class PlayerStateContext : BaseStateContext
         CurrentMana -= amount;
         if (CurrentMana < 0) CurrentMana = 0;
 
-        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
     public void RequestState(PlayerStateType next)
     {
@@ -134,6 +134,9 @@ public class PlayerStateContext : BaseStateContext
     {
         if (CurrentHealth > MaxHealth) CurrentHealth = MaxHealth;
         if (CurrentMana > MaxMana) CurrentMana = MaxMana;
+
+        OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+        OnManaChanged?.Invoke(CurrentMana, MaxMana);
     }
 
     /// <summary>최대치가 증가했을 때(예: 버서커 모드 시작) 현재 HP/MP를 새 최대값으로 채움.</summary>
