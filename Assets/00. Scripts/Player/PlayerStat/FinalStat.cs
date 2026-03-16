@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -11,6 +13,14 @@ public class FinalStat
     {
         playerStatType = statType;
     }
+    
+    static readonly Dictionary<StatType,float> StatMaxLimit = new()
+    {
+        {StatType.ATK_SPEED, 3f},
+        {StatType.PHYS_DEF, 0.7f},
+        {StatType.MAGIC_DEF, 0.7f},
+        {StatType.COOLDOWN_REDUCE, 0.5f},
+    };
 
     public float FinalStatCalculate()
     {
@@ -36,8 +46,15 @@ public class FinalStat
         float ablityStoneBonusStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetBonusStat(playerStatType) : 0f;
         
         float bingoSynergyStat = BingoBoard.Instance.LoadBingo ? BingoBoard.Instance.GetSynergyStat(playerStatType) : 0f;
-                
-        finalStat = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat) * (1 + ablityStoneBonusStat + bingoSynergyStat);
+        
+        float passiveStat = InventoryManager.Instance.DataLoad ? InventoryManager.Instance.GetModule<PassiveSkillModule>()?.GetPassiveStat(playerStatType) ?? 0f : 0f;
+        
+        var calc = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat + passiveStat) * (1 + ablityStoneBonusStat + bingoSynergyStat);
+        
+        if (StatMaxLimit.TryGetValue(playerStatType, out var max))
+            finalStat = Mathf.Clamp(calc, baseStatValue, max);
+        else
+            finalStat = Math.Max(calc ,baseStatValue);
         
         if (CharacterStatManager.Instance.isBerserker)
         {
