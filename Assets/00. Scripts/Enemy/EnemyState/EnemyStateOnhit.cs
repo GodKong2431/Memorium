@@ -19,6 +19,11 @@ public class EnemyStateOnhit : IEnemyState
         _endTime = Time.time + OnhitDuration;
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Onhit);
         // 피격 이펙트 추가 예정
+        if (ctx.OnHitEffectPrefab != null)
+        {
+            GameObject effect = Object.Instantiate(ctx.OnHitEffectPrefab, ctx.EnemyTransform.position, Quaternion.identity);
+            Object.Destroy(effect, 1.0f);
+        }
         // 피격 효과음 추가 예정
         InitKnockback(ctx);
     }

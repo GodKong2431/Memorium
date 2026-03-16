@@ -21,10 +21,19 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     [Header("에셋 (비워두면 몬스터 ID로 MonsterAssetDatabase에서 자동 조회)")]
     [SerializeField][Tooltip("비워두면 본인/자식에서 Animator 자동 검색.")]
     private Animator animator;
+
     [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
     private MonsterAnimationConfig animationConfig;
+
     [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
     private GameObject attackEffectPrefab;
+    
+    [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
+    private GameObject onHitEffectPrefab;
+    
+    [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
+    private AudioClip onHitSfx;
+
     [SerializeField][Tooltip("비워두면 Resources 또는 전역 DB 사용.")]
     private MonsterAssetDatabase assetDatabaseOverride;
 
@@ -58,6 +67,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             AnimationConfig = animationConfig,
             IsBoss = statPresenter != null && statPresenter.IsBoss,
             AttackEffectPrefab = attackEffectPrefab,
+            OnHitEffectPrefab = onHitEffectPrefab,
+            OnHitSfx = onHitSfx,
             SkillHandler = skillHandler,
             EnemyEffectController = effectController
         };
@@ -90,8 +101,12 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             {
                 if (animationConfig == null && entry.animationConfig != null)
                     animationConfig = entry.animationConfig;
-                if (attackEffectPrefab == null && entry.attackEffectPrefab != null)
-                    attackEffectPrefab = entry.attackEffectPrefab;
+                // if (attackEffectPrefab == null && entry.attackEffectPrefab != null)
+                attackEffectPrefab = entry.attackEffectPrefab;
+                if (onHitEffectPrefab == null && entry.onHitEffectPrefab != null)
+                    onHitEffectPrefab = entry.onHitEffectPrefab;
+                if (onHitSfx == null && entry.onHitSfx != null)
+                    onHitSfx = entry.onHitSfx;
             }
         }
     }

@@ -71,6 +71,9 @@ public class EnemyStateContext
     /// </summary>
     public GameObject AttackEffectPrefab { get; set; }
 
+    public GameObject OnHitEffectPrefab { get; set; }
+    public AudioClip OnHitSfx { get; set; }
+
     /// <summary>
     /// 스킬 공격형일 때 스킬 시전 핸들러. (보스 전용/특수 케이스에서 사용)
     /// </summary>

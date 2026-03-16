@@ -20,6 +20,8 @@ public class EnemyStateAttack : IEnemyState
 
     public void OnEnter(EnemyStateContext ctx)
     {
+        // Debug.Log($"[EnemyStateAttack] OnEnter - effect={(ctx.AttackEffectPrefab == null ? "NULL" : ctx.AttackEffectPrefab.name)}");
+        
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = true;
 
@@ -31,7 +33,8 @@ public class EnemyStateAttack : IEnemyState
             _damageApplied = false;
 
             float attackSpeed = ctx.AttackSpeed;
-            float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
+            // float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
+            float delay = 0.5f; // [TODO] 나중에 인스펙터에서 수정 가능하도록 설정
             _attackEndTime = Time.time + delay;
             _attackInProgress = true;
 
