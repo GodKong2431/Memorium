@@ -37,6 +37,14 @@ public class AbilityStone
     private CharacterStatManager mgr;
 
     private List<int> slotUpOpportunitys = new List<int>();
+
+    public StoneGrade StoneGrade => stoneGrade;
+    public int UpCost => upCost;
+    public int UnlockLevel => unlockLevel;
+    public int NeedUp => needUp;
+    public int StatRerollCost => statRerollCost;
+    public int UpResetCostValue => UpResetCost;
+    public bool IsConfigured => Slots.Exists(slot => slot.SlotType != StatType.None);
     
     public float CurrentProbability
     {
@@ -45,6 +53,47 @@ public class AbilityStone
     }
     
     public int currentProbabilityCount;
+
+    public int GetOpportunityCount(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= slotUpOpportunitys.Count)
+        {
+            return 0;
+        }
+
+        return slotUpOpportunitys[slotIndex];
+    }
+
+    public int GetSuccessCount(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= Slots.Count)
+        {
+            return 0;
+        }
+
+        return Slots[slotIndex].successCounter.Count(x => x);
+    }
+
+    public int GetAttemptCount(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= Slots.Count)
+        {
+            return 0;
+        }
+
+        return Slots[slotIndex].successCounter.Count;
+    }
+
+    public bool CanAttemptUpgrade(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= Slots.Count)
+        {
+            return false;
+        }
+
+        return Slots[slotIndex].SlotType != StatType.None
+            && Slots[slotIndex].successCounter.Count < GetOpportunityCount(slotIndex);
+    }
 
     public void LoadStone()
     {
