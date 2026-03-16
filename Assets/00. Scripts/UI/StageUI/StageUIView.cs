@@ -9,9 +9,10 @@ using UnityEngine.UI;
 /// </summary>
 public sealed class StageUIView
 {
-    private readonly TextMeshProUGUI popupStageLevelText;
-    private readonly TextMeshProUGUI mapInfoStageNameText;
-    private readonly TextMeshProUGUI mapInfoStageLevelText;
+    private TextMeshProUGUI popupStageLevelText;
+    private TextMeshProUGUI mapInfoStageNameText;
+    private TextMeshProUGUI mapInfoStageLevelText;
+    private TextMeshProUGUI mapInfoFloorText;
     private readonly TextMeshProUGUI progressText;
     private readonly Slider progressSlider;
     private readonly GameObject bossPanel;
@@ -28,6 +29,7 @@ public sealed class StageUIView
         TextMeshProUGUI popupStageLevelText,
         TextMeshProUGUI mapInfoStageNameText,
         TextMeshProUGUI mapInfoStageLevelText,
+        TextMeshProUGUI mapInfoFloorText,
         TextMeshProUGUI progressText,
         Slider progressSlider,
         GameObject bossPanel,
@@ -40,9 +42,7 @@ public sealed class StageUIView
         Color summonBossEnabledColor,
         Color summonBossDisabledColor)
     {
-        this.popupStageLevelText = popupStageLevelText;
-        this.mapInfoStageNameText = mapInfoStageNameText;
-        this.mapInfoStageLevelText = mapInfoStageLevelText;
+        UpdateStageTextTargets(popupStageLevelText, mapInfoStageNameText, mapInfoStageLevelText, mapInfoFloorText);
         this.progressText = progressText;
         this.progressSlider = progressSlider;
         this.bossPanel = bossPanel;
@@ -56,23 +56,51 @@ public sealed class StageUIView
         this.summonBossDisabledColor = summonBossDisabledColor;
     }
 
-    public void Render(int chapter, int stageNumber, string stageName, int currentKill, int maxKill)
+    public void UpdateStageTextTargets(
+        TextMeshProUGUI popupStageLevelText,
+        TextMeshProUGUI mapInfoStageNameText,
+        TextMeshProUGUI mapInfoStageLevelText,
+        TextMeshProUGUI mapInfoFloorText)
     {
-        SetStageLevel(chapter, stageNumber);
+        this.popupStageLevelText = popupStageLevelText;
+        this.mapInfoStageNameText = mapInfoStageNameText;
+        this.mapInfoStageLevelText = mapInfoStageLevelText;
+        this.mapInfoFloorText = mapInfoFloorText;
+    }
+
+    public void Render(
+        string popupStageLevel,
+        string stageName,
+        string mapInfoLevel,
+        bool showMapInfoLevel,
+        string mapInfoFloor,
+        bool showMapInfoFloor,
+        int currentKill,
+        int maxKill)
+    {
+        SetStageDisplay(popupStageLevel, mapInfoLevel, showMapInfoLevel, mapInfoFloor, showMapInfoFloor);
         SetStageName(stageName);
         SetStageProgress(currentKill, maxKill);
     }
 
     public void SetStageName(string stageName)
     {
-        mapInfoStageNameText.text = string.IsNullOrEmpty(stageName) ? "-" : stageName;
+        if (mapInfoStageNameText != null)
+            mapInfoStageNameText.text = string.IsNullOrEmpty(stageName) ? "-" : stageName;
     }
 
-    public void SetStageLevel(int chapter, int stage)
+    public void SetStageDisplay(
+        string popupStageLevel,
+        string mapInfoLevel,
+        bool showMapInfoLevel,
+        string mapInfoFloor,
+        bool showMapInfoFloor)
     {
-        string levelText = chapter > 0 && stage > 0 ? $"{chapter}-{stage}" : "-";
-        popupStageLevelText.text = levelText;
-        mapInfoStageLevelText.text = levelText;
+        SetText(popupStageLevelText, popupStageLevel);
+        SetText(mapInfoStageLevelText, mapInfoLevel);
+        SetText(mapInfoFloorText, mapInfoFloor);
+        SetTextVisible(mapInfoStageLevelText, showMapInfoLevel);
+        SetTextVisible(mapInfoFloorText, showMapInfoFloor);
     }
 
     public void SetStageProgress(int currentKill, int maxKill)
@@ -129,20 +157,27 @@ public sealed class StageUIView
 
     public void BindSummonButton(UnityAction onClick)
     {
+        if (summonBossButton == null)
+            return;
+
         summonBossButton.onClick.RemoveListener(onClick);
         summonBossButton.onClick.AddListener(onClick);
     }
 
     public void UnbindSummonButton(UnityAction onClick)
     {
-        summonBossButton.onClick.RemoveListener(onClick);
+        if (summonBossButton != null)
+            summonBossButton.onClick.RemoveListener(onClick);
     }
 
     public void SetSummonInteractable(bool interactable)
     {
-        summonBossButton.interactable = interactable;
-        summonBossButtonImage.color = interactable ? summonBossEnabledColor : summonBossDisabledColor;
-        summonBossIconImage.color = interactable ? summonBossEnabledColor : summonBossDisabledColor;
+        if (summonBossButton != null)
+            summonBossButton.interactable = interactable;
+        if (summonBossButtonImage != null)
+            summonBossButtonImage.color = interactable ? summonBossEnabledColor : summonBossDisabledColor;
+        if (summonBossIconImage != null)
+            summonBossIconImage.color = interactable ? summonBossEnabledColor : summonBossDisabledColor;
     }
 
     private static string FormatTimer(float seconds)
@@ -157,5 +192,17 @@ public sealed class StageUIView
 
         float percent = Mathf.Clamp01(currentHp / maxHp) * 100f;
         return $"{Mathf.RoundToInt(percent)}%";
+    }
+
+    private static void SetText(TextMeshProUGUI target, string value)
+    {
+        if (target != null)
+            target.text = string.IsNullOrEmpty(value) ? "-" : value;
+    }
+
+    private static void SetTextVisible(TextMeshProUGUI target, bool visible)
+    {
+        if (target != null)
+            target.gameObject.SetActive(visible);
     }
 }

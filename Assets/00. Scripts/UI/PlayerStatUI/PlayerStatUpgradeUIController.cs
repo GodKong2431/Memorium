@@ -204,17 +204,20 @@ public class PlayerStatUpgradeUIController : UIControllerBase
     {
         iconByStat.Clear();
 
-        for (int i = 0; i < statIcons.Count; i++)
+        // for (int i = 0; i < statIcons.Count; i++)
+        // {
+        //     StatIconEntry entry = statIcons[i];
+        //     iconByStat[entry.statType] = entry.icon;
+        // }
+        foreach(var icon in IconManager.StatIconSO.StatIconDict)
         {
-            StatIconEntry entry = statIcons[i];
-            iconByStat[entry.statType] = entry.icon;
+            iconByStat[icon.Key] = icon.Value;
         }
     }
 
     private Sprite GetIcon(StatType statType)
     {
-        if (statIconSO == null) return null;
-        return statIconSO.StatIconDict.TryGetValue(statType, out Sprite icon) ? icon : null;
+        return iconByStat.TryGetValue(statType, out Sprite icon) ? icon : null;
     }
 
     private static string FormatCurrentStatText(StatType statType, float statValue)

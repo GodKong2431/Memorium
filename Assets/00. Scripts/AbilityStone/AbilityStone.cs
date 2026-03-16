@@ -73,6 +73,16 @@ public class AbilityStone
 
         return Slots[slotIndex].successCounter.Count(x => x);
     }
+    
+    public StatType GetStatType(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= Slots.Count)
+        {
+            return 0;
+        }
+        
+        return Slots[slotIndex].SlotType;
+    }
 
     public int GetAttemptCount(int slotIndex)
     {
@@ -167,6 +177,7 @@ public class AbilityStone
             Slots[i].TypeSetting(currentType);
             Slots[i].increaseStat = AbilityStoneManager.Instance.so.StoneGradeStatUpDict[currentType].SetStat(stoneGrade);
         }
+        
     }
     
     public bool UpStone(int slotIndex)

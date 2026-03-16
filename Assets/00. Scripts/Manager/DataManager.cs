@@ -221,6 +221,8 @@ public class DataManager : Singleton<DataManager>
         }
         catch (DecoderFallbackException)
         {
+            Debug.LogError($"[인코딩 범인 발견] 완벽한 UTF-8이 아닌 파일: {textAsset.name}");
+            
             return Encoding.GetEncoding(949).GetString(bytes).TrimStart('\uFEFF');
         }
     }

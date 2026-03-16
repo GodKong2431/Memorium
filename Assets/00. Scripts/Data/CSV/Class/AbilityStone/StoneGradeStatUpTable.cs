@@ -10,4 +10,5 @@ public class StoneGradeStatUpTable : TableBase
     public float stoneUnique;
     public float stoneLegend;
     public float stoneMyth;
+    public StoneTier stoneTier;
 }

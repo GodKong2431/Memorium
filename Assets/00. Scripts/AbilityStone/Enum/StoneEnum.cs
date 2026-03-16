@@ -30,3 +30,8 @@ public static class StoneGroups
         StatType.EXP_GAIN,
     };
 }
+
+public enum StoneTier
+{
+    
+}
