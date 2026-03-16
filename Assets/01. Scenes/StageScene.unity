@@ -13869,7 +13869,6 @@ MonoBehaviour:
   popupUpgradeButton: {fileID: 1025246009}
   popupUpgradeButtonImage: {fileID: 1025246010}
   popupRequirePointText: {fileID: 191020054}
-  popupGrowthIconImage: {fileID: 1689650713}
   popupGrowthText: {fileID: 45965747}
   statIcons: []
   availableAccent: {r: 1, g: 0.83137256, b: 0.22745098, a: 1}
@@ -55780,6 +55779,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1418028766}
+  - component: {fileID: 1418028767}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -55805,6 +55805,18 @@ Transform:
   - {fileID: 1771992385}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1418028767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418028765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb13501055942f240840acd35410f2cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIRoot
 --- !u!1 &1419946964
 GameObject:
   m_ObjectHideFlags: 0
@@ -58148,6 +58160,7 @@ MonoBehaviour:
   textPopupStageLevel: {fileID: 1683848692}
   textMapInfoStageName: {fileID: 1372351260}
   textMapInfoStageLevel: {fileID: 264595626}
+  textMapInfoFloor: {fileID: 0}
   textProgress: {fileID: 6348806041358245321}
   sliderStageProgressBar: {fileID: 6348806041326279948}
   bossPanel: {fileID: 2141478281}

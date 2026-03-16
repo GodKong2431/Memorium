@@ -73,6 +73,8 @@ public class InfinityMap : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (mapsRenderer == null || mapsRenderer.Count == 0)
+            return;
         if (!other.CompareTag("Player"))
             return;
         MapMove();

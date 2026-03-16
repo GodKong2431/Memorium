@@ -417,7 +417,7 @@ public class TraitContentsUIController : UIControllerBase
     private void RefreshPointText(BigDouble points)
     {
         if (pointText != null)
-            pointText.text = points.ToString();
+            pointText.text = points.ToString("F0");
     }
 
     private void RefreshTierHeader(TierRuntime tierRuntime, bool tierUnlocked, bool tierMastered)
