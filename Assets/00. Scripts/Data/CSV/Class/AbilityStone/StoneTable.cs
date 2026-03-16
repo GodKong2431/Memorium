@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class StoneTable : TableBase
 {
     public StoneGrade stoneGrade;
-    public StoneTier stoneTier;
+    public bool stoneTier;
     public int stoneUpCost;
     public int stoneUnlock;
     public int stoneNeedUp;
