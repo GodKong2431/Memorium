@@ -163,6 +163,11 @@ public class TraitContentsUIController : UIControllerBase
 
             iconByStat[entry.statType] = entry.icon;
         }
+        
+        foreach(var icon in IconManager.StatIconSO.StatIconDict)
+        {
+            iconByStat[icon.Key] = icon.Value;
+        }
     }
 
     private void ConfigurePopupEvents()
