@@ -46,6 +46,8 @@ public class AbilityStone
     public int UpResetCostValue => UpResetCost;
     public bool IsConfigured => Slots.Exists(slot => slot.SlotType != StatType.None);
     
+    public bool isUnlock = false;
+    
     public float CurrentProbability
     {
         get => currentProbability;
