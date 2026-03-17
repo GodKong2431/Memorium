@@ -201,5 +201,8 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         _ctx.TakeDamage(damage, damageType);
     }
 
-
+    public void OnAttackReady()
+    {
+        animator.SetBool("AttackReady", false);
+    }
 }

@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.AI;
+
+[System.Serializable]
 
 public class PlayerStateIdle : IPlayerState
 {
@@ -16,6 +17,7 @@ public class PlayerStateIdle : IPlayerState
 
     public void OnExit(PlayerStateContext ctx)
     {
+        ctx.Animator.ResetTrigger("Idle");
     }
 
     public void OnUpdate(PlayerStateContext ctx)
@@ -34,6 +36,8 @@ public class PlayerStateIdle : IPlayerState
     private static void SetAnimatorTrigger(PlayerStateContext ctx, string trigger)
     {
         if (ctx.Animator != null && !string.IsNullOrEmpty(trigger))
+        {
             ctx.Animator.SetTrigger(trigger);
+        }
     }
 }
