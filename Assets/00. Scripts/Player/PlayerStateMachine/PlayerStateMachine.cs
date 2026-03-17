@@ -23,6 +23,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     [SerializeField] private float stopAngle;
     
     [SerializeField] private float attackRange = 3f;
+    private float _prevValue;
     public PlayerStateContext _ctx { get; private set; }
     private Dictionary<PlayerStateType, IPlayerState> _states;
     //private IPlayerState _current;
@@ -207,5 +208,16 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     public void OnAttackReady()
     {
         animator.SetBool("AttackReady", false);
+    }
+    void OnValidate()
+    {
+        if (attackRange == _prevValue) return;
+        
+        _prevValue = attackRange;
+        
+        if (_ctx != null)
+        {
+            _ctx.AttackRange = attackRange;
+        }
     }
 }
