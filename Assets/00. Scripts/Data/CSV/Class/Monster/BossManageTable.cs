@@ -12,7 +12,7 @@ public class BossManageTable : TableBase
     public int baseAtkCastRate;
     public int atkBiasIncreaseRate;
     public float atkCoolTime;
-    public string resetBiasCheck;
+    public bool resetBiasCheck;
     public string rangeShape;
     public float rangeSize;
     public string colorNormal;

@@ -532,6 +532,8 @@ public class EquipReinforceUIController : UIControllerBase
                 return "마법방어력";
             case StatType.MOVE_SPEED:
                 return "이동속도";
+            case StatType.COOLDOWN_REDUCE:
+                return "쿨타임 감소";
             default:
                 return statType.ToString();
         }

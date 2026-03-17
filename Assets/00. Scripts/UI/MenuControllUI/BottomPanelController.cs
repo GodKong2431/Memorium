@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(ToggleGroup))]
@@ -27,6 +28,13 @@ public class BottomPanelController : MonoBehaviour
 
 #region Runtime Types
     // 페이지 안쪽 ScrollRect의 기준 높이를 기억해 두는 캐시다.
+    private sealed class ExternalPageToggleBinding
+    {
+        public Toggle toggle;
+        public RectTransform page;
+        public UnityAction<bool> listener;
+    }
+
     private sealed class PageResizeCache
     {
         public RectTransform page;
@@ -87,6 +95,7 @@ public class BottomPanelController : MonoBehaviour
 
 #region Runtime Fields
     private readonly List<PageResizeCache> pageResizeCaches = new List<PageResizeCache>();
+    private readonly List<ExternalPageToggleBinding> externalPageToggleBindings = new List<ExternalPageToggleBinding>();
 
     private ToggleGroup toggleGroup;
     private Canvas parentCanvas;
@@ -312,6 +321,7 @@ public class BottomPanelController : MonoBehaviour
         }
 
         RefreshMainSelection();
+        RefreshExternalPageToggles();
 
         if (activeTab < 0)
         {
@@ -379,6 +389,58 @@ public class BottomPanelController : MonoBehaviour
         ShowManagedPage(page);
     }
 
+    public void RegisterExternalPageToggle(Toggle toggle, RectTransform page)
+    {
+        if (toggle == null || page == null)
+            return;
+
+        UnregisterExternalPageToggle(toggle);
+
+        toggle.group = null;
+        toggle.toggleTransition = Toggle.ToggleTransition.None;
+        toggle.transition = Selectable.Transition.None;
+        if (toggle.graphic == toggle.targetGraphic)
+            toggle.graphic = null;
+
+        ExternalPageToggleBinding binding = new ExternalPageToggleBinding
+        {
+            toggle = toggle,
+            page = page
+        };
+        binding.listener = isOn => OnExternalPageToggleChanged(binding, isOn);
+        externalPageToggleBindings.Add(binding);
+        toggle.onValueChanged.AddListener(binding.listener);
+        SyncExternalPageToggle(binding);
+    }
+
+    public void UnregisterExternalPageToggle(Toggle toggle)
+    {
+        if (toggle == null)
+            return;
+
+        for (int i = externalPageToggleBindings.Count - 1; i >= 0; i--)
+        {
+            ExternalPageToggleBinding binding = externalPageToggleBindings[i];
+            if (binding.toggle != toggle)
+                continue;
+
+            if (binding.listener != null)
+                binding.toggle.onValueChanged.RemoveListener(binding.listener);
+
+            externalPageToggleBindings.RemoveAt(i);
+        }
+    }
+
+    public bool IsManagedPageRegistered(RectTransform page)
+    {
+        return page != null && TryFindManagedPage(page, out _, out _);
+    }
+
+    public void ResetForSceneChange()
+    {
+        SelectMain(-1, true);
+    }
+
     private bool TryFindManagedPage(RectTransform page, out int tabIndex, out int pageIndex)
     {
         for (int i = 0; i < tabs.Count; i++)
@@ -425,6 +487,7 @@ public class BottomPanelController : MonoBehaviour
         }
 
         RefreshMainSelection();
+        RefreshExternalPageToggles();
 
         TabConfig tab = tabs[activeTab];
         bool wasVisible = sheetPanel != null && sheetPanel.activeSelf;
@@ -508,6 +571,7 @@ public class BottomPanelController : MonoBehaviour
         SetTitle(string.Empty);
         SetSheetVisible(false);
         ResetSheetHeight();
+        RefreshExternalPageToggles();
     }
 
     // 탭 오픈 시 기본 서브 페이지를 결정한다.
@@ -579,6 +643,7 @@ public class BottomPanelController : MonoBehaviour
 
         RefreshSubSelection(tab, activeSub);
         ShowSubPage(tab, activeSub);
+        RefreshExternalPageToggles();
     }
 
     // 서브 토글 선택 색상을 갱신한다.
@@ -1127,6 +1192,53 @@ public class BottomPanelController : MonoBehaviour
 
 #region Utility
     // 활성 영역의 자식들을 원래 컨테이너로 되돌린다.
+    private void OnExternalPageToggleChanged(ExternalPageToggleBinding binding, bool isOn)
+    {
+        if (binding == null || binding.page == null)
+            return;
+
+        if (isOn)
+        {
+            ShowManagedPage(binding.page);
+            return;
+        }
+
+        if (IsManagedPageSelected(binding.page))
+            CloseActiveSheet();
+    }
+
+    private void RefreshExternalPageToggles()
+    {
+        for (int i = 0; i < externalPageToggleBindings.Count; i++)
+            SyncExternalPageToggle(externalPageToggleBindings[i]);
+    }
+
+    private void SyncExternalPageToggle(ExternalPageToggleBinding binding)
+    {
+        if (binding == null || binding.toggle == null)
+            return;
+
+        binding.toggle.SetIsOnWithoutNotify(IsManagedPageSelected(binding.page));
+    }
+
+    private bool IsManagedPageSelected(RectTransform page)
+    {
+        if (page == null || !TryFindManagedPage(page, out int tabIndex, out int pageIndex))
+            return false;
+
+        if (tabIndex != activeTab || !IsValidTabIndex(tabIndex))
+            return false;
+
+        TabConfig tab = tabs[tabIndex];
+        if (!tab.routeBySubMenu)
+            return true;
+
+        if (activeSub < 0)
+            return pageIndex == 0;
+
+        return activeSub == pageIndex;
+    }
+
     private static RectTransform GetPage(TabConfig tab, int pageIndex)
     {
         if (tab == null || pageIndex < 0 || pageIndex >= tab.pages.Count)

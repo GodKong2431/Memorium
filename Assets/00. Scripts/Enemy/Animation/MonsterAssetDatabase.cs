@@ -37,11 +37,11 @@ public class MonsterAssetDatabase : ScriptableObject
         public MonsterAnimationConfig animationConfig;
         [Header("VFX")]
         public GameObject attackEffectPrefab;
-        public GameObject hitEffectPrefab;
+        public GameObject onHitEffectPrefab;
         public GameObject dieEffectPrefab;
         [Header("SFX")]
         public AudioClip attackSfx;
-        public AudioClip hitSfx;
+        public AudioClip onHitSfx;
         public AudioClip dieSfx;
         public AudioClip footstepSfx;
     }

@@ -5,9 +5,9 @@ using System.Collections.Generic;
 public class SynergyTable : TableBase
 {
     public string synergyType;
-    public string synergyRarity;
-    public string providedStat1;
-    public string providedStat2;
+    public RarityType synergyRarity;
+    public StatType providedStat1;
+    public StatType providedStat2;
     public float statUp1;
     public float statUp2;
     public string synergyName;

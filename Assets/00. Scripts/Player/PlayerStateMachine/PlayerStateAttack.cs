@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 [System.Serializable]
 public class PlayerStateAttack : IPlayerState
@@ -25,14 +26,20 @@ public class PlayerStateAttack : IPlayerState
             Transform t = ctx.PlayerTransform;
             _currentAttackEffect = Object.Instantiate(ctx.AttackEffectPrefab, t.position + Vector3.up * 1f, Quaternion.identity, t);
         }
+        SetAnimatorTrigger(ctx, "Attack");
+        ctx.Animator.SetInteger("AttackIndex",-1);
     }
 
     public void OnExit(PlayerStateContext ctx)
     {
+        ctx.Animator.ResetTrigger("Attack");
+        ctx.Animator.SetInteger("AttackIndex",-1);
     }
 
     public void OnUpdate(PlayerStateContext ctx)
     {
+        //ctx.Animator.SetInteger("AttackIndex",-1);
+        
         if (EnemyRegistry.isEnemyExist == false)
         {
             ctx.RequestState(PlayerStateType.Idle);
@@ -82,6 +89,8 @@ public class PlayerStateAttack : IPlayerState
     
         if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && Time.time >= ctx.NextAttackTime)
         {
+            RandomAnimation(ctx);
+            ctx.Animator.SetBool("AttackReady", true);
             ctx.NextAttackTime = Time.time + delay;
             
             if (enemy.TryGetComponent<EnemyStateMachine>(out var target))
@@ -99,7 +108,13 @@ public class PlayerStateAttack : IPlayerState
             _currentAttackEffect = null;
         }
     }
-
+    
+    private void RandomAnimation(PlayerStateContext ctx)
+    {
+        int random = Random.Range(0,4);
+        ctx.Animator.SetInteger("AttackIndex",random);
+    }
+    
     private void BossChecker(EnemyStateMachine target, PlayerStateContext ctx)
     {
         if (target.TryGetComponent<EnemyStatPresenter>(out var statPresenter))

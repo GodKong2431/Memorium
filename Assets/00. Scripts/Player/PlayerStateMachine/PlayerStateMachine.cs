@@ -75,7 +75,8 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     }
     private void OnDisable()
     {
-        _ctx.ObjDisable();
+        if (_ctx != null)
+            _ctx.ObjDisable();
     }
 
     IEnumerator Start()
@@ -112,6 +113,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         playerStateMachine.ChangeState(PlayerStateType.Idle);
 
         IsComplete = true;
+        NotifyPlayerSpawned();
     }
 
     [ContextMenu("픽시소환")]
@@ -188,10 +190,19 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         BerserkerModeController.OnBerserkerModeChanged -= OnBerserkerModeChanged;
     }
 
+    private void NotifyPlayerSpawned()
+    {
+        ScenePlayerLocator.SetPlayerTransform(transform);
+        GameEventManager.OnPlayerSpawned?.Invoke(transform);
+    }
+
     public void TakeDamage(float damage, DamageType damageType)
     {
         _ctx.TakeDamage(damage, damageType);
     }
 
-
+    public void OnAttackReady()
+    {
+        animator.SetBool("AttackReady", false);
+    }
 }

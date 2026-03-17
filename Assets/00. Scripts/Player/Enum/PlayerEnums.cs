@@ -19,7 +19,7 @@ public enum StatType
     COOLDOWN_REDUCE = 12,
     GOLD_GAIN = 13, EXP_GAIN = 14,
     BOSS_DMG = 15, NORMAL_DMG = 16,
-    DMG_MULT =17,
+    DMG_MULT =17, ALL_STAT = 18
 }
 
 public enum SlotType

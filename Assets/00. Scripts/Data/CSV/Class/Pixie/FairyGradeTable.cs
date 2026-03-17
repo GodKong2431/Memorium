@@ -10,4 +10,5 @@ public class FairyGradeTable : TableBase
     public float costSlope;
     public int fragmentCostBase;
     public float fragmentCostSlope;
+    public string auraEffectPrefabPath;
 }

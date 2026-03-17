@@ -12,15 +12,15 @@ public static class TmpFontAssetGenerator
     private const string KoreanValidationSample = "가나다라마바사아자차카타파하힣한글테스트0123456789ABCabc";
 
     // Unity 에디터가 스크립트를 다시 읽은 뒤 한 번만 자동 실행한다.
-    [InitializeOnLoadMethod]
-    private static void GenerateOnLoad()
-    {
-        if (SessionState.GetBool(SessionKey, false))
-            return;
+    // [InitializeOnLoadMethod]
+    // private static void GenerateOnLoad()
+    // {
+    //     if (SessionState.GetBool(SessionKey, false))
+    //         return;
 
-        SessionState.SetBool(SessionKey, true);
-        EditorApplication.delayCall += GenerateOrUpdateFontAssets;
-    }
+    //     SessionState.SetBool(SessionKey, true);
+    //     EditorApplication.delayCall += GenerateOrUpdateFontAssets;
+    // }
 
     // 메뉴에서 수동으로 TMP 폰트 자산 생성과 검증을 실행한다.
     [MenuItem("Tools/Fonts/Generate TMP Font Assets")]

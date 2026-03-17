@@ -67,7 +67,19 @@ public static class JSONService
         }
 
         string json = File.ReadAllText(savePath);
-        return JsonUtility.FromJson<T>(json);
+
+        if(string.IsNullOrEmpty(json))
+        {
+            return new T();
+        }
+
+        T loadData = JsonUtility.FromJson<T>(json);
+
+        if(loadData == null)
+        {
+            return new T();
+        }
+        return loadData;
     }
 
     public static void DeleteSaveData<T>()

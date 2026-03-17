@@ -20,6 +20,9 @@ public class SceneController : Singleton<SceneController>
         _isLoading = true;
         string targetSceneName = type.ToString();
 
+        if (UIRoot.Instance != null)
+            UIRoot.Instance.PrepareForSceneTransfer();
+
         SceneBase currentScene = Object.FindFirstObjectByType<SceneBase>();
         if (currentScene != null)
         {

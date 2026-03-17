@@ -20,6 +20,7 @@ public class PlayerStateMove : IPlayerState
 
     public void OnExit(PlayerStateContext ctx)
     {
+        ctx.Animator.ResetTrigger("Move");
     }
 
     public void OnUpdate(PlayerStateContext ctx)

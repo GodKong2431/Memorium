@@ -22,18 +22,22 @@ public class BattleSkillPresenter : MonoBehaviour
     {
         this.cooldownProvider = cooldownProvider;
         RefreshSlots();
+        RefreshCooldowns();
     }
 
     // 활성화될 때 프리셋 구독을 연결하고 슬롯을 갱신합니다.
     private void OnEnable()
     {
+        GameEventManager.OnPlayerSpawned += OnPlayerSpawned;
         EnsureSkillModuleSubscription();
+        TryBindCurrentPlayer();
         RefreshSlots();
     }
 
     // 비활성화될 때 프리셋 구독을 해제합니다.
     private void OnDisable()
     {
+        GameEventManager.OnPlayerSpawned -= OnPlayerSpawned;
         UnsubscribeSkillModule();
     }
 
@@ -41,29 +45,40 @@ public class BattleSkillPresenter : MonoBehaviour
     private void Update()
     {
         EnsureSkillModuleSubscription();
-
-        if (cooldownProvider == null || slotViews == null)
-            return;
-
-        for (int i = 0; i < slotViews.Length; i++)
-        {
-            if (slotViews[i] == null)
-                continue;
-
-            float remain = cooldownProvider.GetCooldownRemain(i);
-            float max = cooldownProvider.GetCooldownMax(i);
-
-            if (remain > 0f && max > 0f)
-                slotViews[i].UpdateCooldown(remain / max, remain);
-            else
-                slotViews[i].UpdateCooldown(0f, 0f);
-        }
+        RefreshCooldowns();
     }
 
     // 프리셋이 바뀌면 아이콘 구성을 다시 그립니다.
     private void OnPresetChanged(int presetIndex)
     {
         RefreshSlots();
+    }
+
+    private void OnPlayerSpawned(Transform playerTransform)
+    {
+        BindPlayer(playerTransform);
+    }
+
+    private void ResetForSceneChange()
+    {
+        BindCooldownProvider(null);
+    }
+
+    private void TryBindCurrentPlayer()
+    {
+        if (ScenePlayerLocator.TryGetPlayerTransform(out Transform playerTransform))
+            BindPlayer(playerTransform);
+        else
+            BindCooldownProvider(null);
+    }
+
+    private void BindPlayer(Transform playerTransform)
+    {
+        PlayerSkillHandler playerSkillHandler = playerTransform != null
+            ? playerTransform.GetComponent<PlayerSkillHandler>()
+            : null;
+
+        BindCooldownProvider(playerSkillHandler);
     }
 
     // 스킬 인벤토리 모듈 변경을 감지하고 이벤트를 연결합니다.
@@ -134,6 +149,32 @@ public class BattleSkillPresenter : MonoBehaviour
         }
     }
 
+    private void RefreshCooldowns()
+    {
+        if (slotViews == null)
+            return;
+
+        if (cooldownProvider == null)
+        {
+            ClearCooldowns();
+            return;
+        }
+
+        for (int i = 0; i < slotViews.Length; i++)
+        {
+            if (slotViews[i] == null)
+                continue;
+
+            float remain = cooldownProvider.GetCooldownRemain(i);
+            float max = cooldownProvider.GetCooldownMax(i);
+
+            if (remain > 0f && max > 0f)
+                slotViews[i].UpdateCooldown(remain / max, remain);
+            else
+                slotViews[i].UpdateCooldown(0f, 0f);
+        }
+    }
+
     // 특정 슬롯 버튼 클릭 시 호출할 콜백을 연결합니다.
     public void SetSlotClickListener(int index, Action callback)
     {
@@ -167,6 +208,20 @@ public class BattleSkillPresenter : MonoBehaviour
                 continue;
 
             slotViews[i].SetEmpty();
+        }
+    }
+
+    private void ClearCooldowns()
+    {
+        if (slotViews == null)
+            return;
+
+        for (int i = 0; i < slotViews.Length; i++)
+        {
+            if (slotViews[i] == null)
+                continue;
+
+            slotViews[i].UpdateCooldown(0f, 0f);
         }
     }
 

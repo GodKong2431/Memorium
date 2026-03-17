@@ -46,6 +46,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     [SerializeField] private float expectedCrit;
 
     private EffectController _playerEffectController;
+    private bool _isBatchUpdatingStats;
     
     public bool isBerserker;
     IEnumerator Start()
@@ -90,7 +91,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     public PlayerSlot PlayerSlot { get { return playerSlot; } }
 
     /// <summary>버서커 모드 포함한 전투력. normalPower 기반에 버서커 배율 적용.</summary>
-    public float NormalPower => GetNormalPowerWithBerserker();
+    public float NormalPower => normalPower;
 
     public event Action StatUpdate;
 
@@ -170,10 +171,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         EventSet();
 
-        foreach (StatType playerStat in Enum.GetValues(typeof(StatType)))
-        {
-            FinalStat(playerStat);
-        }
+        AllStatUpdate();
     }
 
     public void FinalStat(StatType playerStatType)
@@ -182,6 +180,9 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
             return;
         FinalStats.TryGetValue(playerStatType, out var finalStat);
         finalStat.FinalStatCalculate();
+
+        if (_isBatchUpdatingStats)
+            return;
 
         NormalPowerCalculate();
 
@@ -272,10 +273,16 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
     public void AllStatUpdate()
     {
+        _isBatchUpdatingStats = true;
+
         foreach (StatType statType in Enum.GetValues(typeof(StatType)))
         {
             FinalStat(statType);
         }
+
+        _isBatchUpdatingStats = false;
+        NormalPowerCalculate();
+        StatUpdate?.Invoke();
     }
 
     public void Upgrade(StatUpgrade statUpgrade)
@@ -341,18 +348,6 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     //}
     #region 버서커 모드 Berserker Mode
     private const float BerserkerStatMultiplier = 2f;
-
-    private float GetNormalPowerWithBerserker()
-    {
-        float atk = GetFinalStat(StatType.ATK);
-        float atkSpeed = GetFinalStat(StatType.ATK_SPEED);
-        float critChance = GetFinalStat(StatType.CRIT_CHANCE);
-        float critMult = GetFinalStat(StatType.CRIT_MULT);
-        float expectedCrit = 1f + (critChance * (critMult - 1f));
-        float dmgMult = GetFinalStat(StatType.DMG_MULT);
-        float normalDmg = GetFinalStat(StatType.NORMAL_DMG);
-        return (atk * atkSpeed * expectedCrit) * (1f + dmgMult) * (1f + normalDmg);
-    }
 
     /// <summary>버서커 모드 활성 시 baseValue 2배 반환. 공격속도(ATK_SPEED)는 제외.</summary>
     public float ApplyBerserkerMultiplier(StatType statType, float baseValue)

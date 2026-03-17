@@ -572,12 +572,15 @@ public sealed partial class StoneUI
         }
 
         TextMeshProUGUI[] slotTexts = upgradePanel.ReconfigureSlotTexts;
+        Image[] slotImages = upgradePanel.ReconfigureSlotImages;
+        
         for (int i = 0; i < slotTexts.Length; i++)
         {
             if (slotTexts[i] != null)
             {
                 AbilityStoneSlot slotData = i < stoneData.Slots.Count ? stoneData.Slots[i] : null;
                 slotTexts[i].text = BuildPopupSlotText(slotData, i);
+                slotImages[i].sprite = IconManager.GetIcon(slotData.SlotType);
             }
         }
 
@@ -605,11 +608,14 @@ public sealed partial class StoneUI
         }
 
         TextMeshProUGUI[] slotTexts = upgradePanel.ResetSlotTexts;
+        Image[] slotImegs = upgradePanel.ResetSlotImages;
+        
         for (int i = 0; i < slotTexts.Length; i++)
         {
             if (slotTexts[i] != null)
             {
                 slotTexts[i].text = $"{stoneData.GetSuccessCount(i)} / {stoneData.GetOpportunityCount(i)}";
+                slotImegs[i].sprite = IconManager.GetIcon(stoneData.GetStatType(i));
             }
         }
 
@@ -919,6 +925,7 @@ public sealed partial class StoneUI
 
         if (grade == StoneGrade.Normal)
         {
+            stoneData.isUnlock = true;
             return true;
         }
 
@@ -927,8 +934,14 @@ public sealed partial class StoneUI
         {
             return false;
         }
-
-        return previousStone.GetUpCount() >= stoneData.NeedUp;
+        
+        if (!stoneData.isUnlock)
+        {
+            stoneData.isUnlock = previousStone.GetUpCount() >= stoneData.NeedUp;
+            return previousStone.GetUpCount() >= stoneData.NeedUp;
+        }
+        
+        return true;
     }
 
     private static string GetStatName(StatType statType)
@@ -964,7 +977,7 @@ public sealed partial class StoneUI
             return TextNotConfigured;
         }
 
-        float displayValue = slotIndex == 2 ? -slotData.increaseStat : slotData.increaseStat;
+        float displayValue = slotIndex == 2 ? -slotData.totalStat : slotData.totalStat;
         return FormatSignedStatValue(slotData.SlotType, displayValue);
     }
 
