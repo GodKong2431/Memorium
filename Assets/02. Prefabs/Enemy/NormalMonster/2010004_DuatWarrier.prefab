@@ -4500,7 +4500,9 @@ GameObject:
   - component: {fileID: -3914466971596722280}
   - component: {fileID: 7894505621230132897}
   - component: {fileID: 8361722983281162090}
-  m_Layer: 0
+  - component: {fileID: -7574559520908493748}
+  - component: {fileID: 2010691478726881077}
+  m_Layer: 6
   m_Name: 2010004_DuatWarrier
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9340,6 +9342,39 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &-7574559520908493748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8046119982280745527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3941da6a3fde0df49b2d387dfb0dc8c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoolableObject
+--- !u!135 &2010691478726881077
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8046119982280745527}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1.2302792
+  m_Center: {x: 0, y: 0.7302792, z: 0}
 --- !u!1 &8186612281488593023
 GameObject:
   m_ObjectHideFlags: 0
