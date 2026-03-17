@@ -46,7 +46,6 @@ public class PixieFollower : MonoBehaviour
         foreach (var clip in animator.runtimeAnimatorController.animationClips)
         {
             clipLengthCache[clip.name] = clip.length;
-            Debug.Log($"[{clipLengthCache.Count}] 캐싱: {clip.name} / {clip.length}s");
         }
     }
 
@@ -153,7 +152,7 @@ public class PixieFollower : MonoBehaviour
         {
             PixieState.Idle => "IdleA",
             PixieState.Move => "Run",
-            PixieState.Attack => "ATK2",
+            PixieState.Attack => "ATK1",
             _ => "IdleA"
         };
 
