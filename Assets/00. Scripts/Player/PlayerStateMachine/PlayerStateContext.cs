@@ -28,7 +28,7 @@ public class PlayerStateContext : BaseStateContext
     public float MaxMana => StatPresenter?.PlayerStat?.FinalStats[StatType.MP].finalStat ?? 100f;
 
     // 일반공격 사거리
-    public float AttackRange => 2f;
+    public float AttackRange => 3f;
     
     // 스킬공격 사거리
     public float FirstSkillRange => 2.5f;
