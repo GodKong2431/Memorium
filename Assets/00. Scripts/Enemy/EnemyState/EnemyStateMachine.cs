@@ -240,7 +240,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     {
         _ctx.SpawnPosition = transform.position;
         _ctx.Initialize();
-        // 풀 재사용 시 플레이어 참조 갱신 (파괴/리스폰 시 stale 참조 방지)
         RefreshPlayerTransform();
         if (_ctx.SkillHandler != null && _ctx.PlayerTransform != null)
             _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
@@ -255,6 +254,15 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             _ctx.Agent.speed = data.monsterSpeed;
             _ctx.Agent.stoppingDistance = data.attackRange;
         }
+
+        // 애니메이터 초기화 + Idle로 보내기
+        if (_ctx.Animator != null)
+        {
+            _ctx.Animator.Rebind();
+            _ctx.Animator.Update(0f);
+            _ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Idle);
+        }
+
         ChangeState(EnemyStateType.Chase);
     }
 }
