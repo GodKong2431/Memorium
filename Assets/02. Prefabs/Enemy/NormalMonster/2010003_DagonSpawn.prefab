@@ -5617,7 +5617,9 @@ GameObject:
   - component: {fileID: 9152127982420313131}
   - component: {fileID: -5742908962594006145}
   - component: {fileID: 1970672855217536713}
-  m_Layer: 9
+  - component: {fileID: 2208214072121494489}
+  - component: {fileID: 2598818945747175291}
+  m_Layer: 6
   m_Name: 2010003_DagonSpawn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8387,6 +8389,39 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &2208214072121494489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8712258667771190947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3941da6a3fde0df49b2d387dfb0dc8c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoolableObject
+--- !u!135 &2598818945747175291
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8712258667771190947}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1.0106553
+  m_Center: {x: 0, y: 0.5106554, z: -0}
 --- !u!1 &8830365924486127274
 GameObject:
   m_ObjectHideFlags: 0

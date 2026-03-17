@@ -101,8 +101,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             {
                 if (animationConfig == null && entry.animationConfig != null)
                     animationConfig = entry.animationConfig;
-                // if (attackEffectPrefab == null && entry.attackEffectPrefab != null)
-                attackEffectPrefab = entry.attackEffectPrefab;
+
+                if (attackEffectPrefab == null && entry.attackEffectPrefab != null)
+                    attackEffectPrefab = entry.attackEffectPrefab;
+
                 if (onHitEffectPrefab == null && entry.onHitEffectPrefab != null)
                     onHitEffectPrefab = entry.onHitEffectPrefab;
                 if (onHitSfx == null && entry.onHitSfx != null)
