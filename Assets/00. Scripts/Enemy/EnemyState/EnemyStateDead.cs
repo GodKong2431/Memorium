@@ -37,6 +37,7 @@ public class EnemyStateDead : IEnemyState
             Vector3 pos = ctx.EnemyTransform != null ? ctx.EnemyTransform.position : Vector3.zero;
             EnemyKillRewardDispatcher.GrantRewards(rewardData, isBoss: ctx.IsBoss, stageLevel: EnemyKillRewardDispatcher.CurrentStageLevel, worldPosition: pos);
         }
+        EnemyRegistry.UnRegister(ctx.EnemyTransform.GetComponent<Enemy>());
     }
 
     public void OnUpdate(EnemyStateContext ctx)

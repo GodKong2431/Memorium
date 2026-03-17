@@ -15,11 +15,12 @@ public class PlayerStateChase : IPlayerState
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = false;
         _lastDestinationTime = -DestinationRefreshInterval;
-        SetAnimatorTrigger(ctx, "Chase");
+        SetAnimatorTrigger(ctx, "Move");
     }
 
     public void OnExit(PlayerStateContext ctx)
     {
+        ctx.Animator.ResetTrigger("Move");
     }
 
     public void OnUpdate(PlayerStateContext ctx)
