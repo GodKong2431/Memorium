@@ -186,20 +186,26 @@ public sealed class GemInventoryModule : IInventoryModule
     /// <summary>
     /// 보유한 젬 목록중 장착 가능한 m5 모듈 젬 리스트 반환
     /// </summary>
-    public List<OwnedGemData> GetEquippableOwnedM5Gems()
+    public List<OwnedGemData> GetEquippableOwnedM5Gems(int skillId)
     {
         List<OwnedGemData> result = new List<OwnedGemData>();
 
-        foreach (var gem in gemDict)
+        if (SkillToM5Dict.TryGetValue(skillId, out int[] m5Array))
         {
-            int gemId = gem.Key;
-
-            if (ItemToM5Dict.ContainsKey(gemId))
+            for (int i = 0; i < m5Array.Length; i++)
             {
-                result.Add(gem.Value);
+                int m5Id = m5Array[i];
+                if (m5Id == 0) continue;
+
+                int itemId = GetItemIdByM5Id(m5Id);
+                if (itemId == 0) continue;
+
+                if (gemDict.TryGetValue(itemId, out var ownedData))
+                {
+                    result.Add(ownedData);
+                }
             }
         }
-
         return result;
     }
 

@@ -197,13 +197,8 @@ public class PixieFollower : MonoBehaviour
         DataManager.Instance.FairyGradeDict.TryGetValue(fairyInfo.gradeID, out var gradeInfo);
         if (string.IsNullOrEmpty(gradeInfo.auraEffectPrefabPath)) return;
 
-        Addressables.LoadAssetAsync<GameObject>(gradeInfo.auraEffectPrefabPath + ".prefab").Completed += handle =>
-        {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
-                SpawnEffect(handle.Result, transform, true);
-            }
-        };
+        gradeEffect = PoolableParticleManager.Instance.SpawnParticle(
+            gradeInfo.auraEffectPrefabPath + ".prefab", transform, false);
     }
 
     private void SpawnEffect(GameObject prefab, Transform target, bool follow = false)

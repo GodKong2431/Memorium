@@ -18,10 +18,6 @@
         [SerializeField] private string buffEffectKey = "Assets/02. Prefabs/Pixie/Pixie_Buff.prefab";
         [SerializeField] private string debuffEffectKey = "Assets/02. Prefabs/Pixie/Pixie_Debuff.prefab";
 
-
-        private GameObject buffPrefab;
-        private GameObject debuffPrefab;
-
         private OwnedPixieData fairyData;
         private FairyInfoTable fairyInfo;
         private FairyEffectTable effectData;
@@ -45,7 +41,7 @@
             this.playerEffectController = playerEffectController;
             this.fairyData = data;
             context= stateContext;
-
+            
 
             var dataManager = DataManager.Instance;
             if (!dataManager.FairyInfoDict.TryGetValue(data.fairyTable.ID, out fairyInfo)) return;
@@ -56,29 +52,8 @@
             statDatas = new List<FairyStatTable>();
             LoadStatDatas();
             tickTimer = 0f;
-            LoadEffectPrefabs();
         }
 
-        private void LoadEffectPrefabs()
-        {
-            if (!string.IsNullOrEmpty(buffEffectKey))
-            {
-                Addressables.LoadAssetAsync<GameObject>(buffEffectKey).Completed += handle =>
-                {
-                    if (handle.Status == AsyncOperationStatus.Succeeded)
-                        buffPrefab = handle.Result;
-                };
-            }
-
-            if (!string.IsNullOrEmpty(debuffEffectKey))
-            {
-                Addressables.LoadAssetAsync<GameObject>(debuffEffectKey).Completed += handle =>
-                {
-                    if (handle.Status == AsyncOperationStatus.Succeeded)
-                        debuffPrefab = handle.Result;
-                };
-            }
-        }
         private void LoadStatDatas()
         {
             var dataManager = DataManager.Instance;
@@ -160,10 +135,9 @@
                 }
             }
 
-            if (hasBuff)
-                SpawnEffect(buffPrefab, playerTransform, true);
-
-            if (hasDebuff)
+            if (hasBuff) 
+                PoolableParticleManager.Instance.SpawnParticle(buffEffectKey, playerTransform, true);
+            if (hasDebuff) 
                 SpawnDebuffEffects();
         }
         private float CalculateStatValue(FairyStatTable stat)
@@ -211,7 +185,7 @@
         int count = DetectEnemies(effectRadius);
         for (int i = 0; i < count; i++)
         {
-            SpawnEffect(debuffPrefab, hitBuffer[i].transform, true);
+            PoolableParticleManager.Instance.SpawnParticle(debuffEffectKey, hitBuffer[i].transform, true);
         }
     }
     private int DetectEnemies(float radius)
@@ -225,16 +199,5 @@
 
             return Physics.OverlapCapsuleNonAlloc(bottom, top, radius, hitBuffer, layerMask);
 
-        }
-        private void SpawnEffect(GameObject prefab, Transform target, bool follow = false)
-        {
-            if (prefab == null || target == null) return;
-
-            var obj = ObjectPoolManager.Get(prefab, target.position, Quaternion.identity);
-            if (follow)
-            {
-                var particle = obj.GetComponent<PoolableParticle>();
-                particle?.SetFollow(target);
-            }
         }
     }
