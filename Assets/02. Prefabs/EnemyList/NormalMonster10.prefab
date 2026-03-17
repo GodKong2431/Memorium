@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: -2519339963218082479}
   - component: {fileID: 1647506360405476230}
   - component: {fileID: 1267871465026325219}
+  - component: {fileID: 2211870835926365759}
   m_Layer: 6
   m_Name: NormalMonster10
   m_TagString: Untagged
@@ -130,7 +131,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a3af68a6d5ca364e9fdec187c11d870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStatPresenter
-  setting: {fileID: 11400000, guid: 0c0926b023e5e284bab89de6065489b4, type: 2}
   monsterIdFromDataManager: 2010010
 --- !u!195 &5198204872264942134
 NavMeshAgent:
@@ -168,8 +168,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStateMachine
   playerTransformOverride: {fileID: 0}
   animator: {fileID: 0}
-  isBoss: 0
+  animationConfig: {fileID: 0}
   attackEffectPrefab: {fileID: 3616685332895339214, guid: 82a7b746be35c0b499c26ecf818e1ea4, type: 3}
+  assetDatabaseOverride: {fileID: 0}
 --- !u!54 &-2519339963218082479
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -195,7 +196,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 4
   m_CollisionDetection: 0
 --- !u!114 &1647506360405476230
 MonoBehaviour:
@@ -221,3 +222,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3941da6a3fde0df49b2d387dfb0dc8c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoolableObject
+--- !u!114 &2211870835926365759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252973128719962208}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1464f6c377137e24eb8205c204d47017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EffectController

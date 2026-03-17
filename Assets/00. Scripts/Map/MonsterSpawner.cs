@@ -33,6 +33,9 @@ public class MonsterSpawner : MonoBehaviour
 
     List<GameObject> enemyGroup=new List<GameObject>();
 
+
+    bool isSpawnMonster=false;
+
     // 매니저와 맵 설정이 준비될 때까지 대기한 뒤 맵 참조를 가져온다.
     IEnumerator Start()
     {
@@ -45,16 +48,21 @@ public class MonsterSpawner : MonoBehaviour
         yield return new WaitUntil(() => StageManager.Instance != null);
 
         //스테이지 클리어 혹은 패배 시 몬스터 청소
-        StageManager.Instance.OnStageClearOrFailed += ClearMonster;
-
+        //StageManager.Instance.OnStageClearOrFailed += ClearMonster;
     }
 
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Player"))
+        if (!other.CompareTag("Player") || isSpawnMonster)
             return;
+        MonsterSpawn();
+    }
+    public void MonsterSpawn()
+    {
+        if (isSpawnMonster) return;
 
+        isSpawnMonster = true;
         // 보스 소환 준비 여부에 따라 일반 몬스터 또는 보스를 스폰
         if (!StageManager.Instance.isReadyToBossSpawn)
         {
@@ -66,9 +74,10 @@ public class MonsterSpawner : MonoBehaviour
                     Vector3 randX = Random.Range(-randomRange, randomRange) * Vector3.right;
                     Vector3 randZ = Random.Range(-randomRange, randomRange) * Vector3.forward;
                     //오브젝트 풀링으로 전환
-                    GameObject enemy = ObjectPoolManager.Get(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+                    //GameObject enemy = ObjectPoolManager.Get(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
+                    GameObject enemy = ObjectPoolManager.Get(spawnEnemy, MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos[i].position + randX + randZ, MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos[i].rotation);
 
-                    if(!enemyGroup.Contains(enemy))
+                    if (!enemyGroup.Contains(enemy))
                         enemyGroup.Add(enemy);
 
                     // 스폰 이펙트 추가 예정
@@ -83,9 +92,10 @@ public class MonsterSpawner : MonoBehaviour
             GameObject spawnBoss = EnemyListManager.Instance.enemyMap[curSpawnGroupBossMonsterTable.MonsterID];
 
             ////오브젝트 풀링으로 전환
-            GameObject boss = ObjectPoolManager.Get(spawnBoss, spawnPos[spawnPos.Length - 1].position, spawnPos[spawnPos.Length - 1].rotation);
+            //GameObject boss = ObjectPoolManager.Get(spawnBoss, spawnPos[spawnPos.Length - 1].position, spawnPos[spawnPos.Length - 1].rotation);
+            GameObject boss = ObjectPoolManager.Get(spawnBoss, MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos[MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos.Length-1].position, MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos[MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos.Length - 1].rotation);
 
-            if(!enemyGroup.Contains(boss))
+            if (!enemyGroup.Contains(boss))
                 enemyGroup.Add(boss);
 
             // 보스 스폰 이펙트 추가 예정
@@ -93,80 +103,102 @@ public class MonsterSpawner : MonoBehaviour
             InstanceMessageManager.TryShowBossEnter();
             StageManager.Instance.StartBoss(boss);
         }
-
+    }
+    public void ChangeMonsterSpawnPos(Transform parent)
+    {
+        transform.position = MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnTriggerPos.position;
+        isSpawnMonster = false;
+    }
+    public void ChangeMonsterSpawnPos()
+    {
         curSpawnerPos++;
-        if(curSpawnerPos >=maps.Count)
+        if (curSpawnerPos >= maps.Count)
             curSpawnerPos = 0;
-        ChangeParent(maps[curSpawnerPos].transform);
+        transform.position = MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnTriggerPos.position;
+        isSpawnMonster = false;
     }
 
-    private void ChangeParent(Transform parent)
+    public void ResetMonsterSpawnPos()
     {
-        transform.SetParent(parent);
-        transform.localPosition = Vector3.zero;
+        curSpawnerPos = 0;
+        transform.position = MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnTriggerPos.position;
+        isSpawnMonster = false;
     }
 
     // 현재 스테이지에 맞는 스폰 그룹을 다시 구성하고 스폰 데이터를 갱신
     public void SetMonster()
     {
+
+        ClearMonster();
+
         if (maps.Count <= 0)
             maps = MapManager.Instance.maps;
         curSpawnerPos = 0;
-        //if (maps.Count <= 0)
-        //{
-        //    SetMap(1);
-        //}
-        ChangeParent(maps[curSpawnerPos].transform);
 
+        bool changeMonsterGroup=true;
         if (StageManager.Instance != null) 
         { 
             int prevSpawnGroup = curSpawnGroup;
             curSpawnGroup = DataManager.Instance.StageManageDict[StageManager.Instance.stageKeyList[StageManager.Instance.curStage - 1]].monsterSpawnGroup;
             if (curSpawnGroup == prevSpawnGroup)
             {
-
-                return;
+                changeMonsterGroup=false;
+                //return;
             }
         }
-        curSpawnGroupMonsterTable.Clear();
-        enemyPrefab.Clear();
 
-
-        int i = 0;
-        foreach (var monster in DataManager.Instance.MonsterGroupDict)
+        if (changeMonsterGroup)
         {
+            curSpawnGroupMonsterTable.Clear();
+            enemyPrefab.Clear();
+
+
+            int i = 0;
+            foreach (var monster in DataManager.Instance.MonsterGroupDict)
+            {
                 // 현재 그룹에 해당하는 몬스터만 수집
                 if (monster.Value.monsterSpawnGroup == curSpawnGroup)
                 {
 
-                // 일반 몬스터와 보스 몬스터 테이블을 분리
-                if (monster.Value.monsterType == MonsterType.normalMonster)
-                {
-                    //StageManager.Instance.SetReward(EnemyListManager.Instance.enemyRewardMap[monster.Value.MonsterID], false);
-                    curSpawnGroupMonsterTable.Add(monster.Value);
-                }
-                else
-                {
-                    //curSpawnGroupBossMonsterTable.Add(monster.Value);
-                    curSpawnGroupBossMonsterTable=monster.Value;
-                }
-                // 스폰 가능한 프리팹 목록을 함께 갱신
-                enemyPrefab.Add(EnemyListManager.Instance.enemyMap[monster.Value.MonsterID]);
+                    // 일반 몬스터와 보스 몬스터 테이블을 분리
+                    if (monster.Value.monsterType == MonsterType.normalMonster)
+                    {
+                        curSpawnGroupMonsterTable.Add(monster.Value);
+                    }
+                    else
+                    {
+                        curSpawnGroupBossMonsterTable = monster.Value;
+                    }
+                    // 스폰 가능한 프리팹 목록을 함께 갱신
+                    enemyPrefab.Add(EnemyListManager.Instance.enemyMap[monster.Value.MonsterID]);
 
-                // 스폰 포인트 이름을 테이블 기준으로 설정
-                if (i < spawnPos.Length)
-                {
-                    spawnPos[i].name = monster.Value.spawnerName;
-                    i++;
+                    // 스폰 포인트 이름을 테이블 기준으로 설정
+                    if (i < spawnPos.Length)
+                    {
+                        spawnPos[i].name = monster.Value.spawnerName;
+                        i++;
+                    }
                 }
             }
         }
+
+        MonsterSpawnerReset();
+    }
+
+    public void MonsterSpawnerReset()
+    {
+        ////위치 초기화 되므로 다시 스폰? 처음부터 여기서 스폰시키자
+        ResetMonsterSpawnPos();
+        isSpawnMonster = false;
+        MonsterSpawn();
+        ChangeMonsterSpawnPos();
+        Debug.Log("[MonsterSpawner] 몬스터 초기화");
     }
 
     public void MapChange()
     {
         curSpawnerPos = 0;
-        ChangeParent(maps[curSpawnerPos].transform);
+        ChangeMonsterSpawnPos(maps[curSpawnerPos].transform);
     }
 
     public void ClearMonster()
@@ -185,23 +217,12 @@ public class MonsterSpawner : MonoBehaviour
         }
 
         enemyGroup.Clear();
+
+        Debug.Log("[MonsterSpawner] 몬스터 청소");
     }
 
     private void OnDisable()
     {
         ClearMonster();
     }
-
-    //curFloor-1 맵을 불러와 맵을 바꾸는 것을 목적으로 함
-    //public void SetMap(int curFloor)
-    //{
-    //    if (maps == null)
-    //        maps = new List<GameObject>();
-    //    maps.Clear();
-    //    for (int i = 0; i < mapGroups[0].transform.childCount; i++)
-    //    {
-    //        maps.Add(mapGroups[0].transform.GetChild(i).gameObject);
-    //    }
-    //}
-
 }
