@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,7 +21,8 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
     [SerializeField] private float angularTime;
     [SerializeField] private float stopAngle;
-
+    
+    [SerializeField] private float attackRange = 3f;
     public PlayerStateContext _ctx { get; private set; }
     private Dictionary<PlayerStateType, IPlayerState> _states;
     //private IPlayerState _current;
@@ -53,6 +55,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
             AngularTime = angularTime,
             StopAngle = stopAngle,
             EffectController = effectController,
+            AttackRange = attackRange,
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);
