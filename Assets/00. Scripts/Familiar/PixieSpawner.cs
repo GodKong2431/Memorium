@@ -74,7 +74,7 @@ public class PixieSpawner : MonoBehaviour
             return;
         }
 
-        Addressables.LoadAssetAsync<GameObject>("Assets/02. Prefabs/Pixie/Attack_Pixie.prefab").Completed += handle =>
+        Addressables.LoadAssetAsync<GameObject>(info.prefabPath).Completed += handle =>
         {
             if (handle.Status == AsyncOperationStatus.Succeeded)
                 SpawnPrefab(handle.Result, data);
