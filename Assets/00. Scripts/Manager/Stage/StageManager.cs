@@ -193,7 +193,9 @@ public class StageManager : Singleton<StageManager>
 
         if (monsterSpawner == null)
             monsterSpawner = GameObject.FindFirstObjectByType<MonsterSpawner>();
-
+        if (infinityMap == null)
+            infinityMap = GameObject.FindFirstObjectByType<InfinityMap>();
+        infinityMap?.MapReset();
         monsterSpawner?.SetMonster();
 
         if (normalEnemyReward != null)
@@ -252,7 +254,7 @@ public class StageManager : Singleton<StageManager>
             normalStage = curStage;
             SetReward();
             SetKillCount();
-            infinityMap?.MapReset();
+            //infinityMap?.MapReset();
 
             if (curStage > maxStage[0])
             {
@@ -303,7 +305,7 @@ public class StageManager : Singleton<StageManager>
             normalStage = curStage;
             SetReward();
             SetKillCount();
-            infinityMap?.MapReset();
+            //infinityMap?.MapReset();
 
             if (failedDuringBossStage)
                 MarkManualBossSummonRequiredForCurrentStage();
@@ -542,18 +544,4 @@ public class StageManager : Singleton<StageManager>
 
         return true;
     }
-
-    //protected override void OnApplicationQuit()
-    //{
-    //    // 종료 시 저장 데이터 기록
-    //    base.OnApplicationQuit();
-    //    JSONService.Save(saveStageData);
-    //}
-
-    //public async Task AutoSaveTask()
-    //{
-    //    Debug.Log("[StageManager] 스테이지 변경사항 확인 및 데이터 저장");
-    //    await JSONService.SaveFileOnAsync(saveStageData);
-    //    saveStageData.ClearDirty();
-    //}
 }
