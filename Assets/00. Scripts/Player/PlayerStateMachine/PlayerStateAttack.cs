@@ -89,7 +89,6 @@ public class PlayerStateAttack : IPlayerState
     
         if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && Time.time >= ctx.NextAttackTime)
         {
-            
             RandomAnimation(ctx);
             ctx.Animator.SetBool("AttackReady", true);
             ctx.NextAttackTime = Time.time + delay;
