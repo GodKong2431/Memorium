@@ -131,7 +131,7 @@ public class EnemyStateContext
     }
 
     /// <summary>
-    /// 설정(AnimationConfig)에 따라 트리거 이름을 조회한 뒤 Animator에 설정. 하드코딩 없음.
+    /// 설정(AnimationConfig)에 따라 트리거 이름을 조회한 뒤 Animator에 설정.
     /// </summary>
     public void SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey key)
     {
