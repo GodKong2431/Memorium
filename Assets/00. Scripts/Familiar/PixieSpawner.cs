@@ -1,9 +1,11 @@
 
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class PixieSpawner : MonoBehaviour
 {
-    [SerializeField]private PixieFollower pixiePrefab;
+    [SerializeField] private GameObject pixiePrefab;
 
     private PixieFollower spawnedPixie;
     private OwnedPixieData fairyData;
@@ -11,21 +13,7 @@ public class PixieSpawner : MonoBehaviour
     PlayerStateMachine playerStateMachine;
     EffectController effectController;
 
-    public Transform SpawnedPixie
-    {
-        get 
-        {
-            if (spawnedPixie == null)
-            {
-                return null;
-            }
-            else
-            {
-                return spawnedPixie.transform;
-            }
-        }
-    }
-
+    public Transform SpawnedPixie => spawnedPixie != null ? spawnedPixie.transform : null;
     public bool IsSpawned =>spawnedPixie != null && spawnedPixie.gameObject.activeSelf;
 
     private void Awake()
@@ -55,6 +43,7 @@ public class PixieSpawner : MonoBehaviour
         }
         Despawn();
     }
+  
     public void SpawnPixie(int pixieID)
     {
         var module = InventoryManager.Instance.GetModule<PixieInventoryModule>();
@@ -64,21 +53,46 @@ public class PixieSpawner : MonoBehaviour
     }
     public void SpawnPixie(OwnedPixieData data)
     {
-        if (data == null)
+        if (data == null) { Despawn(); return; }
+        fairyData = data;
+        if (playerStateMachine == null || effectController == null) return;
+
+        if (spawnedPixie != null)
         {
-            Despawn();
+            Destroy(spawnedPixie.gameObject);
+            spawnedPixie = null;
+        }
+
+        LoadAndSpawn(data);
+    }
+    private void LoadAndSpawn(OwnedPixieData data)
+    {
+        if (!DataManager.Instance.FairyInfoDict.TryGetValue(data.pixieId, out var info)
+            || string.IsNullOrEmpty(info.prefabPath))
+        {
+            SpawnPrefab(pixiePrefab, data);
             return;
         }
 
-        fairyData = data;
-
-        if (playerStateMachine == null || effectController == null) return;
-        if (spawnedPixie == null)
-            spawnedPixie = Instantiate(pixiePrefab, transform.position, Quaternion.identity);
-        
-        spawnedPixie.gameObject.SetActive(true);
-        spawnedPixie.Init(transform, data, effectController,playerStateMachine._ctx);
+        Addressables.LoadAssetAsync<GameObject>("Assets/02. Prefabs/Pixie/Attack_Pixie.prefab").Completed += handle =>
+        {
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+                SpawnPrefab(handle.Result, data);
+            else
+                SpawnPrefab(pixiePrefab, data);
+        };
     }
+
+    private void SpawnPrefab(GameObject prefab, OwnedPixieData data)
+    {
+        if (prefab == null) return;
+        
+        spawnedPixie = Instantiate(prefab, new Vector3(transform.position.x, 0, transform.position.z), Quaternion.identity)
+            .GetComponent<PixieFollower>();
+        spawnedPixie.gameObject.SetActive(true);
+        spawnedPixie.Init(transform, data, effectController, playerStateMachine._ctx);
+    }
+
 
     public void Despawn()
     {

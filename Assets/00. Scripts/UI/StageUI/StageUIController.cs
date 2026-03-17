@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -11,6 +12,7 @@ public class StageUIController : UIControllerBase
     [Header("MapInfo Stage")]
     [SerializeField] private TextMeshProUGUI textMapInfoStageName;
     [SerializeField] private TextMeshProUGUI textMapInfoStageLevel;
+    [SerializeField] private TextMeshProUGUI textMapInfoFloor;
 
     [Header("Stage Progress UI")]
     [SerializeField] private TextMeshProUGUI textProgress;
@@ -39,10 +41,13 @@ public class StageUIController : UIControllerBase
 
     protected override void Initialize()
     {
+        ResolveStageTextReferences();
+
         stageView = new StageUIView(
             textPopupStageLevel,
             textMapInfoStageName,
             textMapInfoStageLevel,
+            textMapInfoFloor,
             textProgress,
             sliderStageProgressBar,
             bossPanel,
@@ -75,21 +80,33 @@ public class StageUIController : UIControllerBase
 
     protected override void RefreshView()
     {
+        ResolveStageTextReferences();
+
         if (StageManager.Instance == null)
         {
-            stageView.Render(0, 0, string.Empty, 0, 0);
+            stageView.Render("-", string.Empty, "-", true, "-", false, 0, 0);
             stageView.SetSummonInteractable(false);
             stageView.SetBossMode(false);
             return;
         }
 
-        int chapter = StageManager.Instance.curFloor;
-        int stageNumber = ResolveSceneStageNumber();
+        bool isDungeonScene = IsDungeonScene();
+        string stageLevelText = isDungeonScene
+            ? FormatDungeonLevel(StageManager.Instance.curStage)
+            : FormatStageLevel(StageManager.Instance.curFloor, ResolveSceneStageNumber());
         string stageName = ResolveSceneStageName();
         int currentKill = StageManager.Instance.curMonsterKillCount;
         int maxKill = StageManager.Instance.maxMonsterKillCount;
 
-        stageView.Render(chapter, stageNumber, stageName, currentKill, maxKill);
+        stageView.Render(
+            stageLevelText,
+            stageName,
+            stageLevelText,
+            !isDungeonScene,
+            stageLevelText,
+            isDungeonScene,
+            currentKill,
+            maxKill);
         stageView.SetSummonInteractable(CalculateSummonInteractable(currentKill, maxKill));
         RefreshBossUi();
     }
@@ -101,9 +118,7 @@ public class StageUIController : UIControllerBase
 
     private void OnStageChanged(int chapter, int stage)
     {
-        stageView.SetStageLevel(chapter, stage);
-        stageView.SetStageName(ResolveSceneStageName());
-        RefreshBossUi();
+        RefreshView();
     }
 
     private void OnStageProgressChanged(int currentKill, int maxKill)
@@ -159,8 +174,7 @@ public class StageUIController : UIControllerBase
         if (StageManager.Instance.onBossStage)
             return false;
 
-        //실패한 스테이지일 경우 
-        if (StageManager.Instance.onFailedStage && StageManager.Instance.CurrentStageType==StageType.NormalStage) 
+        if (StageManager.Instance.onFailedStage && StageManager.Instance.CurrentStageType == StageType.NormalStage)
             return true;
 
         return !StageManager.Instance.HasPendingBossSpawnRequest;
@@ -212,5 +226,109 @@ public class StageUIController : UIControllerBase
             return;
 
         Debug.LogWarning("[StageUIController] Boss HP UI references are missing. Assign (Panel)BossHp and its children in the inspector.");
+    }
+
+    private void ResolveStageTextReferences()
+    {
+        Transform mapInfoRoot = ResolveMapInfoRoot();
+        textMapInfoStageLevel = ResolveTextReference(textMapInfoStageLevel, mapInfoRoot, "(Text)Level");
+        textMapInfoFloor = ResolveTextReference(textMapInfoFloor, mapInfoRoot, "(Text)Floor");
+
+        if (stageView != null)
+            stageView.UpdateStageTextTargets(textPopupStageLevel, textMapInfoStageName, textMapInfoStageLevel, textMapInfoFloor);
+    }
+
+    private Transform ResolveMapInfoRoot()
+    {
+        if (IsMatchingText(textMapInfoStageLevel, "(Text)Level") && textMapInfoStageLevel.transform.parent != null)
+            return textMapInfoStageLevel.transform.parent;
+
+        if (IsMatchingText(textMapInfoFloor, "(Text)Floor") && textMapInfoFloor.transform.parent != null)
+            return textMapInfoFloor.transform.parent;
+
+        if (textMapInfoStageName != null && textMapInfoStageName.transform.parent != null)
+            return textMapInfoStageName.transform.parent;
+
+        Transform topPanel = FindTransformByName(transform.root, "TopPanel");
+        if (topPanel == null)
+            return null;
+
+        TextMeshProUGUI stageNameText = FindTextByName(topPanel, "(Text)Name");
+        if (stageNameText != null && stageNameText.transform.parent != null)
+            return stageNameText.transform.parent;
+
+        return topPanel;
+    }
+
+    private static TextMeshProUGUI ResolveTextReference(TextMeshProUGUI current, Transform searchRoot, string objectName)
+    {
+        if (IsMatchingText(current, objectName))
+            return current;
+
+        TextMeshProUGUI resolved = FindTextByName(searchRoot, objectName);
+        if (resolved != null)
+            return resolved;
+
+        TextMeshProUGUI[] texts = Object.FindObjectsByType<TextMeshProUGUI>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            if (IsMatchingText(texts[i], objectName))
+                return texts[i];
+        }
+
+        return current;
+    }
+
+    private static bool IsMatchingText(TextMeshProUGUI target, string objectName)
+    {
+        return target != null && target.gameObject.name == objectName;
+    }
+
+    private static TextMeshProUGUI FindTextByName(Transform root, string objectName)
+    {
+        if (root == null)
+            return null;
+
+        TextMeshProUGUI[] texts = root.GetComponentsInChildren<TextMeshProUGUI>(true);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            if (IsMatchingText(texts[i], objectName))
+                return texts[i];
+        }
+
+        return null;
+    }
+
+    private static Transform FindTransformByName(Transform root, string objectName)
+    {
+        if (root == null)
+            return null;
+
+        Transform[] transforms = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < transforms.Length; i++)
+        {
+            if (transforms[i].name == objectName)
+                return transforms[i];
+        }
+
+        return null;
+    }
+
+    private static bool IsDungeonScene()
+    {
+        if (SceneManager.GetActiveScene().name == SceneType.DungeonScene.ToString())
+            return true;
+
+        return StageManager.Instance != null && StageManager.Instance.IsDungeonInProgress;
+    }
+
+    private static string FormatStageLevel(int chapter, int stageNumber)
+    {
+        return chapter > 0 && stageNumber > 0 ? $"{chapter}-{stageNumber}" : "-";
+    }
+
+    private static string FormatDungeonLevel(int dungeonLevel)
+    {
+        return dungeonLevel > 0 ? $"{dungeonLevel}\uB2E8\uACC4" : "-";
     }
 }

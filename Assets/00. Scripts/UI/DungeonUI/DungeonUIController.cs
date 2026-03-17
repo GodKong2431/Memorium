@@ -252,6 +252,12 @@ public class DungeonUIController : UIControllerBase
             enterPopupObject.SetActive(false);
     }
 
+    public void ResetForSceneChange()
+    {
+        selectedStageType = StageType.None;
+        HideEnterPopup();
+    }
+
     internal static string GetDungeonName(StageType stageType)
     {
         switch (stageType)

@@ -21,6 +21,8 @@ public class EquipCurrentUIController : UIControllerBase
     [SerializeField] private string mergeResultTitleText = "합성 결과";
     [SerializeField] private string mergeResultCountFormat = "x{0}";
 
+    public GameObject ItemPrefab => itemPrefab;
+
     private static readonly EquipmentType[] Order =
     {
         EquipmentType.Weapon,

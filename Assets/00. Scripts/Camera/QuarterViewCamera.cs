@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class QuarterViewCamera : MonoBehaviour
 {
+    private static QuarterViewCamera instance;
+
     [Header("Target")]
     [SerializeField] private Transform target;
     [SerializeField] private string targetTag = "Player";
@@ -20,6 +22,35 @@ public class QuarterViewCamera : MonoBehaviour
     {
         get => target;
         set => target = value;
+    }
+
+    private void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnEnable()
+    {
+        GameEventManager.OnPlayerSpawned += OnPlayerSpawned;
+    }
+
+    private void OnDisable()
+    {
+        GameEventManager.OnPlayerSpawned -= OnPlayerSpawned;
+    }
+
+    private void OnDestroy()
+    {
+        if (instance == this)
+            instance = null;
     }
 
     private void Start()
@@ -42,6 +73,12 @@ public class QuarterViewCamera : MonoBehaviour
     {
         if (target != null)
             return true;
+
+        if (ScenePlayerLocator.TryGetPlayerTransform(out Transform playerTransform))
+        {
+            target = playerTransform;
+            return true;
+        }
 
         GameObject go = GameObject.FindGameObjectWithTag(targetTag);
         if (go == null)
@@ -92,5 +129,14 @@ public class QuarterViewCamera : MonoBehaviour
     {
         Vector3 offset = rot * new Vector3(0f, 0f, -distance);
         return targetPos + offset + Vector3.up * height;
+    }
+
+    private void OnPlayerSpawned(Transform playerTransform)
+    {
+        if (playerTransform == null)
+            return;
+
+        target = playerTransform;
+        Snap();
     }
 }

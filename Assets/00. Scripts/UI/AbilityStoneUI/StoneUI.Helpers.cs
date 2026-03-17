@@ -572,12 +572,15 @@ public sealed partial class StoneUI
         }
 
         TextMeshProUGUI[] slotTexts = upgradePanel.ReconfigureSlotTexts;
+        Image[] slotImages = upgradePanel.ReconfigureSlotImages;
+        
         for (int i = 0; i < slotTexts.Length; i++)
         {
             if (slotTexts[i] != null)
             {
                 AbilityStoneSlot slotData = i < stoneData.Slots.Count ? stoneData.Slots[i] : null;
                 slotTexts[i].text = BuildPopupSlotText(slotData, i);
+                slotImages[i].sprite = IconManager.GetIcon(slotData.SlotType);
             }
         }
 
@@ -605,11 +608,14 @@ public sealed partial class StoneUI
         }
 
         TextMeshProUGUI[] slotTexts = upgradePanel.ResetSlotTexts;
+        Image[] slotImegs = upgradePanel.ResetSlotImages;
+        
         for (int i = 0; i < slotTexts.Length; i++)
         {
             if (slotTexts[i] != null)
             {
                 slotTexts[i].text = $"{stoneData.GetSuccessCount(i)} / {stoneData.GetOpportunityCount(i)}";
+                slotImegs[i].sprite = IconManager.GetIcon(stoneData.GetStatType(i));
             }
         }
 

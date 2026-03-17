@@ -20,6 +20,7 @@ public sealed class StoneUpgradePanelUI : MonoBehaviour, IPointerClickHandler
     [SerializeField] private GameObject reconfigurePopupRoot;
     [SerializeField] private TextMeshProUGUI reconfigureInfoText;
     [SerializeField] private TextMeshProUGUI[] reconfigureSlotTexts = new TextMeshProUGUI[3];
+    [SerializeField] private Image[] reconfigureSlotImages = new Image[3];
     [SerializeField] private Button reconfigureConfirmButton;
     [SerializeField] private TextMeshProUGUI reconfigureConfirmCostText;
     [SerializeField] private Button reconfigureCancelButton;
@@ -27,6 +28,7 @@ public sealed class StoneUpgradePanelUI : MonoBehaviour, IPointerClickHandler
     [SerializeField] private GameObject resetPopupRoot;
     [SerializeField] private TextMeshProUGUI resetInfoText;
     [SerializeField] private TextMeshProUGUI[] resetSlotTexts = new TextMeshProUGUI[3];
+    [SerializeField] private Image[] resetSlotImages = new Image[3];
     [SerializeField] private Button resetConfirmButton;
     [SerializeField] private TextMeshProUGUI resetConfirmCostText;
     [SerializeField] private Button resetCancelButton;
@@ -48,6 +50,7 @@ public sealed class StoneUpgradePanelUI : MonoBehaviour, IPointerClickHandler
     public GameObject ReconfigurePopupRoot => reconfigurePopupRoot;
     public TextMeshProUGUI ReconfigureInfoText => reconfigureInfoText;
     public TextMeshProUGUI[] ReconfigureSlotTexts => reconfigureSlotTexts;
+    public Image[] ReconfigureSlotImages => reconfigureSlotImages;
     public Button ReconfigureConfirmButton => reconfigureConfirmButton;
     public TextMeshProUGUI ReconfigureConfirmCostText => reconfigureConfirmCostText;
     public Button ReconfigureCancelButton => reconfigureCancelButton;
@@ -55,6 +58,7 @@ public sealed class StoneUpgradePanelUI : MonoBehaviour, IPointerClickHandler
     public GameObject ResetPopupRoot => resetPopupRoot;
     public TextMeshProUGUI ResetInfoText => resetInfoText;
     public TextMeshProUGUI[] ResetSlotTexts => resetSlotTexts;
+    public Image[] ResetSlotImages => resetSlotImages;
     public Button ResetConfirmButton => resetConfirmButton;
     public TextMeshProUGUI ResetConfirmCostText => resetConfirmCostText;
     public Button ResetCancelButton => resetCancelButton;

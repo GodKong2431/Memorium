@@ -33,7 +33,6 @@ public class CombatPowerChangePopupUI : MonoBehaviour
     private bool _isShowing;
     private float _hideAt;
     private float _lastKnownCombatPower;
-    private float _popupStartCombatPower;
 
     private void Awake()
     {
@@ -108,7 +107,6 @@ public class CombatPowerChangePopupUI : MonoBehaviour
         }
 
         _lastKnownCombatPower = GetCurrentCombatPower();
-        _popupStartCombatPower = _lastKnownCombatPower;
 
         _boundStatManager.StatUpdate -= OnStatUpdated;
         _boundStatManager.StatUpdate += OnStatUpdated;
@@ -119,13 +117,11 @@ public class CombatPowerChangePopupUI : MonoBehaviour
     private void OnStatUpdated()
     {
         float currentCombatPower = GetCurrentCombatPower();
-        if (Mathf.Approximately(currentCombatPower, _lastKnownCombatPower))
+        float beforeCombatPower = _lastKnownCombatPower;
+        if (Mathf.Approximately(currentCombatPower, beforeCombatPower))
             return;
 
-        if (!_isShowing)
-            _popupStartCombatPower = _lastKnownCombatPower;
-
-        UpdateTexts(_popupStartCombatPower, currentCombatPower);
+        UpdateTexts(beforeCombatPower, currentCombatPower);
 
         _lastKnownCombatPower = currentCombatPower;
         _hideAt = Time.unscaledTime + visibleDuration;
@@ -239,5 +235,16 @@ public class CombatPowerChangePopupUI : MonoBehaviour
         canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = false;
         canvasGroup.interactable = false;
+    }
+
+    public void ResetForSceneChange()
+    {
+        _isShowing = false;
+        _hideAt = 0f;
+
+        float currentCombatPower = GetCurrentCombatPower();
+        _lastKnownCombatPower = currentCombatPower;
+
+        SetHiddenImmediate();
     }
 }

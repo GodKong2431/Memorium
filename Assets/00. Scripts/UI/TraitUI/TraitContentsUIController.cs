@@ -55,7 +55,6 @@ public class TraitContentsUIController : UIControllerBase
     [SerializeField] private Button popupUpgradeButton;
     [SerializeField] private Image popupUpgradeButtonImage;
     [SerializeField] private TextMeshProUGUI popupRequirePointText;
-    [SerializeField] private Image popupGrowthIconImage;
     [SerializeField] private TextMeshProUGUI popupGrowthText;
 
     [Header("비주얼 설정")]
@@ -418,7 +417,7 @@ public class TraitContentsUIController : UIControllerBase
     private void RefreshPointText(BigDouble points)
     {
         if (pointText != null)
-            pointText.text = points.ToString();
+            pointText.text = points.ToString("F0");
     }
 
     private void RefreshTierHeader(TierRuntime tierRuntime, bool tierUnlocked, bool tierMastered)
@@ -537,6 +536,11 @@ public class TraitContentsUIController : UIControllerBase
         HideTraitPopup();
     }
 
+    public void ResetForSceneChange()
+    {
+        CloseTraitPopup();
+    }
+
     private void RefreshTraitPopup(BigDouble points)
     {
         // 현재 선택된 특성 기준으로 팝업 내용을 다시 그립니다.
@@ -554,17 +558,15 @@ public class TraitContentsUIController : UIControllerBase
         bool hasEnoughPoints = points >= new BigDouble(selectedTrait.DecreasePoint);
         bool canUpgrade = tierUnlocked && !isMaxed && hasEnoughPoints;
 
-        float beforeStat = statManager.GetPreviewFinalStat(selectedTrait.statType, 0f);
-        float afterStat = statManager.GetPreviewFinalStat(selectedTrait.statType, isMaxed ? 0f : selectedTrait.StatUP);
+        // 팝업에는 캐릭터 최종 스탯이 아니라, 선택한 특성이 직접 제공하는 수치만 표시한다.
+        float beforeStat = selectedTrait.CurrentStat;
+        float afterStat = selectedTrait.CurrentStat + (isMaxed ? 0f : selectedTrait.StatUP);
 
         Sprite icon = ResolveTraitIcon(selectedTrait);
         if (icon != null)
         {
             if (popupStatIconImage != null)
                 popupStatIconImage.sprite = icon;
-
-            if (popupGrowthIconImage != null)
-                popupGrowthIconImage.sprite = icon;
         }
 
         if (popupStatText != null)
