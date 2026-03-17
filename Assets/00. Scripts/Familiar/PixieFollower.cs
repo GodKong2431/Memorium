@@ -37,7 +37,7 @@ public class PixieFollower : MonoBehaviour
     private Dictionary<string, float> clipLengthCache;
 
 
-    private GameObject gradeEffectPrefab;
+    private PoolableParticle gradeEffect;
 
     private void Awake()
     {
@@ -77,33 +77,13 @@ public class PixieFollower : MonoBehaviour
             transform.position += moveDirection * currentSpeed * Time.deltaTime;
         }
     }
-
-
-    private void LoadAndSpawn(OwnedPixieData data)
+    private void OnDisable()
     {
-        if (!DataManager.Instance.FairyGradeDict.TryGetValue(data.pixieId, out var info)|| string.IsNullOrEmpty(info.auraEffectPrefabPath)) return;
-
-        Addressables.LoadAssetAsync<GameObject>(info.auraEffectPrefabPath).Completed += handle =>
-        {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
-                gradeEffectPrefab = handle.Result;
-                SpawnEffect(gradeEffectPrefab, transform, true);
-            }
-        };
+        if (gradeEffect != null)
+            gradeEffect.StopAndReturnManual();
     }
 
-    private void SpawnEffect(GameObject prefab, Transform target, bool follow = false)
-    {
-        if (prefab == null || target == null) return;
 
-        var obj = ObjectPoolManager.Get(prefab, target.position, Quaternion.identity);
-        if (follow)
-        {
-            var particle = obj.GetComponent<PoolableParticle>();
-            particle?.SetFollow(target);
-        }
-    }
     public void Init(Transform target, OwnedPixieData data, EffectController playerEffectController, PlayerStateContext stateContext)
     {
         this.followTarget = target;
@@ -114,7 +94,7 @@ public class PixieFollower : MonoBehaviour
         var effectProvider = GetComponent<PixieEffectProvider>();
         effectProvider.Init(data, target, playerEffectController, stateContext);
         Warp();
-        //LoadAndSpawn(data);
+        EffectLoadAndSpawn(data.pixieId);
     }
 
     private void CalculateMovement()
@@ -138,7 +118,7 @@ public class PixieFollower : MonoBehaviour
         if (dist <= stoppingDistance)
         {
             isStopping = true;
-    
+            SetState(PixieState.Idle);
             return;
         }
 
@@ -203,5 +183,40 @@ public class PixieFollower : MonoBehaviour
     public void SetAttack()
     {
         SetState(PixieState.Attack);
+    }
+
+    public void OnGradeChanged(int pixieId)
+    {
+        if (gradeEffect != null)
+            gradeEffect.StopAndReturnManual();
+        EffectLoadAndSpawn(pixieId);
+    }
+    private void EffectLoadAndSpawn(int pixieId)
+    {
+        DataManager.Instance.FairyInfoDict.TryGetValue(pixieId, out var fairyInfo);
+        DataManager.Instance.FairyGradeDict.TryGetValue(fairyInfo.gradeID, out var gradeInfo);
+        if (string.IsNullOrEmpty(gradeInfo.auraEffectPrefabPath)) return;
+
+        Addressables.LoadAssetAsync<GameObject>(gradeInfo.auraEffectPrefabPath + ".prefab").Completed += handle =>
+        {
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                SpawnEffect(handle.Result, transform, true);
+            }
+        };
+    }
+
+    private void SpawnEffect(GameObject prefab, Transform target, bool follow = false)
+    {
+        if (prefab == null || target == null) return;
+
+        var obj = ObjectPoolManager.Get(prefab, target.position, Quaternion.identity);
+        if (follow)
+        {
+            var particle = obj.GetComponent<PoolableParticle>();
+            particle?.SetFollow(target);
+            particle?.SetAutoReturn(false);
+            gradeEffect = particle;
+        }
     }
 }
