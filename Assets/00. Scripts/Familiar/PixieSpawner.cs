@@ -5,7 +5,6 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class PixieSpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject pixiePrefab;
 
     private PixieFollower spawnedPixie;
     private OwnedPixieData fairyData;
@@ -16,6 +15,8 @@ public class PixieSpawner : MonoBehaviour
     public Transform SpawnedPixie => spawnedPixie != null ? spawnedPixie.transform : null;
     public bool IsSpawned =>spawnedPixie != null && spawnedPixie.gameObject.activeSelf;
 
+    private PixieInventoryModule subscribedPixieModule;
+
     private void Awake()
     {
         playerStateMachine = GetComponent<PlayerStateMachine>();
@@ -23,86 +24,108 @@ public class PixieSpawner : MonoBehaviour
     }
     public void OnEnable()
     {
-        var module = InventoryManager.Instance.GetModule<PixieInventoryModule>();
-        if (module == null) return;
+        EnsurePixieModuleSubscription();
+    }
+    private void Update()
+    {
+        if (subscribedPixieModule == null)
+            EnsurePixieModuleSubscription();
+    }
+    private void EnsurePixieModuleSubscription()
+    {
+        var module = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<PixieInventoryModule>()
+            : null;
+        if (module == null || subscribedPixieModule == module) return;
 
-        module.OnPixieEquipped += SpawnPixie;
-        int equippedId = module.EquippedPixiedID();
+        UnsubscribePixieModule();
+        subscribedPixieModule = module;
+        subscribedPixieModule.OnPixieEquipped += SpawnPixie;
+
+        int equippedId = subscribedPixieModule.EquippedPixiedID();
         if (equippedId != 0)
         {
+            PreloadPixie(equippedId);
             SpawnPixie(equippedId);
         }
     }
 
+    private void UnsubscribePixieModule()
+    {
+        if (subscribedPixieModule == null) return;
+        subscribedPixieModule.OnPixieEquipped -= SpawnPixie;
+        subscribedPixieModule = null;
+    }
+
     private void OnDisable()
     {
-        var module = InventoryManager.Instance?.GetModule<PixieInventoryModule>();
-        if (module != null)
-        {
-            module.OnPixieEquipped -= SpawnPixie;
-        }
+        UnsubscribePixieModule();
         Despawn();
     }
-  
+
+    private void PreloadPixie(int pixieId)
+    {
+        if (!DataManager.Instance.FairyInfoDict.TryGetValue(pixieId, out var info)) return;
+        if (string.IsNullOrEmpty(info.prefabPath)) return;
+        PoolAddressableManager.Instance.Preload(info.prefabPath);
+    }
     public void SpawnPixie(int pixieID)
     {
         var module = InventoryManager.Instance.GetModule<PixieInventoryModule>();
         var data = module.GetOwnedPixieData(pixieID);
-        if (data == null) return; 
+        if (data == null) return;
         SpawnPixie(data);
     }
     public void SpawnPixie(OwnedPixieData data)
     {
+       
         if (data == null) { Despawn(); return; }
         fairyData = data;
         if (playerStateMachine == null || effectController == null) return;
-
         if (spawnedPixie != null)
         {
-            Destroy(spawnedPixie.gameObject);
+            ObjectPoolManager.Return(spawnedPixie.gameObject);
             spawnedPixie = null;
         }
-
         LoadAndSpawn(data);
     }
+
     private void LoadAndSpawn(OwnedPixieData data)
     {
-        if (!DataManager.Instance.FairyInfoDict.TryGetValue(data.pixieId, out var info)
-            || string.IsNullOrEmpty(info.prefabPath))
+        if (!DataManager.Instance.FairyInfoDict.TryGetValue(data.pixieId, out var info)) return;
+        if (string.IsNullOrEmpty(info.prefabPath))return;
+
+        var obj = PoolAddressableManager.Instance.GetPooledObject(info.prefabPath,
+            new Vector3(transform.position.x, 0, transform.position.z), Quaternion.identity);
+
+        if (obj != null)
         {
-            SpawnPrefab(pixiePrefab, data);
+            SetupPixie(obj, data);
             return;
         }
 
-        Addressables.LoadAssetAsync<GameObject>(info.prefabPath).Completed += handle =>
-        {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-                SpawnPrefab(handle.Result, data);
-            else
-                SpawnPrefab(pixiePrefab, data);
-        };
+        PoolAddressableManager.Instance.GetPooledObject(info.prefabPath,
+            new Vector3(transform.position.x, 0, transform.position.z), Quaternion.identity,
+            loadedObj => SetupPixie(loadedObj, data));
     }
 
-    private void SpawnPrefab(GameObject prefab, OwnedPixieData data)
+    private void SetupPixie(GameObject obj, OwnedPixieData data)
     {
-        if (prefab == null) return;
-        
-        spawnedPixie = Instantiate(prefab, new Vector3(transform.position.x, 0, transform.position.z), Quaternion.identity)
-            .GetComponent<PixieFollower>();
+        if (obj == null) return;
+
+        spawnedPixie = obj.GetComponent<PixieFollower>();
         spawnedPixie.gameObject.SetActive(true);
         spawnedPixie.Init(transform, data, effectController, playerStateMachine._ctx);
     }
-
 
     public void Despawn()
     {
         if (IsSpawned)
         {
-            spawnedPixie.gameObject.SetActive(false);
+            ObjectPoolManager.Return(spawnedPixie.gameObject);
+            spawnedPixie = null;
         }
     }
-
-
     public OwnedPixieData GetCurrentFairyData() => fairyData;
 
 }
