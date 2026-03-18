@@ -102,6 +102,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
                 if (animationConfig == null && entry.animationConfig != null)
                     animationConfig = entry.animationConfig;
 
+                // 몬스터별 OverrideController 자동 적용 (공통 Controller + 클립 교체 방식)
+                if (animator != null && entry.animatorOverrideController != null)
+                    animator.runtimeAnimatorController = entry.animatorOverrideController;
+
                 if (attackEffectPrefab == null && entry.attackEffectPrefab != null)
                     attackEffectPrefab = entry.attackEffectPrefab;
 

@@ -151,6 +151,23 @@ public class EnemyStateContext
             Animator.SetTrigger(trigger);
     }
 
+    public void SetAnimatorFloat(string paramName, float value)
+    {
+        if (Animator == null || string.IsNullOrEmpty(paramName)) return;
+        Animator.SetFloat(paramName, value);
+    }
+
+    public void SetLocomotion(float value)
+    {
+        if (AnimationConfig == null)
+        {
+            // 기본값은 "Locomotion"으로 가정
+            SetAnimatorFloat("Locomotion", value);
+            return;
+        }
+        SetAnimatorFloat(AnimationConfig.LocomotionParam, value);
+    }
+
     public float GetModifiedStat(StatType type, float baseValue)
     {
         if (EnemyEffectController == null) return baseValue;
