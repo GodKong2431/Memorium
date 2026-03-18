@@ -305,8 +305,7 @@ public class StageManager : Singleton<StageManager>
                 saveStageData.SetMaxStage(curStageType, curStage);
             }
 
-            player.GetComponent<NavMeshAgent>().enabled = false;
-            player.GetComponent<Rigidbody>().isKinematic = true;
+            player.GetComponent<NavMeshAgent>().isStopped = true;
 
             ResetDungeonClearFlow();
             dungeonClear = false;
@@ -322,6 +321,7 @@ public class StageManager : Singleton<StageManager>
 
             yield return new WaitUntil(() => dungeonClear);
             dungeonClear = false;
+            player.GetComponent<NavMeshAgent>().isStopped = false;
 
             if (continueDungeonAfterClear && continuedDungeonStageType != StageType.None)
             {
@@ -398,8 +398,7 @@ public class StageManager : Singleton<StageManager>
                 MarkManualBossSummonRequiredForCurrentStage();
 
 
-            player.GetComponent<NavMeshAgent>().enabled = false;
-            player.GetComponent<Rigidbody>().isKinematic = true;
+            player.GetComponent<NavMeshAgent>().isStopped = true;
 
             ResetDungeonClearFlow();
             dungeonClear = false;
@@ -410,6 +409,7 @@ public class StageManager : Singleton<StageManager>
 
             yield return new WaitUntil(() => dungeonClear);
             dungeonClear = false;
+            player.GetComponent<NavMeshAgent>().isStopped = false;
 
             if (continueDungeonAfterClear && continuedDungeonStageType != StageType.None)
             {
