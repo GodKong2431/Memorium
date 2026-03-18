@@ -1724,8 +1724,9 @@ GameObject:
   - component: {fileID: 6328699794506041751}
   - component: {fileID: -3957583156213208728}
   - component: {fileID: -7970626736506660462}
+  - component: {fileID: 5466097360923748345}
   m_Layer: 0
-  m_Name: GreatDemon
+  m_Name: 2020003_ScorchedOne
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1783,7 +1784,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a3af68a6d5ca364e9fdec187c11d870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStatPresenter
-  monsterIdFromDataManager: 2020001
+  monsterIdFromDataManager: 2020003
 --- !u!195 &-5786363486856718616
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1888,6 +1889,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 617a873b3157e6b4faf9bc04e8a88784, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
+--- !u!135 &5466097360923748345
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6499504835944854902}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1.9376411
+  m_Center: {x: 0, y: 1.7867374, z: -0}
 --- !u!1 &6552680631955701667
 GameObject:
   m_ObjectHideFlags: 0
