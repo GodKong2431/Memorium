@@ -46,7 +46,7 @@ public sealed class SkillInventoryModule : IInventoryModule
         for (int i = 0; i < PresetCount; i++)
         {
             SwitchPreset(i);
-            for (int j = 0; i < InventoryManager.Instance.saveSkillData.SkillCountByPreset; i++)
+            for (int j = 0; j < InventoryManager.Instance.saveSkillData.SkillCountByPreset; j++)
             {
                 SetPresetSlot(j, presets[i].slots[j].skillID);
             }
