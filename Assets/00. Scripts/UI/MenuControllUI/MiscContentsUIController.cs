@@ -544,18 +544,73 @@ public sealed class MiscContentsUIController : UIControllerBase
 
     private void CollectConsumableEntries()
     {
+        HashSet<int> addedDisplayItemIds = new();
+
         foreach (KeyValuePair<int, ItemInfoTable> pair in DataManager.Instance.ItemInfoDict)
         {
             ItemInfoTable itemInfo = pair.Value;
             if (itemInfo == null || !IsConsumableType(itemInfo.itemType))
                 continue;
 
-            BigDouble amount = inventory.GetItemAmount(pair.Key);
+            if (!TryResolveConsumableDisplayInfo(pair.Key, itemInfo, out int displayItemId, out ItemInfoTable displayInfo))
+                continue;
+
+            if (!addedDisplayItemIds.Add(displayItemId))
+                continue;
+
+            BigDouble amount = inventory.GetItemAmount(displayItemId);
             if (amount <= BigDouble.Zero)
                 continue;
 
-            AddEntry(pair.Key, itemInfo.itemType, amount, itemInfo.itemName, LoadItemIcon(itemInfo));
+            AddEntry(displayItemId, displayInfo.itemType, amount, displayInfo.itemName, LoadItemIcon(displayInfo));
         }
+    }
+
+    private static bool TryResolveConsumableDisplayInfo(int itemId, ItemInfoTable itemInfo, out int displayItemId, out ItemInfoTable displayInfo)
+    {
+        displayItemId = itemId;
+        displayInfo = itemInfo;
+
+        if (itemInfo == null || DataManager.Instance?.ItemInfoDict == null)
+            return false;
+
+        if (!ShouldCollapseCurrencyBackedConsumable(itemInfo.itemType))
+            return true;
+
+        displayItemId = GetPrimaryItemIdByType(itemInfo.itemType);
+        if (displayItemId == 0)
+            return false;
+
+        return DataManager.Instance.ItemInfoDict.TryGetValue(displayItemId, out displayInfo) && displayInfo != null;
+    }
+
+    private static bool ShouldCollapseCurrencyBackedConsumable(ItemType itemType)
+    {
+        switch (itemType)
+        {
+            case ItemType.FreeCurrency:
+            case ItemType.PaidCurrency:
+            case ItemType.Key:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static int GetPrimaryItemIdByType(ItemType itemType)
+    {
+        if (DataManager.Instance?.ItemInfoDict == null)
+            return 0;
+
+        foreach (KeyValuePair<int, ItemInfoTable> pair in DataManager.Instance.ItemInfoDict)
+        {
+            if (pair.Value == null || pair.Value.itemType != itemType)
+                continue;
+
+            return pair.Key;
+        }
+
+        return 0;
     }
 
     private BigDouble GetGemAmount(int itemId)
