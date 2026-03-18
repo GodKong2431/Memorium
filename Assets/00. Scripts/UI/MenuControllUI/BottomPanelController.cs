@@ -64,6 +64,8 @@ public class BottomPanelController : MonoBehaviour
     [Header("References - Gesture")]
     [SerializeField] private RectTransform headerGestureArea;
     [SerializeField] private SheetHeaderGestureHandle headerGestureHandle;
+    [SerializeField] private RectTransform gestureBlockerContainer;
+    [SerializeField] private List<RectTransform> gestureBlockerRoots = new List<RectTransform>();
 
     [Header("References - Tabs")]
     [SerializeField] private List<TabConfig> tabs = new List<TabConfig>();
@@ -134,10 +136,7 @@ public class BottomPanelController : MonoBehaviour
     // 비활성화될 때 입력 대기 상태를 정리한다.
     private void OnDisable()
     {
-        CancelPendingSingleTap();
-        waitingForSecondTap = false;
-        isDraggingHeader = false;
-        suppressNextPointerUpTap = false;
+        ResetHeaderGestureState();
     }
 #endregion
 
@@ -513,22 +512,31 @@ public class BottomPanelController : MonoBehaviour
     {
         RectTransform page = GetPage(tab, pageIndex);
         BottomPanelManagedPage managedPage = GetManagedPage(page);
+        RectTransform subMenuRoot = ResolveSubMenuRoot(tab, managedPage);
 
         SetTitle(GetPageTitle(tab, pageIndex, managedPage));
 
         MoveChildren(subMenuPos, subMenuContainer);
         MoveChildren(contentsArea, contentsContainer);
 
-        if (ShouldShowSubMenu(tab, pageIndex, managedPage))
+        if (ShouldShowSubMenu(tab, pageIndex, managedPage, subMenuRoot))
         {
-            AttachRect(tab.subMenuRoot, subMenuPos, false);
+            AttachRect(subMenuRoot, subMenuPos, false);
             EnsureSubVisible(tab);
         }
     }
 
-    private static bool ShouldShowSubMenu(TabConfig tab, int pageIndex, BottomPanelManagedPage managedPage)
+    private static RectTransform ResolveSubMenuRoot(TabConfig tab, BottomPanelManagedPage managedPage)
     {
-        if (tab == null || tab.subMenuRoot == null)
+        if (managedPage != null && managedPage.SubMenuRootOverride != null)
+            return managedPage.SubMenuRootOverride;
+
+        return tab != null ? tab.subMenuRoot : null;
+    }
+
+    private static bool ShouldShowSubMenu(TabConfig tab, int pageIndex, BottomPanelManagedPage managedPage, RectTransform subMenuRoot)
+    {
+        if (tab == null || subMenuRoot == null)
             return false;
 
         if (managedPage != null)
@@ -739,8 +747,11 @@ public class BottomPanelController : MonoBehaviour
     // 헤더 터치 시작 시 싱글 탭 대기만 정리한다.
     public void HandleHeaderPointerDown()
     {
-        if (activeTab < 0 || sheetRect == null)
+        if (activeTab < 0 || sheetRect == null || IsHeaderGestureBlocked())
+        {
+            ResetHeaderGestureState();
             return;
+        }
 
         if (waitingForSecondTap)
             CancelPendingSingleTap();
@@ -749,8 +760,11 @@ public class BottomPanelController : MonoBehaviour
     // 헤더 터치 종료 시 싱글 탭 닫기 또는 더블 탭 확장을 판정한다.
     public void HandleHeaderPointerUp()
     {
-        if (activeTab < 0 || sheetRect == null || sheetPanel == null || !sheetPanel.activeSelf)
+        if (activeTab < 0 || sheetRect == null || sheetPanel == null || !sheetPanel.activeSelf || IsHeaderGestureBlocked())
+        {
+            ResetHeaderGestureState();
             return;
+        }
 
         if (isDraggingHeader || ConsumeSuppressedPointerUp())
             return;
@@ -773,8 +787,11 @@ public class BottomPanelController : MonoBehaviour
     // 헤더 드래그가 시작되면 탭 판정을 끊고 높이 조절 모드로 들어간다.
     public void HandleHeaderBeginDrag()
     {
-        if (activeTab < 0 || sheetRect == null || sheetPanel == null || !sheetPanel.activeSelf)
+        if (activeTab < 0 || sheetRect == null || sheetPanel == null || !sheetPanel.activeSelf || IsHeaderGestureBlocked())
+        {
+            ResetHeaderGestureState();
             return;
+        }
 
         CancelPendingSingleTap();
         waitingForSecondTap = false;
@@ -786,6 +803,12 @@ public class BottomPanelController : MonoBehaviour
     // 드래그 중에는 손가락 이동량만큼 시트 높이를 반영한다.
     public void HandleHeaderDrag(float deltaY)
     {
+        if (IsHeaderGestureBlocked())
+        {
+            ResetHeaderGestureState();
+            return;
+        }
+
         if (!isDraggingHeader || sheetRect == null)
             return;
 
@@ -796,6 +819,12 @@ public class BottomPanelController : MonoBehaviour
     // 드래그 종료 시 닫힘, 기본, 최대 중 하나로 스냅한다.
     public void HandleHeaderEndDrag()
     {
+        if (IsHeaderGestureBlocked())
+        {
+            ResetHeaderGestureState();
+            return;
+        }
+
         if (!isDraggingHeader)
             return;
 
@@ -812,6 +841,87 @@ public class BottomPanelController : MonoBehaviour
             return false;
 
         suppressNextPointerUpTap = false;
+        return true;
+    }
+
+    private void ResetHeaderGestureState()
+    {
+        CancelPendingSingleTap();
+        waitingForSecondTap = false;
+        isDraggingHeader = false;
+        suppressNextPointerUpTap = false;
+        lastHeaderTapTime = -10f;
+    }
+
+    private bool IsHeaderGestureBlocked()
+    {
+        if (HasActiveRaycastBlockingTarget(gestureBlockerContainer, false))
+            return true;
+
+        for (int i = 0; i < gestureBlockerRoots.Count; i++)
+        {
+            if (HasActiveRaycastBlockingTarget(gestureBlockerRoots[i], true))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasActiveRaycastBlockingTarget(Transform root, bool includeSelf)
+    {
+        if (root == null || !root.gameObject.activeInHierarchy)
+            return false;
+
+        if (includeSelf && IsRaycastBlockingTarget(root))
+            return true;
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            if (HasActiveRaycastBlockingTarget(root.GetChild(i), true))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsRaycastBlockingTarget(Transform target)
+    {
+        if (!AllowsRaycasts(target))
+            return false;
+
+        Graphic[] graphics = target.GetComponents<Graphic>();
+        for (int i = 0; i < graphics.Length; i++)
+        {
+            Graphic graphic = graphics[i];
+            if (graphic != null && graphic.enabled && graphic.raycastTarget)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool AllowsRaycasts(Transform target)
+    {
+        Transform current = target;
+        while (current != null)
+        {
+            CanvasGroup[] groups = current.GetComponents<CanvasGroup>();
+            for (int i = 0; i < groups.Length; i++)
+            {
+                CanvasGroup group = groups[i];
+                if (group == null || !group.enabled)
+                    continue;
+
+                if (!group.blocksRaycasts)
+                    return false;
+
+                if (group.ignoreParentGroups)
+                    return true;
+            }
+
+            current = current.parent;
+        }
+
         return true;
     }
 
@@ -1182,11 +1292,26 @@ public class BottomPanelController : MonoBehaviour
         if (rect == null)
             return;
 
+        RectTransform parent = rect.parent as RectTransform;
+        if (parent == null)
+            return;
+
+        Vector3[] worldCorners = new Vector3[4];
+        rect.GetWorldCorners(worldCorners);
+
+        Vector3 bottomLeft = parent.InverseTransformPoint(worldCorners[0]);
+        Vector3 topRight = parent.InverseTransformPoint(worldCorners[2]);
+        Rect parentRect = parent.rect;
+
+        float left = bottomLeft.x - parentRect.xMin;
+        float bottom = bottomLeft.y - parentRect.yMin;
+        float right = parentRect.xMax - topRight.x;
+        float top = parentRect.yMax - topRight.y;
+
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
-        rect.anchoredPosition = Vector2.zero;
+        rect.offsetMin = new Vector2(left, bottom);
+        rect.offsetMax = new Vector2(-right, -top);
     }
 #endregion
 
