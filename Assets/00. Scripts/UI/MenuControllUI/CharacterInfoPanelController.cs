@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -13,6 +13,7 @@ public sealed class CharacterInfoPanelController : UIControllerBase
     private const string CharacterEquipmentItemObjectName = "__CharacterEquipmentItem";
     private const string LegacyUtilitySectionTitle = "\uAE30\uD0C0";
     private const string NormalizedUtilitySectionTitle = "\uC720\uD2F8\uB9AC\uD2F0";
+    private const float PreviewFarClipPlane = 1000000f;
 
     private sealed class EquipmentSlotBinding
     {
@@ -25,12 +26,6 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         public TMP_Text LevelText;
         public EquipItemUI RuntimeItemUi;
         public EquipItemView RuntimeItemView;
-    }
-
-    private sealed class PreviewTransformBinding
-    {
-        public Transform Source;
-        public Transform Clone;
     }
 
     private sealed class StatSectionBinding
@@ -89,13 +84,11 @@ public sealed class CharacterInfoPanelController : UIControllerBase
     [SerializeField] private GameObject equipmentSlotItemPrefab;
 
     [Header("Preview")]
-    [SerializeField] private Vector3 previewStagePosition = new Vector3(5000f, 5000f, 5000f);
-    [SerializeField] private Vector3 previewCameraOffset = new Vector3(0f, 1.15f, -3.6f);
-    [SerializeField] private Vector3 previewLookOffset = new Vector3(0f, 0.95f, 0f);
-    [SerializeField] private Vector3 previewModelEuler = new Vector3(0f, 180f, 0f);
+    [FormerlySerializedAs("previewCameraOffset")]
+    [SerializeField] private Vector3 previewCameraPosition = new Vector3(0f, 1.15f, -3.6f);
+    [SerializeField] private Vector3 previewCameraEuler = new Vector3(3.2f, 0f, 0f);
     [SerializeField] private Color previewBackgroundColor = new Color(0f, 0f, 0f, 0f);
     [SerializeField] private int previewTextureSize = 512;
-    [SerializeField] private int previewLayer = 30;
 
     [Header("Text")]
     [SerializeField] private string combatPowerFormat = "전투력: {0}";
@@ -107,8 +100,6 @@ public sealed class CharacterInfoPanelController : UIControllerBase
 
     private readonly Dictionary<EquipmentType, EquipmentSlotBinding> equipmentSlotMap = new Dictionary<EquipmentType, EquipmentSlotBinding>();
     private readonly List<GameObject> generatedStatObjects = new List<GameObject>();
-    private readonly List<PreviewTransformBinding> previewTransformBindings = new List<PreviewTransformBinding>();
-    private readonly List<Renderer> previewRenderers = new List<Renderer>();
     private readonly HashSet<StatType> categorizedStats = new HashSet<StatType>();
     private readonly List<StatSectionBinding> cachedStatSections = new List<StatSectionBinding>(3);
 
@@ -119,13 +110,11 @@ public sealed class CharacterInfoPanelController : UIControllerBase
     private Transform playerTransform;
     private RawImage characterPreviewImage;
     private Transform previewStageTransform;
-    private Transform previewCharacterTransform;
     private Camera previewCamera;
     private RenderTexture previewRenderTexture;
     private bool statSubscribed;
     private bool statContentClaimed;
     private bool shouldResetStatScrollPosition = true;
-    private bool loggedSkinnedMeshWarning;
     private GameObject resolvedEquipmentItemPrefab;
 
     protected override void Initialize()
@@ -162,7 +151,7 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         RefreshCombatPower();
         RefreshEquipmentSlots();
         RebuildStatList();
-        EnsurePreviewClone();
+        EnsurePreviewCamera();
     }
 
     private void LateUpdate()
@@ -170,10 +159,9 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         if (!isActiveAndEnabled)
             return;
 
-        if (previewCharacterTransform == null || previewCamera == null || previewRenderTexture == null)
+        if (playerTransform == null || previewCamera == null || previewRenderTexture == null)
             return;
 
-        SyncPreviewPose();
         UpdatePreviewCamera();
         previewCamera.Render();
     }
@@ -194,7 +182,6 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         equipmentHandler = null;
         equipmentUiController = null;
         resolvedEquipmentItemPrefab = null;
-        ClearPreviewClone();
         SetPreviewVisible(false);
         ClearEquipmentSlots();
     }
@@ -204,7 +191,6 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         shouldResetStatScrollPosition = true;
         this.playerTransform = playerTransform;
         ResolvePlayerEquipment();
-        ClearPreviewClone();
         RefreshView();
     }
 
@@ -1213,8 +1199,6 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         if (previewStageTransform == null)
         {
             GameObject stageObject = new GameObject("__CharacterInfoPreviewStage");
-            stageObject.transform.SetParent(transform, false);
-            stageObject.transform.position = previewStagePosition;
             previewStageTransform = stageObject.transform;
         }
 
@@ -1224,15 +1208,16 @@ public sealed class CharacterInfoPanelController : UIControllerBase
             cameraObject.transform.SetParent(previewStageTransform, false);
             previewCamera = cameraObject.AddComponent<Camera>();
             previewCamera.clearFlags = CameraClearFlags.SolidColor;
-            previewCamera.backgroundColor = previewBackgroundColor;
-            previewCamera.cullingMask = 1 << Mathf.Clamp(previewLayer, 0, 31);
             previewCamera.nearClipPlane = 0.01f;
-            previewCamera.farClipPlane = 50f;
+            previewCamera.farClipPlane = PreviewFarClipPlane;
             previewCamera.fieldOfView = 28f;
             previewCamera.allowHDR = false;
             previewCamera.allowMSAA = false;
             previewCamera.enabled = false;
         }
+
+        previewCamera.backgroundColor = previewBackgroundColor;
+        previewCamera.cullingMask = ~0;
 
         EnsurePreviewTexture();
     }
@@ -1284,7 +1269,7 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         previewRenderTexture = null;
     }
 
-    private void EnsurePreviewClone()
+    private void EnsurePreviewCamera()
     {
         if (playerTransform == null || characterPreviewImage == null)
         {
@@ -1293,134 +1278,16 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         }
 
         EnsurePreviewInfrastructure();
-
-        if (previewCharacterTransform != null)
-        {
-            SetPreviewVisible(true);
-            return;
-        }
-
-        previewCharacterTransform = new GameObject("CharacterInfoPreviewModel").transform;
-        previewCharacterTransform.SetParent(previewStageTransform, false);
-        previewCharacterTransform.localPosition = Vector3.zero;
-        previewCharacterTransform.localRotation = Quaternion.Euler(previewModelEuler);
-        previewCharacterTransform.localScale = playerTransform.localScale;
-
-        BuildPreviewCloneHierarchy(playerTransform, previewCharacterTransform, isRoot: true);
-        SetLayerRecursively(previewCharacterTransform.gameObject, previewLayer);
-        SetPreviewVisible(previewRenderers.Count > 0);
-    }
-
-    private void ClearPreviewClone()
-    {
-        previewTransformBindings.Clear();
-        previewRenderers.Clear();
-
-        if (previewCharacterTransform != null)
-            Destroy(previewCharacterTransform.gameObject);
-
-        previewCharacterTransform = null;
-    }
-
-    private void BuildPreviewCloneHierarchy(Transform source, Transform clone, bool isRoot)
-    {
-        if (source == null || clone == null)
-            return;
-
-        if (!isRoot)
-        {
-            clone.localPosition = source.localPosition;
-            clone.localRotation = source.localRotation;
-            clone.localScale = source.localScale;
-
-            previewTransformBindings.Add(new PreviewTransformBinding
-            {
-                Source = source,
-                Clone = clone
-            });
-        }
-
-        CopyRenderableComponents(source, clone);
-
-        for (int i = 0; i < source.childCount; i++)
-        {
-            Transform sourceChild = source.GetChild(i);
-            GameObject cloneChildObject = new GameObject(sourceChild.name);
-            Transform cloneChild = cloneChildObject.transform;
-            cloneChild.SetParent(clone, false);
-            BuildPreviewCloneHierarchy(sourceChild, cloneChild, isRoot: false);
-        }
-    }
-
-    private void CopyRenderableComponents(Transform source, Transform clone)
-    {
-        MeshFilter sourceMeshFilter = source.GetComponent<MeshFilter>();
-        MeshRenderer sourceMeshRenderer = source.GetComponent<MeshRenderer>();
-        if (sourceMeshFilter != null && sourceMeshRenderer != null)
-        {
-            MeshFilter cloneMeshFilter = clone.gameObject.AddComponent<MeshFilter>();
-            cloneMeshFilter.sharedMesh = sourceMeshFilter.sharedMesh;
-
-            MeshRenderer cloneMeshRenderer = clone.gameObject.AddComponent<MeshRenderer>();
-            cloneMeshRenderer.sharedMaterials = sourceMeshRenderer.sharedMaterials;
-            cloneMeshRenderer.shadowCastingMode = ShadowCastingMode.Off;
-            cloneMeshRenderer.receiveShadows = false;
-            cloneMeshRenderer.lightProbeUsage = LightProbeUsage.Off;
-            cloneMeshRenderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
-            previewRenderers.Add(cloneMeshRenderer);
-        }
-
-        SpriteRenderer sourceSpriteRenderer = source.GetComponent<SpriteRenderer>();
-        if (sourceSpriteRenderer != null)
-        {
-            SpriteRenderer cloneSpriteRenderer = clone.gameObject.AddComponent<SpriteRenderer>();
-            cloneSpriteRenderer.sprite = sourceSpriteRenderer.sprite;
-            cloneSpriteRenderer.color = sourceSpriteRenderer.color;
-            cloneSpriteRenderer.flipX = sourceSpriteRenderer.flipX;
-            cloneSpriteRenderer.flipY = sourceSpriteRenderer.flipY;
-            cloneSpriteRenderer.drawMode = sourceSpriteRenderer.drawMode;
-            cloneSpriteRenderer.size = sourceSpriteRenderer.size;
-            cloneSpriteRenderer.sortingLayerID = sourceSpriteRenderer.sortingLayerID;
-            cloneSpriteRenderer.sortingOrder = sourceSpriteRenderer.sortingOrder;
-            previewRenderers.Add(cloneSpriteRenderer);
-        }
-
-        if (!loggedSkinnedMeshWarning && source.GetComponent<SkinnedMeshRenderer>() != null)
-        {
-            loggedSkinnedMeshWarning = true;
-            Debug.LogWarning("CharacterInfoPanelController: SkinnedMeshRenderer preview clone is not supported yet. Current preview will skip that renderer.", this);
-        }
-    }
-
-    private void SyncPreviewPose()
-    {
-        if (previewCharacterTransform == null || playerTransform == null)
-            return;
-
-        previewCharacterTransform.position = previewStagePosition;
-        previewCharacterTransform.rotation = Quaternion.Euler(previewModelEuler);
-        previewCharacterTransform.localScale = playerTransform.localScale;
-
-        for (int i = 0; i < previewTransformBindings.Count; i++)
-        {
-            PreviewTransformBinding binding = previewTransformBindings[i];
-            if (binding.Source == null || binding.Clone == null)
-                continue;
-
-            binding.Clone.localPosition = binding.Source.localPosition;
-            binding.Clone.localRotation = binding.Source.localRotation;
-            binding.Clone.localScale = binding.Source.localScale;
-        }
+        SetPreviewVisible(true);
     }
 
     private void UpdatePreviewCamera()
     {
-        if (previewCamera == null || previewCharacterTransform == null)
+        if (previewCamera == null || playerTransform == null)
             return;
 
-        Vector3 lookTarget = previewCharacterTransform.position + previewLookOffset;
-        previewCamera.transform.position = previewCharacterTransform.position + previewCameraOffset;
-        previewCamera.transform.LookAt(lookTarget);
+        previewCamera.transform.position = playerTransform.position + previewCameraPosition;
+        previewCamera.transform.rotation = Quaternion.Euler(previewCameraEuler);
     }
 
     private void SetPreviewVisible(bool visible)
@@ -1430,18 +1297,6 @@ public sealed class CharacterInfoPanelController : UIControllerBase
 
         if (characterPreviewImage != null)
             characterPreviewImage.color = visible ? Color.white : new Color(1f, 1f, 1f, 0f);
-    }
-
-    private static void SetLayerRecursively(GameObject target, int layer)
-    {
-        if (target == null)
-            return;
-
-        target.layer = layer;
-
-        Transform transform = target.transform;
-        for (int i = 0; i < transform.childCount; i++)
-            SetLayerRecursively(transform.GetChild(i).gameObject, layer);
     }
 
     private static GameObject CreateUiObject(string objectName, Transform parent)
