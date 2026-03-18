@@ -18,4 +18,19 @@ public class SkillPreset
     {
         this.slots = slots;
     }
+
+    public SkillPreset Clone()
+    {
+        SkillPresetSlot[] clonedSlots = new SkillPresetSlot[SLOT_COUNT];
+
+        for (int i = 0; i < SLOT_COUNT; i++)
+        {
+            SkillPresetSlot sourceSlot = slots != null && i < slots.Length && slots[i] != null
+                ? slots[i]
+                : new SkillPresetSlot();
+            clonedSlots[i] = sourceSlot.Clone();
+        }
+
+        return new SkillPreset(clonedSlots);
+    }
 }

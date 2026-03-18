@@ -230,14 +230,14 @@ public class ActiveSkillUIController : UIControllerBase
         if (skillModule == null)
             return;
 
-        SkillPreset preset = skillModule.GetCurrentPreset();
+        SkillPreset preset = skillModule.GetCurrentPresetSnapshot();
         for (int i = 0; i < equippedSkillSlots.Length; i++)
         {
             BattleSkillSlotView slotView = equippedSkillSlots[i];
             if (slotView == null)
                 continue;
 
-            if (preset == null || i >= preset.slots.Length || preset.slots[i].IsEmpty)
+            if (preset == null || i >= preset.slots.Length || ShouldDisplayAsEmpty(preset.slots[i]))
             {
                 slotView.SetEmpty();
                 continue;
@@ -633,5 +633,15 @@ public class ActiveSkillUIController : UIControllerBase
     private static bool IsEquippableSkillType(SkillType skillType)
     {
         return skillType == SkillType.basicSkill || skillType == SkillType.ultimateSkil;
+    }
+
+    private static bool ShouldDisplayAsEmpty(SkillPresetSlot slot)
+    {
+        if (slot == null || slot.IsEmpty)
+            return true;
+
+        return DataManager.Instance == null
+            || DataManager.Instance.SkillInfoDict == null
+            || !DataManager.Instance.SkillInfoDict.ContainsKey(slot.skillID);
     }
 }

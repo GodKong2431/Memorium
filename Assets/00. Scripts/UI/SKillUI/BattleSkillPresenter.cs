@@ -120,7 +120,7 @@ public class BattleSkillPresenter : MonoBehaviour
             return;
         }
 
-        var preset = skillModule.GetCurrentPreset();
+        var preset = skillModule.GetCurrentPresetSnapshot();
         if (preset == null)
         {
             ClearAllSlots();
@@ -139,7 +139,7 @@ public class BattleSkillPresenter : MonoBehaviour
             }
 
             var slot = preset.slots[i];
-            if (slot.IsEmpty)
+            if (ShouldDisplayAsEmpty(slot))
             {
                 slotViews[i].SetEmpty();
                 continue;
@@ -235,5 +235,15 @@ public class BattleSkillPresenter : MonoBehaviour
             return null;
 
         return SkillIconResolver.TryLoad(table.skillIcon, skillId);
+    }
+
+    private static bool ShouldDisplayAsEmpty(SkillPresetSlot slot)
+    {
+        if (slot == null || slot.IsEmpty)
+            return true;
+
+        return DataManager.Instance == null
+            || DataManager.Instance.SkillInfoDict == null
+            || !DataManager.Instance.SkillInfoDict.ContainsKey(slot.skillID);
     }
 }

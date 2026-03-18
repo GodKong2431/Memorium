@@ -1,10 +1,15 @@
+using System;
 
 [System.Serializable]
 public class SkillPresetSlot
 {
-    public int skillID=-1;
-    public int[] m5JemIDs = {-1,-1 };
-    public int m4JemID = -1;
+    public const int EmptySkillId = -1;
+    private const int DefaultM5JemSlotCount = 2;
+
+    public int skillID = EmptySkillId;
+    public int[] m5JemIDs = { EmptySkillId, EmptySkillId };
+    public int m4JemID = EmptySkillId;
+
     public SkillPresetSlot()
     {
         Clear();
@@ -13,20 +18,67 @@ public class SkillPresetSlot
     public SkillPresetSlot(int skillID, int[] m5JemIDs, int m4JemID)
     {
         this.skillID = skillID;
-        this.m5JemIDs= m5JemIDs;
+        this.m5JemIDs = m5JemIDs;
         this.m4JemID = m4JemID;
+        Normalize();
     }
 
     public bool IsEmpty
     {
-        get { return skillID == -1; }
+        get { return skillID <= 0; }
+    }
+
+    public void Normalize()
+    {
+        EnsureGemSlots();
+
+        if (IsEmpty)
+        {
+            Clear();
+            return;
+        }
+
+        for (int i = 0; i < m5JemIDs.Length; i++)
+        {
+            if (m5JemIDs[i] <= 0)
+                m5JemIDs[i] = EmptySkillId;
+        }
+
+        if (m4JemID <= 0)
+            m4JemID = EmptySkillId;
+    }
+
+    public SkillPresetSlot Clone()
+    {
+        EnsureGemSlots();
+
+        int[] clonedM5GemIds = new int[m5JemIDs.Length];
+        Array.Copy(m5JemIDs, clonedM5GemIds, m5JemIDs.Length);
+        return new SkillPresetSlot(skillID, clonedM5GemIds, m4JemID);
     }
 
     public void Clear()
     {
-        skillID = -1;
-        m5JemIDs[0] = -1;
-        m5JemIDs[1] = -1;
-        m4JemID = -1;
+        EnsureGemSlots();
+        skillID = EmptySkillId;
+        m5JemIDs[0] = EmptySkillId;
+        m5JemIDs[1] = EmptySkillId;
+        m4JemID = EmptySkillId;
+    }
+
+    private void EnsureGemSlots()
+    {
+        if (m5JemIDs != null && m5JemIDs.Length >= DefaultM5JemSlotCount)
+            return;
+
+        int[] normalizedGemIds = { EmptySkillId, EmptySkillId };
+        if (m5JemIDs != null)
+        {
+            int copyCount = m5JemIDs.Length < DefaultM5JemSlotCount ? m5JemIDs.Length : DefaultM5JemSlotCount;
+            for (int i = 0; i < copyCount; i++)
+                normalizedGemIds[i] = m5JemIDs[i] > 0 ? m5JemIDs[i] : EmptySkillId;
+        }
+
+        m5JemIDs = normalizedGemIds;
     }
 }

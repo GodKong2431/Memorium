@@ -29,10 +29,17 @@ public sealed class SkillInventoryModule : IInventoryModule
         InventoryManager.Instance.saveSkillData = JSONService.Load<SaveSkillData>();
         InventoryManager.Instance.saveSkillData.InitSkillData();
 
-        //for (int i = 0; i < PresetCount; i++)
-        //    presets[i] = new SkillPreset();
+        List<OwnedSkillData> ownedSkillDatas = InventoryManager.Instance.saveSkillData.LoadSkillData();
+        if (ownedSkillDatas.Count > 0)
+        {
+            foreach (OwnedSkillData data in ownedSkillDatas)
+            {
+                skillDataById[data.skillID] = data;
+            }
+        }
+
         for (int i = 0; i < PresetCount; i++)
-            presets[i] = InventoryManager.Instance.saveSkillData.LoadSkillPreset(i);
+            presets[i] = NormalizeLoadedPreset(InventoryManager.Instance.saveSkillData.LoadSkillPreset(i));
 
         mergeHandler = new SkillMergeHandler(skillDataById);
         presetHandler = new SkillPresetHandler(skillDataById, presets);
@@ -43,25 +50,6 @@ public sealed class SkillInventoryModule : IInventoryModule
         };
 
         //프리셋에 저장된 데이터 불러오기
-        for (int i = 0; i < PresetCount; i++)
-        {
-            SwitchPreset(i);
-            for (int j = 0; j < InventoryManager.Instance.saveSkillData.SkillCountByPreset; j++)
-            {
-                SetPresetSlot(j, presets[i].slots[j].skillID);
-            }
-        }
-
-
-        List<OwnedSkillData> ownedSkillDatas = InventoryManager.Instance.saveSkillData.LoadSkillData();
-        if (ownedSkillDatas.Count > 0)
-        {
-            foreach (OwnedSkillData data in ownedSkillDatas)
-            {
-                skillDataById[data.skillID] = data;
-            }
-        }
-
         OnPresetChanged += InventoryManager.Instance.saveSkillData.SavePresetNum;
         //저장된 프리셋 번호 불러오기
         SwitchPreset(InventoryManager.Instance.saveSkillData.SavedPresetNum);
@@ -207,10 +195,22 @@ public sealed class SkillInventoryModule : IInventoryModule
         return presetHandler.GetCurrentPreset();
     }
 
+    public SkillPreset GetCurrentPresetSnapshot()
+    {
+        SkillPreset preset = presetHandler.GetCurrentPreset();
+        return preset != null ? preset.Clone() : new SkillPreset();
+    }
+
     // 지정 인덱스의 프리셋을 반환한다.
     public SkillPreset GetPreset(int index)
     {
         return presetHandler.GetPreset(index);
+    }
+
+    public SkillPreset GetPresetSnapshot(int index)
+    {
+        SkillPreset preset = presetHandler.GetPreset(index);
+        return preset != null ? preset.Clone() : new SkillPreset();
     }
 
     // 프리셋 탭을 전환한다.
@@ -350,5 +350,37 @@ public sealed class SkillInventoryModule : IInventoryModule
     public void NotifyPresetChanged()
     {
         OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
+    }
+
+    private SkillPreset NormalizeLoadedPreset(SkillPreset preset)
+    {
+        int slotCount = InventoryManager.Instance.saveSkillData.SkillCountByPreset;
+        SkillPresetSlot[] normalizedSlots = new SkillPresetSlot[slotCount];
+
+        for (int i = 0; i < slotCount; i++)
+        {
+            SkillPresetSlot slot = preset != null && preset.slots != null && i < preset.slots.Length && preset.slots[i] != null
+                ? preset.slots[i]
+                : new SkillPresetSlot();
+
+            slot.Normalize();
+            if (!slot.IsEmpty && !IsValidEquippedSkill(slot.skillID))
+                slot.Clear();
+
+            normalizedSlots[i] = slot;
+        }
+
+        return new SkillPreset(normalizedSlots);
+    }
+
+    private bool IsValidEquippedSkill(int skillId)
+    {
+        if (skillId <= 0)
+            return false;
+
+        if (!skillDataById.TryGetValue(skillId, out OwnedSkillData skillData))
+            return false;
+
+        return skillData.IsEquippable;
     }
 }
