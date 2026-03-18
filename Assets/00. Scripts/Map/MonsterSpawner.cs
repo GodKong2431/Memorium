@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class MonsterSpawner : MonoBehaviour
 {
@@ -76,6 +77,7 @@ public class MonsterSpawner : MonoBehaviour
                     //오브젝트 풀링으로 전환
                     //GameObject enemy = ObjectPoolManager.Get(spawnEnemy, spawnPos[i].position + randX + randZ, spawnPos[i].rotation);
                     GameObject enemy = ObjectPoolManager.Get(spawnEnemy, MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos[i].position + randX + randZ, MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos[i].rotation);
+                    enemy.GetComponent<NavMeshAgent>().Warp(enemy.transform.position);
 
                     if (!enemyGroup.Contains(enemy))
                         enemyGroup.Add(enemy);
@@ -94,6 +96,7 @@ public class MonsterSpawner : MonoBehaviour
             ////오브젝트 풀링으로 전환
             //GameObject boss = ObjectPoolManager.Get(spawnBoss, spawnPos[spawnPos.Length - 1].position, spawnPos[spawnPos.Length - 1].rotation);
             GameObject boss = ObjectPoolManager.Get(spawnBoss, MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos[MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos.Length-1].position, MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos[MapManager.Instance.mapPosInfo[curSpawnerPos].monsterSpawnPos.Length - 1].rotation);
+            boss.GetComponent<NavMeshAgent>().Warp(boss.transform.position);
 
             if (!enemyGroup.Contains(boss))
                 enemyGroup.Add(boss);
