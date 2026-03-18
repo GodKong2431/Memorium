@@ -30,16 +30,14 @@ internal static class SkillIconResolver
     // 스킬 ID 기반 임시 아이콘 우선 규칙을 적용해 아이콘을 찾습니다.
     public static Sprite TryLoad(string key, int skillId)
     {
-        Sprite temporaryIcon = GetTemporaryIcon(skillId);
-        if (temporaryIcon != null)
-            return temporaryIcon;
-
-        return TryLoad(key);
+        Sprite resolved = TryLoad(key);
+        return resolved != null ? resolved : GetTemporaryIcon(skillId);
     }
 
     // 다양한 경로 표기를 허용하며 실제 Resources 경로를 해석합니다.
     private static Sprite LoadInternal(string path)
     {
+        path = path.Replace('\\', '/');
         Sprite sprite = Resources.Load<Sprite>(path);
         if (sprite != null)
             return sprite;
