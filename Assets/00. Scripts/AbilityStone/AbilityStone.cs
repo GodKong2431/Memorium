@@ -28,7 +28,7 @@ public class AbilityStone
     [SerializeField] private int firstUpOpportunity;
     [SerializeField] private int secondUpOpportunity;
     [SerializeField] private int thirdUpOpportunity;
-    [SerializeField] public List<AbilityStoneSlot> Slots = new List<AbilityStoneSlot>();
+    [SerializeField] public List<AbilityStoneSlot> Slots = new List<AbilityStoneSlot>();// 저장 
     
     [SerializeField] private float currentProbability;
     
@@ -46,7 +46,7 @@ public class AbilityStone
     public int UpResetCostValue => UpResetCost;
     public bool IsConfigured => Slots.Exists(slot => slot.SlotType != StatType.None);
     
-    public bool isUnlock = false;
+    public bool isUnlock = false;// 저장
     
     public float CurrentProbability
     {

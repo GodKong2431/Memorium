@@ -15,6 +15,7 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
     SaveQuestData  questData;
     SaveSkillData skillData;
     SaveStageData stageData;
+    SaveAbilityStoneData abilityStoneData;
 
     private IEnumerator Start()
     {
@@ -45,7 +46,10 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         yield return new WaitUntil(() => GachaManager.Instance.DataLoad);
         gachaData = GachaManager.Instance.saveGachaData;
 
-        //스킬 데이터
+        //어빌리티 스톤 데이터
+        yield return new WaitUntil(() => AbilityStoneManager.Instance != null);
+        yield return new WaitUntil(() => AbilityStoneManager.Instance.LoadStone);
+        abilityStoneData = AbilityStoneManager.Instance.saveAbilityStoneData;
 
         StartCoroutine(AutoSaveCoroutine());
     }
@@ -74,6 +78,7 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         if (questData.IsDirty && questData!=null) saveTask.Add(AutoSaveTaskStart(questData));
         if(gachaData.IsDirty && gachaData!=null) saveTask.Add(AutoSaveTaskStart(gachaData));
         if(skillData.IsDirty && skillData!=null) saveTask.Add(AutoSaveTaskStart(skillData));
+        if(abilityStoneData.IsDirty && abilityStoneData != null) saveTask.Add(AutoSaveTaskStart(abilityStoneData));
 
         if (saveTask.Count > 0)
         {

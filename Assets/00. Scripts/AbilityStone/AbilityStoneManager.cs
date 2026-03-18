@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 using UnityEngine.UI;
 
 public class AbilityStoneManager : Singleton<AbilityStoneManager>
 {
-    [SerializeField] public AblityStoneSO so;
+    [SerializeField] public AbilityStoneSO so;
     
     [SerializeField] private int stoneStatProbabilityID;
     [SerializeField] private int stoneID;
@@ -21,14 +21,16 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
     public event Action<StoneGrade> OnReset;
     
     public bool LoadStone = false;
-    
+
+    public SaveAbilityStoneData saveAbilityStoneData;
+
     IEnumerator Start()
     {
         yield return new WaitUntil(() => CharacterStatManager.Instance != null);
         yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
         
-        so = Resources.Load<AblityStoneSO>("AbilityStoneSO");
-        
+        so = Resources.Load<AbilityStoneSO>("AbilityStoneSO");
+
         stoneStatProbabilityID = so.stoneStatProbabilityID;
         stoneID = so.stoneID;
         stoneStatUpID = so.stoneStatUpID;
@@ -67,7 +69,11 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         }
         
         totalCount = 0;
-        
+
+        saveAbilityStoneData = JSONService.Load<SaveAbilityStoneData>();
+        saveAbilityStoneData.InitAblityStoneData();
+        saveAbilityStoneData.LoadAbilityStoneData(so);
+
         LoadStone = true;
     }
 
@@ -205,5 +211,11 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         }
         
         return 0f;
+    }
+
+
+    public void SaveAbilityStoneInfo()
+    {
+        saveAbilityStoneData.SaveAbilityStoneDataBySO(so);
     }
 }
