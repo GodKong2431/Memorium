@@ -1,160 +1,236 @@
-아이템 ID,아이템 타입,아이템 명 스트링 키,스택 가능 여부,아이템 명,아이템 아이콘
-itemId,itemType,itemName,isStack,desc,itemIcon
-int,enum,string,bool,stirng,string
-3210001,21,itemName_3210001,TRUE,스킬 주문서 1,itemIcon_3210001
-3210002,21,itemName_3210002,TRUE,스킬 주문서 2,itemIcon_3210002
-3210003,21,itemName_3210003,TRUE,스킬 주문서 3,itemIcon_3210003
-3210004,21,itemName_3210004,TRUE,스킬 주문서 4,itemIcon_3210004
-3220001,22,itemName_3220001,TRUE,속성잼 1,itemIcon_3220001
-3220002,22,itemName_3220002,TRUE,속성잼 2,itemIcon_3220002
-3220003,22,itemName_3220003,TRUE,속성잼 3,itemIcon_3220003
-3220004,22,itemName_3220004,TRUE,속성잼 4,itemIcon_3220004
-3220005,22,itemName_3220005,TRUE,속성잼 5,itemIcon_3220005
-3220006,22,itemName_3220006,TRUE,속성잼 6,itemIcon_3220006
-3220007,22,itemName_3220007,TRUE,속성잼 7,itemIcon_3220007
-3220008,22,itemName_3220008,TRUE,속성잼 8,itemIcon_3220008
-3230001,23,itemName_3230001,TRUE,유니크잼 1,itemIcon_3230001
-3230002,23,itemName_3230002,TRUE,유니크잼 2,itemIcon_3230002
-3310001,31,itemName_3310001,TRUE,픽시 조각 1,itemIcon_3310001
-3310002,31,itemName_3310002,TRUE,픽시 조각 2,itemIcon_3310002
-3310003,31,itemName_3310003,TRUE,픽시 조각 3,itemIcon_3310003
-3310004,31,itemName_3310004,TRUE,픽시 조각 4,itemIcon_3310004
-3310005,31,itemName_3310005,TRUE,픽시 조각 5,itemIcon_3310005
-3310006,31,itemName_3310006,TRUE,픽시 조각 6,itemIcon_3310006
-3310007,31,itemName_3310007,TRUE,픽시 조각 7,itemIcon_3310007
-3310008,31,itemName_3310008,TRUE,픽시 조각 8,itemIcon_3310008
-3310009,31,itemName_3310009,TRUE,픽시 조각 9,itemIcon_3310009
-3310010,31,itemName_3310010,TRUE,픽시 조각 10,itemIcon_3310010
-3310011,31,itemName_3310011,TRUE,픽시 조각 11,itemIcon_3310011
-3310012,31,itemName_3310012,TRUE,픽시 조각 12,itemIcon_3310012
-3810001,81,itemName_3810001,TRUE,골드,itemIcon_3810001
-3820002,82,itemName_3820002,TRUE,크리스탈,itemIcon_3820002
-3831001,83,itemName_3831001,TRUE,골드던전 열쇠,itemIcon_3831001
-3831002,83,itemName_3831002,TRUE,경험치던전 열쇠,itemIcon_3831002
-3831003,83,itemName_3831003,TRUE,장비던전 열쇠,itemIcon_3831003
-3831004,83,itemName_3831004,TRUE,연금공방 열쇠,itemIcon_3831004
-3110101,11,itemName_3110101,FALSE,1성일반무기,itemIcon_3110101
-3110102,11,itemName_3110102,FALSE,1성희귀무기,itemIcon_3110102
-3110103,11,itemName_3110103,FALSE,1성레어무기,itemIcon_3110103
-3110104,11,itemName_3110104,FALSE,1성전설무기,itemIcon_3110104
-3110105,11,itemName_3110105,FALSE,1성신화무기,itemIcon_3110105
-3110201,11,itemName_3110201,FALSE,2성일반무기,itemIcon_3110201
-3110202,11,itemName_3110202,FALSE,2성희귀무기,itemIcon_3110202
-3110203,11,itemName_3110203,FALSE,2성레어무기,itemIcon_3110203
-3110204,11,itemName_3110204,FALSE,2성전설무기,itemIcon_3110204
-3110205,11,itemName_3110205,FALSE,2성신화무기,itemIcon_3110205
-3110301,11,itemName_3110301,FALSE,3성일반무기,itemIcon_3110301
-3110302,11,itemName_3110302,FALSE,3성희귀무기,itemIcon_3110302
-3110303,11,itemName_3110303,FALSE,3성레어무기,itemIcon_3110303
-3110304,11,itemName_3110304,FALSE,3성전설무기,itemIcon_3110304
-3110305,11,itemName_3110305,FALSE,3성신화무기,itemIcon_3110305
-3110401,11,itemName_3110401,FALSE,4성일반무기,itemIcon_3110401
-3110402,11,itemName_3110402,FALSE,4성희귀무기,itemIcon_3110402
-3110403,11,itemName_3110403,FALSE,4성레어무기,itemIcon_3110403
-3110404,11,itemName_3110404,FALSE,4성전설무기,itemIcon_3110404
-3110405,11,itemName_3110405,FALSE,4성신화무기,itemIcon_3110405
-3110501,11,itemName_3110501,FALSE,5성일반무기,itemIcon_3110501
-3110502,11,itemName_3110502,FALSE,5성희귀무기,itemIcon_3110502
-3110503,11,itemName_3110503,FALSE,5성레어무기,itemIcon_3110503
-3110504,11,itemName_3110504,FALSE,5성전설무기,itemIcon_3110504
-3110505,11,itemName_3110505,FALSE,5성신화무기,itemIcon_3110505
-3120101,12,itemName_3120101,FALSE,1성일반투구,itemIcon_3120101
-3120102,12,itemName_3120102,FALSE,1성희귀투구,itemIcon_3120102
-3120103,12,itemName_3120103,FALSE,1성레어투구,itemIcon_3120103
-3120104,12,itemName_3120104,FALSE,1성전설투구,itemIcon_3120104
-3120105,12,itemName_3120105,FALSE,1성신화투구,itemIcon_3120105
-3120201,12,itemName_3120201,FALSE,2성일반투구,itemIcon_3120201
-3120202,12,itemName_3120202,FALSE,2성희귀투구,itemIcon_3120202
-3120203,12,itemName_3120203,FALSE,2성레어투구,itemIcon_3120203
-3120204,12,itemName_3120204,FALSE,2성전설투구,itemIcon_3120204
-3120205,12,itemName_3120205,FALSE,2성신화투구,itemIcon_3120205
-3120301,12,itemName_3120301,FALSE,3성일반투구,itemIcon_3120301
-3120302,12,itemName_3120302,FALSE,3성희귀투구,itemIcon_3120302
-3120303,12,itemName_3120303,FALSE,3성레어투구,itemIcon_3120303
-3120304,12,itemName_3120304,FALSE,3성전설투구,itemIcon_3120304
-3120305,12,itemName_3120305,FALSE,3성신화투구,itemIcon_3120305
-3120401,12,itemName_3120401,FALSE,4성일반투구,itemIcon_3120401
-3120402,12,itemName_3120402,FALSE,4성희귀투구,itemIcon_3120402
-3120403,12,itemName_3120403,FALSE,4성레어투구,itemIcon_3120403
-3120404,12,itemName_3120404,FALSE,4성전설투구,itemIcon_3120404
-3120405,12,itemName_3120405,FALSE,4성신화투구,itemIcon_3120405
-3120501,12,itemName_3120501,FALSE,5성일반투구,itemIcon_3120501
-3120502,12,itemName_3120502,FALSE,5성희귀투구,itemIcon_3120502
-3120503,12,itemName_3120503,FALSE,5성레어투구,itemIcon_3120503
-3120504,12,itemName_3120504,FALSE,5성전설투구,itemIcon_3120504
-3120505,12,itemName_3120505,FALSE,5성신화투구,itemIcon_3120505
-3130101,13,itemName_3130101,FALSE,1성일반장갑,itemIcon_3130101
-3130102,13,itemName_3130102,FALSE,1성희귀장갑,itemIcon_3130102
-3130103,13,itemName_3130103,FALSE,1성레어장갑,itemIcon_3130103
-3130104,13,itemName_3130104,FALSE,1성전설장갑,itemIcon_3130104
-3130105,13,itemName_3130105,FALSE,1성신화장갑,itemIcon_3130105
-3130201,13,itemName_3130201,FALSE,2성일반장갑,itemIcon_3130201
-3130202,13,itemName_3130202,FALSE,2성희귀장갑,itemIcon_3130202
-3130203,13,itemName_3130203,FALSE,2성레어장갑,itemIcon_3130203
-3130204,13,itemName_3130204,FALSE,2성전설장갑,itemIcon_3130204
-3130205,13,itemName_3130205,FALSE,2성신화장갑,itemIcon_3130205
-3130301,13,itemName_3130301,FALSE,3성일반장갑,itemIcon_3130301
-3130302,13,itemName_3130302,FALSE,3성희귀장갑,itemIcon_3130302
-3130303,13,itemName_3130303,FALSE,3성레어장갑,itemIcon_3130303
-3130304,13,itemName_3130304,FALSE,3성전설장갑,itemIcon_3130304
-3130305,13,itemName_3130305,FALSE,3성신화장갑,itemIcon_3130305
-3130401,13,itemName_3130401,FALSE,4성일반장갑,itemIcon_3130401
-3130402,13,itemName_3130402,FALSE,4성희귀장갑,itemIcon_3130402
-3130403,13,itemName_3130403,FALSE,4성레어장갑,itemIcon_3130403
-3130404,13,itemName_3130404,FALSE,4성전설장갑,itemIcon_3130404
-3130405,13,itemName_3130405,FALSE,4성신화장갑,itemIcon_3130405
-3130501,13,itemName_3130501,FALSE,5성일반장갑,itemIcon_3130501
-3130502,13,itemName_3130502,FALSE,5성희귀장갑,itemIcon_3130502
-3130503,13,itemName_3130503,FALSE,5성레어장갑,itemIcon_3130503
-3130504,13,itemName_3130504,FALSE,5성전설장갑,itemIcon_3130504
-3130505,13,itemName_3130505,FALSE,5성신화장갑,itemIcon_3130505
-3140101,14,itemName_3140101,FALSE,1성일반갑옷,itemIcon_3140101
-3140102,14,itemName_3140102,FALSE,1성희귀갑옷,itemIcon_3140102
-3140103,14,itemName_3140103,FALSE,1성레어갑옷,itemIcon_3140103
-3140104,14,itemName_3140104,FALSE,1성전설갑옷,itemIcon_3140104
-3140105,14,itemName_3140105,FALSE,1성신화갑옷,itemIcon_3140105
-3140201,14,itemName_3140201,FALSE,2성일반갑옷,itemIcon_3140201
-3140202,14,itemName_3140202,FALSE,2성희귀갑옷,itemIcon_3140202
-3140203,14,itemName_3140203,FALSE,2성레어갑옷,itemIcon_3140203
-3140204,14,itemName_3140204,FALSE,2성전설갑옷,itemIcon_3140204
-3140205,14,itemName_3140205,FALSE,2성신화갑옷,itemIcon_3140205
-3140301,14,itemName_3140301,FALSE,3성일반갑옷,itemIcon_3140301
-3140302,14,itemName_3140302,FALSE,3성희귀갑옷,itemIcon_3140302
-3140303,14,itemName_3140303,FALSE,3성레어갑옷,itemIcon_3140303
-3140304,14,itemName_3140304,FALSE,3성전설갑옷,itemIcon_3140304
-3140305,14,itemName_3140305,FALSE,3성신화갑옷,itemIcon_3140305
-3140401,14,itemName_3140401,FALSE,4성일반갑옷,itemIcon_3140401
-3140402,14,itemName_3140402,FALSE,4성희귀갑옷,itemIcon_3140402
-3140403,14,itemName_3140403,FALSE,4성레어갑옷,itemIcon_3140403
-3140404,14,itemName_3140404,FALSE,4성전설갑옷,itemIcon_3140404
-3140405,14,itemName_3140405,FALSE,4성신화갑옷,itemIcon_3140405
-3140501,14,itemName_3140501,FALSE,5성일반갑옷,itemIcon_3140501
-3140502,14,itemName_3140502,FALSE,5성희귀갑옷,itemIcon_3140502
-3140503,14,itemName_3140503,FALSE,5성레어갑옷,itemIcon_3140503
-3140504,14,itemName_3140504,FALSE,5성전설갑옷,itemIcon_3140504
-3140505,14,itemName_3140505,FALSE,5성신화갑옷,itemIcon_3140505
-3150101,15,itemName_3150101,FALSE,1성일반장화,itemIcon_3150101
-3150102,15,itemName_3150102,FALSE,1성희귀장화,itemIcon_3150102
-3150103,15,itemName_3150103,FALSE,1성레어장화,itemIcon_3150103
-3150104,15,itemName_3150104,FALSE,1성전설장화,itemIcon_3150104
-3150105,15,itemName_3150105,FALSE,1성신화장화,itemIcon_3150105
-3150201,15,itemName_3150201,FALSE,2성일반장화,itemIcon_3150201
-3150202,15,itemName_3150202,FALSE,2성희귀장화,itemIcon_3150202
-3150203,15,itemName_3150203,FALSE,2성레어장화,itemIcon_3150203
-3150204,15,itemName_3150204,FALSE,2성전설장화,itemIcon_3150204
-3150205,15,itemName_3150205,FALSE,2성신화장화,itemIcon_3150205
-3150301,15,itemName_3150301,FALSE,3성일반장화,itemIcon_3150301
-3150302,15,itemName_3150302,FALSE,3성희귀장화,itemIcon_3150302
-3150303,15,itemName_3150303,FALSE,3성레어장화,itemIcon_3150303
-3150304,15,itemName_3150304,FALSE,3성전설장화,itemIcon_3150304
-3150305,15,itemName_3150305,FALSE,3성신화장화,itemIcon_3150305
-3150401,15,itemName_3150401,FALSE,4성일반장화,itemIcon_3150401
-3150402,15,itemName_3150402,FALSE,4성희귀장화,itemIcon_3150402
-3150403,15,itemName_3150403,FALSE,4성레어장화,itemIcon_3150403
-3150404,15,itemName_3150404,FALSE,4성전설장화,itemIcon_3150404
-3150405,15,itemName_3150405,FALSE,4성신화장화,itemIcon_3150405
-3150501,15,itemName_3150501,FALSE,5성일반장화,itemIcon_3150501
-3150502,15,itemName_3150502,FALSE,5성희귀장화,itemIcon_3150502
-3150503,15,itemName_3150503,FALSE,5성레어장화,itemIcon_3150503
-3150504,15,itemName_3150504,FALSE,5성전설장화,itemIcon_3150504
-3150505,15,itemName_3150505,FALSE,5성신화장화,itemIcon_3150505
+아이템 ID,아이템 타입 desc,아이템 타입,아이템 명 스트링 키,아이템 설명 (스트링 테이블 참조),스택 가능 여부,아이템 명,아이템 아이콘
+itemID,itemTypedesc,itemType,itemName,itemDesc,isStack,desc,itemIcon
+int,string,enum,string,,boolean,stirng,string
+3210001,스킬 주문서,21,itemName_3210001,itemDesc,TRUE,스킬 주문서 1,itemIcon_3210001
+3210002,스킬 주문서,21,itemName_3210002,,TRUE,스킬 주문서 2,itemIcon_3210002
+3210003,스킬 주문서,21,itemName_3210003,,TRUE,스킬 주문서 3,itemIcon_3210003
+3210004,스킬 주문서,21,itemName_3210004,,TRUE,스킬 주문서 4,itemIcon_3210004
+3210005,스킬 주문서,21,itemName_3210005,,TRUE,스킬 주문서 5,itemIcon_3210005
+3210006,스킬 주문서,21,itemName_3210006,,TRUE,스킬 주문서 6,itemIcon_3210006
+3210007,스킬 주문서,21,itemName_3210007,,TRUE,스킬 주문서 7,itemIcon_3210007
+3210008,스킬 주문서,21,itemName_3210008,,TRUE,스킬 주문서 8,itemIcon_3210008
+3210009,스킬 주문서,21,itemName_3210009,,TRUE,스킬 주문서 9,itemIcon_3210009
+3210010,스킬 주문서,21,itemName_3210010,,TRUE,스킬 주문서 10,itemIcon_3210010
+3410001,빙고 재화,41,itemName_3410001,,TRUE,일반 빙고 칸,itemIcon_3410001
+3410002,빙고 재화,41,itemName_3410002,,TRUE,희귀 빙고 칸,itemIcon_3410002
+3410003,빙고 재화,41,itemName_3410003,,TRUE,영웅 빙고 칸,itemIcon_3410003
+3410004,빙고 재화,41,itemName_3410004,,TRUE,전설 빙고 칸,itemIcon_3410004
+3410005,빙고 재화,41,itemName_3410005,,TRUE,희귀 빙고 칸,itemIcon_3410005
+3420001,빙고 아이템,42,itemName_3420001,,TRUE,빙고 아이템 1,itemIcon_3420001
+3420002,빙고 아이템,42,itemName_3420002,,TRUE,빙고 아이템 2,itemIcon_3420002
+3420003,빙고 아이템,42,itemName_3420003,,TRUE,빙고 아이템 3,itemIcon_3420003
+3420004,빙고 아이템,42,itemName_3420004,,TRUE,빙고 아이템 4,itemIcon_3420004
+3420005,빙고 아이템,42,itemName_3420005,,TRUE,빙고 아이템 5,itemIcon_3420005
+3310001,픽시 조각,31,itemName_3310001,,TRUE,픽시 조각 1,itemIcon_3310001
+3310002,픽시 조각,31,itemName_3310002,,TRUE,픽시 조각 2,itemIcon_3310002
+3310003,픽시 조각,31,itemName_3310003,,TRUE,픽시 조각 3,itemIcon_3310003
+3310004,픽시 조각,31,itemName_3310004,,TRUE,픽시 조각 4,itemIcon_3310004
+3310005,픽시 조각,31,itemName_3310005,,TRUE,픽시 조각 5,itemIcon_3310005
+3310006,픽시 조각,31,itemName_3310006,,TRUE,픽시 조각 6,itemIcon_3310006
+3310007,픽시 조각,31,itemName_3310007,,TRUE,픽시 조각 7,itemIcon_3310007
+3310008,픽시 조각,31,itemName_3310008,,TRUE,픽시 조각 8,itemIcon_3310008
+3310009,픽시 조각,31,itemName_3310009,,TRUE,픽시 조각 9,itemIcon_3310009
+3310010,픽시 조각,31,itemName_3310010,,TRUE,픽시 조각 10,itemIcon_3310010
+3310011,픽시 조각,31,itemName_3310011,,TRUE,픽시 조각 11,itemIcon_3310011
+3310012,픽시 조각,31,itemName_3310012,,TRUE,픽시 조각 12,itemIcon_3310012
+3810001,일반 재화,81,itemName_3810001,,TRUE,골드,itemIcon_3810001
+3820002,유료 재화,82,itemName_3820002,,TRUE,크리스탈,itemIcon_3820002
+3831001,콘텐츠 입장권,83,itemName_3831001,,TRUE,골드던전 열쇠,itemIcon_3831001
+3831002,콘텐츠 입장권,83,itemName_3831002,,TRUE,경험치던전 열쇠,itemIcon_3831002
+3831003,콘텐츠 입장권,83,itemName_3831003,,TRUE,장비던전 열쇠,itemIcon_3831003
+3831004,콘텐츠 입장권,83,itemName_3831004,,TRUE,연금공방 열쇠,itemIcon_3831004
+3110101,무기,11,itemName_3110101,,FALSE,1성일반무기,itemIcon_3110101
+3110102,무기,11,itemName_3110102,,FALSE,1성희귀무기,itemIcon_3110102
+3110103,무기,11,itemName_3110103,,FALSE,1성레어무기,itemIcon_3110103
+3110104,무기,11,itemName_3110104,,FALSE,1성전설무기,itemIcon_3110104
+3110105,무기,11,itemName_3110105,,FALSE,1성신화무기,itemIcon_3110105
+3110201,무기,11,itemName_3110201,,FALSE,2성일반무기,itemIcon_3110201
+3110202,무기,11,itemName_3110202,,FALSE,2성희귀무기,itemIcon_3110202
+3110203,무기,11,itemName_3110203,,FALSE,2성레어무기,itemIcon_3110203
+3110204,무기,11,itemName_3110204,,FALSE,2성전설무기,itemIcon_3110204
+3110205,무기,11,itemName_3110205,,FALSE,2성신화무기,itemIcon_3110205
+3110301,무기,11,itemName_3110301,,FALSE,3성일반무기,itemIcon_3110301
+3110302,무기,11,itemName_3110302,,FALSE,3성희귀무기,itemIcon_3110302
+3110303,무기,11,itemName_3110303,,FALSE,3성레어무기,itemIcon_3110303
+3110304,무기,11,itemName_3110304,,FALSE,3성전설무기,itemIcon_3110304
+3110305,무기,11,itemName_3110305,,FALSE,3성신화무기,itemIcon_3110305
+3110401,무기,11,itemName_3110401,,FALSE,4성일반무기,itemIcon_3110401
+3110402,무기,11,itemName_3110402,,FALSE,4성희귀무기,itemIcon_3110402
+3110403,무기,11,itemName_3110403,,FALSE,4성레어무기,itemIcon_3110403
+3110404,무기,11,itemName_3110404,,FALSE,4성전설무기,itemIcon_3110404
+3110405,무기,11,itemName_3110405,,FALSE,4성신화무기,itemIcon_3110405
+3110501,무기,11,itemName_3110501,,FALSE,5성일반무기,itemIcon_3110501
+3110502,무기,11,itemName_3110502,,FALSE,5성희귀무기,itemIcon_3110502
+3110503,무기,11,itemName_3110503,,FALSE,5성레어무기,itemIcon_3110503
+3110504,무기,11,itemName_3110504,,FALSE,5성전설무기,itemIcon_3110504
+3110505,무기,11,itemName_3110505,,FALSE,5성신화무기,itemIcon_3110505
+3120101,투구,12,itemName_3120101,,FALSE,1성일반투구,itemIcon_3120101
+3120102,투구,12,itemName_3120102,,FALSE,1성희귀투구,itemIcon_3120102
+3120103,투구,12,itemName_3120103,,FALSE,1성레어투구,itemIcon_3120103
+3120104,투구,12,itemName_3120104,,FALSE,1성전설투구,itemIcon_3120104
+3120105,투구,12,itemName_3120105,,FALSE,1성신화투구,itemIcon_3120105
+3120201,투구,12,itemName_3120201,,FALSE,2성일반투구,itemIcon_3120201
+3120202,투구,12,itemName_3120202,,FALSE,2성희귀투구,itemIcon_3120202
+3120203,투구,12,itemName_3120203,,FALSE,2성레어투구,itemIcon_3120203
+3120204,투구,12,itemName_3120204,,FALSE,2성전설투구,itemIcon_3120204
+3120205,투구,12,itemName_3120205,,FALSE,2성신화투구,itemIcon_3120205
+3120301,투구,12,itemName_3120301,,FALSE,3성일반투구,itemIcon_3120301
+3120302,투구,12,itemName_3120302,,FALSE,3성희귀투구,itemIcon_3120302
+3120303,투구,12,itemName_3120303,,FALSE,3성레어투구,itemIcon_3120303
+3120304,투구,12,itemName_3120304,,FALSE,3성전설투구,itemIcon_3120304
+3120305,투구,12,itemName_3120305,,FALSE,3성신화투구,itemIcon_3120305
+3120401,투구,12,itemName_3120401,,FALSE,4성일반투구,itemIcon_3120401
+3120402,투구,12,itemName_3120402,,FALSE,4성희귀투구,itemIcon_3120402
+3120403,투구,12,itemName_3120403,,FALSE,4성레어투구,itemIcon_3120403
+3120404,투구,12,itemName_3120404,,FALSE,4성전설투구,itemIcon_3120404
+3120405,투구,12,itemName_3120405,,FALSE,4성신화투구,itemIcon_3120405
+3120501,투구,12,itemName_3120501,,FALSE,5성일반투구,itemIcon_3120501
+3120502,투구,12,itemName_3120502,,FALSE,5성희귀투구,itemIcon_3120502
+3120503,투구,12,itemName_3120503,,FALSE,5성레어투구,itemIcon_3120503
+3120504,투구,12,itemName_3120504,,FALSE,5성전설투구,itemIcon_3120504
+3120505,투구,12,itemName_3120505,,FALSE,5성신화투구,itemIcon_3120505
+3130101,장갑,13,itemName_3130101,,FALSE,1성일반장갑,itemIcon_3130101
+3130102,장갑,13,itemName_3130102,,FALSE,1성희귀장갑,itemIcon_3130102
+3130103,장갑,13,itemName_3130103,,FALSE,1성레어장갑,itemIcon_3130103
+3130104,장갑,13,itemName_3130104,,FALSE,1성전설장갑,itemIcon_3130104
+3130105,장갑,13,itemName_3130105,,FALSE,1성신화장갑,itemIcon_3130105
+3130201,장갑,13,itemName_3130201,,FALSE,2성일반장갑,itemIcon_3130201
+3130202,장갑,13,itemName_3130202,,FALSE,2성희귀장갑,itemIcon_3130202
+3130203,장갑,13,itemName_3130203,,FALSE,2성레어장갑,itemIcon_3130203
+3130204,장갑,13,itemName_3130204,,FALSE,2성전설장갑,itemIcon_3130204
+3130205,장갑,13,itemName_3130205,,FALSE,2성신화장갑,itemIcon_3130205
+3130301,장갑,13,itemName_3130301,,FALSE,3성일반장갑,itemIcon_3130301
+3130302,장갑,13,itemName_3130302,,FALSE,3성희귀장갑,itemIcon_3130302
+3130303,장갑,13,itemName_3130303,,FALSE,3성레어장갑,itemIcon_3130303
+3130304,장갑,13,itemName_3130304,,FALSE,3성전설장갑,itemIcon_3130304
+3130305,장갑,13,itemName_3130305,,FALSE,3성신화장갑,itemIcon_3130305
+3130401,장갑,13,itemName_3130401,,FALSE,4성일반장갑,itemIcon_3130401
+3130402,장갑,13,itemName_3130402,,FALSE,4성희귀장갑,itemIcon_3130402
+3130403,장갑,13,itemName_3130403,,FALSE,4성레어장갑,itemIcon_3130403
+3130404,장갑,13,itemName_3130404,,FALSE,4성전설장갑,itemIcon_3130404
+3130405,장갑,13,itemName_3130405,,FALSE,4성신화장갑,itemIcon_3130405
+3130501,장갑,13,itemName_3130501,,FALSE,5성일반장갑,itemIcon_3130501
+3130502,장갑,13,itemName_3130502,,FALSE,5성희귀장갑,itemIcon_3130502
+3130503,장갑,13,itemName_3130503,,FALSE,5성레어장갑,itemIcon_3130503
+3130504,장갑,13,itemName_3130504,,FALSE,5성전설장갑,itemIcon_3130504
+3130505,장갑,13,itemName_3130505,,FALSE,5성신화장갑,itemIcon_3130505
+3140101,갑옷,14,itemName_3140101,,FALSE,1성일반갑옷,itemIcon_3140101
+3140102,갑옷,14,itemName_3140102,,FALSE,1성희귀갑옷,itemIcon_3140102
+3140103,갑옷,14,itemName_3140103,,FALSE,1성레어갑옷,itemIcon_3140103
+3140104,갑옷,14,itemName_3140104,,FALSE,1성전설갑옷,itemIcon_3140104
+3140105,갑옷,14,itemName_3140105,,FALSE,1성신화갑옷,itemIcon_3140105
+3140201,갑옷,14,itemName_3140201,,FALSE,2성일반갑옷,itemIcon_3140201
+3140202,갑옷,14,itemName_3140202,,FALSE,2성희귀갑옷,itemIcon_3140202
+3140203,갑옷,14,itemName_3140203,,FALSE,2성레어갑옷,itemIcon_3140203
+3140204,갑옷,14,itemName_3140204,,FALSE,2성전설갑옷,itemIcon_3140204
+3140205,갑옷,14,itemName_3140205,,FALSE,2성신화갑옷,itemIcon_3140205
+3140301,갑옷,14,itemName_3140301,,FALSE,3성일반갑옷,itemIcon_3140301
+3140302,갑옷,14,itemName_3140302,,FALSE,3성희귀갑옷,itemIcon_3140302
+3140303,갑옷,14,itemName_3140303,,FALSE,3성레어갑옷,itemIcon_3140303
+3140304,갑옷,14,itemName_3140304,,FALSE,3성전설갑옷,itemIcon_3140304
+3140305,갑옷,14,itemName_3140305,,FALSE,3성신화갑옷,itemIcon_3140305
+3140401,갑옷,14,itemName_3140401,,FALSE,4성일반갑옷,itemIcon_3140401
+3140402,갑옷,14,itemName_3140402,,FALSE,4성희귀갑옷,itemIcon_3140402
+3140403,갑옷,14,itemName_3140403,,FALSE,4성레어갑옷,itemIcon_3140403
+3140404,갑옷,14,itemName_3140404,,FALSE,4성전설갑옷,itemIcon_3140404
+3140405,갑옷,14,itemName_3140405,,FALSE,4성신화갑옷,itemIcon_3140405
+3140501,갑옷,14,itemName_3140501,,FALSE,5성일반갑옷,itemIcon_3140501
+3140502,갑옷,14,itemName_3140502,,FALSE,5성희귀갑옷,itemIcon_3140502
+3140503,갑옷,14,itemName_3140503,,FALSE,5성레어갑옷,itemIcon_3140503
+3140504,갑옷,14,itemName_3140504,,FALSE,5성전설갑옷,itemIcon_3140504
+3140505,갑옷,14,itemName_3140505,,FALSE,5성신화갑옷,itemIcon_3140505
+3150101,장화,15,itemName_3150101,,FALSE,1성일반장화,itemIcon_3150101
+3150102,장화,15,itemName_3150102,,FALSE,1성희귀장화,itemIcon_3150102
+3150103,장화,15,itemName_3150103,,FALSE,1성레어장화,itemIcon_3150103
+3150104,장화,15,itemName_3150104,,FALSE,1성전설장화,itemIcon_3150104
+3150105,장화,15,itemName_3150105,,FALSE,1성신화장화,itemIcon_3150105
+3150201,장화,15,itemName_3150201,,FALSE,2성일반장화,itemIcon_3150201
+3150202,장화,15,itemName_3150202,,FALSE,2성희귀장화,itemIcon_3150202
+3150203,장화,15,itemName_3150203,,FALSE,2성레어장화,itemIcon_3150203
+3150204,장화,15,itemName_3150204,,FALSE,2성전설장화,itemIcon_3150204
+3150205,장화,15,itemName_3150205,,FALSE,2성신화장화,itemIcon_3150205
+3150301,장화,15,itemName_3150301,,FALSE,3성일반장화,itemIcon_3150301
+3150302,장화,15,itemName_3150302,,FALSE,3성희귀장화,itemIcon_3150302
+3150303,장화,15,itemName_3150303,,FALSE,3성레어장화,itemIcon_3150303
+3150304,장화,15,itemName_3150304,,FALSE,3성전설장화,itemIcon_3150304
+3150305,장화,15,itemName_3150305,,FALSE,3성신화장화,itemIcon_3150305
+3150401,장화,15,itemName_3150401,,FALSE,4성일반장화,itemIcon_3150401
+3150402,장화,15,itemName_3150402,,FALSE,4성희귀장화,itemIcon_3150402
+3150403,장화,15,itemName_3150403,,FALSE,4성레어장화,itemIcon_3150403
+3150404,장화,15,itemName_3150404,,FALSE,4성전설장화,itemIcon_3150404
+3150405,장화,15,itemName_3150405,,FALSE,4성신화장화,itemIcon_3150405
+3150501,장화,15,itemName_3150501,,FALSE,5성일반장화,itemIcon_3150501
+3150502,장화,15,itemName_3150502,,FALSE,5성희귀장화,itemIcon_3150502
+3150503,장화,15,itemName_3150503,,FALSE,5성레어장화,itemIcon_3150503
+3150504,장화,15,itemName_3150504,,FALSE,5성전설장화,itemIcon_3150504
+3150505,장화,15,itemName_3150505,,FALSE,5성신화장화,itemIcon_3150505
+3220001,속성 잼,22,itemName_3220001,,TRUE,속성잼 1,itemIcon_3220001
+3220002,속성 잼,22,itemName_3220002,,TRUE,속성잼 2,itemIcon_3220002
+3220003,속성 잼,22,itemName_3220003,,TRUE,속성잼 3,itemIcon_3220003
+3220004,속성 잼,22,itemName_3220004,,TRUE,속성잼 4,itemIcon_3220004
+3220005,속성 잼,22,itemName_3220005,,TRUE,속성잼 5,itemIcon_3220005
+3220006,속성 잼,22,itemName_3220006,,TRUE,속성잼 6,itemIcon_3220006
+3220007,속성 잼,22,itemName_3220007,,TRUE,속성잼 7,itemIcon_3220007
+3220008,속성 잼,22,itemName_3220008,,TRUE,속성잼 8,itemIcon_3220008
+3220009,속성 잼,22,itemName_3220009,,TRUE,속성잼 9,itemIcon_3220009
+3220010,속성 잼,22,itemName_3220010,,TRUE,속성잼 10,itemIcon_3220010
+3220011,속성 잼,22,itemName_3220011,,TRUE,속성잼 11,itemIcon_3220011
+3220012,속성 잼,22,itemName_3220012,,TRUE,속성잼 12,itemIcon_3220012
+3220013,속성 잼,22,itemName_3220013,,TRUE,속성잼 13,itemIcon_3220013
+3220014,속성 잼,22,itemName_3220014,,TRUE,속성잼 14,itemIcon_3220014
+3220015,속성 잼,22,itemName_3220015,,TRUE,속성잼 15,itemIcon_3220015
+3220016,속성 잼,22,itemName_3220016,,TRUE,속성잼 16,itemIcon_3220016
+3220017,속성 잼,22,itemName_3220017,,TRUE,속성잼 17,itemIcon_3220017
+3220018,속성 잼,22,itemName_3220018,,TRUE,속성잼 18,itemIcon_3220018
+3220019,속성 잼,22,itemName_3220019,,TRUE,속성잼 19,itemIcon_3220019
+3220020,속성 잼,22,itemName_3220020,,TRUE,속성잼 20,itemIcon_3220020
+3220021,속성 잼,22,itemName_3220021,,TRUE,속성잼 21,itemIcon_3220021
+3220022,속성 잼,22,itemName_3220022,,TRUE,속성잼 22,itemIcon_3220022
+3220023,속성 잼,22,itemName_3220023,,TRUE,속성잼 23,itemIcon_3220023
+3220024,속성 잼,22,itemName_3220024,,TRUE,속성잼 24,itemIcon_3220024
+3220025,속성 잼,22,itemName_3220025,,TRUE,속성잼 25,itemIcon_3220025
+3220026,속성 잼,22,itemName_3220026,,TRUE,속성잼 26,itemIcon_3220026
+3220027,속성 잼,22,itemName_3220027,,TRUE,속성잼 27,itemIcon_3220027
+3220028,속성 잼,22,itemName_3220028,,TRUE,속성잼 28,itemIcon_3220028
+3220029,속성 잼,22,itemName_3220029,,TRUE,속성잼 29,itemIcon_3220029
+3220030,속성 잼,22,itemName_3220030,,TRUE,속성잼 30,itemIcon_3220030
+3230001,유니크잼,23,itemName_3230001,,TRUE,유니크잼 1,itemIcon_3230001
+3230002,유니크잼,23,itemName_3230002,,TRUE,유니크잼 2,itemIcon_3230002
+3230003,유니크잼,23,itemName_3230003,,TRUE,유니크잼 3,itemIcon_3230003
+3230004,유니크잼,23,itemName_3230004,,TRUE,유니크잼 4,itemIcon_3230004
+3230005,유니크잼,23,itemName_3230005,,TRUE,유니크잼 5,itemIcon_3230005
+3230006,유니크잼,23,itemName_3230006,,TRUE,유니크잼 6,itemIcon_3230006
+3230007,유니크잼,23,itemName_3230007,,TRUE,유니크잼 7,itemIcon_3230007
+3230008,유니크잼,23,itemName_3230008,,TRUE,유니크잼 8,itemIcon_3230008
+3230009,유니크잼,23,itemName_3230009,,TRUE,유니크잼 9,itemIcon_3230009
+3230010,유니크잼,23,itemName_3230010,,TRUE,유니크잼 10,itemIcon_3230010
+3230011,유니크잼,23,itemName_3230011,,TRUE,유니크잼 11,itemIcon_3230011
+3230012,유니크잼,23,itemName_3230012,,TRUE,유니크잼 12,itemIcon_3230012
+3230013,유니크잼,23,itemName_3230013,,TRUE,유니크잼 13,itemIcon_3230013
+3230014,유니크잼,23,itemName_3230014,,TRUE,유니크잼 14,itemIcon_3230014
+3230015,유니크잼,23,itemName_3230015,,TRUE,유니크잼 15,itemIcon_3230015
+3230016,유니크잼,23,itemName_3230016,,TRUE,유니크잼 16,itemIcon_3230016
+3230017,유니크잼,23,itemName_3230017,,TRUE,유니크잼 17,itemIcon_3230017
+3230018,유니크잼,23,itemName_3230018,,TRUE,유니크잼 18,itemIcon_3230018
+3230019,유니크잼,23,itemName_3230019,,TRUE,유니크잼 19,itemIcon_3230019
+3230020,유니크잼,23,itemName_3230020,,TRUE,유니크잼 20,itemIcon_3230020
+3230021,유니크잼,23,itemName_3230021,,TRUE,유니크잼 21,itemIcon_3230021
+3230022,유니크잼,23,itemName_3230022,,TRUE,유니크잼 22,itemIcon_3230022
+3230023,유니크잼,23,itemName_3230023,,TRUE,유니크잼 23,itemIcon_3230023
+3230024,유니크잼,23,itemName_3230024,,TRUE,유니크잼 24,itemIcon_3230024
+3230025,유니크잼,23,itemName_3230025,,TRUE,유니크잼 25,itemIcon_3230025
+3230026,유니크잼,23,itemName_3230026,,TRUE,유니크잼 26,itemIcon_3230026
+3230027,유니크잼,23,itemName_3230027,,TRUE,유니크잼 27,itemIcon_3230027
+3230028,유니크잼,23,itemName_3230028,,TRUE,유니크잼 28,itemIcon_3230028
+3230029,유니크잼,23,itemName_3230029,,TRUE,유니크잼 29,itemIcon_3230029
+3230030,유니크잼,23,itemName_3230030,,TRUE,유니크잼 30,itemIcon_3230030
+3230031,유니크잼,23,itemName_3230031,,TRUE,유니크잼 31,itemIcon_3230031
+3230032,유니크잼,23,itemName_3230032,,TRUE,유니크잼 32,itemIcon_3230032
+3230033,유니크잼,23,itemName_3230033,,TRUE,유니크잼 33,itemIcon_3230033
+3230034,유니크잼,23,itemName_3230034,,TRUE,유니크잼 34,itemIcon_3230034
+3230035,유니크잼,23,itemName_3230035,,TRUE,유니크잼 35,itemIcon_3230035
+3230036,유니크잼,23,itemName_3230036,,TRUE,유니크잼 36,itemIcon_3230036
+3230037,유니크잼,23,itemName_3230037,,TRUE,유니크잼 37,itemIcon_3230037
+3230038,유니크잼,23,itemName_3230038,,TRUE,유니크잼 38,itemIcon_3230038
+3230039,유니크잼,23,itemName_3230039,,TRUE,유니크잼 39,itemIcon_3230039
+3230040,유니크잼,23,itemName_3230040,,TRUE,유니크잼 40,itemIcon_3230040

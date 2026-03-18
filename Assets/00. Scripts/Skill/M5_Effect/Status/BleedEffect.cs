@@ -1,4 +1,4 @@
-﻿
+
 using UnityEngine;
 
 public class BleedEffect : StatusEffectBase
@@ -14,7 +14,7 @@ public class BleedEffect : StatusEffectBase
         tableData = data;
         duration = data.duration;
         damage = 1;
-        tickInterval = data.damage;
+        tickInterval = data.tickInterval;
         maxStack = data.maxStack;
     }
 

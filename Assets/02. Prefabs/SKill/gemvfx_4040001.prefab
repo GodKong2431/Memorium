@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6061523925033965789}
   - component: {fileID: 2579856756964305739}
   - component: {fileID: 6943593034248084853}
+  - component: {fileID: -2101986148561055124}
   m_Layer: 0
   m_Name: gemvfx_4040001
   m_TagString: Untagged
@@ -4912,6 +4913,18 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &-2101986148561055124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1070182093981793005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 655bd8dd654fedd4ab726334799bb09d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoolableParticle
 --- !u!1 &2018219134175435198
 GameObject:
   m_ObjectHideFlags: 0

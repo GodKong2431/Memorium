@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 public class PoisonEffect : StatusEffectBase
 {
     private float spreadRadius = 3f;
@@ -9,7 +9,7 @@ public class PoisonEffect : StatusEffectBase
     {
         tableData = data;
         duration = data.duration;
-        tickInterval = data.damage;
+        tickInterval = data.tickInterval;
         damage = 1;
     }
 
