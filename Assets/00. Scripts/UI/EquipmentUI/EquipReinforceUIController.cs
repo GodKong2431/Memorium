@@ -489,13 +489,10 @@ public class EquipReinforceUIController : UIControllerBase
         if (Time.frameCount <= ignoreCloseUntilFrame)
             return false;
 
-        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-            return !IsInsidePopup(Touchscreen.current.primaryTouch.position.ReadValue());
+        if (!TryGetPointerDownPosition(out Vector2 pointerPosition))
+            return false;
 
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-            return !IsInsidePopup(Mouse.current.position.ReadValue());
-
-        return false;
+        return !IsInsidePopup(pointerPosition);
     }
 
     private bool IsInsidePopup(Vector2 screenPosition)
@@ -509,6 +506,44 @@ public class EquipReinforceUIController : UIControllerBase
             eventCamera = parentCanvas.worldCamera;
 
         return RectTransformUtility.RectangleContainsScreenPoint(popupRoot, screenPosition, eventCamera);
+    }
+
+    private static bool TryGetPointerDownPosition(out Vector2 screenPosition)
+    {
+#if ENABLE_INPUT_SYSTEM
+        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+        {
+            screenPosition = Touchscreen.current.primaryTouch.position.ReadValue();
+            return true;
+        }
+
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            screenPosition = Mouse.current.position.ReadValue();
+            return true;
+        }
+#endif
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+        if (UnityEngine.Input.touchCount > 0)
+        {
+            Touch touch = UnityEngine.Input.GetTouch(0);
+            if (touch.phase == UnityEngine.TouchPhase.Began)
+            {
+                screenPosition = touch.position;
+                return true;
+            }
+        }
+
+        if (UnityEngine.Input.GetMouseButtonDown(0))
+        {
+            screenPosition = UnityEngine.Input.mousePosition;
+            return true;
+        }
+#endif
+
+        screenPosition = default;
+        return false;
     }
 
     private Sprite GetStatIcon(StatType statType)
