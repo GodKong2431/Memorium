@@ -16,14 +16,16 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
     SaveSkillData skillData;
     SaveStageData stageData;
     SaveAbilityStoneData abilityStoneData;
+    SavePixieData pixieData;
 
     private IEnumerator Start()
     {
-        //CurrencyData, SkillData
+        //CurrencyData, SkillData, PixieData
         yield return new WaitUntil(() => InventoryManager.Instance != null);
         yield return new WaitUntil(() => InventoryManager.Instance.DataLoad);
         currencyData = InventoryManager.Instance.saveCurrencyData;
         skillData = InventoryManager.Instance.saveSkillData;
+        pixieData = InventoryManager.Instance.savePixieData;
 
         //PlayerData, equipmentData
         yield return new WaitUntil(() => CharacterStatManager.Instance != null);
@@ -79,6 +81,7 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         if(gachaData.IsDirty && gachaData!=null) saveTask.Add(AutoSaveTaskStart(gachaData));
         if(skillData.IsDirty && skillData!=null) saveTask.Add(AutoSaveTaskStart(skillData));
         if(abilityStoneData.IsDirty && abilityStoneData != null) saveTask.Add(AutoSaveTaskStart(abilityStoneData));
+        if (pixieData.IsDirty && pixieData != null) saveTask.Add(AutoSaveTaskStart(pixieData));
 
         if (saveTask.Count > 0)
         {
