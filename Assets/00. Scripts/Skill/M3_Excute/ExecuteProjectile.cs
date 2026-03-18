@@ -7,7 +7,7 @@ public class ExecuteProjectile : ISkillExecuteStrategy
         Vector3 spawnPos = startPosition + (direction * dataContext.skillData.m3Data.m3Distance);
 
 
-        var obj = PoolAddressableManager.Instance.GetPooledObject("Assets/02. Prefabs/SKill/Projectile/bullet.prefab", spawnPos, owner.transform.localRotation);
+        var obj = PoolAddressableManager.Instance.GetPooledObject("Assets/02. Prefabs/SKill/Projectile/bullet.prefab", spawnPos, rotation: Quaternion.LookRotation(direction));
         if (obj == null) yield break;
         if (obj.TryGetComponent<SkillObjectileBase>(out var projectile))
         {
