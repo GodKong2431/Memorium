@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -11,6 +12,8 @@ using UnityEngine.SceneManagement;
 
 public class DataManager : Singleton<DataManager>
 {
+    private static bool addressablesCatalogCacheCleared;
+
     #region Data Maps
     // 장비 드랍 테이블
     public Dictionary<int, EquipmentDropTable> EquipmentDropDict;
@@ -126,6 +129,8 @@ public class DataManager : Singleton<DataManager>
         if (Instance != this)
             return;
 
+        ClearStaleAddressablesCatalogCache();
+
         if (ShouldAutoStartLoading())
             LoadStart();
     }
@@ -144,6 +149,28 @@ public class DataManager : Singleton<DataManager>
 
         isLoading = true;
         StartCoroutine(LoadByLabel());
+    }
+
+    private static void ClearStaleAddressablesCatalogCache()
+    {
+        if (addressablesCatalogCacheCleared)
+            return;
+
+        addressablesCatalogCacheCleared = true;
+
+        string cacheDirectory = Path.Combine(Application.persistentDataPath, "com.unity.addressables");
+        if (!Directory.Exists(cacheDirectory))
+            return;
+
+        try
+        {
+            Directory.Delete(cacheDirectory, true);
+            Debug.Log($"[DataManager] Cleared cached Addressables catalog directory: {cacheDirectory}");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[DataManager] Failed to clear cached Addressables catalog directory: {cacheDirectory}\n{ex}");
+        }
     }
 
     private static bool ShouldAutoStartLoading()
