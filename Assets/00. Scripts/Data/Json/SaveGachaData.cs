@@ -13,6 +13,8 @@ public class SaveGachaData : ISaveData
     //public List<int> drawsUntilNextLevel;
     //public List<bool> isMaxLevel;
 
+    public bool onCBT = false;
+
     public SaveGachaData() { }
 
 
@@ -23,6 +25,15 @@ public class SaveGachaData : ISaveData
 
     public void InitGachaData()
     {
+
+        if (!onCBT)
+        {
+            level = null;
+            drawCountInCurrentLevel = null;
+
+            onCBT = true;
+        }
+
         int typeCount = Enum.GetNames(typeof(GachaType)).Length;
 
         if (level == null)

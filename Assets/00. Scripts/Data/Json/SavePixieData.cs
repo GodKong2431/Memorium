@@ -1,7 +1,5 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 [Serializable]
 public class SavePixieData:ISaveData
@@ -10,6 +8,8 @@ public class SavePixieData:ISaveData
 
     public int equippedPixieId;
 
+    public bool onCBT = false;
+
     private bool isDirty = false;
     public bool IsDirty => isDirty;
 
@@ -17,6 +17,14 @@ public class SavePixieData:ISaveData
 
     public bool InitPixieData()
     {
+        if (!onCBT)
+        {
+            pixieSaveData = null;
+            equippedPixieId = 0;
+            onCBT = true;
+        }
+
+
         if (pixieSaveData == null)
         {
             pixieSaveData = new List<PixieSaveData>();

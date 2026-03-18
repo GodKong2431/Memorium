@@ -1,6 +1,7 @@
-using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
 
 [Serializable]
 public class SaveSkillData : ISaveData
@@ -16,6 +17,8 @@ public class SaveSkillData : ISaveData
     int savedPresetNum = 0;
     public int SavedPresetNum => savedPresetNum;
 
+    public bool onCBT=false;
+
     private bool isDirty = false;
     public bool IsDirty => isDirty;
     public SaveSkillData() { }
@@ -26,6 +29,15 @@ public class SaveSkillData : ISaveData
 
     public void InitSkillData()
     {
+        if (!onCBT)
+        {
+            skillInfoData = null;
+            skillPresetData = null;
+            presetNum = 0;
+
+            onCBT = true;
+        }
+
         savedPresetNum = presetNum;
 
         foreach (SkillGrade grade in Enum.GetValues(typeof(SkillGrade)))
