@@ -46,7 +46,7 @@ public sealed class SkillInventoryModule : IInventoryModule
         for (int i = 0; i < PresetCount; i++)
         {
             SwitchPreset(i);
-            for (int j = 0; i < InventoryManager.Instance.saveSkillData.SkillCountByPreset; i++)
+            for (int j = 0; j < InventoryManager.Instance.saveSkillData.SkillCountByPreset; j++)
             {
                 SetPresetSlot(j, presets[i].slots[j].skillID);
             }
@@ -297,6 +297,39 @@ public sealed class SkillInventoryModule : IInventoryModule
     }
 
     // BigDouble 수량을 정수 반복 횟수로 변환한다.
+    public Dictionary<int, int> GetOwnedScrollItemCounts()
+    {
+        Dictionary<int, int> countsByScrollId = new Dictionary<int, int>();
+
+        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.SkillInfoDict == null)
+            return countsByScrollId;
+
+        foreach (KeyValuePair<int, OwnedSkillData> pair in skillDataById)
+        {
+            OwnedSkillData skillData = pair.Value;
+            if (skillData == null)
+                continue;
+
+            if (!DataManager.Instance.SkillInfoDict.TryGetValue(pair.Key, out SkillInfoTable skillInfo))
+                continue;
+
+            int scrollItemId = skillInfo.skillScrollID;
+            if (scrollItemId == 0)
+                continue;
+
+            int scrollCount = skillData.GetCount(SkillGrade.Scroll);
+            if (scrollCount <= 0)
+                continue;
+
+            if (countsByScrollId.ContainsKey(scrollItemId))
+                countsByScrollId[scrollItemId] += scrollCount;
+            else
+                countsByScrollId[scrollItemId] = scrollCount;
+        }
+
+        return countsByScrollId;
+    }
+
     private static bool TryConvertAmountToInt(BigDouble amount, out int count)
     {
         count = 0;

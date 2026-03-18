@@ -1,4 +1,7 @@
 using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
@@ -76,5 +79,85 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             _instance = null;
         }
+    }
+}
+
+public sealed class DeferredAddressablesRelease : MonoBehaviour
+{
+    private struct PendingRelease
+    {
+        public AsyncOperationHandle handle;
+        public int releaseFrame;
+    }
+
+    private static DeferredAddressablesRelease instance;
+    private static bool applicationIsQuitting;
+    private readonly List<PendingRelease> pendingReleases = new List<PendingRelease>();
+
+    public static void Release<TObject>(AsyncOperationHandle<TObject> handle)
+    {
+        if (!handle.IsValid() || applicationIsQuitting)
+            return;
+
+        AsyncOperationHandle typelessHandle = handle;
+        EnsureInstance().pendingReleases.Add(new PendingRelease
+        {
+            handle = typelessHandle,
+            releaseFrame = Time.frameCount + 1
+        });
+    }
+
+    public static void Release(AsyncOperationHandle handle)
+    {
+        if (!handle.IsValid() || applicationIsQuitting)
+            return;
+
+        EnsureInstance().pendingReleases.Add(new PendingRelease
+        {
+            handle = handle,
+            releaseFrame = Time.frameCount + 1
+        });
+    }
+
+    private static DeferredAddressablesRelease EnsureInstance()
+    {
+        if (instance != null)
+            return instance;
+
+        instance = FindFirstObjectByType<DeferredAddressablesRelease>();
+        if (instance != null)
+            return instance;
+
+        GameObject root = new GameObject(nameof(DeferredAddressablesRelease));
+        DontDestroyOnLoad(root);
+        instance = root.AddComponent<DeferredAddressablesRelease>();
+        return instance;
+    }
+
+    private void LateUpdate()
+    {
+        for (int i = pendingReleases.Count - 1; i >= 0; i--)
+        {
+            PendingRelease pendingRelease = pendingReleases[i];
+            if (Time.frameCount < pendingRelease.releaseFrame)
+                continue;
+
+            if (pendingRelease.handle.IsValid())
+                Addressables.Release(pendingRelease.handle);
+
+            pendingReleases.RemoveAt(i);
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        applicationIsQuitting = true;
+        pendingReleases.Clear();
+    }
+
+    private void OnDestroy()
+    {
+        if (instance == this)
+            instance = null;
     }
 }

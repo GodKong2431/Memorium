@@ -23,6 +23,12 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     [SerializeField] FireZone fireZonePrefab;
     [SerializeField] string effectPath = "Assets/02. Prefabs/SKill/HCFX_Hit_08.prefab";
 
+    [SerializeField] string projectilePath= "Assets/02. Prefabs/SKill/Projectile/bullet.prefab";
+    [SerializeField] string deployPath= "Assets/02. Prefabs/SKill/Deploy/Deploy.prefab";
+    [SerializeField] string auraPath= "Assets/02. Prefabs/SKill/Aura/Aura.prefab";
+    [SerializeField] string shadowPath= "Assets/02. Prefabs/SKill/Shadow/Shadow.prefab";
+    [SerializeField] string fireZonePath= "Assets/02. Prefabs/SKill/FireZone.prefab";
+
     private SkillDataContext skillDataContext;
     private bool isCasting = false;
     private bool isChanneling = false;
@@ -34,7 +40,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
     private Collider[] hitBuffer = new Collider[SkillConstants.HIT_BUFFER_SIZE];//타격 대상 버퍼, nonalloc 저장용도
 
-    // 기즈모 디버그용, 다른 시각적 방식으로 바꾸는게 좋을것 같음.
+    // 기즈모 디버그용
     private SkillData debugLastSkillData;
     private Vector3 debugLastCastPos;
     private Vector3 debugLastCastDir;
@@ -124,11 +130,26 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         if (currentSkillRoutine != null)
             StopCoroutine(currentSkillRoutine);
         CacheCastState();
-
+        PreLoadSKillPrefab(dataContext);
 
         currentSkillRoutine = StartCoroutine(SkillSequence(skillDataContext, extraDelay));
     }
+    private void PreLoadSKillPrefab(SkillDataContext dataContext)
+    {
+        PoolableParticleManager.Instance.Preload(dataContext?.skillData?.skillTable?.skillVFX);
+        PoolableParticleManager.Instance.Preload(dataContext?.m4Data?.m4VFX);
+        PoolableParticleManager.Instance.Preload(dataContext?.m4Data?.m4VFX2);
+        PoolableParticleManager.Instance.Preload(dataContext?.m5DataA?.m5VFX);
+        PoolableParticleManager.Instance.Preload(dataContext?.m5DataA?.m5VFX2);
+        PoolableParticleManager.Instance.Preload(dataContext?.m5DataB?.m5VFX);
+        PoolableParticleManager.Instance.Preload(dataContext?.m5DataB?.m5VFX2);
 
+        PoolableParticleManager.Instance.Preload(projectilePath);
+        PoolableParticleManager.Instance.Preload(deployPath);
+        PoolableParticleManager.Instance.Preload(fireZonePath);
+        PoolableParticleManager.Instance.Preload(auraPath);
+        PoolableParticleManager.Instance.Preload(shadowPath);
+    }
 
     /// <summary>
     ///  시전위치 방향정보 저장, Shadow에 사용
@@ -140,7 +161,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     }
     private IEnumerator SkillSequence(SkillDataContext dataContext, float extraDelay = 0)
     {
-
+        if (dataContext == null) yield return null;
         SkillData data = dataContext.skillData;
         debugLastSkillData = data;
         if(extraDelay > 0)
@@ -205,15 +226,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         var m3Strategy = SkillStrategyContainer.GetExecute(m3Type);
 
         //나중에 프리팹을 넘기는게아니라 데이터 테이블에서 프리팹을 가져오도록 바꿀예정
-        GameObject prefab = null;
-        if (m3Strategy is ExecuteProjectile)
-            prefab = projectilePrefab.gameObject;
-        else if (m3Strategy is ExecuteDeploy)
-            prefab = deployPrefab.gameObject;
-        else if (m3Strategy is ExecuteAura)
-            prefab = auraPrefab.gameObject;
 
-        yield return m3Strategy.Execute(this, this, dataContext, executePivot, castDirection, targetLayer, prefab);
+        yield return m3Strategy.Execute(this, this, dataContext, executePivot, castDirection, targetLayer);
 
     }
 
@@ -326,7 +340,12 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         }
         if (activeData.applyType == ApplyType.strikeLocation)
         {
-            SpawnFireZone(activeData, hitPos);
+            var obj = PoolAddressableManager.Instance.GetPooledObject(fireZonePath,hitPos,Quaternion.identity);//아니구나이거 FireZone이름으로 되있는걸로 불러오고, 걔안에서 vfx소환해야하네
+            if (obj != null)
+            {
+                if (obj.TryGetComponent<FireZone>(out var fireZone))
+                    fireZone.Init(m5A, 3.0f, targetLayer);
+            }
         }
         else
         {
@@ -336,10 +355,4 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         }
     }
 
-    private void SpawnFireZone(SkillModule5Table data, Vector3 position)
-    {
-        var gameObject = Instantiate(fireZonePrefab, position, transform.rotation);
-        if (gameObject.TryGetComponent<FireZone>(out var fireZone))
-            fireZone.Init(data, 3.0f, targetLayer);
-    }
 }

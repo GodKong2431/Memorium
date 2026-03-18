@@ -40,7 +40,14 @@ public class SkillDataContext
     }
     public void SetSkillContext(int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb = -1)
     {
-        if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table)) return;
+        if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table))
+        {
+            skillData = null;
+            m4Data = null;
+            m5DataA = null;
+            m5DataB = null;
+            return;
+        }
         if (skillData == null) skillData = new SkillData();
         skillData.skillTable = table;
         skillData.m1Data = DataManager.Instance.SkillModule1Dict.GetValueOrDefault(table.m1ID);

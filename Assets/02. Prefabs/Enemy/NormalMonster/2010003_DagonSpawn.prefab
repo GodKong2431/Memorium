@@ -5609,10 +5609,10 @@ GameObject:
   m_Component:
   - component: {fileID: 7038385360876136824}
   - component: {fileID: 7083515609340468678}
+  - component: {fileID: -5241937826893305495}
   - component: {fileID: 6865116408305614659}
   - component: {fileID: 7518050034262925196}
   - component: {fileID: 8688150776542576572}
-  - component: {fileID: -5241937826893305495}
   - component: {fileID: -4143643364228817233}
   - component: {fileID: 9152127982420313131}
   - component: {fileID: -5742908962594006145}
@@ -5653,7 +5653,7 @@ Animator:
   m_GameObject: {fileID: 8712258667771190947}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 828de9cb623d745cb8ff5791c9ed8c62, type: 3}
-  m_Controller: {fileID: 9100000, guid: 0876cc04ce52d23419cca1b4041478e2, type: 2}
+  m_Controller: {fileID: 22100000, guid: 9eb4d7c3d61103e47aea2c71cc8aa4dd, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -5665,6 +5665,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-5241937826893305495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8712258667771190947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a3af68a6d5ca364e9fdec187c11d870, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStatPresenter
+  monsterIdFromDataManager: 2010003
 --- !u!114 &6865116408305614659
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8306,19 +8319,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &-5241937826893305495
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8712258667771190947}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a3af68a6d5ca364e9fdec187c11d870, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyStatPresenter
-  monsterIdFromDataManager: 2010003
 --- !u!114 &-4143643364228817233
 MonoBehaviour:
   m_ObjectHideFlags: 0

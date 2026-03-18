@@ -10,5 +10,6 @@ public static class GameEventManager
     public static Action<int, int> OnStageChanged;
     public static Action<int, int> OnStageProgressChanged;
     public static Action OnSummonBossClicked;
+    public static Action<StageType, int> OnDungeonClearPopupRequested;
     public static Action<Transform> OnPlayerSpawned;
 }

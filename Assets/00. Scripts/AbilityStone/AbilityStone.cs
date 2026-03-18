@@ -28,7 +28,7 @@ public class AbilityStone
     [SerializeField] private int firstUpOpportunity;
     [SerializeField] private int secondUpOpportunity;
     [SerializeField] private int thirdUpOpportunity;
-    [SerializeField] public List<AbilityStoneSlot> Slots = new List<AbilityStoneSlot>();
+    [SerializeField] public List<AbilityStoneSlot> Slots = new List<AbilityStoneSlot>();// 저장 
     
     [SerializeField] private float currentProbability;
     
@@ -46,7 +46,7 @@ public class AbilityStone
     public int UpResetCostValue => UpResetCost;
     public bool IsConfigured => Slots.Exists(slot => slot.SlotType != StatType.None);
     
-    public bool isUnlock = false;
+    public bool isUnlock = false;// 저장
     
     public float CurrentProbability
     {
@@ -154,6 +154,56 @@ public class AbilityStone
             slot.OnUpdateStat -= mgr.FinalStat;
         }
     }
+
+    public void RestoreLoadedSlots(List<AbilityStoneSlot> loadedSlots)
+    {
+        if (mgr == null)
+        {
+            mgr = CharacterStatManager.Instance;
+        }
+
+        if (mgr != null)
+        {
+            foreach (AbilityStoneSlot slot in Slots)
+            {
+                if (slot != null)
+                {
+                    slot.OnUpdateStat -= mgr.FinalStat;
+                }
+            }
+        }
+
+        Slots = loadedSlots ?? new List<AbilityStoneSlot>();
+
+        int expectedSlotCount = Mathf.Max(slotUpOpportunitys.Count, 3);
+        while (Slots.Count < expectedSlotCount)
+        {
+            Slots.Add(new AbilityStoneSlot(StatType.None, null));
+        }
+
+        if (Slots.Count > expectedSlotCount)
+        {
+            Slots.RemoveRange(expectedSlotCount, Slots.Count - expectedSlotCount);
+        }
+
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            if (Slots[i] == null)
+            {
+                Slots[i] = new AbilityStoneSlot(StatType.None, null);
+            }
+
+            AbilityStoneSlot slot = Slots[i];
+            slot.successCounter ??= new List<bool>();
+            slot.increaseStat = ResolveIncreaseStat(slot.SlotType);
+
+            if (mgr != null)
+            {
+                slot.OnUpdateStat -= mgr.FinalStat;
+                slot.OnUpdateStat += mgr.FinalStat;
+            }
+        }
+    }
     
     public void Reset(StoneGrade grade)
     {
@@ -231,5 +281,23 @@ public class AbilityStone
         }
         
         return totalUpCount;
+    }
+
+    private float ResolveIncreaseStat(StatType statType)
+    {
+        if (statType == StatType.None)
+        {
+            return 0f;
+        }
+
+        AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
+        if (abilityStoneManager != null
+            && abilityStoneManager.so != null
+            && abilityStoneManager.so.StoneGradeStatUpDict.TryGetValue(statType, out StoneGradeStatUp statUpData))
+        {
+            return statUpData.SetStat(stoneGrade);
+        }
+
+        return 0f;
     }
 }

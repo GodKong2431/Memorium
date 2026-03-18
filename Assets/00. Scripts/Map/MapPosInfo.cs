@@ -1,3 +1,4 @@
+using Unity.AI.Navigation;
 using UnityEngine;
 
 public class MapPosInfo : MonoBehaviour
@@ -6,4 +7,5 @@ public class MapPosInfo : MonoBehaviour
     public Transform mapMoveTriggerPos;
     public Transform monsterSpawnTriggerPos;
     public Transform[] monsterSpawnPos;
+    //public NavMeshSurface navMeshSurface;
 }

@@ -716,13 +716,13 @@ public sealed partial class StoneUI
     {
         if (type == CurrencyType.Gold)
         {
-            RefreshAll();
+            RefreshView();
         }
     }
 
     private void OnStatUpdated()
     {
-        RefreshAll();
+        RefreshView();
     }
 
     private AbilityStone GetSelectedStone()

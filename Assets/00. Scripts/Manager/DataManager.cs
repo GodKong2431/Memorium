@@ -7,6 +7,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.SceneManagement;
 
 public class DataManager : Singleton<DataManager>
 {
@@ -105,6 +106,7 @@ public class DataManager : Singleton<DataManager>
 
     // (현재 개수, 총 개수, 현재 처리 중 파일명)
     public event Action<int, int, string> OnProgress;
+    public event Action<float, string> OnNormalizedProgress;
     public event Action OnComplete;
 
     // AutoAddressableImporter에서 설정한 라벨명
@@ -112,16 +114,43 @@ public class DataManager : Singleton<DataManager>
 
     // 데이터 로드 완료 여부
     public bool DataLoad = false;
+    private bool isLoading;
+    private AsyncOperationHandle<IList<UnityEngine.ResourceManagement.ResourceLocations.IResourceLocation>> csvLocationHandle;
+    private AsyncOperationHandle<IList<TextAsset>> csvAssetHandle;
+    private bool hasCsvLocationHandle;
+    private bool hasCsvAssetHandle;
 
     protected override void Awake()
     {
         base.Awake();
-        LoadStart();
+        if (Instance != this)
+            return;
+
+        if (ShouldAutoStartLoading())
+            LoadStart();
+    }
+
+    protected override void OnDestroy()
+    {
+        ReleaseCachedHandle(ref csvAssetHandle, ref hasCsvAssetHandle);
+        ReleaseCachedHandle(ref csvLocationHandle, ref hasCsvLocationHandle);
+        base.OnDestroy();
     }
 
     public void LoadStart()
     {
+        if (DataLoad || isLoading)
+            return;
+
+        isLoading = true;
         StartCoroutine(LoadByLabel());
+    }
+
+    private static bool ShouldAutoStartLoading()
+    {
+        Scene activeScene = SceneManager.GetActiveScene();
+        return !activeScene.IsValid() ||
+               !string.Equals(activeScene.name, SceneType.TitleScene.ToString(), StringComparison.Ordinal);
     }
 
     // 라벨 기반 CSV 로드 코루틴
@@ -130,12 +159,17 @@ public class DataManager : Singleton<DataManager>
         Debug.Log($"[DataManager] 라벨 '{LABEL_TO_LOAD}' 기반 CSV 로드 시작");
 
         // 라벨에 매핑된 리소스 개수 조회
+        ReportNormalizedProgress(0f, "로딩 시작");
+
         var locationHandle = Addressables.LoadResourceLocationsAsync(LABEL_TO_LOAD);
-        yield return locationHandle;
+        csvLocationHandle = locationHandle;
+        hasCsvLocationHandle = true;
+        yield return TrackHandleProgress(locationHandle, 0f, 0.15f, "로딩 준비 중");
 
         if (locationHandle.Status != AsyncOperationStatus.Succeeded)
         {
             Debug.LogError($"[DataManager] 라벨 '{LABEL_TO_LOAD}' 리소스 위치 조회 실패. Addressables 그룹 설정을 확인하세요.");
+            isLoading = false;
             yield break;
         }
 
@@ -146,8 +180,11 @@ public class DataManager : Singleton<DataManager>
         OnProgress?.Invoke(0, totalCount, "로딩 시작");
 
         // 라벨에 해당하는 TextAsset 일괄 로드
+        ReportNormalizedProgress(0.15f, "CSV 목록 확인");
         var loadHandle = Addressables.LoadAssetsAsync<TextAsset>(LABEL_TO_LOAD, null);
-        yield return loadHandle;
+        csvAssetHandle = loadHandle;
+        hasCsvAssetHandle = true;
+        yield return TrackHandleProgress(loadHandle, 0.15f, 0.75f, "CSV 에셋 로드 중");
 
         if (loadHandle.Status == AsyncOperationStatus.Succeeded)
         {
@@ -164,28 +201,70 @@ public class DataManager : Singleton<DataManager>
                 {
                     currentCount++;
                     OnProgress?.Invoke(currentCount, totalCount, textAsset.name);
+                    ReportNormalizedProgress(CalculateProcessingProgress(currentCount, totalCount), textAsset.name);
+                    yield return null;
                 }
             }
 
             OnProgress?.Invoke(totalCount, totalCount, "완료");
+            ReportNormalizedProgress(1f, "완료");
             yield return new WaitForSeconds(0.5f);
 
             OnComplete?.Invoke();
             Debug.Log($"[DataManager] 데이터 로드 완료 (성공 {currentCount}/{totalCount})");
 
-            Addressables.Release(loadHandle);
             DataLoad = true;
         }
         else
         {
             Debug.LogError("[DataManager] CSV 에셋 다운로드 실패");
-            Addressables.Release(loadHandle);
         }
 
-        Addressables.Release(locationHandle);
+        isLoading = false;
     }
 
     // TextAsset 한 개를 클래스에 매핑하여 주입
+    private static float CalculateProcessingProgress(int currentCount, int totalCount)
+    {
+        if (totalCount <= 0)
+            return 1f;
+
+        float processingProgress = Mathf.Clamp01((float)currentCount / totalCount);
+        return Mathf.Lerp(0.75f, 1f, processingProgress);
+    }
+
+    private IEnumerator TrackHandleProgress<T>(AsyncOperationHandle<T> handle, float startProgress, float endProgress, string label)
+    {
+        while (!handle.IsDone)
+        {
+            float normalizedProgress = Mathf.Lerp(startProgress, endProgress, handle.PercentComplete);
+            ReportNormalizedProgress(normalizedProgress, label);
+            yield return null;
+        }
+
+        ReportNormalizedProgress(endProgress, label);
+
+        // Addressables completes some internal callbacks in LateUpdate.
+        // Waiting one frame here prevents releasing the handle before those callbacks run.
+        yield return null;
+    }
+
+    private void ReportNormalizedProgress(float progress, string currentFileName)
+    {
+        OnNormalizedProgress?.Invoke(Mathf.Clamp01(progress), currentFileName);
+    }
+
+    private void ReleaseCachedHandle<T>(ref AsyncOperationHandle<T> handle, ref bool hasHandle)
+    {
+        if (!hasHandle)
+            return;
+
+        if (handle.IsValid())
+            DeferredAddressablesRelease.Release(handle);
+
+        hasHandle = false;
+    }
+
     private bool ProcessTextAsset(TextAsset textAsset)
     {
         string className = textAsset.name;

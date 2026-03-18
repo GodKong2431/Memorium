@@ -14,7 +14,12 @@ public class AbilityStoneSlot
     public float totalStat => successCounter.Count(x => x) * increaseStat;
     
     public event Action<StatType> OnUpdateStat;
-        
+
+    public AbilityStoneSlot(StatType slotType, List<bool> counter)
+    {
+        SlotType = slotType;
+        successCounter = counter != null ? new List<bool>(counter) : new List<bool>();
+    }
     public void TypeSetting(StatType type)
     {
         SlotType = type;
@@ -34,6 +39,7 @@ public class AbilityStoneSlot
     
     public void CallEvent()
     {
+        AbilityStoneManager.Instance.SaveAbilityStoneInfo();
         OnUpdateStat?.Invoke(SlotType);
     }
 }

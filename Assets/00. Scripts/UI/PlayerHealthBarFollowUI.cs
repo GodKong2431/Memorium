@@ -340,6 +340,30 @@ public class PlayerHealthBarFollowUI : MonoBehaviour
         sheetToggle.group = null;
         sheetToggle.toggleTransition = Toggle.ToggleTransition.None;
         sheetToggle.transition = Selectable.Transition.None;
+
+        ConfigureSheetToggleHitArea();
+    }
+
+    private void ConfigureSheetToggleHitArea()
+    {
+        if (!useAsSheetToggle)
+            return;
+
+        Graphic[] graphics = GetComponentsInChildren<Graphic>(true);
+        for (int i = 0; i < graphics.Length; i++)
+        {
+            Graphic graphic = graphics[i];
+            if (graphic == null || graphic == toggleRaycastImage)
+                continue;
+
+            graphic.raycastTarget = false;
+        }
+
+        if (healthSlider != null)
+            healthSlider.interactable = false;
+
+        if (manaSlider != null)
+            manaSlider.interactable = false;
     }
 
     private void ApplyRenderOrder()
@@ -371,13 +395,13 @@ public class PlayerHealthBarFollowUI : MonoBehaviour
 
         if (linkedSheetPage == null)
         {
-            Debug.LogWarning("PlayerHealthBarFollowUI: Assign Linked Sheet Page and register it in BottomPanelController Tabs.", this);
+            Debug.LogWarning("PlayerHealthBarFollowUI: Assign a managed page to Linked Sheet Page.", this);
             return;
         }
 
         if (!bottomPanelController.IsManagedPageRegistered(linkedSheetPage))
         {
-            Debug.LogWarning("PlayerHealthBarFollowUI: Linked Sheet Page is not registered in BottomPanelController Tabs.", linkedSheetPage);
+            Debug.LogWarning("PlayerHealthBarFollowUI: Linked Sheet Page is not managed by BottomPanelController.", linkedSheetPage);
             return;
         }
 

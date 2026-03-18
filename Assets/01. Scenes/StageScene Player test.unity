@@ -85769,6 +85769,26 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &998877665544332211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1984076060782808928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04310248f1154ce294aca6e88ef955ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panelRoot: {fileID: 512409755182243740}
+  listScrollRect: {fileID: 5479655233811933011}
+  listContentRoot: {fileID: 5265906503001422160}
+  buttonShowAll: {fileID: 2028221689174155379}
+  buttonSkillScroll: {fileID: 1675464683921384683}
+  buttonGem: {fileID: 8132707823356142381}
+  buttonConsumable: {fileID: 3618422422363995878}
+  itemPrefab: {fileID: 5577419232500013377, guid: b86ca965bda29bf458cfba538c8e435d, type: 3}
 --- !u!224 &874743856049605498
 RectTransform:
   m_ObjectHideFlags: 0
@@ -88338,6 +88358,7 @@ GameObject:
   - component: {fileID: 512409755182243740}
   - component: {fileID: 3060554561578274960}
   - component: {fileID: 867162660361828194}
+  - component: {fileID: 998877665544332211}
   m_Layer: 5
   m_Name: MiscContents
   m_TagString: Untagged

@@ -35,6 +35,8 @@ public class MonsterAssetDatabase : ScriptableObject
         public int monsterId;
         [Header("Animation")]
         public MonsterAnimationConfig animationConfig;
+        [Tooltip("공통 컨트롤러를 유지하면서 몬스터별 클립만 교체할 때 사용 (권장)")]
+        public AnimatorOverrideController animatorOverrideController;
         [Header("VFX")]
         public GameObject attackEffectPrefab;
         public GameObject onHitEffectPrefab;
