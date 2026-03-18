@@ -2891,7 +2891,6 @@ GameObject:
   - component: {fileID: 452233583}
   - component: {fileID: 452233585}
   - component: {fileID: 452233584}
-  - component: {fileID: 452233586}
   m_Layer: 5
   m_Name: "(\uCD94\uAC00)[\uD31D\uC5C5] \uD328\uB110_\uB358\uC804 \uD074\uB9AC\uC5B4"
   m_TagString: Untagged
@@ -2961,26 +2960,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 452233582}
   m_CullTransparentMesh: 1
---- !u!114 &452233586
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 452233582}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ac0b15e269c40a9956a6ea71564056c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  popupRoot: {fileID: 452233583}
-  clearTitleText: {fileID: 618662653}
-  exitButton: {fileID: 612719175}
-  exitButtonText: {fileID: 1591042666}
-  goldPanelRoot: {fileID: 1143247958}
-  expPanelRoot: {fileID: 1089394702}
-  alchemyPanelRoot: {fileID: 57940039}
-  equipmentPanelRoot: {fileID: 42532382}
 --- !u!1 &455599933
 GameObject:
   m_ObjectHideFlags: 0
@@ -14125,7 +14104,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BerserkerModeController
   _berserkModeSo: {fileID: 11400000, guid: b5d6e4be408638d4bb6276e709d4d7f8, type: 2}
+  StartEffectKey1: Assets/02. Prefabs/Design/BerserkEffect/HCFX_Explosion_02_Air.prefab
+  StartEffectKey2: Assets/02. Prefabs/Design/BerserkEffect/HCFX_Energy_04.prefab
+  EffectKet1: Assets/02. Prefabs/Design/BerserkEffect/Poison aura.prefab
+  EffectKet2: Assets/02. Prefabs/Design/BerserkEffect/Star aura.prefab
   durationSeconds: 60
+  startDelay: 0.3
   vfxParent: {fileID: 0}
 --- !u!114 &9999990003
 MonoBehaviour:
@@ -14149,6 +14133,80 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3501561679303042861, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
   m_PrefabInstance: {fileID: 7151944950682389466}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &845223358600000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 845223358600000002}
+  - component: {fileID: 845223358600000003}
+  m_Layer: 5
+  m_Name: DungeonClearPopupControllerHost
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &845223358600000002
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 845223358600000001}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 71025011}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &845223358600000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 845223358600000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ac0b15e269c40a9956a6ea71564056c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  popupRoot: {fileID: 452233583}
+  clearTitleText: {fileID: 618662653}
+  panelBindings:
+  - stageType: 2
+    panelRoot: {fileID: 1143247958}
+    exitButton: {fileID: 1635599177}
+    nextLevelButton: {fileID: 877392494}
+    nextLevelButtonText: {fileID: 579812940}
+  - stageType: 3
+    panelRoot: {fileID: 1089394702}
+    exitButton: {fileID: 784432308}
+    nextLevelButton: {fileID: 1986779514}
+    nextLevelButtonText: {fileID: 950080453}
+  - stageType: 4
+    panelRoot: {fileID: 57940039}
+    exitButton: {fileID: 612719175}
+    nextLevelButton: {fileID: 850508249}
+    nextLevelButtonText: {fileID: 1705063742}
+  - stageType: 5
+    panelRoot: {fileID: 42532382}
+    exitButton: {fileID: 1267180404}
+    nextLevelButton: {fileID: 951220793}
+    nextLevelButtonText: {fileID: 1692628713}
+  requiredKeyCount: 1
+  nextLevelLabel: "\uB2E4\uC74C \uB2E8\uACC4"
+  retryLabel: "\uC7AC\uB3C4\uC804"
 --- !u!114 &1759517606467901733 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 12651454759166756, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
@@ -15304,7 +15362,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7832116305337872741, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: worldOffset.y
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7832116305337872741, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: maxFollowSpeed
@@ -15312,7 +15370,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7832116305337872741, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: followSmoothTime
-      value: 0.001
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8024733939683927439, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: m_AnchorMax.y
@@ -15531,6 +15589,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7515256327020701873, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 452233583}
+    - targetCorrespondingSourceObject: {fileID: 7515256327020701873, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 845223358600000002}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
 --- !u!114 &7158883344651108910 stripped

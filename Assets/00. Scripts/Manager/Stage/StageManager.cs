@@ -86,6 +86,9 @@ public class StageManager : Singleton<StageManager>
     public PlayerStateMachine player;
 
     public bool dungeonClear=false;
+    private bool continueDungeonAfterClear = false;
+    private StageType continuedDungeonStageType = StageType.None;
+    private int continuedDungeonLevel = 1;
 
     public bool stageChanging
     {
@@ -305,17 +308,36 @@ public class StageManager : Singleton<StageManager>
             player.GetComponent<NavMeshAgent>().enabled = false;
             player.GetComponent<Rigidbody>().isKinematic = true;
 
+            ResetDungeonClearFlow();
             dungeonClear = false;
-            if (GameEventManager.OnDungeonClearPopupRequested != null)
+            bool popupShown = DungeonClearPopupController.TryShowAny(curStageType, curStage);
+            if (!popupShown && GameEventManager.OnDungeonClearPopupRequested != null)
+            {
                 GameEventManager.OnDungeonClearPopupRequested.Invoke(curStageType, curStage);
-            else
+                popupShown = true;
+            }
+
+            if (!popupShown)
                 CheckDungeonClear();
 
             yield return new WaitUntil(() => dungeonClear);
             dungeonClear = false;
-            
-            SetStageType(StageType.NormalStage, normalStage);
-            SceneController.Instance.LoadScene(SceneType.StageScene);
+
+            if (continueDungeonAfterClear && continuedDungeonStageType != StageType.None)
+            {
+                StageType nextDungeonStageType = continuedDungeonStageType;
+                int nextDungeonLevel = continuedDungeonLevel;
+                ResetDungeonClearFlow();
+
+                SetStageType(nextDungeonStageType, nextDungeonLevel);
+                SceneController.Instance.LoadScene(SceneType.DungeonScene);
+            }
+            else
+            {
+                ResetDungeonClearFlow();
+                SetStageType(StageType.NormalStage, normalStage);
+                SceneController.Instance.LoadScene(SceneType.StageScene);
+            }
         }
 
         stageMoveCoroutine = null;
@@ -323,7 +345,16 @@ public class StageManager : Singleton<StageManager>
 
     public void CheckDungeonClear()
     {
+        ResetDungeonClearFlow();
         dungeonClear=true;
+    }
+
+    public void ContinueDungeonAfterClear(StageType dungeonStageType, int dungeonLevel)
+    {
+        continueDungeonAfterClear = true;
+        continuedDungeonStageType = dungeonStageType;
+        continuedDungeonLevel = Mathf.Max(1, dungeonLevel);
+        dungeonClear = true;
     }
 
     // 스테이지 실패 처리
@@ -370,11 +401,31 @@ public class StageManager : Singleton<StageManager>
             player.GetComponent<NavMeshAgent>().enabled = false;
             player.GetComponent<Rigidbody>().isKinematic = true;
 
+            ResetDungeonClearFlow();
+            dungeonClear = false;
+
+            bool popupShown = DungeonClearPopupController.TryShowAny(curStageType, curStage, true);
+            if (!popupShown)
+                CheckDungeonClear();
+
             yield return new WaitUntil(() => dungeonClear);
             dungeonClear = false;
 
-            SetStageType(StageType.NormalStage, normalStage);
-            SceneController.Instance.LoadScene(SceneType.StageScene);
+            if (continueDungeonAfterClear && continuedDungeonStageType != StageType.None)
+            {
+                StageType retryDungeonStageType = continuedDungeonStageType;
+                int retryDungeonLevel = continuedDungeonLevel;
+                ResetDungeonClearFlow();
+
+                SetStageType(retryDungeonStageType, retryDungeonLevel);
+                SceneController.Instance.LoadScene(SceneType.DungeonScene);
+            }
+            else
+            {
+                ResetDungeonClearFlow();
+                SetStageType(StageType.NormalStage, normalStage);
+                SceneController.Instance.LoadScene(SceneType.StageScene);
+            }
         }
         stageMoveCoroutine = null;
     }
@@ -599,5 +650,12 @@ public class StageManager : Singleton<StageManager>
             stageKeyCatalog = new StageKeyCatalog();
 
         return true;
+    }
+
+    private void ResetDungeonClearFlow()
+    {
+        continueDungeonAfterClear = false;
+        continuedDungeonStageType = StageType.None;
+        continuedDungeonLevel = 1;
     }
 }
