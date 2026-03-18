@@ -82,6 +82,19 @@ public class StageManager : Singleton<StageManager>
 
     Coroutine stageMoveCoroutine;
 
+    public PlayerStateMachine player;
+
+    public bool stageChanging
+    {
+        get 
+        {
+            if(stageMoveCoroutine!=null)
+                return true;
+            else
+                return false;
+        }
+    }
+
     private IEnumerator Start()
     {
         // 데이터 테이블 로드 완료까지 대기
@@ -239,11 +252,23 @@ public class StageManager : Singleton<StageManager>
         if (stageMoveCoroutine == null)
             StartCoroutine(StageClearCoroutine());
     }
+
+    public bool CheckPlayerStateToStageChanged()
+    {
+        if(player==null)
+            player = GameObject.FindAnyObjectByType<PlayerStateMachine>();
+        if (player.CurrentType == PlayerStateType.Attack)
+            return false;
+        else
+            return true;
+    }
+
     IEnumerator StageClearCoroutine()
     {
         ResetBoss();
-
+        yield return new WaitUntil(() => CheckPlayerStateToStageChanged());
         yield return CoroutineManager.waitForSeconds(waitNextStageTime);
+
 
         if (curStageType == StageType.NormalStage)
         {
@@ -293,6 +318,7 @@ public class StageManager : Singleton<StageManager>
 
         ResetBoss();
 
+        yield return new WaitUntil(() => CheckPlayerStateToStageChanged());
         yield return CoroutineManager.waitForSeconds(waitNextStageTime);
 
         if (curStageType == StageType.NormalStage)
