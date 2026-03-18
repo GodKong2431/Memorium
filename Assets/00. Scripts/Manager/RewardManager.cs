@@ -63,9 +63,9 @@ public class RewardManager : Singleton<RewardManager>
         // ItemDropTable CSV 확률은 % 단위이므로 0~1 범위로 변환한다.
         DropSettings.equipmentChance = (float)(dropTable.equipmentRate / 100.0);
         DropSettings.pixieFragmentChance = (float)(dropTable.fairyPieceRate / 100.0);
-        DropSettings.skillScrollChance = (float)(dropTable.scrollRate / 100.0 * 20000);
+        DropSettings.skillScrollChance = (float)(dropTable.scrollRate / 100.0);
         DropSettings.skillGemChance = (float)(dropTable.gemRate / 100.0);
-        DropSettings.dungeonTicketChance = (float)(dropTable.keyRate / 100.0) * 20000; // 테스트를 위해 임시로 확률을 증폭
+        DropSettings.dungeonTicketChance = (float)(dropTable.keyRate / 100.0);
     }
 
     /// <summary>
