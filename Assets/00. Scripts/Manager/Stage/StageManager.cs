@@ -273,11 +273,11 @@ public class StageManager : Singleton<StageManager>
     {
         ResetBoss();
         yield return new WaitUntil(() => CheckPlayerStateToStageChanged());
-        yield return CoroutineManager.waitForSeconds(waitNextStageTime);
-
 
         if (curStageType == StageType.NormalStage)
         {
+            yield return CoroutineManager.waitForSeconds(waitNextStageTime);
+
             player.GetComponent<NavMeshAgent>().enabled = false;
             onFailedStage = false;
             if (stageKeyList != null && curStage < stageKeyList.Count)
@@ -321,7 +321,6 @@ public class StageManager : Singleton<StageManager>
 
             yield return new WaitUntil(() => dungeonClear);
             dungeonClear = false;
-            player.GetComponent<NavMeshAgent>().isStopped = false;
 
             if (continueDungeonAfterClear && continuedDungeonStageType != StageType.None)
             {
@@ -373,10 +372,11 @@ public class StageManager : Singleton<StageManager>
         ResetBoss();
 
         yield return new WaitUntil(() => CheckPlayerStateToStageChanged());
-        yield return CoroutineManager.waitForSeconds(waitNextStageTime);
 
         if (curStageType == StageType.NormalStage)
         {
+            yield return CoroutineManager.waitForSeconds(waitNextStageTime);
+
             onFailedStage = true;
 
             if (curStage - 2 >= 0 && !failedDuringBossStage)
@@ -409,7 +409,6 @@ public class StageManager : Singleton<StageManager>
 
             yield return new WaitUntil(() => dungeonClear);
             dungeonClear = false;
-            player.GetComponent<NavMeshAgent>().isStopped = false;
 
             if (continueDungeonAfterClear && continuedDungeonStageType != StageType.None)
             {
