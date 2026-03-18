@@ -1,6 +1,8 @@
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 
 public sealed class PixieInventoryModule : IInventoryModule
@@ -25,6 +27,35 @@ public sealed class PixieInventoryModule : IInventoryModule
     /// 가지고 있는 모든 Pixie의 id와 레벨을 담은 구조체 리스트 반환, UI랑 저장에 쓰시면 될?듯
     /// </summary>
     /// <returns></returns>
+
+    public PixieInventoryModule()
+    {
+        InventoryManager.Instance.savePixieData = JSONService.Load<SavePixieData>();
+
+        //비어있는거 아니면 불러와라
+        if (InventoryManager.Instance.savePixieData.InitPixieData())
+        {
+            LoadFromList(InventoryManager.Instance.savePixieData.LoadPixieInfoData());
+        }
+
+        equippedPixieId = InventoryManager.Instance.savePixieData.equippedPixieId;
+        //장착한 픽시 아이디
+        OnPixieEquipped += (ctx) =>
+        {
+            InventoryManager.Instance.savePixieData.SavePixieEquippedId(ctx.pixieId);
+        };
+        //데이터 저장
+        OnPixieInventoryChanged += () => { InventoryManager.Instance.savePixieData.SavePixieInfoData(GetSaveList()); };
+    }
+
+    //IEnumerator LoadPixieData()
+    //{
+    //    yield return new WaitUntil(() => DataManager.Instance != null);
+    //    yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+
+
+    //}
+
     public List<PixieSaveData> GetSaveList()
     {
         saveList.Clear();
@@ -187,6 +218,8 @@ public sealed class PixieInventoryModule : IInventoryModule
 
         equippedPixieId = fairyId;
         OnPixieEquipped?.Invoke(pixie);
+
+        Debug.Log($"[PixieInventoryModule] 픽시 아이디 {fairyId} 소환 시도");
     }
     /// <summary>
     /// 픽시 장착 해제
