@@ -1,19 +1,22 @@
 
-using UnityEngine;
-using System.Collections;
+    using UnityEngine;
+    using System.Collections;
 
-//객채 생성하는걸로 바꿔야함.
-public class ExecuteAura : ISkillExecuteStrategy
-{
-    public IEnumerator Execute(ISkillHitHandler owner, ISkillDetectable bufferProvider, SkillDataContext dataContext, Vector3 startPosition, Vector3 direction, LayerMask targetLayer, GameObject prefab =null)
+    //객채 생성하는걸로 바꿔야함.
+    public class ExecuteAura : ISkillExecuteStrategy
     {
-        GameObject go = Object.Instantiate(prefab, owner.transform.position, owner.transform.rotation, owner.transform);
-
-        if (go.TryGetComponent<SkillObjectileBase>(out var aura))
+        public IEnumerator Execute(ISkillHitHandler owner, ISkillDetectable bufferProvider, SkillDataContext dataContext, Vector3 startPosition, Vector3 direction, LayerMask targetLayer)
         {
-            aura.Initialize(owner, dataContext, targetLayer);
-        }
 
-        yield break;
+
+            var obj = PoolAddressableManager.Instance.GetPooledObject("Assets/02. Prefabs/SKill/Aura/Aura.prefab", startPosition, owner.transform.localRotation);
+
+            if (obj == null) yield break;
+            if (obj.TryGetComponent<SkillObjectileBase>(out var aura))
+            {
+                aura.Initialize(owner, dataContext, targetLayer);
+            }
+
+            yield break;
+        }
     }
-}

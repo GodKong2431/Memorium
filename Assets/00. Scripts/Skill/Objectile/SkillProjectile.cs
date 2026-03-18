@@ -11,12 +11,13 @@ public class SkillProjectile : SkillObjectileBase
     }
     private void OnTriggerEnter(Collider other)
     {
-        debugLastCastPos = skillDataContext.skillData.m3Data.m3Distance * transform.forward;
+        debugLastCastPos = dataContext.skillData.m3Data.m3Distance * transform.forward;
         if (((1 << other.gameObject.layer) & targetLayer) != 0)
         {
+            PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(dataContext?.skillData.m3Data.m3VFX, transform, false, true));
             var m2 = SkillStrategyContainer.GetDetect(data.m2Data.m2Type);
             int count = m2.Detect(transform.position, transform.forward, data.m2Data, this, targetLayer);
-            owner.HandleSkillHit(count, skillDataContext, hitBuffer);
+            owner.HandleSkillHit(count, dataContext, hitBuffer);
         }
 
         Destroy(gameObject);

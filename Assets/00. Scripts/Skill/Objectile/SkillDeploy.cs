@@ -3,10 +3,11 @@ using System.Collections;
 
 public class SkillDeploy : SkillObjectileBase
 {
-    public override void Initialize(ISkillHitHandler owner, SkillDataContext skillDataContext, LayerMask layer)
+    public override void Initialize(ISkillHitHandler owner, SkillDataContext dataContext, LayerMask layer)
     {
-        base.Initialize(owner, skillDataContext, layer);
-        debugLastCastPos = skillDataContext.skillData.m3Data.m3Distance * transform.forward;
+        base.Initialize(owner, dataContext, layer);
+        debugLastCastPos = dataContext.skillData.m3Data.m3Distance * transform.forward;
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(dataContext?.skillData.m3Data.m3VFX, transform, true, true));
         StartCoroutine(RoutineTick());
     }
 
@@ -22,7 +23,7 @@ public class SkillDeploy : SkillObjectileBase
             int count = m2.Detect(transform.position, transform.forward, data.m2Data, this, targetLayer);
             if (count > 0)
             {
-                owner.HandleSkillHit(count, skillDataContext, hitBuffer);
+                owner.HandleSkillHit(count, dataContext, hitBuffer);
             }
             yield return CoroutineManager.waitForSeconds(interval);
             timer += interval;

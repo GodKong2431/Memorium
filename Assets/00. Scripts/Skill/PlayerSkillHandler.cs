@@ -122,7 +122,6 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         if (skillModule == null) return;
         Init(skillModule.GetCurrentPreset().slots);
     }
-
     public void RefreshFromPreset()
     {
         var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
