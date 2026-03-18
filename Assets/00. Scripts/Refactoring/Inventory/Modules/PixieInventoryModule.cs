@@ -131,6 +131,8 @@ public sealed class PixieInventoryModule : IInventoryModule
     {
         if (pixieDict.ContainsKey(fairyId)) return false;
         if (!DataManager.Instance.FairyInfoDict.TryGetValue(fairyId, out var data)) return false;
+        if (!IsBasePixie(fairyId)) return false;
+        if (HasOwnedPixieInLine(fairyId)) return false;
 
         return InventoryManager.Instance.HasEnoughItem(data.fragmentItemID, UNLOCK_COST);
     }
@@ -147,7 +149,8 @@ public sealed class PixieInventoryModule : IInventoryModule
 
         if (pixie.gradeTable.fairyGrade == FairyGrade.Mythic)
         {
-            bool hasFrag = InventoryManager.Instance.HasEnoughItem(pixie.fairyTable.fragmentItemID, pixie.GetFragmentCost());
+            BigDouble fragmentCost = new BigDouble(pixie.GetFragmentCost());
+            bool hasFrag = InventoryManager.Instance.HasEnoughItem(pixie.fairyTable.fragmentItemID, fragmentCost);
             return hasGold && hasFrag;
         }
         return hasGold;
@@ -224,6 +227,7 @@ public sealed class PixieInventoryModule : IInventoryModule
 
         var pixie = pixieDict[fairyId];
         int nextId = pixie.fairyTable.nextID;
+        bool wasEquipped = equippedPixieId == fairyId;
 
         pixieDict.Remove(fairyId);
 
@@ -231,6 +235,12 @@ public sealed class PixieInventoryModule : IInventoryModule
         pixie.level = 1;
         pixie.TryGetData();
         pixieDict[nextId] = pixie;
+
+        if (wasEquipped)
+        {
+            equippedPixieId = nextId;
+            OnPixieEquipped?.Invoke(pixie);
+        }
 
         OnPixieInventoryChanged?.Invoke();
         return true;
@@ -245,7 +255,8 @@ public sealed class PixieInventoryModule : IInventoryModule
 
         if (pixie.gradeTable.fairyGrade == FairyGrade.Mythic)
         {
-            InventoryManager.Instance.RemoveItem(pixie.fairyTable.fragmentItemID, pixie.GetFragmentCost());
+            BigDouble fragmentCost = new BigDouble(pixie.GetFragmentCost());
+            InventoryManager.Instance.RemoveItem(pixie.fairyTable.fragmentItemID, fragmentCost);
         }
 
         pixie.ExecuteLevelUp();
@@ -270,5 +281,73 @@ public sealed class PixieInventoryModule : IInventoryModule
                 }
             }
         }
+    }
+
+    private static bool IsBasePixie(int fairyId)
+    {
+        if (DataManager.Instance?.FairyInfoDict == null)
+            return false;
+
+        foreach (var fairyInfo in DataManager.Instance.FairyInfoDict.Values)
+        {
+            if (fairyInfo != null && fairyInfo.nextID == fairyId)
+                return false;
+        }
+
+        return DataManager.Instance.FairyInfoDict.ContainsKey(fairyId);
+    }
+
+    private bool HasOwnedPixieInLine(int fairyId)
+    {
+        if (DataManager.Instance?.FairyInfoDict == null)
+            return false;
+
+        int rootPixieId = ResolveRootPixieId(fairyId);
+        if (rootPixieId == 0)
+            return false;
+
+        int currentPixieId = rootPixieId;
+        for (int i = 0; i < 16; i++)
+        {
+            if (pixieDict.ContainsKey(currentPixieId))
+                return true;
+
+            if (!DataManager.Instance.FairyInfoDict.TryGetValue(currentPixieId, out FairyInfoTable fairyInfo) ||
+                fairyInfo == null ||
+                fairyInfo.nextID == 0)
+            {
+                break;
+            }
+
+            currentPixieId = fairyInfo.nextID;
+        }
+
+        return false;
+    }
+
+    private static int ResolveRootPixieId(int fairyId)
+    {
+        if (DataManager.Instance?.FairyInfoDict == null || !DataManager.Instance.FairyInfoDict.ContainsKey(fairyId))
+            return 0;
+
+        int currentPixieId = fairyId;
+        bool changed;
+
+        do
+        {
+            changed = false;
+            foreach (FairyInfoTable fairyInfo in DataManager.Instance.FairyInfoDict.Values)
+            {
+                if (fairyInfo == null || fairyInfo.nextID != currentPixieId)
+                    continue;
+
+                currentPixieId = fairyInfo.ID;
+                changed = true;
+                break;
+            }
+        }
+        while (changed);
+
+        return currentPixieId;
     }
 }

@@ -513,22 +513,31 @@ public class BottomPanelController : MonoBehaviour
     {
         RectTransform page = GetPage(tab, pageIndex);
         BottomPanelManagedPage managedPage = GetManagedPage(page);
+        RectTransform subMenuRoot = ResolveSubMenuRoot(tab, managedPage);
 
         SetTitle(GetPageTitle(tab, pageIndex, managedPage));
 
         MoveChildren(subMenuPos, subMenuContainer);
         MoveChildren(contentsArea, contentsContainer);
 
-        if (ShouldShowSubMenu(tab, pageIndex, managedPage))
+        if (ShouldShowSubMenu(tab, pageIndex, managedPage, subMenuRoot))
         {
-            AttachRect(tab.subMenuRoot, subMenuPos, false);
+            AttachRect(subMenuRoot, subMenuPos, false);
             EnsureSubVisible(tab);
         }
     }
 
-    private static bool ShouldShowSubMenu(TabConfig tab, int pageIndex, BottomPanelManagedPage managedPage)
+    private static RectTransform ResolveSubMenuRoot(TabConfig tab, BottomPanelManagedPage managedPage)
     {
-        if (tab == null || tab.subMenuRoot == null)
+        if (managedPage != null && managedPage.SubMenuRootOverride != null)
+            return managedPage.SubMenuRootOverride;
+
+        return tab != null ? tab.subMenuRoot : null;
+    }
+
+    private static bool ShouldShowSubMenu(TabConfig tab, int pageIndex, BottomPanelManagedPage managedPage, RectTransform subMenuRoot)
+    {
+        if (tab == null || subMenuRoot == null)
             return false;
 
         if (managedPage != null)
@@ -1182,11 +1191,26 @@ public class BottomPanelController : MonoBehaviour
         if (rect == null)
             return;
 
+        RectTransform parent = rect.parent as RectTransform;
+        if (parent == null)
+            return;
+
+        Vector3[] worldCorners = new Vector3[4];
+        rect.GetWorldCorners(worldCorners);
+
+        Vector3 bottomLeft = parent.InverseTransformPoint(worldCorners[0]);
+        Vector3 topRight = parent.InverseTransformPoint(worldCorners[2]);
+        Rect parentRect = parent.rect;
+
+        float left = bottomLeft.x - parentRect.xMin;
+        float bottom = bottomLeft.y - parentRect.yMin;
+        float right = parentRect.xMax - topRight.x;
+        float top = parentRect.yMax - topRight.y;
+
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
-        rect.anchoredPosition = Vector2.zero;
+        rect.offsetMin = new Vector2(left, bottom);
+        rect.offsetMax = new Vector2(-right, -top);
     }
 #endregion
 

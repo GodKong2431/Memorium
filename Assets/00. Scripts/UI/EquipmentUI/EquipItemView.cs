@@ -16,9 +16,7 @@ public sealed class EquipItemView
     {
         this.ui = ui;
         this.ui.EnsureBindings();
-
-        if (this.ui.TierStar != null)
-            stars.Add(this.ui.TierStar);
+        CacheExistingStars();
     }
 
     public GameObject GameObject => ui != null ? ui.gameObject : null;
@@ -114,8 +112,7 @@ public sealed class EquipItemView
 
     private void SyncStars(int required, Color color)
     {
-        if (stars.Count == 0 && ui.TierStar != null)
-            stars.Add(ui.TierStar);
+        CacheExistingStars();
 
         if (stars.Count == 0 || ui.TierRoot == null)
             return;
@@ -136,5 +133,32 @@ public sealed class EquipItemView
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(ui.TierRoot);
+    }
+
+    private void CacheExistingStars()
+    {
+        stars.Clear();
+
+        if (ui.TierRoot == null)
+        {
+            if (ui.TierStar != null)
+                stars.Add(ui.TierStar);
+
+            return;
+        }
+
+        for (int i = 0; i < ui.TierRoot.childCount; i++)
+        {
+            Transform child = ui.TierRoot.GetChild(i);
+            if (child == null)
+                continue;
+
+            Image starImage = child.GetComponent<Image>();
+            if (starImage != null)
+                stars.Add(starImage);
+        }
+
+        if (stars.Count == 0 && ui.TierStar != null)
+            stars.Add(ui.TierStar);
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.AI.Navigation;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -128,6 +129,11 @@ public class InfinityMap : MonoBehaviour
         if (nextMapIndex >= maps.Count)
             nextMapIndex = 0;
 
+        //NavMeshSurface surface = MapManager.Instance.mapPosInfo[curMapIndex].navMeshSurface;
+        //if (surface != null)
+        //{
+        //    surface.UpdateNavMesh(surface.navMeshData);
+        //}
 
         mapMoveTrigger.transform.position = MapManager.Instance.mapPosInfo[nextMapIndex].mapMoveTriggerPos.position;
 
@@ -147,6 +153,11 @@ public class InfinityMap : MonoBehaviour
 
         ResetGoalPos();
         PlayerPosInit();
+
+        //foreach (MapPosInfo mapInfo in MapManager.Instance.mapPosInfo)
+        //{
+        //    mapInfo.navMeshSurface.UpdateNavMesh(mapInfo.navMeshSurface.navMeshData);
+        //}
 
         //monsterSpawner.MonsterSpawnerReset();
     }
@@ -186,6 +197,10 @@ public class InfinityMap : MonoBehaviour
         bool hadPlayerBinding = HasPlayerBinding();
         if (!TryBindScenePlayer())
             return;
+        
+        //위치 이동 전에 미리 꺼둔다
+        if(agent !=null) 
+            agent.enabled = false;
 
         if (!hadPlayerBinding)
         {
@@ -196,6 +211,8 @@ public class InfinityMap : MonoBehaviour
 
         MovePlayer(originPlayerPos);
         MovePixieToPlayer();
+
+        if (agent != null) agent.enabled = true;
     }
 
     private void OnPlayerSpawned(Transform spawnedPlayer)
@@ -240,10 +257,14 @@ public class InfinityMap : MonoBehaviour
         if (!HasPlayerBinding())
             return;
 
-        agent.enabled = false;
+        //agent.enabled = false;
         player.position = targetPosition;
-        agent.Warp(targetPosition);
-        agent.enabled = true;
+        //agent.Warp(targetPosition);
+        agent.Warp(player.position);
+        //agent.enabled = true;
+
+        Debug.Log($"플레이어 위치 변환 : {player.position}");
+
     }
 
     private Vector3 ResolveNavMeshPosition(Vector3 targetPosition)
