@@ -57,30 +57,83 @@ public class TitleScene : SceneBase
         if (UIRoot.Instance != null)
             UIRoot.Instance.PrepareForSceneTransfer();
 
-        ExitScene();
+        Scene sourceScene = gameObject.scene;
+        string targetSceneName = sceneType.ToString();
+        Scene loadedScene = default;
+        bool targetSceneLoaded = false;
 
-        AsyncOperation operation = SceneManager.LoadSceneAsync(sceneType.ToString());
+        void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (!string.Equals(scene.name, targetSceneName, System.StringComparison.Ordinal))
+                return;
+
+            loadedScene = scene;
+            targetSceneLoaded = true;
+            SceneManager.SetActiveScene(scene);
+        }
+
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+
+        AsyncOperation operation = SceneManager.LoadSceneAsync(targetSceneName, LoadSceneMode.Additive);
         if (operation == null)
+        {
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
             yield break;
+        }
 
         operation.allowSceneActivation = false;
 
-        while (!operation.isDone)
+        while (!operation.isDone || !targetSceneLoaded)
         {
             float sceneProgress = Mathf.Clamp01(operation.progress / 0.9f);
-            float blendedProgress = Mathf.Lerp(dataLoadProgressWeight, 1f, sceneProgress);
+            float blendedProgress = Mathf.Lerp(dataLoadProgressWeight, 0.98f, sceneProgress);
 
             SetLoadingProgress(blendedProgress);
 
             if (sceneProgress >= 1f)
-            {
-                SetLoadingProgress(1f);
-
                 operation.allowSceneActivation = true;
-            }
 
             yield return null;
         }
+
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+
+        StageScene stageScene = null;
+        while (stageScene == null)
+        {
+            stageScene = FindSceneComponent<StageScene>(loadedScene);
+            yield return null;
+        }
+
+        SetLoadingProgress(0.99f);
+        yield return new WaitUntil(() => stageScene.IsSceneReady);
+        SetLoadingProgress(1f);
+
+        ExitScene();
+        SceneManager.SetActiveScene(loadedScene);
+
+        AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync(sourceScene);
+        if (unloadOperation == null)
+            yield break;
+
+        while (!unloadOperation.isDone)
+            yield return null;
+    }
+
+    private static T FindSceneComponent<T>(Scene scene) where T : Component
+    {
+        if (!scene.IsValid() || !scene.isLoaded)
+            return null;
+
+        GameObject[] rootObjects = scene.GetRootGameObjects();
+        for (int i = 0; i < rootObjects.Length; i++)
+        {
+            T component = rootObjects[i].GetComponentInChildren<T>(true);
+            if (component != null)
+                return component;
+        }
+
+        return null;
     }
 
     private void SubscribeLoadingEvents()

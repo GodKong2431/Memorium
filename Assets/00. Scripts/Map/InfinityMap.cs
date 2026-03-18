@@ -34,6 +34,7 @@ public class InfinityMap : MonoBehaviour
     public List<GameObject> mapGroups;
     public List<GameObject> maps;
     public bool firstMapSetting = false;
+    public bool InitialPlacementComplete { get; private set; }
 
     [SerializeField] MonsterSpawner monsterSpawner;
 
@@ -70,6 +71,7 @@ public class InfinityMap : MonoBehaviour
 
     public void MapInit()
     {
+        InitialPlacementComplete = false;
         mapsRenderer.Clear();
         originMapPos.Clear();
         curMapIndex = 1;
@@ -145,6 +147,7 @@ public class InfinityMap : MonoBehaviour
 
     public void MapReset()
     {
+        InitialPlacementComplete = false;
         for (int i = 0; i < maps.Count; i++)
             maps[i].transform.position = originMapPos[i];
 
@@ -196,6 +199,7 @@ public class InfinityMap : MonoBehaviour
 
     public void PlayerPosInit()
     {
+        InitialPlacementComplete = false;
 
         bool hadPlayerBinding = HasPlayerBinding();
         if (!TryBindScenePlayer())
@@ -290,6 +294,7 @@ public class InfinityMap : MonoBehaviour
         agent.enabled = true;
         agent.ResetPath();
         agent.velocity = Vector3.zero;
+        InitialPlacementComplete = true;
     }
 
     private Vector3 ResolveNavMeshPosition(Vector3 targetPosition)
