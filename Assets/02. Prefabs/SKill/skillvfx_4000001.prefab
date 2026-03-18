@@ -5440,8 +5440,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.5
-      minScalar: 0.4
+      scalar: 0.1
+      minScalar: 0.1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10419,6 +10419,22 @@ PrefabInstance:
       propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3093335428366626499, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: lengthInSec
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3093335428366626499, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3093335428366626499, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5270056481751079416, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 5761169249801984304, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
       propertyPath: looping
       value: 0
@@ -10427,9 +10443,29 @@ PrefabInstance:
       propertyPath: prewarm
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5761169249801984304, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: lengthInSec
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5761169249801984304, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 6483374404639186348, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
       propertyPath: looping
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6483374404639186348, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: lengthInSec
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6483374404639186348, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6483374404639186348, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 6923610227099839469, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
       propertyPath: m_Name
@@ -10443,6 +10479,14 @@ PrefabInstance:
       propertyPath: prewarm
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7154459834264456352, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: lengthInSec
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154459834264456352, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 7336109911666367670, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
       propertyPath: looping
       value: 0
@@ -10450,11 +10494,27 @@ PrefabInstance:
     - target: {fileID: 7336109911666367670, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
       propertyPath: prewarm
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7336109911666367670, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: lengthInSec
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7336109911666367670, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 8645988448095255733, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
       propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8645988448095255733, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: lengthInSec
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8645988448095255733, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 8792469717615271890, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
       propertyPath: looping
       value: 0
@@ -10462,6 +10522,14 @@ PrefabInstance:
     - target: {fileID: 8792469717615271890, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
       propertyPath: prewarm
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8792469717615271890, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: lengthInSec
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8792469717615271890, guid: 7340b862cfca5424bb6bf358e55d84f1, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 0.1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
