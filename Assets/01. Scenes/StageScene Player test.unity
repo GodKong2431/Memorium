@@ -85769,6 +85769,27 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &998877665544332211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1984076060782808928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04310248f1154ce294aca6e88ef955ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panelRoot: {fileID: 0}
+  listScrollRect: {fileID: 0}
+  listContentRoot: {fileID: 0}
+  categoryRoot: {fileID: 0}
+  buttonShowAll: {fileID: 0}
+  buttonSkillScroll: {fileID: 0}
+  buttonGem: {fileID: 0}
+  buttonConsumable: {fileID: 0}
+  itemPrefab: {fileID: 3467139457995866323, guid: b86ca965bda29bf458cfba538c8e435d, type: 3}
 --- !u!224 &874743856049605498
 RectTransform:
   m_ObjectHideFlags: 0
@@ -88338,6 +88359,7 @@ GameObject:
   - component: {fileID: 512409755182243740}
   - component: {fileID: 3060554561578274960}
   - component: {fileID: 867162660361828194}
+  - component: {fileID: 998877665544332211}
   m_Layer: 5
   m_Name: MiscContents
   m_TagString: Untagged
