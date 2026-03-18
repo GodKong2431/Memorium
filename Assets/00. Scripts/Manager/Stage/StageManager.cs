@@ -305,6 +305,12 @@ public class StageManager : Singleton<StageManager>
             player.GetComponent<NavMeshAgent>().enabled = false;
             player.GetComponent<Rigidbody>().isKinematic = true;
 
+            dungeonClear = false;
+            if (GameEventManager.OnDungeonClearPopupRequested != null)
+                GameEventManager.OnDungeonClearPopupRequested.Invoke(curStageType, curStage);
+            else
+                CheckDungeonClear();
+
             yield return new WaitUntil(() => dungeonClear);
             dungeonClear = false;
             

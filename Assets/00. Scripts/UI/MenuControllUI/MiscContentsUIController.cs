@@ -3,24 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 public sealed class MiscContentsUIController : UIControllerBase
 {
-    public const string RootObjectName = "MiscContents";
-
-    private const string ScrollViewName = "\uC2A4\uD06C\uB864\uBDF0_\uAE30\uD0C0 \uBAA9\uB85D";
-    private const string CategoryPanelName = "\uD328\uB110_\uC138\uBD80 \uCE74\uD14C\uACE0\uB9AC";
-    private const string ButtonShowAllName = "\uBC84\uD2BC_\uBAA8\uB450 \uBCF4\uAE30";
-    private const string ButtonSkillScrollName = "\uBC84\uD2BC_\uC2A4\uD0AC \uC8FC\uBB38\uC11C";
-    private const string ButtonGemName = "\uBC84\uD2BC_\uC7BC";
-    private const string ButtonConsumableName = "\uBC84\uD2BC_\uC18C\uBAA8\uD488";
-    private const string ItemFrameName = "(Btn)ItemFrame";
-    private const string ItemIconName = "\uC774\uBBF8\uC9C0_\uC544\uC774\uD15C \uC544\uC774\uCF58";
-    private const string ItemCountName = "\uD14D\uC2A4\uD2B8_\uAC1C\uC218";
-    private const string RuntimeTemplateName = "__MiscItemTemplate";
     private const float DefaultUnselectedButtonAlpha = 0.39215687f;
     private const float SelectedButtonAlpha = 1f;
 
@@ -54,30 +41,30 @@ public sealed class MiscContentsUIController : UIControllerBase
     {
         public int ItemId;
         public ItemType ItemType;
-        public GameObject GameObject;
-        public Button Button;
-        public Image IconImage;
-        public TMP_Text CountText;
+        public MiscItemFrameUI View;
     }
 
+    [Header("Root")]
     [SerializeField] private RectTransform panelRoot;
     [SerializeField] private ScrollRect listScrollRect;
     [SerializeField] private RectTransform listContentRoot;
-    [SerializeField] private RectTransform categoryRoot;
+
+    [Header("Filter Buttons")]
     [SerializeField] private Button buttonShowAll;
     [SerializeField] private Button buttonSkillScroll;
     [SerializeField] private Button buttonGem;
     [SerializeField] private Button buttonConsumable;
-    [SerializeField] private GameObject itemPrefab;
 
-    private readonly List<FilterButtonBinding> filterButtons = new List<FilterButtonBinding>(4);
-    private readonly List<MiscItemEntry> workingEntries = new List<MiscItemEntry>();
-    private readonly List<RuntimeItemBinding> runtimeItems = new List<RuntimeItemBinding>();
+    [Header("Item Template")]
+    [SerializeField] private MiscItemFrameUI itemPrefab;
+
+    private readonly List<FilterButtonBinding> filterButtons = new(4);
+    private readonly List<MiscItemEntry> workingEntries = new();
+    private readonly List<RuntimeItemBinding> runtimeItems = new();
 
     private InventoryManager inventory;
     private SkillInventoryModule skillModule;
     private GemInventoryModule gemModule;
-    private GameObject runtimeTemplateInstance;
     private MiscFilter currentFilter = MiscFilter.All;
     private bool buttonsSubscribed;
     private bool pendingRefresh;
@@ -87,13 +74,15 @@ public sealed class MiscContentsUIController : UIControllerBase
 
     protected override void Initialize()
     {
-        BindReferences();
+        ResolveSerializedReferences();
+        RebuildFilterButtonBindings();
     }
 
     protected override void Subscribe()
     {
+        ResolveSerializedReferences();
+        RebuildFilterButtonBindings();
         currentFilter = MiscFilter.All;
-        BindReferences();
         BindInventory();
         SubscribeButtons();
         HideContentChildren();
@@ -111,7 +100,7 @@ public sealed class MiscContentsUIController : UIControllerBase
 
     protected override void RefreshView()
     {
-        BindReferences();
+        ResolveSerializedReferences();
         if (!CanRender())
             return;
 
@@ -133,36 +122,13 @@ public sealed class MiscContentsUIController : UIControllerBase
         RefreshView();
     }
 
-    private void BindReferences()
+    private void ResolveSerializedReferences()
     {
         if (panelRoot == null)
             panelRoot = transform as RectTransform;
 
-        if (panelRoot == null)
-            return;
-
-        if (listScrollRect == null)
-            listScrollRect = FindComponentRecursive<ScrollRect>(panelRoot, ScrollViewName);
-
         if (listContentRoot == null && listScrollRect != null)
             listContentRoot = listScrollRect.content;
-
-        if (categoryRoot == null)
-            categoryRoot = FindRectTransformRecursive(panelRoot, CategoryPanelName);
-
-        if (buttonShowAll == null)
-            buttonShowAll = FindComponentRecursive<Button>(panelRoot, ButtonShowAllName);
-
-        if (buttonSkillScroll == null)
-            buttonSkillScroll = FindComponentRecursive<Button>(panelRoot, ButtonSkillScrollName);
-
-        if (buttonGem == null)
-            buttonGem = FindComponentRecursive<Button>(panelRoot, ButtonGemName);
-
-        if (buttonConsumable == null)
-            buttonConsumable = FindComponentRecursive<Button>(panelRoot, ButtonConsumableName);
-
-        RebuildFilterButtonBindings();
     }
 
     private void RebuildFilterButtonBindings()
@@ -203,17 +169,20 @@ public sealed class MiscContentsUIController : UIControllerBase
         if (panelRoot == null || listContentRoot == null)
             return false;
 
+        if (buttonShowAll == null || buttonSkillScroll == null || buttonGem == null || buttonConsumable == null)
+            return false;
+
         if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.ItemInfoDict == null)
             return false;
 
         if (!BindInventory())
             return false;
 
-        if (ResolveItemPrefab() == null)
+        if (itemPrefab == null || !itemPrefab.HasBindings)
         {
             if (!missingTemplateLogged)
             {
-                Debug.LogWarning("[MiscContentsUIController] Failed to resolve the misc inventory item prefab.", this);
+                Debug.LogWarning("[MiscContentsUIController] Misc item prefab binding is missing.", this);
                 missingTemplateLogged = true;
             }
 
@@ -352,29 +321,6 @@ public sealed class MiscContentsUIController : UIControllerBase
         }
     }
 
-    private GameObject ResolveItemPrefab()
-    {
-        if (IsItemFramePrefab(itemPrefab))
-            return itemPrefab;
-
-        if (IsItemFramePrefab(runtimeTemplateInstance))
-            return runtimeTemplateInstance;
-
-        if (listContentRoot == null)
-            return null;
-
-        Transform templateSource = FindItemFrameTemplate(listContentRoot);
-
-        if (templateSource == null)
-            return null;
-
-        Transform templateParent = panelRoot != null ? panelRoot : transform;
-        runtimeTemplateInstance = Instantiate(templateSource.gameObject, templateParent, false);
-        runtimeTemplateInstance.name = RuntimeTemplateName;
-        runtimeTemplateInstance.SetActive(false);
-        return runtimeTemplateInstance;
-    }
-
     private void HideContentChildren()
     {
         if (listContentRoot == null)
@@ -397,7 +343,7 @@ public sealed class MiscContentsUIController : UIControllerBase
         {
             RuntimeItemBinding binding = runtimeItems[i];
             MiscItemEntry entry = workingEntries[i];
-            if (binding == null || binding.GameObject == null || binding.IconImage == null || binding.CountText == null)
+            if (binding == null || binding.View == null || !binding.View.HasBindings)
                 return true;
 
             if (binding.ItemId != entry.ItemId || binding.ItemType != entry.ItemType)
@@ -411,32 +357,28 @@ public sealed class MiscContentsUIController : UIControllerBase
     {
         ClearContentChildren();
 
-        GameObject prefab = ResolveItemPrefab();
-        if (prefab == null)
+        if (itemPrefab == null || !itemPrefab.HasBindings)
             return;
 
         for (int i = 0; i < workingEntries.Count; i++)
         {
-            GameObject itemObject = Instantiate(prefab, listContentRoot, false);
-            itemObject.name = string.Format(
+            MiscItemFrameUI view = Instantiate(itemPrefab, listContentRoot, false);
+            view.gameObject.name = string.Format(
                 CultureInfo.InvariantCulture,
                 "MiscItem_{0:00}_{1}_{2}",
                 i + 1,
                 workingEntries[i].ItemType,
                 workingEntries[i].ItemId);
 
-            if (!TryCreateRuntimeBinding(itemObject, out RuntimeItemBinding binding))
+            RuntimeItemBinding binding = new RuntimeItemBinding
             {
-                itemObject.SetActive(false);
-                Destroy(itemObject);
-                continue;
-            }
+                ItemId = workingEntries[i].ItemId,
+                ItemType = workingEntries[i].ItemType,
+                View = view
+            };
 
-            PrepareRuntimeItem(binding);
-            BindRuntimeItem(binding, workingEntries[i]);
-            itemObject.SetActive(true);
-            binding.ItemId = workingEntries[i].ItemId;
-            binding.ItemType = workingEntries[i].ItemType;
+            PrepareRuntimeItem(view);
+            BindRuntimeItem(view, workingEntries[i]);
             runtimeItems.Add(binding);
         }
 
@@ -457,11 +399,11 @@ public sealed class MiscContentsUIController : UIControllerBase
     {
         for (int i = 0; i < workingEntries.Count && i < runtimeItems.Count; i++)
         {
-            RuntimeItemBinding binding = runtimeItems[i];
-            if (binding == null || binding.GameObject == null)
+            MiscItemFrameUI view = runtimeItems[i].View;
+            if (view == null)
                 continue;
 
-            BindRuntimeItem(binding, workingEntries[i]);
+            BindRuntimeItem(view, workingEntries[i]);
         }
 
         forceRebuild = false;
@@ -485,40 +427,40 @@ public sealed class MiscContentsUIController : UIControllerBase
         runtimeItems.Clear();
     }
 
-    private static void PrepareRuntimeItem(RuntimeItemBinding binding)
+    private static void PrepareRuntimeItem(MiscItemFrameUI view)
     {
-        if (binding == null)
+        if (view == null)
             return;
 
-        if (binding.Button != null)
+        if (view.Button != null)
         {
-            binding.Button.onClick.RemoveAllListeners();
-            binding.Button.transition = Selectable.Transition.None;
-            binding.Button.interactable = true;
+            view.Button.onClick.RemoveAllListeners();
+            view.Button.transition = Selectable.Transition.None;
+            view.Button.interactable = true;
         }
 
-        if (binding.IconImage != null)
-            binding.IconImage.preserveAspect = true;
+        if (view.IconImage != null)
+            view.IconImage.preserveAspect = true;
 
-        if (binding.CountText != null)
-            binding.CountText.gameObject.SetActive(true);
+        if (view.CountText != null)
+            view.CountText.gameObject.SetActive(true);
     }
 
-    private static void BindRuntimeItem(RuntimeItemBinding binding, MiscItemEntry entry)
+    private static void BindRuntimeItem(MiscItemFrameUI view, MiscItemEntry entry)
     {
-        if (binding == null || entry == null)
+        if (view == null || entry == null)
             return;
 
-        if (binding.IconImage != null)
+        if (view.IconImage != null)
         {
-            binding.IconImage.sprite = entry.Icon;
-            binding.IconImage.enabled = entry.Icon != null;
+            view.IconImage.sprite = entry.Icon;
+            view.IconImage.enabled = entry.Icon != null;
         }
 
-        if (binding.CountText != null)
+        if (view.CountText != null)
         {
-            binding.CountText.gameObject.SetActive(true);
-            binding.CountText.text = FormatAmount(entry.Amount);
+            view.CountText.gameObject.SetActive(true);
+            view.CountText.text = FormatAmount(entry.Amount);
         }
     }
 
@@ -709,18 +651,6 @@ public sealed class MiscContentsUIController : UIControllerBase
         return true;
     }
 
-    private static float GetSliderValue(BigDouble amount)
-    {
-        if (amount <= BigDouble.Zero)
-            return 1f;
-
-        double value = amount.ToDouble();
-        if (double.IsNaN(value) || double.IsInfinity(value) || value <= 1d)
-            return 1f;
-
-        return value >= 9999d ? 9999f : (float)value;
-    }
-
     private static string FormatAmount(BigDouble amount)
     {
         if (amount <= BigDouble.Zero)
@@ -742,7 +672,7 @@ public sealed class MiscContentsUIController : UIControllerBase
         int extensionIndex = key.LastIndexOf(".", StringComparison.Ordinal);
         if (extensionIndex > 0)
         {
-            sprite = Resources.Load<Sprite>(key.Substring(0, extensionIndex));
+            sprite = Resources.Load<Sprite>(key[..extensionIndex]);
             if (sprite != null)
                 return sprite;
         }
@@ -752,144 +682,11 @@ public sealed class MiscContentsUIController : UIControllerBase
         if (resourcesIndex < 0)
             return null;
 
-        string relativePath = key.Substring(resourcesIndex + resourcesToken.Length);
+        string relativePath = key[(resourcesIndex + resourcesToken.Length)..];
         int relativeExtensionIndex = relativePath.LastIndexOf(".", StringComparison.Ordinal);
         if (relativeExtensionIndex > 0)
-            relativePath = relativePath.Substring(0, relativeExtensionIndex);
+            relativePath = relativePath[..relativeExtensionIndex];
 
         return Resources.Load<Sprite>(relativePath);
-    }
-
-    private static bool TryCreateRuntimeBinding(GameObject itemObject, out RuntimeItemBinding binding)
-    {
-        binding = null;
-        if (itemObject == null || !TryFindItemFrameBinding(itemObject.transform, out Button button, out Image iconImage, out TMP_Text countText))
-            return false;
-
-        binding = new RuntimeItemBinding
-        {
-            GameObject = itemObject,
-            Button = button,
-            IconImage = iconImage,
-            CountText = countText
-        };
-        return true;
-    }
-
-    private static bool IsItemFramePrefab(GameObject prefab)
-    {
-        return prefab != null && TryFindItemFrameBinding(prefab.transform, out _, out _, out _);
-    }
-
-    private static Transform FindItemFrameTemplate(Transform root)
-    {
-        if (root == null)
-            return null;
-
-        if (TryFindItemFrameBinding(root, out _, out _, out _) &&
-            string.Equals(root.name, ItemFrameName, StringComparison.Ordinal))
-            return root;
-
-        for (int i = 0; i < root.childCount; i++)
-        {
-            Transform result = FindItemFrameTemplate(root.GetChild(i));
-            if (result != null)
-                return result;
-        }
-
-        if (TryFindItemFrameBinding(root, out _, out _, out _))
-            return root;
-
-        return null;
-    }
-
-    private static bool TryFindItemFrameBinding(Transform root, out Button button, out Image iconImage, out TMP_Text countText)
-    {
-        button = null;
-        iconImage = null;
-        countText = null;
-
-        if (root == null)
-            return false;
-
-        button = root.GetComponent<Button>();
-        iconImage = FindComponentRecursive<Image>(root, ItemIconName);
-        countText = FindComponentRecursive<TMP_Text>(root, ItemCountName);
-
-        return button != null && iconImage != null && countText != null;
-    }
-
-    private static RectTransform FindRectTransformRecursive(RectTransform root, string targetName)
-    {
-        return FindTransformRecursive(root, targetName) as RectTransform;
-    }
-
-    private static T FindComponentRecursive<T>(Transform root, string targetName) where T : Component
-    {
-        Transform transform = FindTransformRecursive(root, targetName);
-        return transform != null ? transform.GetComponent<T>() : null;
-    }
-
-    private static T FindComponentRecursive<T>(RectTransform root, string targetName) where T : Component
-    {
-        Transform transform = FindTransformRecursive(root, targetName);
-        return transform != null ? transform.GetComponent<T>() : null;
-    }
-
-    private static Transform FindTransformRecursive(Transform root, string targetName)
-    {
-        if (root == null)
-            return null;
-
-        if (root.name == targetName)
-            return root;
-
-        for (int i = 0; i < root.childCount; i++)
-        {
-            Transform result = FindTransformRecursive(root.GetChild(i), targetName);
-            if (result != null)
-                return result;
-        }
-
-        return null;
-    }
-}
-
-public static class MiscContentsUIBootstrap
-{
-    private static bool isRegistered;
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    private static void Initialize()
-    {
-        if (!isRegistered)
-        {
-            SceneManager.sceneLoaded += HandleSceneLoaded;
-            isRegistered = true;
-        }
-
-        AttachControllers();
-    }
-
-    private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        AttachControllers();
-    }
-
-    private static void AttachControllers()
-    {
-        RectTransform[] roots = UnityEngine.Object.FindObjectsByType<RectTransform>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None);
-
-        for (int i = 0; i < roots.Length; i++)
-        {
-            RectTransform root = roots[i];
-            if (root == null || root.name != MiscContentsUIController.RootObjectName)
-                continue;
-
-            if (root.GetComponent<MiscContentsUIController>() == null)
-                root.gameObject.AddComponent<MiscContentsUIController>();
-        }
     }
 }
