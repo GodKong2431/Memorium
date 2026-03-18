@@ -40,7 +40,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
     private Collider[] hitBuffer = new Collider[SkillConstants.HIT_BUFFER_SIZE];//타격 대상 버퍼, nonalloc 저장용도
 
-    // 기즈모 디버그용, 다른 시각적 방식으로 바꾸는게 좋을것 같음.
+    // 기즈모 디버그용
     private SkillData debugLastSkillData;
     private Vector3 debugLastCastPos;
     private Vector3 debugLastCastDir;
@@ -161,7 +161,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     }
     private IEnumerator SkillSequence(SkillDataContext dataContext, float extraDelay = 0)
     {
-
+        if (dataContext == null) yield return null;
         SkillData data = dataContext.skillData;
         debugLastSkillData = data;
         if(extraDelay > 0)
