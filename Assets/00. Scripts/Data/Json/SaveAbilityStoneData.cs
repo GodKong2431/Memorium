@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class SaveAbilityStoneData:ISaveData
 {
 
@@ -22,6 +23,7 @@ public class SaveAbilityStoneData:ISaveData
         if (!onCBT)
         {
             abiltyStoneDictDatas = null;
+            onCBT = true;
         }
 
 
