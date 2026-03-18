@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 
 // 스테이지 진행 상태, 보상 세팅, 처치 진행도, 씬 전환 시 진입 상태를 관리한다.
@@ -83,6 +84,8 @@ public class StageManager : Singleton<StageManager>
     Coroutine stageMoveCoroutine;
 
     public PlayerStateMachine player;
+
+    public bool dungeonClear=false;
 
     public bool stageChanging
     {
@@ -272,6 +275,7 @@ public class StageManager : Singleton<StageManager>
 
         if (curStageType == StageType.NormalStage)
         {
+            player.GetComponent<NavMeshAgent>().enabled = false;
             onFailedStage = false;
             if (stageKeyList != null && curStage < stageKeyList.Count)
                 curStage++;
@@ -288,6 +292,7 @@ public class StageManager : Singleton<StageManager>
             }
 
             OnStageClearOrFailed.Invoke();
+            player.GetComponent<NavMeshAgent>().enabled = true;
         }
         else
         {
@@ -296,11 +301,23 @@ public class StageManager : Singleton<StageManager>
                 maxStage[(int)curStageType - (int)StageType.NormalStage] = curStage;
                 saveStageData.SetMaxStage(curStageType, curStage);
             }
+
+            player.GetComponent<NavMeshAgent>().enabled = false;
+            player.GetComponent<Rigidbody>().isKinematic = true;
+
+            yield return new WaitUntil(() => dungeonClear);
+            dungeonClear = false;
+            
             SetStageType(StageType.NormalStage, normalStage);
             SceneController.Instance.LoadScene(SceneType.StageScene);
         }
 
         stageMoveCoroutine = null;
+    }
+
+    public void CheckDungeonClear()
+    {
+        dungeonClear=true;
     }
 
     // 스테이지 실패 처리
@@ -342,6 +359,13 @@ public class StageManager : Singleton<StageManager>
         {
             if (failedDuringBossStage)
                 MarkManualBossSummonRequiredForCurrentStage();
+
+
+            player.GetComponent<NavMeshAgent>().enabled = false;
+            player.GetComponent<Rigidbody>().isKinematic = true;
+
+            yield return new WaitUntil(() => dungeonClear);
+            dungeonClear = false;
 
             SetStageType(StageType.NormalStage, normalStage);
             SceneController.Instance.LoadScene(SceneType.StageScene);
