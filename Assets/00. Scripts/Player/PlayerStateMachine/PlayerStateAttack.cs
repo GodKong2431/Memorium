@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 [System.Serializable]
@@ -56,7 +56,7 @@ public class PlayerStateAttack : IPlayerState
 
         float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
         
-        if (!ctx.playerSkillHandler.ReadySkill(dist) && dist > ctx.AttackRange)
+        if (!ctx.playerSkillHandler.ReadySkill(dist) && !ctx.playerSkillHandler.IsCasting() && dist > ctx.AttackRange)
         {
             ctx.RequestState(PlayerStateType.Chase);
             return;
@@ -87,7 +87,7 @@ public class PlayerStateAttack : IPlayerState
         float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
         
     
-        if (!ctx.playerSkillHandler.AutoCast() && dist <= ctx.AttackRange && Time.time >= ctx.NextAttackTime)
+        if (!ctx.playerSkillHandler.AutoCast() && !ctx.playerSkillHandler.IsCasting() && !ctx.playerSkillHandler.IsChanneling() && dist <= ctx.AttackRange && Time.time >= ctx.NextAttackTime)
         {
             RandomAnimation(ctx);
             ctx.Animator.SetBool("AttackReady", true);
