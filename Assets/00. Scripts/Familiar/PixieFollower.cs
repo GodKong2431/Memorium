@@ -197,21 +197,13 @@ public class PixieFollower : MonoBehaviour
         DataManager.Instance.FairyGradeDict.TryGetValue(fairyInfo.gradeID, out var gradeInfo);
         if (string.IsNullOrEmpty(gradeInfo.auraEffectPrefabPath)) return;
 
-        gradeEffect = PoolableParticleManager.Instance.SpawnParticle(
-            gradeInfo.auraEffectPrefabPath + ".prefab", transform, false);
-    }
 
-    private void SpawnEffect(GameObject prefab, Transform target, bool follow = false)
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(gradeInfo.auraEffectPrefabPath + ".prefab", transform, true, false,onSpawned : OnGradeEffectSpawned));
+    }
+    private void OnGradeEffectSpawned(PoolableParticle particle)
     {
-        if (prefab == null || target == null) return;
-
-        var obj = ObjectPoolManager.Get(prefab, target.position, Quaternion.identity);
-        if (follow)
-        {
-            var particle = obj.GetComponent<PoolableParticle>();
-            particle?.SetFollow(target);
-            particle?.SetAutoReturn(false);
-            gradeEffect = particle;
-        }
+        gradeEffect = particle;
     }
+
+
 }

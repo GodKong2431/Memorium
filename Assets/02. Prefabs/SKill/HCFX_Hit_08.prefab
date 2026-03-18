@@ -9859,6 +9859,7 @@ GameObject:
   - component: {fileID: 3061154100438111635}
   - component: {fileID: 5199689012435250513}
   - component: {fileID: 6991029417807336713}
+  - component: {fileID: -3318264538032471305}
   m_Layer: 0
   m_Name: HCFX_Hit_08
   m_TagString: Untagged
@@ -14842,6 +14843,18 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &-3318264538032471305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3183044766619293935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 655bd8dd654fedd4ab726334799bb09d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoolableParticle
 --- !u!1 &4659281814995397640
 GameObject:
   m_ObjectHideFlags: 0

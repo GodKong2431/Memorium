@@ -18,6 +18,6 @@ public class SkillInfoTable : TableBase
     public SkillType skillType;
     public string skillVFX;
     public string skillSound;
-    public string desc;
     public string skillIcon;
+    public string desc;
 }

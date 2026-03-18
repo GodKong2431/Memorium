@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEngine.GraphicsBuffer;
 
 /// <summary>
 /// 스킬 실행하는 컴포넌트, 플레이어/몬스터/분신 어디든 붙여도 나가도록
@@ -19,7 +20,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     [SerializeField] SkillDeploy deployPrefab;
     [SerializeField] GameObject auraPrefab;
     [SerializeField] GameObject shadowPrepab;
-    [SerializeField] FireZone fireZonePrefab; 
+    [SerializeField] FireZone fireZonePrefab;
+    [SerializeField] string effectPath = "Assets/02. Prefabs/SKill/HCFX_Hit_08.prefab";
 
     private SkillDataContext skillDataContext;
     private bool isCasting = false;
@@ -114,7 +116,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     {
         if (isCasting || isChanneling) return;
 
-        skillDataContext= dataContext;
+        isCasting = true;
+        skillDataContext = dataContext;
 
         if (applyAddon)
             dataContext.ResetAddonState();
@@ -138,13 +141,13 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     private IEnumerator SkillSequence(SkillDataContext dataContext, float extraDelay = 0)
     {
 
-        isCasting = true;
         SkillData data = dataContext.skillData;
         debugLastSkillData = data;
         if(extraDelay > 0)
         {
             yield return CoroutineManager.waitForSeconds(extraDelay);
         }
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.skillTable.skillVFX, transform, true,rotation: transform.rotation));
         yield return SkillSequenceMove(data);
 
         ResetAgentWarp();
@@ -270,7 +273,6 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     private void ProcessHit(int hitCount, SkillDataContext data, Collider[] hitBuffer, bool applyAddon)
     {
         if (hitCount == 0) return;
-
         ISkillAddonStrategy m4Strategy = null;
         if (applyAddon && data.m4Data != null)
         {
@@ -289,9 +291,12 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
             {
                 target.TakeDamage(statProvider.GetAttack());
 
+                PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(effectPath, target.transform, true));
+
                 if (m4Strategy is ISkillHitAddon hitAddon)
                 {
                     hitAddon.OnHit(this, target.transform, data, targetLayer);
+                    PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.m4Data.m4VFX, target.transform, true));
                 }
 
                 if (hitBuffer[i].TryGetComponent<EffectController>(out var controller))

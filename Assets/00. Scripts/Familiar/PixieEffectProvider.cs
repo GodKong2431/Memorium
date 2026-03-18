@@ -1,6 +1,7 @@
     using System;
     using System.Collections.Generic;
-    using UnityEngine;
+using Unity.VisualScripting;
+using UnityEngine;
     using UnityEngine.AddressableAssets;
     using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -136,7 +137,7 @@
             }
 
             if (hasBuff) 
-                PoolableParticleManager.Instance.SpawnParticle(buffEffectKey, playerTransform, true);
+                PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(buffEffectKey, playerTransform, true,true));
             if (hasDebuff) 
                 SpawnDebuffEffects();
         }
@@ -185,7 +186,7 @@
         int count = DetectEnemies(effectRadius);
         for (int i = 0; i < count; i++)
         {
-            PoolableParticleManager.Instance.SpawnParticle(debuffEffectKey, hitBuffer[i].transform, true);
+            PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(debuffEffectKey, hitBuffer[i].transform,true,true));
         }
     }
     private int DetectEnemies(float radius)

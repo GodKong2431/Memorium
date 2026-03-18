@@ -7,7 +7,7 @@ public class SkillModule5Table : TableBase
     public int m5ItemID;
     public int skillID;
     public M5Type m5Type;
-    public float damage;
+    public float tickInterval;
     public ApplyType applyType;
     public float duration;
     public int maxStack;
@@ -15,5 +15,6 @@ public class SkillModule5Table : TableBase
     public string icon;
     public string sound;
     public string m5VFX;
+    public string m5VFX2;
     public string desc;
 }
