@@ -75,6 +75,7 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         saveAbilityStoneData.LoadAbilityStoneData(so);
 
         LoadStone = true;
+        CharacterStatManager.Instance.AllStatUpdate();
     }
 
     private void OnDisable()

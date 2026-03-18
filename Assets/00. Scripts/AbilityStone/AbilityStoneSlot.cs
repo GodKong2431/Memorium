@@ -18,7 +18,7 @@ public class AbilityStoneSlot
     public AbilityStoneSlot(StatType slotType, List<bool> counter)
     {
         SlotType = slotType;
-        successCounter = counter;  
+        successCounter = counter != null ? new List<bool>(counter) : new List<bool>();
     }
     public void TypeSetting(StatType type)
     {

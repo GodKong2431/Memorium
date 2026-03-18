@@ -209,9 +209,17 @@ public sealed partial class StoneUI : UIControllerBase
         }
 
         InventoryManager inventoryManager = InventoryManager.Instance;
-        currencyModule = inventoryManager != null
-            ? inventoryManager.GetModule<CurrencyInventoryModule>()
-            : null;
+        if (inventoryManager == null || !inventoryManager.DataLoad)
+        {
+            currencyModule = null;
+            return false;
+        }
+
+        currencyModule = inventoryManager.GetModule<CurrencyInventoryModule>();
+        if (currencyModule == null)
+        {
+            return false;
+        }
 
         EnsureStatManagerSubscription();
         return true;
@@ -475,18 +483,33 @@ public sealed partial class StoneUI : UIControllerBase
 
     private void RefreshSharedInfo()
     {
-        int totalSuccessCount = GetTotalSuccessCount();
+        AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
+        bool stoneDataReady = abilityStoneManager != null
+            && abilityStoneManager.LoadStone
+            && abilityStoneManager.so != null;
+
+        InventoryManager inventoryManager = InventoryManager.Instance;
+        bool inventoryDataReady = inventoryManager != null && inventoryManager.DataLoad;
+
+        if (inventoryDataReady && currencyModule == null)
+        {
+            currencyModule = inventoryManager.GetModule<CurrencyInventoryModule>();
+        }
+
+        int totalSuccessCount = stoneDataReady ? GetTotalSuccessCount() : 0;
 
         if (totalText != null)
         {
-            totalText.text = $"+ {totalSuccessCount}";
+            totalText.text = stoneDataReady
+                ? $"+ {totalSuccessCount}"
+                : TextDataLoading;
         }
 
         if (goldText != null)
         {
-            goldText.text = currencyModule != null
+            goldText.text = inventoryDataReady && currencyModule != null
                 ? currencyModule.GetAmount(CurrencyType.Gold).ToString()
-                : BigDouble.Zero.ToString();
+                : TextDataLoading;
         }
     }
 

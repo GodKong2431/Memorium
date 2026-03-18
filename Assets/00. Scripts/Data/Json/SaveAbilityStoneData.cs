@@ -29,27 +29,28 @@ public class SaveAbilityStoneData:ISaveData
 
     public void LoadAbilityStoneData(AbilityStoneSO so)
     {
-        if (abiltyStoneDictDatas.Count <= 0)
+        if (abiltyStoneDictDatas == null || abiltyStoneDictDatas.Count <= 0)
             InitAblityStoneData();
         foreach (AbiltyStoneDictData stoneDictData in abiltyStoneDictDatas)
         {
-            //먼저 is unlock값 불러온다
-            so.AbilityStoneDict[(StoneGrade)stoneDictData.stoneGrade]
-                .isUnlock = stoneDictData.abilityStoneData.isUnlock;
+            if (!so.AbilityStoneDict.TryGetValue((StoneGrade)stoneDictData.stoneGrade, out AbilityStone stone)
+                || stone == null)
+            {
+                continue;
+            }
 
             List<AbilityStoneSlot> abilityStoneSlots = new List<AbilityStoneSlot>();
             if (stoneDictData.abilityStoneData.slots != null)
             {
                 foreach (AbilityStoneSlotData slotData in stoneDictData.abilityStoneData.slots)
                 {
-                    //어빌리티 스톤 만든다
                     AbilityStoneSlot slot = new AbilityStoneSlot((StatType)slotData.statType, slotData.successCounter);
                     abilityStoneSlots.Add(slot);
                 }
-                //어빌리티 스톤 리스트 자체를 전달하라
-                so.AbilityStoneDict[(StoneGrade)stoneDictData.stoneGrade]
-                    .Slots = abilityStoneSlots;
             }
+
+            stone.isUnlock = stoneDictData.abilityStoneData.isUnlock;
+            stone.RestoreLoadedSlots(abilityStoneSlots);
         }
     }
 
