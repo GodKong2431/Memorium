@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "AbilityStoneSO", menuName = "Scriptable Objects/AbilityStoneSO")]
-public class AblityStoneSO : ScriptableObject
+public class AbilityStoneSO : ScriptableObject
 {
     [SerializeField] public int stoneID;
     [SerializeField] public int stoneStatProbabilityID;
