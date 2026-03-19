@@ -318,10 +318,10 @@ public sealed class PixieContentsUIController : UIControllerBase
 
         foreach (StringTable entry in DataManager.Instance.StringDict.Values)
         {
-            if (entry == null || string.IsNullOrWhiteSpace(entry.stringKey) || string.IsNullOrWhiteSpace(entry.Kor))
+            if (entry == null || string.IsNullOrWhiteSpace(entry.stringKey) || string.IsNullOrWhiteSpace(entry.Kr))
                 continue;
 
-            localizedTextByKey[entry.stringKey] = entry.Kor;
+            localizedTextByKey[entry.stringKey] = entry.Kr;
         }
     }
 
