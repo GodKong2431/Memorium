@@ -2,7 +2,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class ScreenShotTaker : MonoBehaviour
+public class ScreenShotTaker : Singleton<ScreenShotTaker>
 {
     void Update()
     {
@@ -12,8 +12,6 @@ public class ScreenShotTaker : MonoBehaviour
             
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
-                
-                
             
             string filename = "ScreenShot_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png";
             string fullPath = Path.Combine(folder, filename);

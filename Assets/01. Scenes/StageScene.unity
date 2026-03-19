@@ -2164,6 +2164,50 @@ MonoBehaviour:
   maps: []
   firstMapSetting: 0
   monsterSpawner: {fileID: 120024786}
+--- !u!1 &1862494668
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1862494670}
+  - component: {fileID: 1862494669}
+  m_Layer: 0
+  m_Name: ScreenShotTaker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1862494669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1862494668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be4610e885403b94fbe8ff9d6e541cce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenShotTaker
+--- !u!4 &1862494670
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1862494668}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -17.30868, y: -2.07007, z: 2.11462}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1880989251 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1627880742090397886, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
@@ -3372,6 +3416,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5139046855255453810, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5443225800972919313, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3648,6 +3696,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8496176386911544868, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8540430277244131371, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: reinforceController
       value: 
@@ -3774,3 +3826,4 @@ SceneRoots:
   - {fileID: 447716697}
   - {fileID: 120024785}
   - {fileID: 2099775673}
+  - {fileID: 1862494670}
