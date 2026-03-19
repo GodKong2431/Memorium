@@ -16,4 +16,5 @@ public class MonsterBasestatTable : TableBase
     public bool targetPixyCheck;
     public string animation;
     public string effect;
+    public string desc;
 }
