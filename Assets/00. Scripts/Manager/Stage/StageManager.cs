@@ -426,7 +426,9 @@ public class StageManager : Singleton<StageManager>
                 SceneController.Instance.LoadScene(SceneType.StageScene);
             }
         }
+
         stageMoveCoroutine = null;
+        player._ctx.Animator.SetTrigger("Alive");
     }
     // 스테이지 타입/레벨 변경 요청을 큐에 저장하고 즉시 상태에 반영한다.
     public void SetStageType(StageType dungeonType, int level)
