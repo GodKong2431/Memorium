@@ -2082,7 +2082,7 @@ Animator:
   m_GameObject: {fileID: 6279837177258545959}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: a512f6ed7b0b84b678b866d4bff6a6e0, type: 3}
-  m_Controller: {fileID: 9100000, guid: 9cbffd62650f52a4ebb99556042ce88c, type: 2}
+  m_Controller: {fileID: 22100000, guid: 1f622c5724431a5469b742241e1dbfe8, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -2140,7 +2140,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 0
 --- !u!114 &-1321372848074524620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2218,8 +2218,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.9810257
-  m_Center: {x: 0, y: 0.4810257, z: 0}
+  m_Radius: 1.1028045
+  m_Center: {x: 0.0000000072785356, y: 0.4810264, z: 0.12177835}
 --- !u!1 &6344245725210520688
 GameObject:
   m_ObjectHideFlags: 0
