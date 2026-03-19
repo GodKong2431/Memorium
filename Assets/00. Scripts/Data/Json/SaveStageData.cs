@@ -67,6 +67,7 @@ public class SaveStageData :ISaveData
 
     public void SetMaxStage(StageType type, int stage)
     {
+        isDirty = true;
         if (GetMaxStage(type) < stage)
             maxStage[(int)type - (int)StageType.NormalStage] = stage;
         else

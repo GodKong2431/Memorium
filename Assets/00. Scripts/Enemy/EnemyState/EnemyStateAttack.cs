@@ -118,7 +118,7 @@ public class EnemyStateAttack : IEnemyState
                 // 보스 스킬 공격: BossManageTable 기반으로 대미지/속성 적용
                 if (!_damageApplied && ctx.PlayerTransform != null)
                 {
-                    float dist = Vector3.Distance(ctx.EnemyTransform.position, ctx.PlayerTransform.position);
+                    float dist = ctx.GetBoundsDistanceToPlayer();
                     if (dist <= ctx.AttackRange)
                     {
                         var damageable = ctx.PlayerTransform.GetComponent<IDamageable>();
@@ -155,7 +155,7 @@ public class EnemyStateAttack : IEnemyState
             // 공격 타이밍에 플레이어가 사거리 내에 있으면 TakeDamage 호출
             if (!_damageApplied && ctx.PlayerTransform != null)
             {
-                float dist = Vector3.Distance(ctx.EnemyTransform.position, ctx.PlayerTransform.position);
+                float dist = ctx.GetBoundsDistanceToPlayer();
                 if (dist <= ctx.AttackRange)
                 {
                     var damageable = ctx.PlayerTransform.GetComponent<IDamageable>();

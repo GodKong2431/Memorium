@@ -20,6 +20,8 @@ public class MonsterAnimationConfig : ScriptableObject
     [SerializeField] private string triggerOnhit = "Onhit";
     [Tooltip("사망")]
     [SerializeField] private string triggerDead = "Die";
+    [Tooltip("보스 등장(스폰) 연출")]
+    [SerializeField] private string triggerSpawn = "Spawn";
 
     [Header("Float 파라미터 (선택, 이동/회전 블렌드용)")]
     [SerializeField] private string paramLocomotion = "Locomotion";
@@ -35,7 +37,8 @@ public class MonsterAnimationConfig : ScriptableObject
         Attack,
         AttackBoss,
         Onhit,
-        Die
+        Die,
+        Spawn
     }
 
     public string GetTrigger(TriggerKey key)
@@ -48,6 +51,7 @@ public class MonsterAnimationConfig : ScriptableObject
             TriggerKey.AttackBoss => triggerAttackBoss,
             TriggerKey.Onhit => triggerOnhit,
             TriggerKey.Die => triggerDead,
+            TriggerKey.Spawn => triggerSpawn,
             _ => key.ToString()
         };
     }
