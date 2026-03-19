@@ -144,11 +144,11 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         PoolableParticleManager.Instance.Preload(dataContext?.m5DataB?.m5VFX);
         PoolableParticleManager.Instance.Preload(dataContext?.m5DataB?.m5VFX2);
 
-        PoolableParticleManager.Instance.Preload(projectilePath);
-        PoolableParticleManager.Instance.Preload(deployPath);
-        PoolableParticleManager.Instance.Preload(fireZonePath);
-        PoolableParticleManager.Instance.Preload(auraPath);
-        PoolableParticleManager.Instance.Preload(shadowPath);
+        PoolAddressableManager.Instance.Preload(projectilePath);
+        PoolAddressableManager.Instance.Preload(deployPath);
+        PoolAddressableManager.Instance.Preload(fireZonePath);
+        PoolAddressableManager.Instance.Preload(auraPath);
+        PoolAddressableManager.Instance.Preload(shadowPath);
     }
 
     /// <summary>

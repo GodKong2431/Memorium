@@ -229,6 +229,8 @@ public class PoolAddressableManager : Singleton<PoolAddressableManager>
             }
         }
 
+        //if (IsValidKey(key) && prefabCache.TryGetValue(key, out var prefab))
+        //    return prefab;
         return null;
     }
 

@@ -7,5 +7,7 @@ public enum EnemyStateType
     Chase,
     Attack,
     Onhit,
-    Dead
+    Dead,
+    /// <summary>보스 전용: 스폰 연출 후 Chase로 전환</summary>
+    Spawn
 }
