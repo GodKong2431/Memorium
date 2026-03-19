@@ -81,7 +81,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             { EnemyStateType.Chase, new EnemyStateChase() },
             { EnemyStateType.Attack, new EnemyStateAttack() },
             { EnemyStateType.Onhit, new EnemyStateOnhit() },
-            { EnemyStateType.Dead, new EnemyStateDead() }
+            { EnemyStateType.Dead, new EnemyStateDead() },
+            { EnemyStateType.Spawn, new EnemyStateSpawn() }
         };
     }
 
@@ -144,8 +145,11 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             _ctx.Agent.stoppingDistance = data.attackRange;
         }
 
-        // 스폰되면 바로 chase 상태로 전환
-        ChangeState(EnemyStateType.Chase);
+        // 보스: 스폰 연출 후 Chase. 일반몹: 바로 Chase
+        if (_ctx.IsBoss)
+            ChangeState(EnemyStateType.Spawn);
+        else
+            ChangeState(EnemyStateType.Chase);
     }
 
     /// <summary>
@@ -269,6 +273,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             _ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Idle);
         }
 
-        ChangeState(EnemyStateType.Chase);
+        // 보스는 풀 재스폰에서도 Spawn 연출 후 Chase로 가야 일관적임
+        if (_ctx.IsBoss)
+            ChangeState(EnemyStateType.Spawn);
+        else
+            ChangeState(EnemyStateType.Chase);
     }
 }
