@@ -56,6 +56,8 @@ public class AbilityStone
     
     public int currentProbabilityCount;
 
+    public bool stoneMult;
+    
     public int GetOpportunityCount(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= slotUpOpportunitys.Count)
@@ -126,6 +128,7 @@ public class AbilityStone
         firstUpOpportunity = table.stoneFirstUpOpportunity;
         secondUpOpportunity = table.stoneSecondUpOpportunity;
         thirdUpOpportunity = table.stoneThirdUpOpportunity;
+        stoneMult = table.stoneTier;
         
         AbilityStoneManager.Instance.OnReset += Reset;
         
