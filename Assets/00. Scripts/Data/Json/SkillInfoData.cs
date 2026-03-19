@@ -54,17 +54,29 @@ public struct SkillGradeData
 }
 
 [Serializable]
-public struct SkillPresetData
+public class SkillPresetData
 {
     public List<SkillPresetSlotData> skillPresetSlotData;
+
+    public SkillPresetData()
+    {
+        skillPresetSlotData = new List<SkillPresetSlotData>();
+    }
 }
 
 [Serializable]
-public struct SkillPresetSlotData
+public class SkillPresetSlotData
 {
     public int skillId;
     public List<int> m5JemIDs;
     public int m4JemID;
+
+    public SkillPresetSlotData()
+    {
+        skillId = -1;
+        m5JemIDs = new List<int>();
+        m4JemID = -1;
+    }
 
     public SkillPresetSlotData(int m5JemIdCount)
     {

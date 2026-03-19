@@ -13,6 +13,7 @@ public class BattleSkillSlotView : MonoBehaviour
     [SerializeField] private Button rootButton;
     // 스킬 아이콘 이미지를 표시합니다.
     [SerializeField] private Image skillIcon;
+    [SerializeField] private Sprite emptySprite;
     // 쿨타임 마스크 fill 이미지를 표시합니다.
     [SerializeField] private Image cooldownFill;
     // 남은 쿨타임 숫자 텍스트입니다.
@@ -25,7 +26,6 @@ public class BattleSkillSlotView : MonoBehaviour
     // 외부에서 주입하는 슬롯 클릭 콜백입니다.
     private Action clickListener;
     // 빈 슬롯일 때 되돌릴 기본 아이콘입니다.
-    private Sprite defaultSprite;
     // 빈 슬롯일 때 되돌릴 기본 아이콘 색상입니다.
     private Color defaultColor = Color.white;
     // 강조 상태 해제 시 복원할 버튼 색상입니다.
@@ -46,7 +46,6 @@ public class BattleSkillSlotView : MonoBehaviour
 
         if (skillIcon != null)
         {
-            defaultSprite = skillIcon.sprite;
             defaultColor = skillIcon.color;
         }
 
@@ -116,13 +115,15 @@ public class BattleSkillSlotView : MonoBehaviour
 
         if (icon != null)
         {
+            skillIcon.enabled = true;
             skillIcon.sprite = icon;
             skillIcon.color = Color.white;
             return;
         }
 
-        skillIcon.sprite = defaultSprite;
+        skillIcon.sprite = emptySprite;
         skillIcon.color = defaultColor;
+        skillIcon.enabled = emptySprite != null;
     }
 
     // 슬롯을 완전히 빈 상태로 초기화합니다.

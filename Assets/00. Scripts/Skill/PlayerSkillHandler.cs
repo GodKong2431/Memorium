@@ -67,6 +67,14 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
         for (int i = 0; i < slots.Length; i++)
         {
+            if (slots[i] == null || slots[i].IsEmpty)
+            {
+                skilldataContexts[i] = null;
+                cooldownTimers[i] = 0f;
+                cooldownTimeMax[i] = 0f;
+                continue;
+            }
+
             ConvertSlotIds(slots[i], out int m4Id, out int m5A, out int m5B);
 
             skilldataContexts[i] = new SkillDataContext(slots[i].skillID, m4Id, m5A, m5B);
@@ -90,20 +98,20 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
     private void OnPresetChanged(int presetIndex)
     {
-        RefreshFromPreset();
+        ApplyPresetSnapshot(presetIndex);
     }
     public void InitFromPreset()
     {
         var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
         if (skillModule == null) return;
-        Init(skillModule.GetCurrentPreset().slots);
+        Init(skillModule.GetCurrentPresetSnapshot().slots);
     }
     public void RefreshFromPreset()
     {
         var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
         if (skillModule == null || skilldataContexts == null) return;
 
-        var slots = skillModule.GetCurrentPreset().slots;
+        var slots = skillModule.GetCurrentPresetSnapshot().slots;
 
         if (slots.Length != skilldataContexts.Length)
         {
@@ -111,8 +119,40 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
             return;
         }
 
+        ApplySlots(slots);
+    }
+
+    private void ApplyPresetSnapshot(int presetIndex)
+    {
+        var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
+        if (skillModule == null)
+            return;
+
+        SkillPreset preset = skillModule.GetPresetSnapshot(presetIndex);
+        if (preset == null || preset.slots == null)
+            return;
+
+        if (skilldataContexts == null || skilldataContexts.Length != preset.slots.Length)
+        {
+            Init(preset.slots);
+            return;
+        }
+
+        ApplySlots(preset.slots);
+    }
+
+    private void ApplySlots(SkillPresetSlot[] slots)
+    {
         for (int i = 0; i < slots.Length; i++)
         {
+            if (slots[i] == null || slots[i].IsEmpty)
+            {
+                skilldataContexts[i] = null;
+                cooldownTimers[i] = 0f;
+                cooldownTimeMax[i] = 0f;
+                continue;
+            }
+
             ConvertSlotIds(slots[i], out int m4Id, out int m5A, out int m5B);
 
             if (skilldataContexts[i] != null)
@@ -127,6 +167,15 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     public void SetSkillContext(int index, int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb =-1)
     {
         if (index < 0 || index >= skilldataContexts.Length) return;
+
+        if (skillID <= 0)
+        {
+            skilldataContexts[index] = null;
+            cooldownTimers[index] = 0f;
+            cooldownTimeMax[index] = 0f;
+            return;
+        }
+
         skilldataContexts[index] = new SkillDataContext(skillID, m4ID, m5IDa, m5IDb);
         cooldownTimers[index] = 0;
         cooldownTimeMax[index] = 0;
@@ -136,6 +185,9 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         m4Id = -1;
         m5A = -1;
         m5B = -1;
+
+        if (slot == null)
+            return;
 
         var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
         if (gemModule == null) return;

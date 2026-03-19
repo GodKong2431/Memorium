@@ -385,7 +385,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     private static SkillPresetSlot GetCurrentPresetSlot(int skillId)
     {
         SkillInventoryModule skillModule = GetSkillModule();
-        SkillPreset currentPreset = skillModule?.GetCurrentPreset();
+        SkillPreset currentPreset = skillModule?.GetCurrentPresetSnapshot();
         if (currentPreset?.slots == null)
             return null;
 

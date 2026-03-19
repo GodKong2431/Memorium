@@ -404,7 +404,7 @@ public class EquipCurrentUIController : UIControllerBase
             ? table.equipmentName
             : table.iconResource;
 
-        return string.IsNullOrEmpty(key) ? null : Resources.Load<Sprite>(key);
+        return EquipmentIconResolver.LoadSprite(key);
     }
 
     private static int GetStarCount(int tier)

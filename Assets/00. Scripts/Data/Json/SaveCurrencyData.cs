@@ -20,6 +20,8 @@ public class SaveCurrencyData : ISaveData
 
     public SerializedDictionary<CurrencyType, int> currencyTypeToKey = new SerializedDictionary<CurrencyType, int>();
 
+    public bool onCBT=false;
+
     //변경 여부 체크
     private bool isDirty = false;
     public bool IsDirty => isDirty;
@@ -30,6 +32,18 @@ public class SaveCurrencyData : ISaveData
 
     public void InitCurrencyData()
     {
+        if (!onCBT)
+        {
+            currencyTypes = null;
+            currencyValues= null;
+            itemId= null;
+            itemValue= null;
+
+            currencyTypeToKey = null;
+
+            onCBT = true;
+        }
+
         if (currencyTypes == null)
         {
             //값 초기화

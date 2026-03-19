@@ -1432,7 +1432,7 @@ public sealed class CharacterInfoPanelController : UIControllerBase
             return null;
 
         string key = string.IsNullOrEmpty(table.iconResource) ? table.equipmentName : table.iconResource;
-        return string.IsNullOrEmpty(key) ? null : Resources.Load<Sprite>(key);
+        return EquipmentIconResolver.LoadSprite(key);
     }
 
     private static int GetEquipmentStarCount(int tier)

@@ -25,6 +25,9 @@ public class SkillPresetHandler
 
     public SkillPreset GetPreset(int index)
     {
+        if (index < 0 || index >= PRESET_COUNT)
+            return null;
+
         return presets[index];
     }
 
@@ -38,6 +41,12 @@ public class SkillPresetHandler
     {
         var preset = presets[currentPresetIndex];
         if (slotIndex < 0 || slotIndex >= preset.slots.Length) return false;
+
+        if (skillID <= 0)
+        {
+            preset.slots[slotIndex].Clear();
+            return true;
+        }
 
         if (!inventory.TryGetValue(skillID, out var skillData)) return false;
         if (!skillData.IsEquippable) return false;

@@ -12,4 +12,6 @@ public class ItemDropTable : TableBase
     public float scrollRate;
     public float gemRate;
     public float keyRate;
+    public float normalBingo;
+    public float bingoItem;
 }

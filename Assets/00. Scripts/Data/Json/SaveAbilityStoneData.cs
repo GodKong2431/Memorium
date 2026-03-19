@@ -3,10 +3,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class SaveAbilityStoneData:ISaveData
 {
 
     public List<AbiltyStoneDictData> abiltyStoneDictDatas;
+
+    public bool onCBT = false;
 
     //변경 여부 체크
     private bool isDirty = false;
@@ -17,6 +20,13 @@ public class SaveAbilityStoneData:ISaveData
 
     public void InitAblityStoneData()
     {
+        if (!onCBT)
+        {
+            abiltyStoneDictDatas = null;
+            onCBT = true;
+        }
+
+
         if (abiltyStoneDictDatas == null||abiltyStoneDictDatas.Count <= 0)
         {
             abiltyStoneDictDatas=new List<AbiltyStoneDictData>();

@@ -670,6 +670,7 @@ MonoBehaviour:
     armorId: 0
     bootsId: 0
     unLockEquipment: []
+    onCBT: 0
   equipmentHandler: {fileID: 1988957294}
   savePlayerData:
     playerLevel: 0
@@ -678,6 +679,7 @@ MonoBehaviour:
     statUpgradeCost_GoldUpgrades: []
     playerStatType_Traits: 
     currentLevel_Traits: 
+    onCBT: 0
   baseStat:
     classType: 0
     baseStatValues:
@@ -1148,6 +1150,7 @@ MonoBehaviour:
   saveQuestData:
     currentQuestId: -1
     currentProgress: 0
+    onCBT: 0
   DataLoad: 0
 --- !u!4 &930009148
 Transform:
@@ -1419,6 +1422,7 @@ MonoBehaviour:
     curStage: 0
     maxStage: 
     onFailedStage: 0
+    onCBT: 0
   DataLoad: 0
   waitNextStageTime: 0.5
   player: {fileID: 0}
@@ -2352,19 +2356,23 @@ MonoBehaviour:
   - {fileID: 4852676407660407096, guid: 54215bd0d2378c84b81525044aa7884b, type: 3}
   - {fileID: 4852676407660407096, guid: 54215bd0d2378c84b81525044aa7884b, type: 3}
   - {fileID: 4852676407660407096, guid: 54215bd0d2378c84b81525044aa7884b, type: 3}
-  - {fileID: 935202585718438857, guid: e92898fe875af0d489def596a7fc5176, type: 3}
-  - {fileID: 935202585718438857, guid: fd94e61b4b77f9f4fb894783cf1de583, type: 3}
-  - {fileID: 935202585718438857, guid: e92898fe875af0d489def596a7fc5176, type: 3}
-  - {fileID: 935202585718438857, guid: fd94e61b4b77f9f4fb894783cf1de583, type: 3}
+  - {fileID: 4852676407660407096, guid: 54215bd0d2378c84b81525044aa7884b, type: 3}
+  - {fileID: 4852676407660407096, guid: 54215bd0d2378c84b81525044aa7884b, type: 3}
+  - {fileID: 4852676407660407096, guid: 54215bd0d2378c84b81525044aa7884b, type: 3}
+  - {fileID: 4852676407660407096, guid: 54215bd0d2378c84b81525044aa7884b, type: 3}
+  - {fileID: 4852676407660407096, guid: 54215bd0d2378c84b81525044aa7884b, type: 3}
   goldDungeonMapGroupPrefab:
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
-  - {fileID: 935202585718438857, guid: fd94e61b4b77f9f4fb894783cf1de583, type: 3}
-  - {fileID: 935202585718438857, guid: e92898fe875af0d489def596a7fc5176, type: 3}
-  - {fileID: 935202585718438857, guid: fd94e61b4b77f9f4fb894783cf1de583, type: 3}
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   expDungeonMapGroupPrefab:
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
@@ -2374,7 +2382,13 @@ MonoBehaviour:
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   rareItemDungeonMapGroupPrefab:
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
+  - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}
   - {fileID: 1667658457754026067, guid: 0fa51559a53423e468295fc6abe17a80, type: 3}

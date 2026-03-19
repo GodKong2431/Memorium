@@ -1,12 +1,12 @@
-using UnityEngine;
-
 [System.Serializable]
 public class SaveQuestData : ISaveData
 {
     //현재 진행 중인 퀘스트 및 진행도를 저장하는 cs
     public int currentQuestId = -1;
     public int currentProgress = 0;
-    
+
+    public bool onCBT = false;
+
     //변경 여부 체크
     private bool isDirty = false;
     public bool IsDirty => isDirty;
@@ -16,6 +16,15 @@ public class SaveQuestData : ISaveData
 
     public (int id, int progress) InitQuestData()
     {
+
+        if (!onCBT)
+        {
+            currentQuestId = -1;
+            currentProgress = 0;
+
+            onCBT = true;
+        }
+
         return (ReturnQuestId(), ReturnProgress());
     }
     public int ReturnQuestId()

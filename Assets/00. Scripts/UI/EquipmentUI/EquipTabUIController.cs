@@ -290,7 +290,7 @@ public class EquipTabUIController : UIControllerBase
             ? table.equipmentName
             : table.iconResource;
 
-        return string.IsNullOrEmpty(key) ? null : Resources.Load<Sprite>(key);
+        return EquipmentIconResolver.LoadSprite(key);
     }
 
     // 장비 등급 티어를 1~5 별 개수로 변환한다.
