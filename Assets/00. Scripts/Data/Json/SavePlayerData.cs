@@ -95,7 +95,7 @@ public class SavePlayerData : ISaveData
 
     public int GetLevel()
     {
-        if (playerLevel <= 0)
+        if (playerLevel <= 0 || !onCBT)
         {
             //playerLevel = 1;
             return 1;
