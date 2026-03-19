@@ -30,12 +30,12 @@ public class PlayerBerserkerOrb : MonoBehaviour
             return;
         }
         Instance = this;
-
-        EnemyKillRewardDispatcher.OnBerserkerOrbEarned += AddBerserkerOrb;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void Init(BerserkmodeManageTable table)
     {
+        if (table == null) return;
         MaxBerserkerOrb = table.berserkCounter;
         Debug.Log(MaxBerserkerOrb);
         NormalBerserkerOrb = table.normalDropQty;
@@ -44,11 +44,22 @@ public class PlayerBerserkerOrb : MonoBehaviour
         Debug.Log(BossBerserkerOrb);
     }
 
+    private void OnEnable()
+    {
+        // 씬 왕복/재활성화 시 중복 구독 방지 후 재구독
+        EnemyKillRewardDispatcher.OnBerserkerOrbEarned -= AddBerserkerOrb;
+        EnemyKillRewardDispatcher.OnBerserkerOrbEarned += AddBerserkerOrb;
+    }
+
+    private void OnDisable()
+    {
+        EnemyKillRewardDispatcher.OnBerserkerOrbEarned -= AddBerserkerOrb;
+    }
+
     private void OnDestroy()
     {
         if (Instance == this)
         {
-            EnemyKillRewardDispatcher.OnBerserkerOrbEarned -= AddBerserkerOrb;
             Instance = null;
         }
     }
