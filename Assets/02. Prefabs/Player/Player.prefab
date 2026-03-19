@@ -7648,7 +7648,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 6923130290550944238}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.22
   m_Speed: 15
   m_Acceleration: 120
   avoidancePriority: 50
@@ -7714,6 +7714,11 @@ MonoBehaviour:
   shadowPrepab: {fileID: 9106158446547060106, guid: ad334d366ce436447a3b287029a8541f, type: 3}
   fireZonePrefab: {fileID: 3087428585756455590, guid: feaf579888b89024e8d3d07f64cb07ed, type: 3}
   effectPath: Assets/02. Prefabs/SKill/HCFX_Hit_08.prefab
+  projectilePath: Assets/02. Prefabs/SKill/Projectile/bullet.prefab
+  deployPath: Assets/02. Prefabs/SKill/Deploy/Deploy.prefab
+  auraPath: Assets/02. Prefabs/SKill/Aura/Aura.prefab
+  shadowPath: Assets/02. Prefabs/SKill/Shadow/Shadow.prefab
+  fireZonePath: Assets/02. Prefabs/SKill/FireZone.prefab
 --- !u!114 &8352981411728179296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7751,7 +7756,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9a57d3a15692f948b3a67936078b5d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PixieSpawner
-  pixiePrefab: {fileID: 0}
 --- !u!136 &1635466484283275835
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -7771,10 +7775,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1
-  m_Height: 1.7942595
+  m_Radius: 0.2
+  m_Height: 1
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.42, z: 0}
 --- !u!1 &6945704506677017003
 GameObject:
   m_ObjectHideFlags: 0
