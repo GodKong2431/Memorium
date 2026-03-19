@@ -161,7 +161,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     }
     private IEnumerator SkillSequence(SkillDataContext dataContext, float extraDelay = 0)
     {
-        if (dataContext == null) yield return null;
+        if (dataContext == null) yield break;
         SkillData data = dataContext.skillData;
         debugLastSkillData = data;
         if(extraDelay > 0)

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -62,6 +63,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     [SerializeField] private ScrollRect rewardScrollRect;
     [SerializeField] private RectTransform rewardContentRoot;
     [SerializeField] private GameObject maximumUsePanel;
+    [SerializeField] private RectTransform popupContentRoot;
 
     private bool isButtonBound;
     private bool isPresentedAsOverlay;
@@ -75,6 +77,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     private RectTransform rootCanvasRect;
     private RectTransformState originalRectState;
     private int originalSiblingIndex;
+    private int ignoreOutsideCloseUntilFrame = -1;
 
     public void Hide()
     {
@@ -125,6 +128,15 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         GameEventManager.OnCurrencyChanged -= OnCurrencyChanged;
     }
 
+    private void Update()
+    {
+        if (!gameObject.activeInHierarchy || currentStageType == StageType.None)
+            return;
+
+        if (ShouldHideFromOutsideClick())
+            Hide();
+    }
+
     public void Show(
         StageType stageType,
         string dungeonName,
@@ -159,6 +171,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
 
         PresentAsOverlay();
         gameObject.SetActive(true);
+        ignoreOutsideCloseUntilFrame = Time.frameCount + 1;
         RefreshState();
     }
 
@@ -437,6 +450,65 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             return rootCanvasRect;
 
         return rootCanvasRect != null ? rootCanvasRect : originalParent;
+    }
+
+    private bool ShouldHideFromOutsideClick()
+    {
+        if (Time.frameCount <= ignoreOutsideCloseUntilFrame)
+            return false;
+
+        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+            return !IsInsidePopup(Touchscreen.current.primaryTouch.position.ReadValue());
+
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            return !IsInsidePopup(Mouse.current.position.ReadValue());
+
+        return false;
+    }
+
+    private bool IsInsidePopup(Vector2 screenPosition)
+    {
+        RectTransform hitRoot = ResolvePopupHitRoot();
+        if (hitRoot == null)
+            return false;
+
+        Canvas parentCanvas = hitRoot.GetComponentInParent<Canvas>();
+        Camera eventCamera = null;
+        if (parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            eventCamera = parentCanvas.worldCamera;
+
+        return RectTransformUtility.RectangleContainsScreenPoint(hitRoot, screenPosition, eventCamera);
+    }
+
+    private RectTransform ResolvePopupHitRoot()
+    {
+        if (popupContentRoot != null)
+            return popupContentRoot;
+
+        if (dungeonBackgroundImage != null)
+        {
+            RectTransform backgroundRect = dungeonBackgroundImage.rectTransform;
+            RectTransform parentRect = backgroundRect != null ? backgroundRect.parent as RectTransform : null;
+            if (parentRect != null && parentRect != popupRect)
+                return parentRect;
+
+            return backgroundRect;
+        }
+
+        if (rewardScrollRect != null)
+        {
+            RectTransform scrollRect = rewardScrollRect.transform as RectTransform;
+            if (scrollRect != null)
+            {
+                RectTransform parentRect = scrollRect.parent as RectTransform;
+                if (parentRect != null && parentRect != popupRect)
+                    return parentRect;
+
+                return scrollRect;
+            }
+        }
+
+        return popupRect;
     }
 
     private static void StretchToParent(RectTransform target)

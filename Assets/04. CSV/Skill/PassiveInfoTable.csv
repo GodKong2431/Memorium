@@ -1,8 +1,0 @@
-패시브 스킬 고유 ID,패시브 스킬 이름 로컬라이징 키,적용 능력치 타입,"스탯 적용 방식 (TRUE: 비율%, FALSE: 고정값)",최대치 상한선 (0일 시 무제한),아이콘 리소스 경로,1등급(일반) 기본 능력치 (0Lv 기준),1등급(일반) 레벨업 당 능력치 상승량,1등급 ➔ 2등급 승급 시 필요한 주문서 아이템 ID,2등급(희귀) 기본 능력치 (0Lv 기준),2등급(희귀) 레벨업 당 능력치 상승량,2등급 ➔ 3등급 승급 시 필요한 주문서 아이템 ID,3등급(레어) 기본 능력치 (0Lv 기준),3등급(레어) 레벨업 당 능력치 상승량,3등급 ➔ 4등급 승급 시 필요한 주문서 아이템 ID,4등급(전설) 기본 능력치 (0Lv 기준),4등급(전설) 레벨업 당 능력치 상승량,4등급 ➔ 5등급 승급 시 필요한 주문서 아이템 ID,5등급(신화) 기본 능력치 (0Lv 기준),5등급(신화) 레벨업 당 능력치 상승량,신화 등급 승급 요구 아이템 (승급 불가이므로 0 고정)
-skillID,skillNameKey,statType,isPercent,maxValue,iconPath,grd1Base,grd1LvInc,grd1ReqItem,grd2Base,grd2LvInc,grd2ReqItem,grd3Base,grd3LvInc,grd3ReqItem,grd4Base,grd4LvInc,grd4ReqItem,grd5Base,grd5LvInc,grd5ReqItem
-int,string,enum,bool,float,string,float,float,int,float,float,int,float,float,int,float,float,int,float,float,int
-4100001,PASSIVE_NAME_ATK (투지의 힘),5,FALSE,0,Asset/@/Icon/Passive_4100001,50,10,3210005,150,20,3210006,300,40,3210007,600,80,3210008,1200,150,0
-4100002,PASSIVE_NAME_MOV_SPD (바람의 발걸음),11,TRUE,500,Asset/@/Icon/Passive_4100002,1,0.2,3210009,2.5,0.4,3210010,5,0.6,3210011,9,1,3210012,15,1.5,0
-4100003,PASSIVE_NAME_ATK_SPD (광란의 타격),6,TRUE,500,Asset/@/Icon/Passive_4100003,0.1,0.02,3210013,0.25,0.04,3210014,0.5,0.05,3210015,0.8,0.1,3210016,1.5,0.12,0
-4100004,PASSIVE_NAME_CRI (정밀한 조준),9,TRUE,100,Asset/@/Icon/Passive_4100004,1,0.5,3210017,5,0.75,3210018,10,1,3210019,18,2,3210020,30,5,0
-4100005,PASSIVE_NAME_MAGIC_DEF (마법의 방패),8,FALSE,0,Asset/@/Icon/Passive_4100005,10,2,3210021,30,5,3210022,60,10,3210023,120,20,3210024,250,40,0

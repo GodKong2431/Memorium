@@ -391,6 +391,14 @@ public class StageManager : Singleton<StageManager>
                 MarkManualBossSummonRequiredForCurrentStage();
 
             OnStageClearOrFailed.Invoke();
+
+            if (player != null)
+            {
+                player._ctx.Heal(player._ctx.MaxHealth);
+                player._ctx.Animator.SetTrigger("Alive");
+                //player._ctx.RequestState(PlayerStateType.Idle);
+                player._ctx.RequestIdle();
+            }
         }
         else
         {
@@ -428,7 +436,7 @@ public class StageManager : Singleton<StageManager>
         }
 
         stageMoveCoroutine = null;
-        player._ctx.Animator.SetTrigger("Alive");
+
     }
     // 스테이지 타입/레벨 변경 요청을 큐에 저장하고 즉시 상태에 반영한다.
     public void SetStageType(StageType dungeonType, int level)

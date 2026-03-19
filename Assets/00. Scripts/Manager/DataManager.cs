@@ -1,3 +1,4 @@
+using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,93 +17,97 @@ public class DataManager : Singleton<DataManager>
 
     #region Data Maps
     // 장비 드랍 테이블
-    public Dictionary<int, EquipmentDropTable> EquipmentDropDict;
-    public Dictionary<int, ItemDropTable> ItemDropDict;
+    public SerializedDictionary<int, EquipmentDropTable> EquipmentDropDict;
+    public SerializedDictionary<int, ItemDropTable> ItemDropDict;
 
     // 던전 테이블
-    public Dictionary<int, DungeonReqTable> DungeonReqDict;
+    public SerializedDictionary<int, DungeonReqTable> DungeonReqDict;
+    public SerializedDictionary<int, CelestiAlchemyWorkshopRewardTable> CelestiAlchemyWorkshopRewardDict;
+    public SerializedDictionary<int, EidosTreasureVaultRewardTable> EidosTreasureVaultRewardDict;
+    public SerializedDictionary<int, GuardianTaxVaultRewardTable> GuardianTaxVaultRewardDict;
+    public SerializedDictionary<int, HallOfTrainingRewardTable> HallOfTrainingRewardDict;
 
     // 몬스터 테이블
-    public Dictionary<int, BossManageTable> BossManageDict;
-    public Dictionary<int, MonsterBasestatTable> MonsterBasestatDict;
-    public Dictionary<int, MonsterGroupTable> MonsterGroupDict;
-    public Dictionary<int, MonsterGrowthTable> EnemyGrowthDict;
+    public SerializedDictionary<int, BossManageTable> BossManageDict;
+    public SerializedDictionary<int, MonsterBasestatTable> MonsterBasestatDict;
+    public SerializedDictionary<int, MonsterGroupTable> MonsterGroupDict;
+    public SerializedDictionary<int, MonsterGrowthTable> EnemyGrowthDict;
 
     // 아이템 테이블
-    public Dictionary<int, ItemInfoTable> ItemInfoDict;
+    public SerializedDictionary<int, ItemInfoTable> ItemInfoDict;
 
     // 장비 테이블
-    public Dictionary<int, EquipArmorTable> EquipArmorDict;
-    public Dictionary<int, EquipBootsTable> EquipBootsDict;
-    public Dictionary<int, EquipWeaponTable> EquipWeaponDict;
-    public Dictionary<int, EquipGloveTable> EquipGloveDict;
-    public Dictionary<int, EquipHelmetTable> EquipHelmetDict;
-    public Dictionary<int, EquipListTable> EquipListDict;
-    public Dictionary<int, EquipStatsTable> EquipStatsDict;
+    public SerializedDictionary<int, EquipArmorTable> EquipArmorDict;
+    public SerializedDictionary<int, EquipBootsTable> EquipBootsDict;
+    public SerializedDictionary<int, EquipWeaponTable> EquipWeaponDict;
+    public SerializedDictionary<int, EquipGloveTable> EquipGloveDict;
+    public SerializedDictionary<int, EquipHelmetTable> EquipHelmetDict;
+    public SerializedDictionary<int, EquipListTable> EquipListDict;
+    public SerializedDictionary<int, EquipStatsTable> EquipStatsDict;
 
     // 페어리/트리거 테이블
-    public Dictionary<int, FairyStatTable> FairyStatDict;
-    public Dictionary<int, FairyEffectTable> FairyEffectDict;
-    public Dictionary<int, FairyGradeTable> FairyGradeDict;
-    public Dictionary<int, FairyInfoTable> FairyInfoDict;
-    public Dictionary<int, TriggerInfoTable> TriggerInfoDict;
+    public SerializedDictionary<int, FairyStatTable> FairyStatDict;
+    public SerializedDictionary<int, FairyEffectTable> FairyEffectDict;
+    public SerializedDictionary<int, FairyGradeTable> FairyGradeDict;
+    public SerializedDictionary<int, FairyInfoTable> FairyInfoDict;
+    public SerializedDictionary<int, TriggerInfoTable> TriggerInfoDict;
 
     // 스테이지 테이블
-    public Dictionary<int, StageManageTable> StageManageDict;
+    public SerializedDictionary<int, StageManageTable> StageManageDict;
 
     // 플레이어 테이블
-    public Dictionary<int, CharacterBaseStatInfoTable> CharacterBaseStatInfoDict;
-    public Dictionary<int, BerserkmodeManageTable> BerserkmodeManageDict;
-    public Dictionary<int, CharacterTable> CharacterDict;
-    public Dictionary<int, LevelbonusTable> LevelbonusDict;
-    public Dictionary<int, PlayerExpTable> PlayerLevelDict;
-    public Dictionary<int, StatUpgradeTable> StatUpgradeDict;
-    public Dictionary<int, TraitInfoTable> TraitInfoDict;
+    public SerializedDictionary<int, CharacterBaseStatInfoTable> CharacterBaseStatInfoDict;
+    public SerializedDictionary<int, BerserkmodeManageTable> BerserkmodeManageDict;
+    public SerializedDictionary<int, CharacterTable> CharacterDict;
+    public SerializedDictionary<int, LevelbonusTable> LevelbonusDict;
+    public SerializedDictionary<int, PlayerExpTable> PlayerLevelDict;
+    public SerializedDictionary<int, StatUpgradeTable> StatUpgradeDict;
+    public SerializedDictionary<int, TraitInfoTable> TraitInfoDict;
 
     // 퀘스트 테이블
-    public Dictionary<int, LineQuestTable> LineQuestDict;
-    public Dictionary<int, QuestRewardsTable> QuestRewardsDict;
+    public SerializedDictionary<int, LineQuestTable> LineQuestDict;
+    public SerializedDictionary<int, QuestRewardsTable> QuestRewardsDict;
 
     // 스킬 테이블
-    public Dictionary<int, SkillInfoTable> SkillInfoDict;
-    public Dictionary<int, SkillUpTable> SkillUpDict;
-    public Dictionary<int, SkillModule1Table> SkillModule1Dict;
-    public Dictionary<int, SkillModule2Table> SkillModule2Dict;
-    public Dictionary<int, SkillModule3Table> SkillModule3Dict;
-    public Dictionary<int, SkillModule4Table> SkillModule4Dict;
-    public Dictionary<int, SkillModule5Table> SkillModule5Dict;
-    public Dictionary<int, M5FusionTable> M5FusionDict;
+    public SerializedDictionary<int, SkillInfoTable> SkillInfoDict;
+    public SerializedDictionary<int, SkillUpTable> SkillUpDict;
+    public SerializedDictionary<int, SkillModule1Table> SkillModule1Dict;
+    public SerializedDictionary<int, SkillModule2Table> SkillModule2Dict;
+    public SerializedDictionary<int, SkillModule3Table> SkillModule3Dict;
+    public SerializedDictionary<int, SkillModule4Table> SkillModule4Dict;
+    public SerializedDictionary<int, SkillModule5Table> SkillModule5Dict;
+    public SerializedDictionary<int, M5FusionTable> M5FusionDict;
 
     // 패시브 테이블
-    public Dictionary<int, PassiveGradeTable> PassiveGradeDict;
-    public Dictionary<int, PassiveInfoTable> PassiveInfoDict;
-    public Dictionary<int, PassiveSetTable> PassiveSetDict;
+    public SerializedDictionary<int, PassiveGradeTable> PassiveGradeDict;
+    public SerializedDictionary<int, PassiveInfoTable> PassiveInfoDict;
+    public SerializedDictionary<int, PassiveSetTable> PassiveSetDict;
 
     // 문자열 테이블
-    public Dictionary<int, StringTable> StringDict;
+    public SerializedDictionary<int, StringTable> StringDict;
 
     // 갸차 테이블
-    public Dictionary<int, GachaSkillScrollTable> GachaSkillScrollDict;
-    public Dictionary<int, GachaEquipGroupTable> GachaEquipGroupDict;
-    public Dictionary<int, GachaEquipTable> GachaEquipDict;
-    public Dictionary<int, GachaTicketTable> GachaTicketDict;
+    public SerializedDictionary<int, GachaSkillScrollTable> GachaSkillScrollDict;
+    public SerializedDictionary<int, GachaEquipGroupTable> GachaEquipGroupDict;
+    public SerializedDictionary<int, GachaEquipTable> GachaEquipDict;
+    public SerializedDictionary<int, GachaTicketTable> GachaTicketDict;
 
     // 어빌리티 스톤 테이블
-    public Dictionary<int, StoneTable> StoneDict;
-    public Dictionary<int, StoneStatProbabilityTable> StoneStatProbabilityDict;
-    public Dictionary<int, StoneGradeStatUpTable> StoneGradeStatUpDict;
-    public Dictionary<int, StoneTotalUpBonusTable> StoneTotalUpBonusDict;
+    public SerializedDictionary<int, StoneTable> StoneDict;
+    public SerializedDictionary<int, StoneStatProbabilityTable> StoneStatProbabilityDict;
+    public SerializedDictionary<int, StoneGradeStatUpTable> StoneGradeStatUpDict;
+    public SerializedDictionary<int, StoneTotalUpBonusTable> StoneTotalUpBonusDict;
 
     // 빙고
-    public Dictionary<int, BoardCellTable> BoardCellDict;
-    public Dictionary<int, BoardSlotTable> BoardSlotDict;
-    public Dictionary<int, BoardSynergyTable> BoardSynergyDict;
-    public Dictionary<int, DustTable> DustDict;
-    public Dictionary<int, OneuseItemTalble> OneuseItemDict;
-    public Dictionary<int, SynergyTable> SynergyDict;
+    public SerializedDictionary<int, BoardCellTable> BoardCellDict;
+    public SerializedDictionary<int, BoardSlotTable> BoardSlotDict;
+    public SerializedDictionary<int, BoardSynergyTable> BoardSynergyDict;
+    public SerializedDictionary<int, DustTable> DustDict;
+    public SerializedDictionary<int, OneuseItemTalble> OneuseItemDict;
+    public SerializedDictionary<int, SynergyTable> SynergyDict;
 
     // 기타
-    public Dictionary<int, ConfigTable> ConfigDict;
+    public SerializedDictionary<int, ConfigTable> ConfigDict;
 
 
     #endregion
@@ -309,8 +314,22 @@ public class DataManager : Singleton<DataManager>
         MethodInfo genericMethod = method.MakeGenericMethod(tableType);
         string csvContent = DecodeCsvContent(textAsset);
 
-        object result = genericMethod.Invoke(this, new object[] { csvContent, className });
-        return (bool)result;
+        try
+        {
+            object result = genericMethod.Invoke(this, new object[] { csvContent, className });
+            return result is bool boolResult && boolResult;
+        }
+        catch (TargetInvocationException ex)
+        {
+            Exception innerException = ex.InnerException ?? ex;
+            Debug.LogError($"[DataManager] Failed to parse table '{className}'.\n{innerException}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[DataManager] Failed to process table '{className}'.\n{ex}");
+            return false;
+        }
     }
 
     /// <summary>
@@ -336,8 +355,13 @@ public class DataManager : Singleton<DataManager>
     // CSV 파싱 후 Dictionary<int, T>를 DataManager 멤버로 주입
     private bool ParseAndInject<T>(string csvContent, string keyName) where T : TableBase, new()
     {
-        List<T> list = CSVHelper.ParseCSVData<T>(csvContent);
-        Dictionary<int, T> dict = new Dictionary<int, T>();
+        List<T> list = CSVHelper.ParseCSVData<T>(csvContent) ?? new List<T>();
+        SerializedDictionary<int, T> dict = new SerializedDictionary<int, T>();
+
+        if (list.Count == 0)
+            Debug.LogWarning($"[DataManager] {keyName} parsed 0 rows.");
+        else
+            Debug.Log($"[DataManager] {keyName} parsed {list.Count} rows.");
 
         foreach (T data in list)
         {
@@ -350,7 +374,7 @@ public class DataManager : Singleton<DataManager>
         // 필드/프로퍼티 모두 탐색해서 타입이 맞는 멤버에 주입
         var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
         bool injected = false;
-        Type dictType = typeof(Dictionary<int, T>);
+        Type dictType = typeof(SerializedDictionary<int, T>);
 
         var fields = GetType().GetFields(flags);
         foreach (var field in fields)

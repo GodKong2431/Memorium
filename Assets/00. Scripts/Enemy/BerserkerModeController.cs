@@ -91,20 +91,8 @@ public class BerserkerModeController : MonoBehaviour
         {
             switch (key)
             {
-                case StatType.HP:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseHPStatMultiplier;
-                    break;
                 case StatType.ATK:
                     _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseAttackStatMultiplier;
-                    break;
-                case StatType.HP_REGEN:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseHPRegenStatMultiplier;
-                    break;
-                case StatType.MP:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseMPStatMultiplier;
-                    break;
-                case StatType.MP_REGEN:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseMPRegenStatMultiplier;
                     break;
                 case StatType.CRIT_MULT:
                     _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseCriticalStatMultiplier;

@@ -103,6 +103,11 @@ public class PlayerStateContext : BaseStateContext
         _requestStateChange?.Invoke(next);
     }
 
+    public void RequestIdle()
+    {
+        RequestState(PlayerStateType.Idle);
+    }
+
     public void SetInvincibility(bool invincible)
     {
         IsInvincible = invincible;

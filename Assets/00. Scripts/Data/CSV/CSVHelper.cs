@@ -19,21 +19,37 @@ public static class CSVHelper
         {
             if (string.IsNullOrWhiteSpace(lines[i]) || lines[i].StartsWith("#")) continue;
             string[] values = SplitCsvLine(lines[i]);
-            if (values.Length != headers.Length) continue;
-            if (string.IsNullOrWhiteSpace(values[0])) continue;
+            if (values.Length < headers.Length)
+                Array.Resize(ref values, headers.Length);
+            else if (values.Length > headers.Length)
+            {
+                Debug.LogWarning($"[CSVHelper] Skipped {typeof(T).Name} row {i + 1}: expected {headers.Length} columns but found {values.Length}. Line='{lines[i]}'");
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(values[0]))
+            {
+                Debug.LogWarning($"[CSVHelper] Skipped {typeof(T).Name} row {i + 1}: first column is empty.");
+                continue;
+            }
 
             T entry = new T();
 
             if (entry is TableBase tableBase)
             {
-                if (int.TryParse(values[0], out int idValue))
-                    tableBase.ID = idValue;
+                if (!int.TryParse(values[0], out int idValue))
+                {
+                    Debug.LogWarning($"[CSVHelper] Skipped {typeof(T).Name} row {i + 1}: invalid ID '{values[0]}'.");
+                    continue;
+                }
+
+                tableBase.ID = idValue;
             }
 
             for (int j = 1; j < headers.Length; j++)
             {
                 string header = headers[j].Trim();
-                string val = values[j].Trim();
+                string val = values[j]?.Trim() ?? string.Empty;
 
                 FieldInfo field = typeof(T).GetField(header, BindingFlags.Public | BindingFlags.Instance);
                 if (field != null)
@@ -49,7 +65,9 @@ public static class CSVHelper
 
     private static object ParseValue(string value, Type type)
     {
-        if (string.IsNullOrEmpty(value)) return null;
+        if (string.IsNullOrWhiteSpace(value))
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
+
         try
         {
             if (type.IsEnum)
