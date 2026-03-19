@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -16,7 +16,6 @@ public class PlayerStateDie : IPlayerState
 
     public void OnExit(PlayerStateContext ctx)
     {
-        ctx.Heal(ctx.MaxHealth);
     }
 
     public void OnUpdate(PlayerStateContext ctx)
