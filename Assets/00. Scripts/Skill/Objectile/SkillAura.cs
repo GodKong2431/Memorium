@@ -38,7 +38,7 @@ public class SkillAura : SkillObjectileBase
         ObjectPoolManager.Return(gameObject);
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         if (owner != null)
         {

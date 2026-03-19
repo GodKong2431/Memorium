@@ -7,7 +7,6 @@ public class SkillDeploy : SkillObjectileBase
     {
         base.Initialize(owner, dataContext, layer);
         debugLastCastPos = dataContext.skillData.m3Data.m3Distance * transform.forward;
-        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(dataContext?.skillData.m3Data.m3VFX, transform, true, true));
         StartCoroutine(RoutineTick());
     }
 
@@ -20,6 +19,7 @@ public class SkillDeploy : SkillObjectileBase
         while (timer < data.m3Data.m3Duration)
         {
             var m2 = SkillStrategyContainer.GetDetect(data.m2Data.m2Type);
+            PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(dataContext?.skillData.m3Data.m3VFX, transform, true, true));
             int count = m2.Detect(transform.position, transform.forward, data.m2Data, this, targetLayer);
             if (count > 0)
             {
@@ -28,7 +28,7 @@ public class SkillDeploy : SkillObjectileBase
             yield return CoroutineManager.waitForSeconds(interval);
             timer += interval;
         }
-        Destroy(gameObject);
+        ObjectPoolManager.Return(gameObject);
     }
 
 }
