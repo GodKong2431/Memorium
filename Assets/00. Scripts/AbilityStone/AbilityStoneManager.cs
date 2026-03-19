@@ -159,11 +159,16 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         so.AbilityStoneDict[grade].ResetUp();
     }
     
-    public float GetStat(StatType statType)
+    public float GetStat(StatType statType, bool test)
     {
         float totalStat = 0;
         foreach (var item in so.AbilityStoneDict)
         {
+            if (item.Value.stoneMult != test)
+            {
+                continue;
+            }
+            
             for (int i = 0; i < item.Value.Slots.Count; i++)
             {
                 if (statType == item.Value.Slots[i].SlotType)

@@ -36,7 +36,7 @@ public class PlayerLevel
     {
         for (int i = 0; i < level; i++)
         {
-            DataManager.Instance.LevelbonusDict.TryGetValue(levelKey+i, out var value);
+            DataManager.Instance.LevelbonusDict.TryGetValue(levelKey + i, out var value);
 
             BonusValues[StatType.ATK] += value.bonusAttack;
             BonusValues[StatType.MP] += value.bonusMP;
@@ -54,7 +54,7 @@ public class PlayerLevel
 
         playerExpKey += level;
 
-        levelKey = (level-1) + levelKey;
+        levelKey = (level - 1) + levelKey;
 
         DataManager.Instance.PlayerLevelDict.TryGetValue(playerExpKey, out var playerExpTable);
 
@@ -106,7 +106,7 @@ public class PlayerLevel
 
             CurrentLevel++;
 
-            if (CurrentLevel > 30)
+            if (CurrentLevel > 0)
             {
                 currencyModule.AddCurrency(CurrencyType.TraitPoint, 1);
 
