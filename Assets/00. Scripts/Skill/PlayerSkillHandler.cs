@@ -247,8 +247,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
             }
         }
     }
-
-    public bool AutoCast()
+    public bool AutoCast(float dist)
     {
         if (skilldataContexts == null) return false;
         if (skillCaster.IsCasting()) return false;
@@ -256,7 +255,6 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         var enemy = EnemyTarget.GetTarget(transform.position);
         if (enemy == null) return false;
 
-        float dist = Vector3.Distance(transform.position, enemy.transform.position);
 
         for (int i = 0; i < skilldataContexts.Length; i++)
         {

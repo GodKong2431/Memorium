@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public sealed class SkillInventoryModule : IInventoryModule
 {
+    public int goldId = 0;
     private const int PresetCount = 3; // 프리셋 슬롯 그룹 개수.
 
     private readonly Dictionary<int, OwnedSkillData> skillDataById = new Dictionary<int, OwnedSkillData>(); // 스킬 ID별 보유 정보.
@@ -23,7 +24,10 @@ public sealed class SkillInventoryModule : IInventoryModule
     public int CurrentPresetIndex => presetHandler.CurrentPresetIndex; // 현재 선택된 프리셋 인덱스.
 
 
-    
+    private Dictionary<int, BigDouble> skillUpCostByLevel;
+
+
+
     public SkillInventoryModule()
     {
         InventoryManager.Instance.saveSkillData = JSONService.Load<SaveSkillData>();
@@ -108,7 +112,17 @@ public sealed class SkillInventoryModule : IInventoryModule
         return count;
     }
     #endregion
+    private void BuildSkillUpCostMapping()
+    {
+        if (skillUpCostByLevel != null) return;
+        skillUpCostByLevel = new Dictionary<int, BigDouble>();
 
+        foreach (var pair in DataManager.Instance.SkillUpDict)
+        {
+            skillUpCostByLevel[pair.Value.skillLevel] = pair.Value.reqGold;
+        }
+    }
+ 
     // 특정 스킬의 보유 데이터를 반환한다.
     public OwnedSkillData GetSkillData(int skillId)
     {
@@ -147,25 +161,23 @@ public sealed class SkillInventoryModule : IInventoryModule
         if (!data.CanLevelUp)
             return false;
 
-        cost = new BigDouble(data.level * 100);
-        return true;
+        BuildSkillUpCostMapping();
+        return skillUpCostByLevel.TryGetValue(data.level, out cost);
     }
-
-    // 재화 차감 성공 이후 실제 레벨업 상태를 반영한다.
-    public bool ApplyLevelUp(int skillId, bool notify = true)
+    public bool TryLevelUpSkill(int skillId)
     {
-        if (!skillDataById.TryGetValue(skillId, out var data))
+        if (!TryGetLevelUpCost(skillId, out BigDouble cost))
             return false;
 
-        if (!data.CanLevelUp)
+        SetGoldID();
+        if (!InventoryManager.Instance.HasEnoughItem(goldId, cost))
             return false;
 
-        data.level++;
-        if (notify)
-        { 
-            OnInventoryChanged?.Invoke();
-            OnInventoryChagedByData?.Invoke(skillDataById[skillId]);
-        }
+        InventoryManager.Instance.RemoveItem(goldId, cost);
+        skillDataById[skillId].level++;
+
+        OnInventoryChanged?.Invoke();
+        OnInventoryChagedByData?.Invoke(skillDataById[skillId]);
         return true;
     }
 
@@ -382,5 +394,22 @@ public sealed class SkillInventoryModule : IInventoryModule
             return false;
 
         return skillData.IsEquippable;
+    }
+    public void SetGoldID()
+    {
+
+        if (goldId != 0)
+            return;
+        else
+        {
+            foreach (var item in DataManager.Instance.ItemInfoDict)
+            {
+                if (item.Value.itemType == ItemType.FreeCurrency)
+                {
+                    goldId = item.Key;
+                    break;
+                }
+            }
+        }
     }
 }

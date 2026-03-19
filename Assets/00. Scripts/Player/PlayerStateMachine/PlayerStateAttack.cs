@@ -60,7 +60,6 @@ public class PlayerStateAttack : IPlayerState
         {
             Vector3 closestPoint = enemyCol.ClosestPoint(ctx.PlayerTransform.position);
             float dist = Vector3.Distance(ctx.PlayerTransform.position, closestPoint);
-
             if (!ctx.playerSkillHandler.ReadySkill(dist) && !ctx.playerSkillHandler.IsCasting() && dist > ctx.AttackRange)
             {
                 ctx.RequestState(PlayerStateType.Chase);
@@ -92,7 +91,7 @@ public class PlayerStateAttack : IPlayerState
             float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
 
 
-            if (!ctx.playerSkillHandler.AutoCast() && !ctx.playerSkillHandler.IsCasting() && !ctx.playerSkillHandler.IsChanneling() && dist <= ctx.AttackRange && Time.time >= ctx.NextAttackTime)
+            if (!ctx.playerSkillHandler.AutoCast(dist) && !ctx.playerSkillHandler.IsCasting() && !ctx.playerSkillHandler.IsChanneling() && dist <= ctx.AttackRange && Time.time >= ctx.NextAttackTime)
             {
                 RandomAnimation(ctx);
                 ctx.Animator.SetBool("AttackReady", true);
