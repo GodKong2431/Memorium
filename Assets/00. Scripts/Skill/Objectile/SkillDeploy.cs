@@ -19,7 +19,7 @@ public class SkillDeploy : SkillObjectileBase
         while (timer < data.m3Data.m3Duration)
         {
             var m2 = SkillStrategyContainer.GetDetect(data.m2Data.m2Type);
-            PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(dataContext?.skillData.m3Data.m3VFX, transform, true, true));
+            PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(dataContext?.skillData.m3Data.m3VFX, transform, true, true, rotation: transform.rotation));
             int count = m2.Detect(transform.position, transform.forward, data.m2Data, this, targetLayer);
             if (count > 0)
             {
