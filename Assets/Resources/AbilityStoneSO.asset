@@ -26,7 +26,7 @@ MonoBehaviour:
             id: 1050001
             stoneGrade: 0
             upCost: 1000
-            unlockLevel: 5
+            unlockLevel: 50
             needUp: 0
             statRerollCost: 1000
             UpResetCost: 100
@@ -37,18 +37,18 @@ MonoBehaviour:
             secondUpOpportunity: 10
             thirdUpOpportunity: 10
             Slots:
-            - SlotType: 0
+            - SlotType: 2
+              successCounter: 0001
+              increaseStat: 20
+            - SlotType: 16
               successCounter: 
-              increaseStat: 0
-            - SlotType: 0
-              successCounter: 
-              increaseStat: 0
-            - SlotType: 0
-              successCounter: 
-              increaseStat: 0
+              increaseStat: 0.01
+            - SlotType: 7
+              successCounter: 0101010101
+              increaseStat: 0.005
             currentProbability: 0.75
-            totalUpCount: 0
-            isUnlock: 0
+            totalUpCount: 1
+            isUnlock: 1
             currentProbabilityCount: 0
             stoneMult: 0
         - Key: 1
@@ -56,8 +56,8 @@ MonoBehaviour:
             id: 1050002
             stoneGrade: 1
             upCost: 1500
-            unlockLevel: 6
-            needUp: 0
+            unlockLevel: 60
+            needUp: 12
             statRerollCost: 1500
             UpResetCost: 150
             upStartProbability: 0.75
@@ -67,18 +67,18 @@ MonoBehaviour:
             secondUpOpportunity: 10
             thirdUpOpportunity: 10
             Slots:
-            - SlotType: 0
+            - SlotType: 10
               successCounter: 
-              increaseStat: 0
-            - SlotType: 0
+              increaseStat: 0.015
+            - SlotType: 4
               successCounter: 
-              increaseStat: 0
-            - SlotType: 0
-              successCounter: 
-              increaseStat: 0
+              increaseStat: 30
+            - SlotType: 8
+              successCounter: 01010000000001010101
+              increaseStat: 0.01
             currentProbability: 0.75
             totalUpCount: 0
-            isUnlock: 0
+            isUnlock: 1
             currentProbabilityCount: 0
             stoneMult: 0
         - Key: 2
@@ -86,8 +86,8 @@ MonoBehaviour:
             id: 1050003
             stoneGrade: 2
             upCost: 2000
-            unlockLevel: 7
-            needUp: 0
+            unlockLevel: 70
+            needUp: 13
             statRerollCost: 2000
             UpResetCost: 200
             upStartProbability: 0.75
@@ -97,18 +97,18 @@ MonoBehaviour:
             secondUpOpportunity: 10
             thirdUpOpportunity: 10
             Slots:
-            - SlotType: 0
+            - SlotType: 2
+              successCounter: 01010101010101010101
+              increaseStat: 40
+            - SlotType: 2
+              successCounter: 01010101010101010001
+              increaseStat: 40
+            - SlotType: 4
               successCounter: 
-              increaseStat: 0
-            - SlotType: 0
-              successCounter: 
-              increaseStat: 0
-            - SlotType: 0
-              successCounter: 
-              increaseStat: 0
+              increaseStat: 40
             currentProbability: 0.75
-            totalUpCount: 0
-            isUnlock: 0
+            totalUpCount: 19
+            isUnlock: 1
             currentProbabilityCount: 0
             stoneMult: 0
         - Key: 3
@@ -116,8 +116,8 @@ MonoBehaviour:
             id: 1050004
             stoneGrade: 3
             upCost: 2500
-            unlockLevel: 8
-            needUp: 0
+            unlockLevel: 80
+            needUp: 14
             statRerollCost: 2500
             UpResetCost: 250
             upStartProbability: 0.75
@@ -138,7 +138,7 @@ MonoBehaviour:
               increaseStat: 0
             currentProbability: 0.75
             totalUpCount: 0
-            isUnlock: 0
+            isUnlock: 1
             currentProbabilityCount: 0
             stoneMult: 0
         - Key: 4
@@ -146,8 +146,8 @@ MonoBehaviour:
             id: 1050005
             stoneGrade: 4
             upCost: 3000
-            unlockLevel: 9
-            needUp: 0
+            unlockLevel: 90
+            needUp: 15
             statRerollCost: 3000
             UpResetCost: 300
             upStartProbability: 0.75
@@ -179,8 +179,8 @@ MonoBehaviour:
             id: 1050006
             stoneGrade: 0
             upCost: 4000
-            unlockLevel: 10
-            needUp: 0
+            unlockLevel: 100
+            needUp: 15
             statRerollCost: 3500
             UpResetCost: 350
             upStartProbability: 0.75
@@ -201,7 +201,7 @@ MonoBehaviour:
               increaseStat: 0
             currentProbability: 0.75
             totalUpCount: 0
-            isUnlock: 0
+            isUnlock: 1
             currentProbabilityCount: 0
             stoneMult: 0
         - Key: 1
@@ -209,8 +209,8 @@ MonoBehaviour:
             id: 1050007
             stoneGrade: 1
             upCost: 4500
-            unlockLevel: 11
-            needUp: 0
+            unlockLevel: 110
+            needUp: 15
             statRerollCost: 4000
             UpResetCost: 400
             upStartProbability: 0.75
@@ -239,8 +239,8 @@ MonoBehaviour:
             id: 1050008
             stoneGrade: 2
             upCost: 5000
-            unlockLevel: 12
-            needUp: 0
+            unlockLevel: 120
+            needUp: 16
             statRerollCost: 4500
             UpResetCost: 450
             upStartProbability: 0.75
@@ -269,8 +269,8 @@ MonoBehaviour:
             id: 1050009
             stoneGrade: 3
             upCost: 5500
-            unlockLevel: 13
-            needUp: 0
+            unlockLevel: 130
+            needUp: 16
             statRerollCost: 5000
             UpResetCost: 500
             upStartProbability: 0.75
@@ -290,7 +290,7 @@ MonoBehaviour:
               successCounter: 
               increaseStat: 0
             currentProbability: 0.75
-            totalUpCount: 6
+            totalUpCount: 0
             isUnlock: 0
             currentProbabilityCount: 0
             stoneMult: 0
@@ -299,8 +299,8 @@ MonoBehaviour:
             id: 1050010
             stoneGrade: 4
             upCost: 6000
-            unlockLevel: 14
-            needUp: 0
+            unlockLevel: 140
+            needUp: 16
             statRerollCost: 5500
             UpResetCost: 550
             upStartProbability: 0.75
@@ -320,7 +320,7 @@ MonoBehaviour:
               successCounter: 
               increaseStat: 0
             currentProbability: 0.75
-            totalUpCount: 11
+            totalUpCount: 0
             isUnlock: 0
             currentProbabilityCount: 0
             stoneMult: 0
@@ -547,3 +547,15 @@ MonoBehaviour:
       Value:
         statName: "\uACBD\uD5D8\uCE58 \uD68D\uB4DD\uB7C9"
         statType: 14
+  StoneGradeColorDict:
+    _serializedList:
+    - Key: 0
+      Value: {r: 1, g: 1, b: 1, a: 1}
+    - Key: 1
+      Value: {r: 0, g: 1, b: 0.18871331, a: 1}
+    - Key: 2
+      Value: {r: 0.43921572, g: 0.18823531, b: 0.627451, a: 1}
+    - Key: 3
+      Value: {r: 1, g: 0.75294125, b: 0, a: 1}
+    - Key: 4
+      Value: {r: 0.9294118, g: 0.48627454, b: 0.19215688, a: 1}
