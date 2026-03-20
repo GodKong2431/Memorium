@@ -10,11 +10,13 @@ public class AbilityStoneSO : ScriptableObject
     [SerializeField] public int stoneStatUpID;
     [SerializeField] public int stoneTotalBonusID;
     
-    public SerializedDictionary<StoneGrade, AbilityStone> AbilityStoneDict = new SerializedDictionary<StoneGrade, AbilityStone>();
+    public SerializedDictionary<int,SerializedDictionary<StoneGrade, AbilityStone>> AbilityStoneDict = new SerializedDictionary<int,SerializedDictionary<StoneGrade, AbilityStone>>();
 
     public SerializedDictionary<StatType, StoneStatProbability> StoneStatProbabilityDict = new SerializedDictionary<StatType, StoneStatProbability>();
 
     public SerializedDictionary<StatType, StoneTotalUpBonusA> StoneTotalUpBonusDict = new SerializedDictionary<StatType, StoneTotalUpBonusA>();
     
     public SerializedDictionary<StatType, StoneGradeStatUp> StoneGradeStatUpDict = new SerializedDictionary<StatType, StoneGradeStatUp>();
+    
+    public SerializedDictionary<StoneGrade, Color> StoneGradeColorDict = new SerializedDictionary<StoneGrade, Color>();
 }

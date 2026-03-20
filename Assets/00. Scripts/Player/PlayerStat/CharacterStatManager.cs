@@ -244,10 +244,10 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         float equipStatValue = PlayerSlot != null ? PlayerSlot.GetStat(statType) : 0f;
 
         float abilityStoneStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
-            ? AbilityStoneManager.Instance.GetStat(statType, false)
+            ? AbilityStoneManager.Instance.GetStat(statType, 0)
             : 0f;
         float abilityStoneMultStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
-            ? AbilityStoneManager.Instance.GetStat(statType, true)
+            ? AbilityStoneManager.Instance.GetStat(statType, 1)
             : 0f;
         float abilityStoneBonusStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
             ? AbilityStoneManager.Instance.GetBonusStat(statType)

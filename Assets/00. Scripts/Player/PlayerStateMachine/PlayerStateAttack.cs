@@ -47,14 +47,14 @@ public class PlayerStateAttack : IPlayerState
         }
 
         enemy = EnemyTarget.GetTarget(ctx.PlayerTransform.position)?.transform;
-
+        
         if (enemy == null)
         {
             ctx.RequestState(PlayerStateType.Idle);
             return;
         }
 
-        Collider enemyCol = enemy.GetComponent<Collider>();
+        Collider enemyCol = enemy.GetComponent<Enemy>().EnemyCollider;
 
         if (enemyCol != null)
         {
