@@ -1,3 +1,4 @@
+using DG.Tweening.Plugins.Core.PathCore;
 using Google.MiniJSON;
 using System;
 using System.IO;
@@ -16,34 +17,58 @@ public static class JSONService
     /// <param name="data">저장할 데이터 클래스</param>
     public static void Save<T>(T data)
     {
-        savePath = Application.persistentDataPath + "/"+ typeof(T).Name + ".json";
-        if (savePath == null)
-        {
+        string localSavePath = Application.persistentDataPath + "/" + typeof(T).Name + ".json";
+        string tempPath = Application.persistentDataPath + "/" + typeof(T).Name + "_sync.tmp";
 
+        if (localSavePath == null)
+        {
             return;
         }
 
-        string json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(savePath, json);
+        try
+        {
+            string json = JsonUtility.ToJson(data, true);
 
+            //일단 임시 파일에 먼저 써라
+            File.WriteAllText(tempPath, json);
+
+            //파일이 존재하면 삭제해라
+            if (File.Exists(localSavePath))
+            {
+                //File.Replace(tempPath, localSavePath, null);
+                File.Delete(localSavePath);
+            }
+
+            File.Move(tempPath, localSavePath);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[JSONService] 동기 저장 실패: {e.Message}");
+        }
     }
-
     public static async Task SaveFileOnAsync<T>(T data)
     {
         string localSavePath = Application.persistentDataPath + "/" + typeof(T).Name + ".json";
-        if (savePath == null)
-        {
-            return;
-        }
+        string tempPath = Application.persistentDataPath + "/" + typeof(T).Name+"_async.tmp";
         string json = JsonUtility.ToJson(data, true);
         try
         {
             await Task.Run(() =>
             {
-                File.WriteAllText(localSavePath, json);
-            });
+                File.WriteAllText(tempPath, json);
 
-            Debug.Log($"[SaveSystem] {localSavePath} 저장");
+                if (File.Exists(localSavePath))
+                {
+                    ////모바일에서는 잘 작동하지 않을 수 있다.
+                    //File.Replace(tempPath, localSavePath, null);
+                    File.Delete(localSavePath);
+                }
+                //else
+                //{
+                //}
+                File.Move(tempPath, localSavePath);
+            });
+            Debug.Log($"[JSONService] 비동기 저장 완료: {typeof(T).Name}");
         }
         catch (Exception e)
         {
