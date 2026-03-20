@@ -17,6 +17,7 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
     [SerializeField] private int totalCount;
     
     [SerializeField] private StoneGrade grade;
+    [SerializeField] private int tier;
 
     public event Action<StoneGrade> OnReset;
     
@@ -44,11 +45,14 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         
         ID = stoneID;
         
-        foreach (var item in so.AbilityStoneDict)
+        foreach (var index in so.AbilityStoneDict)
         {
-            item.Value.LoadStone();
+            foreach (var item in index.Value)
+            {
+                item.Value.LoadStone();
+            }
         }
-        
+
         ID = stoneTotalBonusID;
         
         foreach (var item in so.StoneTotalUpBonusDict)
@@ -80,10 +84,14 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
 
     private void OnDisable()
     {
-        foreach (var item in so.AbilityStoneDict)
+        foreach (var index in so.AbilityStoneDict)
+        {
+            foreach (var item in index.Value)
         {
             item.Value.DisableEvent();
         }
+        }
+        
     }
     public void ResetStone(StoneGrade grade)
     {
@@ -151,24 +159,19 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
     
     public void UpStone(int slotIndex)
     {
-        so.AbilityStoneDict[grade].UpStone(slotIndex);
+        so.AbilityStoneDict[tier][grade].UpStone(slotIndex);
     }
     
     public void ResetUp()
     {
-        so.AbilityStoneDict[grade].ResetUp();
+        so.AbilityStoneDict[tier][grade].ResetUp();
     }
     
-    public float GetStat(StatType statType, bool test)
+    public float GetStat(StatType statType, int tier)
     {
         float totalStat = 0;
-        foreach (var item in so.AbilityStoneDict)
+        foreach (var item in so.AbilityStoneDict[tier])
         {
-            if (item.Value.stoneMult != test)
-            {
-                continue;
-            }
-            
             for (int i = 0; i < item.Value.Slots.Count; i++)
             {
                 if (statType == item.Value.Slots[i].SlotType)
@@ -185,7 +188,7 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
     {
         totalCount = 0;
         
-        foreach(var item in so.AbilityStoneDict)
+        foreach(var item in so.AbilityStoneDict[tier])
         {
             totalCount += item.Value.GetUpCount();
         }

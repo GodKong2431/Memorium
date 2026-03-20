@@ -41,6 +41,8 @@ public static class StatGroups
         StatType.EXP_GAIN,
         StatType.GOLD_GAIN,
         StatType.COOLDOWN_REDUCE,
+        StatType.PHYS_DEF,
+        StatType.MAGIC_DEF,
     };
 }
 

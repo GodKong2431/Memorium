@@ -292,6 +292,7 @@ public class InfinityMap : MonoBehaviour
         }
 
         agent.enabled = true;
+        agent.Warp(player.position);
         agent.ResetPath();
         agent.velocity = Vector3.zero;
         InitialPlacementComplete = true;

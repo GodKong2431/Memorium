@@ -218,9 +218,9 @@ public class StageManager : Singleton<StageManager>
         monsterSpawner?.SetMonster();
 
         if (normalEnemyReward != null)
-            normalEnemyReward.expBase = stageData.commonMonsterExp;
+            normalEnemyReward.expBase = stageData.commonMonsterExp*10000;
         if (bossEnemyReward != null)
-            bossEnemyReward.expBase = stageData.bossMonsterExp;
+            bossEnemyReward.expBase = stageData.bossMonsterExp*10000;
 
         int dropTableId = stageData.dropTableID;
 
@@ -294,6 +294,8 @@ public class StageManager : Singleton<StageManager>
                 saveStageData.SetMaxStage(curStageType, curStage - 1);
             }
 
+            AutoDataSaveManager.Instance.SaveData();
+
             OnStageClearOrFailed.Invoke();
             player.GetComponent<NavMeshAgent>().enabled = true;
         }
@@ -304,6 +306,7 @@ public class StageManager : Singleton<StageManager>
                 maxStage[(int)curStageType - (int)StageType.NormalStage] = curStage;
                 saveStageData.SetMaxStage(curStageType, curStage);
             }
+            AutoDataSaveManager.Instance.SaveData();
 
             player.GetComponent<NavMeshAgent>().isStopped = true;
 
@@ -378,9 +381,14 @@ public class StageManager : Singleton<StageManager>
             yield return CoroutineManager.waitForSeconds(waitNextStageTime);
 
             onFailedStage = true;
+            saveStageData.SetOnFailedStage();
 
             if (curStage - 2 >= 0 && !failedDuringBossStage)
                 curStage--;
+            saveStageData.SetCurStage(curStage);
+
+            AutoDataSaveManager.Instance.SaveData();
+
 
             normalStage = curStage;
             SetReward();

@@ -35,6 +35,12 @@ public class SaveStageData :ISaveData
         return (GetCurStage(), GetAllMaxStage(), GetOnFailedStage());
     }
 
+    public void SetCurStage(int cur)
+    {
+        curStage = cur;
+        isDirty = true;
+    }
+
     public int GetCurStage()
     {
         if (curStage <= 0)
@@ -73,6 +79,13 @@ public class SaveStageData :ISaveData
         else
             return;
     }
+
+    public void SetOnFailedStage()
+    {
+        onFailedStage=true;
+        isDirty = true;
+    }
+
     public bool GetOnFailedStage()
     {
         return onFailedStage;
