@@ -27,7 +27,6 @@ public sealed class SkillInventoryModule : IInventoryModule
     private Dictionary<int, BigDouble> skillUpCostByLevel;
 
 
-
     public SkillInventoryModule()
     {
         InventoryManager.Instance.saveSkillData = JSONService.Load<SaveSkillData>();
@@ -150,7 +149,9 @@ public sealed class SkillInventoryModule : IInventoryModule
 
     }
 
-    // 스킬 레벨업에 필요한 골드 비용을 계산한다.
+    /// <summary>
+    /// 레벨업 코스트 반환
+    /// </summary>
     public bool TryGetLevelUpCost(int skillId, out BigDouble cost)
     {
         cost = BigDouble.Zero;
@@ -164,15 +165,28 @@ public sealed class SkillInventoryModule : IInventoryModule
         BuildSkillUpCostMapping();
         return skillUpCostByLevel.TryGetValue(data.level, out cost);
     }
-    public bool TryLevelUpSkill(int skillId)
+
+    /// <summary>
+    /// 해당 스킬 레벨업 가능 여부 반환
+    /// </summary>
+    public bool CanLevelUpSkill(int skillId)
     {
         if (!TryGetLevelUpCost(skillId, out BigDouble cost))
             return false;
 
         SetGoldID();
-        if (!InventoryManager.Instance.HasEnoughItem(goldId, cost))
+        return InventoryManager.Instance.HasEnoughItem(goldId, cost);
+    }
+
+    /// <summary>
+    /// 해당 스킬 레벨업 실행 및 성공 여부 반환
+    /// </summary>
+    public bool TryLevelUpSkill(int skillId)
+    {
+        if (!CanLevelUpSkill(skillId))
             return false;
 
+        TryGetLevelUpCost(skillId, out BigDouble cost);
         InventoryManager.Instance.RemoveItem(goldId, cost);
         skillDataById[skillId].level++;
 

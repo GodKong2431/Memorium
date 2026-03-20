@@ -243,6 +243,8 @@ public class InventoryManager : Singleton<InventoryManager>
         RegisterModule(new EquipmentInventoryModule());
 
         RegisterModule(new GemInventoryModule());
+        RegisterModule(new PassiveSkillModule());
+        
 
         StartCoroutine(LoadData());
     }
