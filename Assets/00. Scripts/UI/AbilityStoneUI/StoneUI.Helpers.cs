@@ -80,7 +80,7 @@ public sealed partial class StoneUI
 
         if (itemUI.ValueText != null)
         {
-            itemUI.ValueText.text = FormatSignedStatValue(bonusData.statType, bonusData.increaseStat);
+            itemUI.ValueText.text = FormatSignedStatValue(bonusData.statType, bonusData.increaseStat, true);
             itemUI.ValueText.color = unlocked ? Color.white : disabledTextColor;
         }
 
@@ -1075,7 +1075,7 @@ public sealed partial class StoneUI
         }
 
         float displayValue = slotIndex == 2 ? -slotData.totalStat : slotData.totalStat;
-        return FormatSignedStatValue(slotData.SlotType, displayValue);
+        return FormatSignedStatValue(slotData.SlotType, displayValue, false);
     }
 
     private static string BuildPopupSlotText(AbilityStoneSlot slotData, int slotIndex)
@@ -1086,7 +1086,7 @@ public sealed partial class StoneUI
         }
 
         float displayValue = slotIndex == 2 ? -slotData.increaseStat : slotData.increaseStat;
-        return $"{GetStatName(slotData.SlotType)} {FormatSignedStatValue(slotData.SlotType, displayValue)}";
+        return $"{GetStatName(slotData.SlotType)} {FormatSignedStatValue(slotData.SlotType, displayValue, false)}";
     }
 
     private static string BuildSlotStateText(AbilityStone stoneData, int slotIndex, bool stoneUnlocked, bool canAffordUpgrade)
@@ -1114,17 +1114,22 @@ public sealed partial class StoneUI
         return TextUpgrade;
     }
 
-    private static string FormatSignedStatValue(StatType statType, float value)
+    private static string FormatSignedStatValue(StatType statType, float value, bool mult)
     {
         string sign = value >= 0f ? "+" : "-";
         float absValue = Mathf.Abs(value);
-
-        if (StatGroups.MultTypes.Contains(statType))
+        
+        if (mult)
         {
-            return $"{sign}{(absValue * 100f):0.##}%";
+            return $"{sign}{(absValue * 100f):0.###}%";
+        }
+        
+        else if (StatGroups.MultTypes.Contains(statType))
+        {
+            return $"{sign}{(absValue * 100f):0.###}%";
         }
 
-        return $"{sign}{absValue:0.##}";
+        return $"{sign}{absValue:0.###}";
     }
 
     private static string FormatCurrency(int value)
