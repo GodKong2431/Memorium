@@ -941,6 +941,29 @@ public sealed partial class StoneUI
 
         if (grade == StoneGrade.Normal)
         {
+            if (!TryGetPreviousTierKey(tier, out int previousTier))
+            {
+                return TextOpen;
+            }
+
+            if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(previousTier, out var previousTierStoneDict))
+            {
+                return TextNoData;
+            }
+
+            if (!previousTierStoneDict.TryGetValue(StoneGrade.Myth, out AbilityStone previousTierMythStone)
+                || previousTierMythStone == null)
+            {
+                return TextNoData;
+            }
+
+            int _currentUpCount = previousTierMythStone.GetUpCount();
+            
+            if (_currentUpCount < stoneData.NeedUp)
+            {
+                return $"{_currentUpCount} / {stoneData.NeedUp}{TextTimesNeed}";
+            }
+
             return TextOpen;
         }
 
@@ -993,7 +1016,29 @@ public sealed partial class StoneUI
 
         if (grade == StoneGrade.Normal)
         {
-            stoneData.isUnlock = true;
+            if (!TryGetPreviousTierKey(tier, out int previousTier))
+            {
+                stoneData.isUnlock = true;
+                return true;
+            }
+
+            if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(previousTier, out var previousTierStoneDict))
+            {
+                return false;
+            }
+
+            if (!previousTierStoneDict.TryGetValue(StoneGrade.Myth, out AbilityStone previousTierMythStone)
+                || previousTierMythStone == null)
+            {
+                return false;
+            }
+
+            if (!stoneData.isUnlock)
+            {
+                stoneData.isUnlock = previousTierMythStone.GetUpCount() >= stoneData.NeedUp;
+                return previousTierMythStone.GetUpCount() >= stoneData.NeedUp;
+            }
+
             return true;
         }
 
@@ -1038,6 +1083,34 @@ public sealed partial class StoneUI
         }
 
         nextTier = candidateTier;
+        return true;
+    }
+
+    private bool TryGetPreviousTierKey(int currentTier, out int previousTier)
+    {
+        previousTier = currentTier;
+
+        AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
+        if (abilityStoneManager == null || abilityStoneManager.so == null)
+        {
+            return false;
+        }
+
+        int candidateTier = int.MinValue;
+        foreach (int tierKey in abilityStoneManager.so.AbilityStoneDict.Keys)
+        {
+            if (tierKey < currentTier && tierKey > candidateTier)
+            {
+                candidateTier = tierKey;
+            }
+        }
+
+        if (candidateTier == int.MinValue)
+        {
+            return false;
+        }
+
+        previousTier = candidateTier;
         return true;
     }
 
