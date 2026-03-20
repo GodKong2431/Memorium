@@ -14,8 +14,8 @@ public class MonsterAnimationConfig : ScriptableObject
     [SerializeField] private string triggerChase = "Chase";
     [Tooltip("일반 공격")]
     [SerializeField] private string triggerAttack = "Attack";
-    [Tooltip("보스 전용 공격 트리거 (없으면 Attack 사용)")]
-    [SerializeField] private string triggerAttackBoss = "AttackBoss";
+    [Tooltip("레거시 보스 공격 트리거 (현재는 Attack과 동일하게 사용)")]
+    [SerializeField] private string triggerAttackBoss = "Attack";
     [Tooltip("피격")]
     [SerializeField] private string triggerOnhit = "Onhit";
     [Tooltip("사망")]
