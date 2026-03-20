@@ -25,6 +25,7 @@ public sealed class SkillInventoryModule : IInventoryModule
 
     private Dictionary<int, BigDouble> skillUpCostByLevel;
 
+    private const int UNLOCK_COST = 3;
 
     public SkillInventoryModule()
     {
@@ -103,7 +104,18 @@ public sealed class SkillInventoryModule : IInventoryModule
         skillDataById.TryGetValue(skillId, out var data);
         return data;
     }
+    /// <summary>
+    /// 해당 스킬 해금 가능 여부 반환
+    /// </summary>
+    public bool CanUnlockSkill(int skillId)
+    {
+        if (skillDataById.ContainsKey(skillId)) return false;
 
+        int scrollItemId = GetScrollItemId(skillId);
+        if (scrollItemId <= 0) return false;
+
+        return InventoryManager.Instance.HasEnoughItem(scrollItemId, new BigDouble(UNLOCK_COST));
+    }
     /// <summary>
     /// 해당 스킬이 현재 프리셋에 장착되어있는지 반환
     /// </summary>
@@ -205,6 +217,27 @@ public sealed class SkillInventoryModule : IInventoryModule
     #endregion
 
     #region UI 버튼용
+
+    // <summary>
+    /// 해당 스킬 해금 실행 및 성공 여부 반환
+    /// </summary>
+    public bool TryUnlockSkill(int skillId)
+    {
+        if (!CanUnlockSkill(skillId)) return false;
+
+        int scrollItemId = GetScrollItemId(skillId);
+        InventoryManager.Instance.RemoveItem(scrollItemId, new BigDouble(UNLOCK_COST));
+
+        skillDataById[skillId] = new OwnedSkillData
+        {
+            skillID = skillId,
+            level = 1
+        };
+
+        OnInventoryChanged?.Invoke();
+        OnInventoryChagedByData?.Invoke(skillDataById[skillId]);
+        return true;
+    }
     /// <summary>
     /// 해당 스킬 레벨업 실행 및 성공 여부 반환
     /// </summary>
@@ -234,6 +267,8 @@ public sealed class SkillInventoryModule : IInventoryModule
         return table.skillScrollID;
     }
 
+
+    #region 삭제? 해야할 
     // 지정 스킬 체인을 가능한 만큼 합성한다.
     public int MergeChain(int skillId, bool notify = true)
     {
@@ -247,6 +282,7 @@ public sealed class SkillInventoryModule : IInventoryModule
             OnInventoryChanged?.Invoke();
         return 0;
     }
+    #endregion
 
     // 현재 선택된 프리셋을 반환한다.
     public SkillPreset GetCurrentPreset()

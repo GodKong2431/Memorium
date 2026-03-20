@@ -588,10 +588,11 @@ public class ActiveSkillUIController : UIControllerBase
     {
         if (ownedData == null)
             return 0;
+        //return ownedData.IsEquippable
+        //    ? ownedData.OwnedScollCount
+        //    : ownedData.GetCount(SkillGrade.Scroll);
 
-        return ownedData.IsEquippable
-            ? ownedData.HighestGradeCount
-            : ownedData.GetCount(SkillGrade.Scroll);
+        return (int)ownedData.GetOwnedScrollCount().ToFloat();
     }
 
     // 소유 상태와 개수에 따라 아이템 표시 상태를 결정합니다.
@@ -613,9 +614,8 @@ public class ActiveSkillUIController : UIControllerBase
     {
         if (currentCount < RequiredMergeCount)
             return false;
-
         if (visualState == ActiveSkillItemVisualState.Upgrade)
-            return ownedData != null && ownedData.CanMerge;
+            return ownedData != null && ownedData.CanLevelUp;
 
         return visualState == ActiveSkillItemVisualState.Enough;
     }

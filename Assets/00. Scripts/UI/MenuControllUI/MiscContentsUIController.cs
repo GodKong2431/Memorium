@@ -510,19 +510,21 @@ public sealed class MiscContentsUIController : UIControllerBase
         if (skillModule == null)
             return;
 
-        Dictionary<int, int> scrollCounts = skillModule.GetOwnedScrollItemCounts();
-        if (scrollCounts == null)
-            return;
 
-        foreach (KeyValuePair<int, int> pair in scrollCounts)
+        foreach (KeyValuePair<int, SkillInfoTable> pair in DataManager.Instance.SkillInfoDict)
         {
-            if (pair.Value <= 0)
+            int scrollId = pair.Value.skillScrollID;
+            if (scrollId <= 0)
                 continue;
 
-            if (!DataManager.Instance.ItemInfoDict.TryGetValue(pair.Key, out ItemInfoTable itemInfo))
+            BigDouble count = InventoryManager.Instance.GetItemAmount(scrollId);
+            if (count <= BigDouble.Zero)
                 continue;
 
-            AddEntry(pair.Key, itemInfo.itemType, new BigDouble(pair.Value), itemInfo.itemName, LoadItemIcon(itemInfo));
+            if (!DataManager.Instance.ItemInfoDict.TryGetValue(scrollId, out ItemInfoTable itemInfo))
+                continue;
+
+            AddEntry(scrollId, itemInfo.itemType, count, itemInfo.itemName, LoadItemIcon(itemInfo));
         }
     }
 
