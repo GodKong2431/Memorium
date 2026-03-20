@@ -4,10 +4,21 @@ public class Enemy : MonoBehaviour
 {
     private bool Isdead;
     private EnemyStateMachine fsm;
+    
+    [SerializeField] private Collider enemyCollider;
 
+    public Collider EnemyCollider => enemyCollider;
     private void Awake()
     {
         fsm = transform.GetComponent<EnemyStateMachine>();
+    }
+
+    void Start()
+    {
+        if (enemyCollider == null)
+        {
+            enemyCollider = GetComponent<Collider>();
+        }
     }
 
     private void OnEnable()

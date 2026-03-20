@@ -1,7 +1,5 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -11,9 +9,10 @@ public struct AbiltyStoneDictData
 {
     public int stoneGrade;
     public AbilityStoneData abilityStoneData;
-
-    public AbiltyStoneDictData(StoneGrade stoneGrade)
+    public int tier;
+    public AbiltyStoneDictData(StoneGrade stoneGrade, int tier)
     {
+        this.tier = tier;
         this.stoneGrade = (int)stoneGrade;
         abilityStoneData=new AbilityStoneData(false, null);
     }

@@ -61,6 +61,7 @@ public class ActiveSkillUIController : UIControllerBase
     private readonly Dictionary<int, ActiveSkillItemView> itemViews = new Dictionary<int, ActiveSkillItemView>();
     // 로드한 아이콘을 재사용하기 위한 캐시입니다.
     private readonly Dictionary<int, Sprite> iconCache = new Dictionary<int, Sprite>();
+    private readonly Dictionary<int, Sprite> gemIconCache = new Dictionary<int, Sprite>();
 
     // 현재 구독 중인 스킬 인벤토리 모듈입니다.
     private SkillInventoryModule subscribedSkillModule;
@@ -201,6 +202,7 @@ public class ActiveSkillUIController : UIControllerBase
             int currentCount = GetCurrentMergeCount(ownedData);
             ActiveSkillItemVisualState visualState = GetVisualState(ownedData, currentCount);
             bool canTriggerStateAction = CanTriggerStateAction(ownedData, visualState, currentCount);
+            ActiveSkillItemGemSlotDisplayData[] upgradeGemSlots = BuildUpgradeGemSlots(pair.Key, ownedData);
 
             pair.Value.Bind(
                 new ActiveSkillItemDisplayData(
@@ -213,7 +215,8 @@ public class ActiveSkillUIController : UIControllerBase
                     visualState,
                     currentCount,
                     RequiredMergeCount,
-                    canTriggerStateAction),
+                    canTriggerStateAction,
+                    upgradeGemSlots),
                 HandleSkillDetailRequested,
                 BeginEquipSelection,
                 HandleItemStateActionClicked);
@@ -566,6 +569,66 @@ public class ActiveSkillUIController : UIControllerBase
         return cached;
     }
 
+    private ActiveSkillItemGemSlotDisplayData[] BuildUpgradeGemSlots(int skillId, OwnedSkillData ownedData)
+    {
+        ActiveSkillItemGemSlotDisplayData[] slots = new ActiveSkillItemGemSlotDisplayData[3];
+        SkillPresetSlot presetSlot = GetCurrentPresetSlot(skillId);
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            bool isUnlocked = IsGemSlotOpen(ownedData, i);
+            int equippedGemId = GetEquippedGemId(presetSlot, i);
+            bool hasEquippedGem = equippedGemId > 0;
+            Sprite gemIcon = hasEquippedGem ? GetGemIcon(equippedGemId) : null;
+            slots[i] = new ActiveSkillItemGemSlotDisplayData(isUnlocked, hasEquippedGem, gemIcon);
+        }
+
+        return slots;
+    }
+
+    private Sprite GetGemIcon(int itemId)
+    {
+        if (itemId <= 0)
+            return null;
+
+        if (gemIconCache.TryGetValue(itemId, out Sprite cached))
+            return cached;
+
+        Sprite sprite = null;
+        if (DataManager.Instance?.ItemInfoDict != null &&
+            DataManager.Instance.ItemInfoDict.TryGetValue(itemId, out ItemInfoTable itemInfo) &&
+            itemInfo != null &&
+            !string.IsNullOrWhiteSpace(itemInfo.itemIcon))
+        {
+            string key = itemInfo.itemIcon.Trim();
+            sprite = Resources.Load<Sprite>(key);
+            if (sprite == null)
+            {
+                int extensionIndex = key.LastIndexOf(".", StringComparison.Ordinal);
+                if (extensionIndex > 0)
+                    sprite = Resources.Load<Sprite>(key.Substring(0, extensionIndex));
+            }
+
+            if (sprite == null)
+            {
+                const string resourcesToken = "Resources/";
+                int resourcesIndex = key.IndexOf(resourcesToken, StringComparison.OrdinalIgnoreCase);
+                if (resourcesIndex >= 0)
+                {
+                    string relativePath = key.Substring(resourcesIndex + resourcesToken.Length);
+                    int extensionIndex = relativePath.LastIndexOf(".", StringComparison.Ordinal);
+                    if (extensionIndex > 0)
+                        relativePath = relativePath.Substring(0, extensionIndex);
+
+                    sprite = Resources.Load<Sprite>(relativePath);
+                }
+            }
+        }
+
+        gemIconCache[itemId] = sprite;
+        return sprite;
+    }
+
     // 열린 젬 슬롯 수를 소유 데이터에서 계산합니다.
     private static int GetOpenGemCount(OwnedSkillData ownedData)
     {
@@ -621,6 +684,62 @@ public class ActiveSkillUIController : UIControllerBase
     }
 
     // 슬롯 타입과 스킬 타입이 서로 맞는지 검사합니다.
+    private static bool IsGemSlotOpen(OwnedSkillData ownedData, int gemSlotIndex)
+    {
+        if (ownedData == null)
+            return false;
+
+        switch (gemSlotIndex)
+        {
+            case 0:
+                return ownedData.IsM5JemSlotOpen(0);
+            case 1:
+                return ownedData.IsM5JemSlotOpen(1);
+            case 2:
+                return ownedData.IsM4JemSlotOpen;
+            default:
+                return false;
+        }
+    }
+
+    private static SkillPresetSlot GetCurrentPresetSlot(int skillId)
+    {
+        SkillInventoryModule skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+        SkillPreset currentPreset = skillModule?.GetCurrentPresetSnapshot();
+        if (currentPreset?.slots == null)
+            return null;
+
+        for (int i = 0; i < currentPreset.slots.Length; i++)
+        {
+            SkillPresetSlot slot = currentPreset.slots[i];
+            if (slot != null && slot.skillID == skillId)
+                return slot;
+        }
+
+        return null;
+    }
+
+    private static int GetEquippedGemId(SkillPresetSlot presetSlot, int gemSlotIndex)
+    {
+        if (presetSlot == null)
+            return SkillPresetSlot.EmptySkillId;
+
+        switch (gemSlotIndex)
+        {
+            case 0:
+            case 1:
+                return presetSlot.m5JemIDs != null && gemSlotIndex < presetSlot.m5JemIDs.Length
+                    ? presetSlot.m5JemIDs[gemSlotIndex]
+                    : SkillPresetSlot.EmptySkillId;
+            case 2:
+                return presetSlot.m4JemID;
+            default:
+                return SkillPresetSlot.EmptySkillId;
+        }
+    }
+
     private static bool CanEquipToSlot(int slotIndex, SkillType type)
     {
         if (slotIndex == 2)

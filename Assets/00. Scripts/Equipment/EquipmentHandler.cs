@@ -277,7 +277,7 @@ public class EquipmentHandler : MonoBehaviour
         ReinforecementEquipmentStat.SetReinforcement(itemId, equipmentData.equipmentReinforcement);
 
         //강화 보너스 스탯 반영
-        ReinforecementEquipmentStat.SetBonusStat(itemId, equipmentData.equipmentReinforcement);
+        bool statBonusUpdate = ReinforecementEquipmentStat.SetBonusStat(itemId, equipmentData.equipmentReinforcement);
 
 
         //착용 중인 아이템일 경우 다시 장착하여 스탯 적용
@@ -285,9 +285,10 @@ public class EquipmentHandler : MonoBehaviour
         {
             int currentItemId = playerEquipment.ReturnItemNum(type);
 
-            if (currentItemId == itemId)
+            //현재 장착중인 장비를 강화했거나 스탯 보너스가 업데이트 되었을 경우
+            if (currentItemId == itemId || statBonusUpdate)
             {
-                playerEquipment.OnEqipItem(itemId);
+                playerEquipment.OnEqipItem(currentItemId);
                 break;
             }
         }

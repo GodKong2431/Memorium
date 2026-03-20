@@ -41,7 +41,7 @@ public class PlayerStateChase : IPlayerState
         // 해당 객체는 스테이지에 소환된 직후 플레이어와의 거리가 공격 사거리보다 클 동안 플레이어 위치로 이동
         // 플레이어와의 거리가 공격 사거리 이하(dist <= AttackRange)가 되는 시점에 전투 상태로 전환
 
-        Collider enemyCol = enemy.GetComponent<Collider>();
+        Collider enemyCol = enemy.GetComponent<Enemy>().EnemyCollider;
 
         if (enemyCol != null)
         {

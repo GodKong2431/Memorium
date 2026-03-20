@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +9,21 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed partial class StoneUI : UIControllerBase
 {
-    private const string TextStone = "스톤";
+    private struct StoneListEntry
+    {
+        public int Tier;
+        public StoneGrade Grade;
+        public AbilityStone StoneData;
+
+        public StoneListEntry(int tier, StoneGrade grade, AbilityStone stoneData)
+        {
+            Tier = tier;
+            Grade = grade;
+            StoneData = stoneData;
+        }
+    }
+
+    private const string TextStone = "어빌리티";
     private const string TextBonusStat = "보너스 스탯";
     private const string TextAccumulatedSuccess = "누적 강화 성공";
     private const string TextSuccessRate = "성공 확률";
@@ -62,6 +77,8 @@ public sealed partial class StoneUI : UIControllerBase
     [SerializeField] private Color disabledTextColor = new Color(0.65f, 0.65f, 0.65f, 1f);
 
     private readonly List<StoneItemUI> runtimeStoneItems = new List<StoneItemUI>();
+    private readonly List<StoneListEntry> stoneListEntries = new List<StoneListEntry>();
+    
     private readonly List<StoneBonusItemUI> runtimeBonusItems = new List<StoneBonusItemUI>();
     private readonly Dictionary<StatType, Sprite> iconByStat = new Dictionary<StatType, Sprite>();
 
@@ -72,7 +89,10 @@ public sealed partial class StoneUI : UIControllerBase
     private bool bindingsWarningLogged;
     private bool panelEventsBound;
     private StoneGrade? selectedGrade;
-
+    private int selectedtier;
+    
+    private int indexss; 
+    
     protected override void Initialize()
     {
         // 스탯 아이콘 캐시는 시작할 때 한 번만 준비한다.
@@ -160,13 +180,39 @@ public sealed partial class StoneUI : UIControllerBase
 
     private bool HasSceneRefs()
     {
+        bool hasStoneItemSource = stoneItem != null;
+        if (!hasStoneItemSource && stoneViews != null)
+        {
+            for (int i = 0; i < stoneViews.Count; i++)
+            {
+                if (stoneViews[i] != null)
+                {
+                    hasStoneItemSource = true;
+                    break;
+                }
+            }
+        }
+
+        bool hasBonusItemSource = bonusItem != null;
+        if (!hasBonusItemSource && bonusViews != null)
+        {
+            for (int i = 0; i < bonusViews.Count; i++)
+            {
+                if (bonusViews[i] != null)
+                {
+                    hasBonusItemSource = true;
+                    break;
+                }
+            }
+        }
+
         // 필수 UI 참조가 모두 연결됐는지 먼저 확인한다.
         bool ready =
             stoneRoot != null &&
-            stoneItem != null &&
+            hasStoneItemSource &&
             infoPanel != null &&
             infoPanel.ContentRoot != null &&
-            bonusItem != null &&
+            hasBonusItemSource &&
             upgradePanel != null &&
             upgradePanel.SlotItems != null &&
             upgradePanel.SlotItems.Length >= 3 &&
@@ -336,8 +382,7 @@ public sealed partial class StoneUI : UIControllerBase
             }
         }
 
-        int serializedItemCount = runtimeStoneItems.Count;
-        int targetCount = Enum.GetValues(typeof(StoneGrade)).Length;
+        int targetCount = Mathf.Max(runtimeStoneItems.Count, Enum.GetValues(typeof(StoneGrade)).Length);
         while (runtimeStoneItems.Count < targetCount && stoneItem != null)
         {
             StoneItemUI clone = Instantiate(stoneItem, stoneRoot);
@@ -354,14 +399,14 @@ public sealed partial class StoneUI : UIControllerBase
 
             bool isVisible = i < targetCount;
             itemUI.gameObject.SetActive(isVisible);
-            if (!isVisible || itemUI.Button == null || i < serializedItemCount)
+            if (!isVisible || itemUI.Button == null)
             {
                 continue;
             }
 
-            StoneGrade capturedGrade = (StoneGrade)i;
+            int capturedIndex = i;
             itemUI.Button.onClick.RemoveAllListeners();
-            itemUI.Button.onClick.AddListener(() => OpenUpgradePanel(capturedGrade));
+            itemUI.Button.onClick.AddListener(() => OnStoneItemViewClick(capturedIndex));
         }
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(stoneRoot);
@@ -422,7 +467,57 @@ public sealed partial class StoneUI : UIControllerBase
             return;
         }
 
-        OpenUpgradePanel((StoneGrade)gradeIndex);
+        StoneGrade grade = (StoneGrade)gradeIndex;
+        int tier = indexss;
+
+        AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
+        if (abilityStoneManager == null || abilityStoneManager.so == null)
+        {
+            return;
+        }
+
+        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(tier, out var tierStoneDict)
+            || !tierStoneDict.TryGetValue(grade, out AbilityStone stoneData)
+            || stoneData == null)
+        {
+            List<int> tierKeys = new List<int>();
+            foreach (int tierKey in abilityStoneManager.so.AbilityStoneDict.Keys)
+            {
+                tierKeys.Add(tierKey);
+            }
+            tierKeys.Sort();
+
+            for (int i = 0; i < tierKeys.Count; i++)
+            {
+                int tierKey = tierKeys[i];
+                if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(tierKey, out var fallbackTierDict))
+                {
+                    continue;
+                }
+
+                if (fallbackTierDict.TryGetValue(grade, out stoneData) && stoneData != null)
+                {
+                    tier = tierKey;
+                    break;
+                }
+            }
+        }
+
+        OpenUpgradePanel(grade, tier);
+    }
+    
+    public void OnStoneIndex(int index)
+    {
+        indexss = index;
+
+        if (TryPrepareRuntimeData())
+        {
+            RefreshStoneList();
+        }
+        else
+        {
+            RefreshStoneListLoading();
+        }
     }
 
     // 강화 슬롯 버튼에서 바로 호출한다.
@@ -521,14 +616,99 @@ public sealed partial class StoneUI : UIControllerBase
             return;
         }
 
+        BuildStoneListEntries(abilityStoneManager);
+
+        while (runtimeStoneItems.Count < stoneListEntries.Count && stoneItem != null)
+        {
+            StoneItemUI clone = Instantiate(stoneItem, stoneRoot);
+            runtimeStoneItems.Add(clone);
+        }
+
         for (int i = 0; i < runtimeStoneItems.Count; i++)
         {
-            if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue((StoneGrade)i, out AbilityStone stoneData))
+            StoneItemUI itemUI = runtimeStoneItems[i];
+            if (itemUI == null)
             {
                 continue;
             }
 
-            RenderStoneItem(runtimeStoneItems[i], (StoneGrade)i, stoneData);
+            bool isVisible = i < stoneListEntries.Count;
+            itemUI.gameObject.SetActive(isVisible);
+            if (!isVisible)
+            {
+                continue;
+            }
+
+            if (itemUI.Button != null)
+            {
+                int capturedIndex = i;
+                itemUI.Button.onClick.RemoveAllListeners();
+                itemUI.Button.onClick.AddListener(() => OnStoneItemViewClick(capturedIndex));
+            }
+
+            StoneListEntry entry = stoneListEntries[i];
+            if (entry.StoneData == null)
+            {
+                continue;
+            }
+
+            RenderStoneItem(itemUI, entry.Grade, entry.StoneData, entry.Tier);
+        }
+
+        if (stoneRoot != null)
+        {
+            LockButton();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(stoneRoot);
+        }
+    }
+
+    private void OnStoneItemViewClick(int viewIndex)
+    {
+        if (viewIndex < 0 || viewIndex >= stoneListEntries.Count)
+        {
+            return;
+        }
+
+        StoneListEntry entry = stoneListEntries[viewIndex];
+        indexss = entry.Tier;
+        OpenUpgradePanel(entry.Grade, entry.Tier);
+    }
+
+    private void BuildStoneListEntries(AbilityStoneManager abilityStoneManager)
+    {
+        stoneListEntries.Clear();
+
+        if (abilityStoneManager == null || abilityStoneManager.so == null)
+        {
+            return;
+        }
+
+        List<int> tierKeys = new List<int>();
+        foreach (int tierKey in abilityStoneManager.so.AbilityStoneDict.Keys)
+        {
+            tierKeys.Add(tierKey);
+        }
+        tierKeys.Sort();
+
+        int gradeCount = Enum.GetValues(typeof(StoneGrade)).Length;
+        for (int tierIndex = 0; tierIndex < tierKeys.Count; tierIndex++)
+        {
+            int tierKey = tierKeys[tierIndex];
+            if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(tierKey, out var tierStoneDict))
+            {
+                continue;
+            }
+
+            for (int gradeIndex = 0; gradeIndex < gradeCount; gradeIndex++)
+            {
+                StoneGrade grade = (StoneGrade)gradeIndex;
+                if (!tierStoneDict.TryGetValue(grade, out AbilityStone stoneData) || stoneData == null)
+                {
+                    continue;
+                }
+
+                stoneListEntries.Add(new StoneListEntry(tierKey, grade, stoneData));
+            }
         }
     }
 
@@ -584,13 +764,14 @@ public sealed partial class StoneUI : UIControllerBase
         }
 
         StoneGrade grade = selectedGrade.Value;
-        bool unlocked = IsStoneUnlocked(grade);
+        bool unlocked = IsStoneUnlocked(grade,selectedtier);
         bool canAffordUpgrade = CanAfford(stoneData.UpCost);
         int totalAttemptCount = stoneData.GetAttemptCount(0) + stoneData.GetAttemptCount(1) + stoneData.GetAttemptCount(2);
 
         if (upgradePanel.GradeText != null)
         {
-            upgradePanel.GradeText.text = $"{GetGradeName(grade)} {TextStone}";
+            upgradePanel.GradeText.text = $"{selectedtier}티어 {GetGradeName(grade)} {TextStone}";
+            upgradePanel.GradeText.color = AbilityStoneManager.Instance.so.StoneGradeColorDict[grade];
         }
 
         string probabilityText = stoneData.IsConfigured
@@ -626,7 +807,7 @@ public sealed partial class StoneUI : UIControllerBase
             upgradePanel.ResetButton.interactable = unlocked && stoneData.IsConfigured && totalAttemptCount > 0;
         }
 
-        UpdateNextGradeButton(grade, unlocked);
+        UpdateNextGradeButton(grade, unlocked,selectedtier);
 
         StoneSlotItemUI[] slotViews = upgradePanel.SlotItems;
         for (int i = 0; i < slotViews.Length; i++)
@@ -639,5 +820,14 @@ public sealed partial class StoneUI : UIControllerBase
 
         RefreshReconfigurePopup(stoneData, unlocked);
         RefreshResetPopup(stoneData, unlocked, totalAttemptCount);
+    }
+    public void LockButton()
+    {
+        foreach(var stoneView in runtimeStoneItems)
+        {
+            var LockButton = stoneView.LockObject.GetComponent<Button>();
+            LockButton.onClick.RemoveAllListeners();
+            LockButton.onClick.AddListener(()=>InstanceMessageManager.TryShow("아직 해금되지 않은 스톤입니다"));
+        }
     }
 }

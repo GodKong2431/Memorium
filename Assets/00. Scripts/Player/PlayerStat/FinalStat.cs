@@ -41,9 +41,9 @@ public class FinalStat
         // 장비 스탯
         float equipStat = CharacterStatManager.Instance.PlayerSlot.GetStat(playerStatType);
         
-        float abilityStoneStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetStat(playerStatType, false) : 0f;
+        float abilityStoneStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetStat(playerStatType, 0) : 0f;
         
-        float ablityStoneMultStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetStat(playerStatType, true) : 0f;
+        float ablityStoneMultStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetStat(playerStatType, 1) : 0f;
         
         float ablityStoneBonusStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetBonusStat(playerStatType) : 0f;
         
