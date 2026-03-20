@@ -40,7 +40,6 @@ public class SkillTestInjector : MonoBehaviour
             gemModule.TryAdd(m5BContext, 1);
         }
 
-        skillModule.AddSkill(info.ID, SkillGrade.Common, 1);
         var data = skillModule.GetSkillData(info.ID);
         if (data != null) data.level = 500;
 

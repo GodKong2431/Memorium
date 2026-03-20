@@ -85,12 +85,9 @@ public class SkillSlotItem : MonoBehaviour
     // 소유 중인 스킬 카드 상태를 화면에 반영합니다.
     private void SetOwned(OwnedSkillData data)
     {
-        gradeText.SetText($"{GetGradeDisplayText(data.HighestGrade)} : {data.HighestGradeCount}/3");
+        gradeText.SetText($"{GetGradeDisplayText(data.GetGrade())} : {data.GetOwnedScrollCount()} / {data.GetLevelUpCost()}");
 
-        if (data.HighestGrade >= SkillGrade.Rare)
-            levelText.SetText("Lv.{0}", data.level);
-        else
-            levelText.SetText(string.Empty);
+        levelText.SetText("Lv.{0}", data.level);
 
         skillIcon.color = skillIcon.sprite != null ? Color.white : Color.gray;
         equipButton.interactable = data.IsEquippable;

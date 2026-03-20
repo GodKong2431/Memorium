@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,99 +6,65 @@ public class OwnedSkillData
 {
     public int skillID;
     public int level;
-    public List<int> gradeCountMap = new List<int>(new int[(int)SkillGrade.Count]);
 
-    public void SetCount(SkillGrade grade, int count)
-    {
-        Debug.Log($"[OwnedSkillData] 가져올 등급 {(int)grade} 리스트 크기 {gradeCountMap.Count}");
-        gradeCountMap[(int)grade]=count;
-    }
-    public int GetCount(SkillGrade grade)
-    {
-        //값의 범위를 벗어날 경우
-        if ((int)grade < 0 || (int)grade >= gradeCountMap.Count)
-            return 0;
-
-        return gradeCountMap[(int)grade];
+    public void AddLevel()
+    {   
+        if(CanLevelUp)
+            level++;
     }
 
-    public void AddCount(SkillGrade grade, int amount)
+    public int MaxLevel => 25;
+
+    public bool CanLevelUp => level < MaxLevel;
+
+    public SkillGrade GetGrade()
     {
+        if (level < 6) return SkillGrade.Common;
+        else if (level < 11) return SkillGrade.Rare;
+        else if (level < 16) return SkillGrade.Epic;
+        else if (level < 21) return SkillGrade.Legendary;
+        else return SkillGrade.Mythic;
 
-        gradeCountMap[(int)grade] += amount;
-        if (gradeCountMap[(int)grade] < 0) gradeCountMap[(int)grade] = 0;
     }
-
-    public SkillGrade HighestGrade
-    {
-        get
-        {
-            SkillGrade best = SkillGrade.Scroll;
-
-            for(int i = (int)SkillGrade.Count - 1; i >= 0; i--)
-            {
-                if (gradeCountMap[i] > 0)
-                {
-                    best = (SkillGrade)i;
-                    break;
-                }
-            }
-            return best;
-        }
-    }
-
-    public int HighestGradeCount
-    {
-        get { return GetCount(HighestGrade); }
-    }
-
-    public int MaxLevel
-    {
-        get
-        {
-            switch (HighestGrade)
-            {
-                case SkillGrade.Scroll: return 0;
-                case SkillGrade.Common: return 0;
-                case SkillGrade.Rare: return 50;
-                case SkillGrade.Epic: return 150;
-                case SkillGrade.Legendary: return 300;
-                case SkillGrade.Mythic: return 500;
-                default: return 0;
-            }
-        }
-    }
-
-    public bool CanLevelUp
-    {
-        get { return HighestGrade >= SkillGrade.Rare && level < MaxLevel; }
-    }
-
-
-    public const int M5_JEM_SLOT_COUNT = 2;
-    private static readonly int[] M5_UNLOCK_LEVELS = { 10, 100 };
-    private const int M4_UNLOCK_LEVEL = 500;
+    private static readonly SkillGrade[] M5_UNLOCK_LEVELS = { SkillGrade.Rare, SkillGrade.Epic };
+    private const SkillGrade M4_UNLOCK_LEVEL = SkillGrade.Legendary;
 
     public bool IsM5JemSlotOpen(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= M5_UNLOCK_LEVELS.Length) return false;
-        return level >= M5_UNLOCK_LEVELS[slotIndex];
+        return GetGrade() >= M5_UNLOCK_LEVELS[slotIndex];
     }
 
     public bool IsM4JemSlotOpen
     {
-        get { return level >= M4_UNLOCK_LEVEL; }
+        get { return GetGrade() >= M4_UNLOCK_LEVEL; }
     }
 
 
     public bool IsEquippable
     {
-        get { return HighestGrade >= SkillGrade.Common; }
+        get { return GetGrade() >= SkillGrade.Common; }
     }
-
-    public bool CanMerge
+    private int GetScrollItemId()
     {
-        get { return HighestGrade < SkillGrade.Mythic; }
+        if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table))
+            return 0;
+        return table.skillScrollID;
     }
 
+    public BigDouble GetOwnedScrollCount()
+    {
+        int scrollId = GetScrollItemId();
+        if (scrollId <= 0) return BigDouble.Zero;
+        return InventoryManager.Instance.GetItemAmount(scrollId);
+    }
+
+    public BigDouble GetLevelUpCost()
+    {
+        if (!CanLevelUp) return BigDouble.Zero;
+        var module = InventoryManager.Instance.GetModule<SkillInventoryModule>();
+        if (module == null) return BigDouble.Zero;
+        module.TryGetLevelUpCost(skillID, out BigDouble cost);
+        return cost;
+    }
 }

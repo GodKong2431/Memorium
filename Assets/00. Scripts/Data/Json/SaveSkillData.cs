@@ -25,7 +25,7 @@ public class SaveSkillData : ISaveData
 
     public int SkillCountByPreset => skillCountByPreset;
 
-    Dictionary<int, SkillGrade> skillGrades = new Dictionary<int, SkillGrade>();
+    //Dictionary<int, SkillGrade> skillGrades = new Dictionary<int, SkillGrade>();
 
     public void InitSkillData()
     {
@@ -40,8 +40,8 @@ public class SaveSkillData : ISaveData
 
         savedPresetNum = presetNum;
 
-        foreach (SkillGrade grade in Enum.GetValues(typeof(SkillGrade)))
-            skillGrades[(int)grade] = grade;
+        //foreach (SkillGrade grade in Enum.GetValues(typeof(SkillGrade)))
+        //    skillGrades[(int)grade] = grade;
 
         Debug.Log("[SaveSkillData] data init start");
         if (skillInfoData == null)
@@ -144,13 +144,13 @@ public class SaveSkillData : ISaveData
         SkillInfoData infoData = skillInfoData[index];
         infoData.skillLevel = skillData.level;
 
-        foreach (SkillGrade grade in skillGrades.Values)
-        {
-            int gradeIndex = infoData.FindGradeIndex((int)grade);
-            SkillGradeData gradeData = infoData.gradeData[gradeIndex];
-            gradeData.count = skillData.GetCount(grade);
-            infoData.gradeData[gradeIndex] = gradeData;
-        }
+        //foreach (SkillGrade grade in skillGrades.Values)
+        //{
+        //    int gradeIndex = infoData.FindGradeIndex((int)grade);
+        //    SkillGradeData gradeData = infoData.gradeData[gradeIndex];
+        //    gradeData.count = skillData.GetCount(grade);
+        //    infoData.gradeData[gradeIndex] = gradeData;
+        //}
 
         skillInfoData[index] = infoData;
         isDirty = true;
@@ -171,18 +171,18 @@ public class SaveSkillData : ISaveData
                 level = infoData.skillLevel
             };
 
-            if (infoData.gradeData == null)
-                continue;
+            //if (infoData.gradeData == null)
+            //    continue;
 
-            foreach (SkillGradeData gradeData in infoData.gradeData)
-            {
-                if ((SkillGrade)gradeData.grade == SkillGrade.Scroll)
-                    continue;
-                if ((SkillGrade)gradeData.grade == SkillGrade.Count)
-                    continue;
+            //foreach (SkillGradeData gradeData in infoData.gradeData)
+            //{
+            //    if ((SkillGrade)gradeData.grade == SkillGrade.Scroll)
+            //        continue;
+            //    if ((SkillGrade)gradeData.grade == SkillGrade.Count)
+            //        continue;
 
-                ownedSkillData.SetCount((SkillGrade)gradeData.grade, gradeData.count);
-            }
+            //    ownedSkillData.SetCount((SkillGrade)gradeData.grade, gradeData.count);
+            //}
 
             ownedSkillDatas.Add(ownedSkillData);
         }

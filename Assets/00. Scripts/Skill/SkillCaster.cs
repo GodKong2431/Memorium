@@ -303,7 +303,14 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         {
             if (hitBuffer[i].TryGetComponent<IDamageable>(out var target))
             {
-                target.TakeDamage(statProvider.GetAttack());
+                var module = InventoryManager.Instance.GetModule<SkillInventoryModule>();
+                var OwnedSKill = module.GetSkillData(data.skillData.skillTable.ID);
+                var skillGrade = OwnedSKill.GetGrade();
+                float level = OwnedSKill.level;
+                float damage = data.skillData.skillTable.skillDamage + statProvider.GetAttack() * (1 + data.skillData.skillTable.skillDamageValue) * (1 + (0.1f * level));
+                if (skillGrade == SkillGrade.Mythic)
+                    damage *= 1.5f;
+                target.TakeDamage(damage);
 
                 PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(effectPath, target.transform, true));
 

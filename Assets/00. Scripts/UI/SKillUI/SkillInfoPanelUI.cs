@@ -329,18 +329,21 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     // 보유 데이터 기준 현재 표시할 등급을 반환합니다.
     private static SkillGrade GetCurrentGrade(OwnedSkillData ownedData)
     {
-        return ownedData != null ? ownedData.HighestGrade : SkillGrade.Scroll;
+        //return ownedData != null ? ownedData.HighestGrade : SkillGrade.Scroll;
+        return ownedData != null ? ownedData.GetGrade() : SkillGrade.Scroll;
     }
 
     // 보유 데이터 기준 현재 표시할 수량을 반환합니다.
     private static int GetCurrentCount(OwnedSkillData ownedData)
     {
-        if (ownedData == null)
-            return 0;
+        //if (ownedData == null)
+        //    return 0;
 
-        return ownedData.IsEquippable
-            ? ownedData.HighestGradeCount
-            : ownedData.GetCount(SkillGrade.Scroll);
+        //return ownedData.IsEquippable
+        //    ? ownedData.OwnedScollCount
+        //    : ownedData.GetCount(SkillGrade.Scroll);
+
+        return 0;
     }
 
     // 열린 젬 슬롯 수를 보유 데이터에서 계산합니다.

@@ -6,7 +6,10 @@ public class SkillProjectile : SkillObjectileBase
     [SerializeField] private float lifetime = 5f;
     private float elapsed;
 
-
+    private void OnEnable()
+    {
+        elapsed = 0;
+    }
     private void Update()
     {
         elapsed += Time.deltaTime;
@@ -21,7 +24,6 @@ public class SkillProjectile : SkillObjectileBase
         debugLastCastPos = dataContext.skillData.m3Data.m3Distance * transform.forward;
         if (((1 << other.gameObject.layer) & targetLayer) != 0)
         {
-            PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(dataContext?.skillData.m3Data.m3VFX, transform, true, true,rotation: transform.rotation));
             var m2 = SkillStrategyContainer.GetDetect(data.m2Data.m2Type);
             int count = m2.Detect(transform.position, transform.forward, data.m2Data, this, targetLayer);
             owner.HandleSkillHit(count, dataContext, hitBuffer);

@@ -8,8 +8,9 @@ public class ExecuteProjectile : ISkillExecuteStrategy
         
         var obj = PoolAddressableManager.Instance.GetPooledObject("Assets/02. Prefabs/SKill/Projectile/bullet.prefab",spawnPos, Quaternion.LookRotation(direction));
 
-
         if (obj == null) yield break;
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(dataContext?.skillData.m3Data.m3VFX, obj.transform, true, true, rotation: obj.transform.rotation));
+
         if (obj.TryGetComponent<SkillObjectileBase>(out var projectile))
         {
             projectile.Initialize(owner, dataContext, targetLayer);
