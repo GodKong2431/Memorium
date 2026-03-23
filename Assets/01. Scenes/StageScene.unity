@@ -1699,6 +1699,25 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fd94e61b4b77f9f4fb894783cf1de583, type: 3}
+--- !u!1 &1443210838 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6415789313917410240, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+  m_PrefabInstance: {fileID: 7151944950682389466}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1443210841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1443210838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &1537418655
 GameObject:
   m_ObjectHideFlags: 0
@@ -3120,6 +3139,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BerserkerModeController
   _berserkModeSo: {fileID: 11400000, guid: b5d6e4be408638d4bb6276e709d4d7f8, type: 2}
+  OrbKey: Assets/02. Prefabs/Design/BerserkEffect/HCFX_ElementOrb_04.prefab
   StartEffectKey1: Assets/02. Prefabs/Design/BerserkEffect/HCFX_Explosion_02_Air.prefab
   StartEffectKey2: Assets/02. Prefabs/Design/BerserkEffect/HCFX_Energy_04.prefab
   EffectKet1: Assets/02. Prefabs/Design/BerserkEffect/Poison aura.prefab
@@ -3928,6 +3948,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1849620898892182323, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1871134995927557388, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: m_Horizontal
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1905459078422051157, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
@@ -6957,6 +6981,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2453439589834296750, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 330073402}
+    - targetCorrespondingSourceObject: {fileID: 6415789313917410240, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1443210841}
   m_SourcePrefab: {fileID: 100100000, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
 --- !u!114 &7158883344651108910 stripped
 MonoBehaviour:
