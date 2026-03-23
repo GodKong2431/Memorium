@@ -47,7 +47,8 @@ public class BerserkerOrb : MonoBehaviour
 
             if (Vector3.Distance(transform.position, player.position) <= hitDistance)
             {
-                OnBerserkerOrbEarned?.Invoke(increaseOrb);
+                if (BerserkerModeController.Instance != null && !BerserkerModeController.Instance.IsActive)
+                    OnBerserkerOrbEarned?.Invoke(increaseOrb);
                 particle?.StopAndReturnManual();
                 yield break;
             }
