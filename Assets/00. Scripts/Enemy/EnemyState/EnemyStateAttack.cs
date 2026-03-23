@@ -10,11 +10,26 @@ using UnityEngine.AI;
 /// </summary>
 public class EnemyStateAttack : IEnemyState
 {
+    private enum Skill2AnimPhase
+    {
+        None,
+        WaitTaunt,
+        WaitAttack,
+        Done
+    }
+
+    private const string Skill2TauntTrigger = "Taunt";
+    private const float Skill2IdleToTauntDelay = 0.12f;
+    private const float Skill2TauntToAttackDelay = 0.22f;
+
     private float _attackEndTime;
     private bool _attackInProgress;
     private GameObject _currentAttackEffect;
     private bool _isSkillAttack;
     private bool _damageApplied;
+    private BossManageTable _currentBossAttack;
+    private Skill2AnimPhase _skill2AnimPhase;
+    private float _skill2NextAnimTime;
 
     public EnemyStateType Type => EnemyStateType.Attack;
 
@@ -53,8 +68,8 @@ public class EnemyStateAttack : IEnemyState
             return;
         }
 
-        var bossAttack = ctx.BossAttackManager.SelectNextAttack();
-        if (bossAttack == null)
+        _currentBossAttack = ctx.BossAttackManager.SelectNextAttack();
+        if (_currentBossAttack == null)
         {
             Debug.LogWarning("[EnemyStateAttack] Boss 공격 선택 실패(bossAttack == null) → Chase로 복귀");
             ctx.RequestState(EnemyStateType.Chase);
@@ -63,14 +78,26 @@ public class EnemyStateAttack : IEnemyState
 
         _damageApplied = false;
         _attackInProgress = true;
-        _attackEndTime = Time.time + bossAttack.castingDelay + bossAttack.castingTime;
-        // Debug.Log($"[EnemyStateAttack] 보스 공격 시작 - enemy={ctx.EnemyTransform.name}, attackId={bossAttack.ID}, type={bossAttack.attackType}, delay={bossAttack.castingDelay}, cast={bossAttack.castingTime}");
+        _attackEndTime = Time.time + _currentBossAttack.castingDelay + _currentBossAttack.castingTime;
+        // Debug.Log($"[EnemyStateAttack] 보스 공격 시작 - enemy={ctx.EnemyTransform.name}, attackId={_currentBossAttack.ID}, type={_currentBossAttack.attackType}, delay={_currentBossAttack.castingDelay}, cast={_currentBossAttack.castingTime}");
 
+        if (_currentBossAttack.attackType == AttackType.skillAttack2)
+        {
+            _skill2AnimPhase = Skill2AnimPhase.WaitTaunt;
+            _skill2NextAnimTime = Time.time + Skill2IdleToTauntDelay;
+            ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Idle);
+        }
         // 애니메이션 트리거는 BossManageTable.animation 값을 그대로 사용한다고 가정
-        if (!string.IsNullOrEmpty(bossAttack.animation))
-            ctx.SetAnimatorTrigger(bossAttack.animation);
+        else if (!string.IsNullOrEmpty(_currentBossAttack.animation))
+        {
+            _skill2AnimPhase = Skill2AnimPhase.None;
+            ctx.SetAnimatorTrigger(_currentBossAttack.animation);
+        }
         else
+        {
+            _skill2AnimPhase = Skill2AnimPhase.None;
             ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
+        }
 
         // 스킬 이펙트는 플레이어 쪽에 표시
         SpawnAttackEffect(ctx, spawnOnPlayer: true);
@@ -100,6 +127,8 @@ public class EnemyStateAttack : IEnemyState
 
         if (_isSkillAttack)
         {
+            UpdateSkill2AnimationSequence(ctx);
+
             if (_attackInProgress && Time.time >= _attackEndTime)
             {
                 // 보스 스킬 공격: BossManageTable 기반으로 대미지/속성 적용
@@ -168,6 +197,9 @@ public class EnemyStateAttack : IEnemyState
     public void OnExit(EnemyStateContext ctx)
     {
         ClearAttackEffect();
+        _currentBossAttack = null;
+        _skill2AnimPhase = Skill2AnimPhase.None;
+        _skill2NextAnimTime = 0f;
     }
 
     private void ClearAttackEffect()
@@ -201,5 +233,32 @@ public class EnemyStateAttack : IEnemyState
             Quaternion.identity,
             parent
         );
+    }
+
+    private void UpdateSkill2AnimationSequence(EnemyStateContext ctx)
+    {
+        if (_currentBossAttack == null || _currentBossAttack.attackType != AttackType.skillAttack2)
+            return;
+
+        if (_skill2AnimPhase == Skill2AnimPhase.Done || Time.time < _skill2NextAnimTime)
+            return;
+
+        if (_skill2AnimPhase == Skill2AnimPhase.WaitTaunt)
+        {
+            ctx.SetAnimatorTrigger(Skill2TauntTrigger);
+            _skill2AnimPhase = Skill2AnimPhase.WaitAttack;
+            _skill2NextAnimTime = Time.time + Skill2TauntToAttackDelay;
+            return;
+        }
+
+        if (_skill2AnimPhase == Skill2AnimPhase.WaitAttack)
+        {
+            if (!string.IsNullOrEmpty(_currentBossAttack.animation))
+                ctx.SetAnimatorTrigger(_currentBossAttack.animation);
+            else
+                ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
+
+            _skill2AnimPhase = Skill2AnimPhase.Done;
+        }
     }
 }
