@@ -16,7 +16,7 @@ public sealed class AddressablesCloudBuildSettings : ScriptableObject
     public const string AssetPath = "Assets/Editor/AddressablesCloudBuildSettings.asset";
 
     private static readonly Regex InvalidBadgeCharactersRegex =
-        new Regex(@"[^a-z0-9._-]+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        new Regex(@"[^a-z0-9_-]+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     [SerializeField] private bool automationEnabled = true;
     [SerializeField] private bool interceptUnityBuildButton = true;
