@@ -39,7 +39,11 @@ public class BerserkerGageUI : MonoBehaviour
         ActiveUis.Add(this);
 
         if (berserkerOrb != null)
+        {
             berserkerOrb.OnBerserkerOrbChanged += Refresh;
+            berserkerOrb.OnBerserkerOrbFull += OnBerserkerModeClicked;
+        }
+            
 
         BerserkerModeController.OnBerserkerModeChanged += _ => Refresh();
 
@@ -51,7 +55,11 @@ public class BerserkerGageUI : MonoBehaviour
         ActiveUis.Remove(this);
 
         if (berserkerOrb != null)
+        {
             berserkerOrb.OnBerserkerOrbChanged -= Refresh;
+            berserkerOrb.OnBerserkerOrbFull -= OnBerserkerModeClicked;
+        }
+            
 
         BerserkerModeController.OnBerserkerModeChanged -= _ => Refresh();
     }

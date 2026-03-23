@@ -19,6 +19,9 @@ public sealed class CachaResultItemUI : MonoBehaviour
 
     private readonly List<Image> tierStars = new List<Image>();
     private Color[] defaultFrameColors;
+    private Vector3 defaultScale;
+
+    public bool IsRareResult { get; private set; }
 
     private void Awake()
     {
@@ -38,10 +41,15 @@ public sealed class CachaResultItemUI : MonoBehaviour
 
         if (buttonItem != null)
             buttonItem.onClick.RemoveAllListeners();
+
+        defaultScale = transform.localScale;
     }
 
     public void BindForResult(int itemId, int count)
     {
+        IsRareResult = false;
+        transform.localScale = defaultScale;
+
         if (DataManager.Instance == null || !DataManager.Instance.DataLoad)
         {
             ApplyUnknownItem(count);
@@ -101,6 +109,11 @@ public sealed class CachaResultItemUI : MonoBehaviour
         SetTierStarCount(Mathf.Max(1, equipTable.grade), RarityColor.TierColorByTier(equipTable.grade));
         SetFrameColor(RarityColor.ItemGradeColor(equipTable.rarityType));
         return true;
+    }
+
+    public void SetRareResultFlag(bool isRare)
+    {
+        IsRareResult = isRare;
     }
 
     private bool TryBindStackItem(int itemId, int count)
@@ -229,5 +242,17 @@ public sealed class CachaResultItemUI : MonoBehaviour
             relativePath = relativePath.Substring(0, relativeExtensionIndex);
 
         return Resources.Load<Sprite>(relativePath);
+    }
+
+    public void PlayRareEffect()
+    {
+        transform.localScale = defaultScale * 1.08f;
+        CancelInvoke(nameof(RestoreScale));
+        Invoke(nameof(RestoreScale), 0.12f);
+    }
+
+    private void RestoreScale()
+    {
+        transform.localScale = defaultScale;
     }
 }
