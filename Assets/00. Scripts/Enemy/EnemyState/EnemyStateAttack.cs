@@ -19,6 +19,7 @@ public class EnemyStateAttack : IEnemyState
     }
 
     private const string Skill2TauntTrigger = "Taunt";
+    private const string Skill2AttackTrigger = "Animation_Boss_Attack_Normal";
     private const float Skill2IdleToTauntDelay = 0.12f;
     private const float Skill2TauntToAttackDelay = 0.22f;
 
@@ -253,10 +254,9 @@ public class EnemyStateAttack : IEnemyState
 
         if (_skill2AnimPhase == Skill2AnimPhase.WaitAttack)
         {
-            if (!string.IsNullOrEmpty(_currentBossAttack.animation))
-                ctx.SetAnimatorTrigger(_currentBossAttack.animation);
-            else
-                ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
+            // skillAttack2는 마지막 단계를 항상 Attack으로 고정한다.
+            // CSV animation 값이 Taunt/빈값인 경우에도 공격 모션으로 확실히 넘어가도록 강제.
+            ctx.SetAnimatorTrigger(Skill2AttackTrigger);
 
             _skill2AnimPhase = Skill2AnimPhase.Done;
         }

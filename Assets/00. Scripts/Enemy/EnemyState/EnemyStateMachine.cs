@@ -14,6 +14,12 @@ using static UnityEngine.GraphicsBuffer;
 [RequireComponent(typeof(EffectController))]
 public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageable,IKnockbackable
 {
+    [Header("보스 피격 모션 제어")]
+    [SerializeField, Tooltip("활성화 시 보스는 Attack/Spawn 상태에서 피격(Onhit)으로 끊기지 않습니다.")]
+    private bool suppressBossOnhitDuringAttack = false;
+    [SerializeField, Tooltip("보스 Onhit 재생 최소 간격(초). 너무 자주 피격 모션이 반복되는 것을 방지합니다.")]
+    private float bossOnhitCooldownSeconds = 0.8f;
+
     [Header("플레이어 참조 설정")]
     [SerializeField][Tooltip("추적할 플레이어. 비워두면 'Player' 태그를 가진 오브젝트를 자동 검색합니다.")]
     private Transform playerTransformOverride;
@@ -41,6 +47,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     private Dictionary<EnemyStateType, IEnemyState> _states;
     private IEnemyState _current;
     private EnemyStateType _currentType;
+    private float _nextBossOnhitAllowedTime;
 
     public EnemyStateContext Context => _ctx;
     public EnemyStateType CurrentStateType => _currentType;
@@ -212,6 +219,20 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
         {
             ChangeState(EnemyStateType.Dead);
             return;
+        }
+
+        if (_ctx.IsBoss)
+        {
+            if (suppressBossOnhitDuringAttack &&
+                (_currentType == EnemyStateType.Attack || _currentType == EnemyStateType.Spawn))
+            {
+                return;
+            }
+
+            if (Time.time < _nextBossOnhitAllowedTime)
+                return;
+
+            _nextBossOnhitAllowedTime = Time.time + Mathf.Max(0f, bossOnhitCooldownSeconds);
         }
 
         if (_currentType == EnemyStateType.Attack)
