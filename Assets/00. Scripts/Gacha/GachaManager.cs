@@ -230,6 +230,7 @@ public class GachaManager : Singleton<GachaManager>
                         continue;
 
                     result.ItemIds.Add(scrollId);
+                    result.ItemRareFlags.Add(false);
                     InventoryManager.Instance?.AddItem(scrollId, 1);
                 }
 
@@ -237,26 +238,30 @@ public class GachaManager : Singleton<GachaManager>
                 continue;
             }
 
+            state.AddDraws(1); // 기획서 기준: 레벨 카운트를 먼저 반영하고 천장 처리
+
+            bool forcePity = state.ShouldForcePityThisDraw();
             EquipmentGachaLogic.DrawResult drawResult = gachaType == GachaType.Weapon
-                ? EquipmentGachaLogic.DrawWeapon(state.Stage)
-                : EquipmentGachaLogic.DrawArmor(state.Stage);
+                ? EquipmentGachaLogic.DrawWeapon(state.Stage, forcePity)
+                : EquipmentGachaLogic.DrawArmor(state.Stage, forcePity);
 
             if (drawResult.ItemId > 0)
             {
                 result.ItemIds.Add(drawResult.ItemId);
+                result.ItemRareFlags.Add(drawResult.IsRare);
                 if (drawResult.IsRare)
                     result.HasRareItem = true;
 
                 InventoryManager.Instance?.AddItem(drawResult.ItemId, 1);
             }
 
-            state.AddDraws(1);
+            state.UpdatePityAfterEquipmentDraw(drawResult.IsHighestTier);
         }
 
         result.LevelUp = state.Level > levelBefore;
 
         //가차 데이터 저장
-        saveGachaData.SaveGachaLevel(gachaType, state.Level, state.DrawCountInCurrentLevel);
+        saveGachaData.SaveGachaLevel(gachaType, state.Level, state.DrawCountInCurrentLevel, state.PityCount);
         return true;
     }
 

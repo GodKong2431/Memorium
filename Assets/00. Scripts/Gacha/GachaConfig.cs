@@ -8,13 +8,16 @@ using UnityEngine;
 public static class GachaConfig
 {
     /// <summary>뽑기 레벨 증가에 필요한 횟수</summary>
-    public const int DrawsPerLevel = 100;
+    public const int DefaultDrawsPerLevel = 100;
     
     /// <summary>단계별 레벨 증가에 필요한 횟수</summary>
     public const int LevelsPerStage = 5;
 
     public const int MaxLevel = 110;
     public const int TotalStages = 21; // Lv 1~5: 1단계 ... Lv 101~110: 21단계
+    public const int DefaultPityDrawCount = 40;
+    public const int GachaMaxExpConfigId = 9010002;
+    public const int GachaPityConfigId = 9010003;
 
     /// <summary>오프셋 (0~400). 오프셋이 낮을 수록 등장 확률이 높음</summary>
     public static readonly int[] Offsets = { 0, 100, 200, 300, 400 };
@@ -30,6 +33,16 @@ public static class GachaConfig
     /// <summary>단계별 기준 전투력 (최소값). 1단계=100, 21단계=2100.</summary>
     public static int GetBaseCombatPower(int stage) => Mathf.Clamp(stage, 1, TotalStages) * 100;
 
+    public static int DrawsPerLevel => GetPositiveConfigValue(
+        GachaMaxExpConfigId,
+        "gachaMaxExp",
+        DefaultDrawsPerLevel);
+
+    public static int PityDrawCount => GetPositiveConfigValue(
+        GachaPityConfigId,
+        "gachaPity",
+        DefaultPityDrawCount);
+
     /// <summary>레벨 → 단계 매핑. Lv 1~5 → 1, Lv 6~10 → 2, ... Lv 101~110 → 21.</summary>
     public static int LevelToStage(int level)
     {
@@ -42,5 +55,40 @@ public static class GachaConfig
     {
         int tier = 1 + (combatPower - 100) / 100;
         return Mathf.Clamp(tier, 1, 25);
+    }
+
+    public static int GetMaxTierForStage(int stage)
+    {
+        int clampedStage = Mathf.Clamp(stage, 1, TotalStages);
+        return Mathf.Clamp(clampedStage + 4, 1, 25);
+    }
+
+    private static int GetPositiveConfigValue(int configId, string valueNameFallback, int defaultValue)
+    {
+        if (DataManager.Instance?.ConfigDict == null)
+            return defaultValue;
+
+        if (DataManager.Instance.ConfigDict.TryGetValue(configId, out ConfigTable configById)
+            && configById != null
+            && configById.value > 0f)
+        {
+            return Mathf.Max(1, Mathf.RoundToInt(configById.value));
+        }
+
+        foreach (ConfigTable config in DataManager.Instance.ConfigDict.Values)
+        {
+            if (config == null)
+                continue;
+
+            if (!string.Equals(config.valueName, valueNameFallback, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (config.value <= 0f)
+                break;
+
+            return Mathf.Max(1, Mathf.RoundToInt(config.value));
+        }
+
+        return defaultValue;
     }
 }

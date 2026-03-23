@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 [DisallowMultipleComponent]
 public sealed class CachaResultPopupUI : MonoBehaviour
@@ -38,6 +39,7 @@ public sealed class CachaResultPopupUI : MonoBehaviour
     [SerializeField] private Sprite crystalRepeatCurrencyIcon;
 
     private readonly List<CachaResultItemUI> resultItemUIs = new List<CachaResultItemUI>();
+    private Coroutine revealRoutine;
     private Action repeatAction;
     private Sprite defaultRepeatCurrencyIcon;
 
@@ -58,6 +60,9 @@ public sealed class CachaResultPopupUI : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (revealRoutine != null)
+            StopCoroutine(revealRoutine);
+
         if (buttonClose != null)
             buttonClose.onClick.RemoveListener(Hide);
 
@@ -75,11 +80,17 @@ public sealed class CachaResultPopupUI : MonoBehaviour
         RebuildResultItems(gachaType, result);
         RefreshRepeatButton(gachaType, drawCount);
         RefreshLayout(drawCount);
+        PlayRevealAnimation();
     }
 
     public void Hide()
     {
         repeatAction = null;
+        if (revealRoutine != null)
+        {
+            StopCoroutine(revealRoutine);
+            revealRoutine = null;
+        }
 
         if (gameObject.activeSelf)
             gameObject.SetActive(false);
@@ -110,6 +121,8 @@ public sealed class CachaResultPopupUI : MonoBehaviour
             }
 
             itemUI.BindForResult(entries[i].ItemId, entries[i].Count);
+            itemUI.SetRareResultFlag(entries[i].IsRare);
+            itemInstance.SetActive(false);
             resultItemUIs.Add(itemUI);
         }
     }
@@ -358,10 +371,13 @@ public sealed class CachaResultPopupUI : MonoBehaviour
             int itemId = result.ItemIds[i];
             if (itemId <= 0)
                 continue;
+            bool isRare = result.ItemRareFlags != null
+                && i < result.ItemRareFlags.Count
+                && result.ItemRareFlags[i];
 
             if (ShouldDisplayAsSingleEntry(itemId))
             {
-                entries.Add(new ResultEntry(itemId, 1));
+                entries.Add(new ResultEntry(itemId, 1, isRare));
                 continue;
             }
 
@@ -369,6 +385,7 @@ public sealed class CachaResultPopupUI : MonoBehaviour
             {
                 ResultEntry entry = entries[entryIndex];
                 entry.Count++;
+                entry.IsRare = entry.IsRare || isRare;
                 entries[entryIndex] = entry;
                 continue;
             }
@@ -376,7 +393,7 @@ public sealed class CachaResultPopupUI : MonoBehaviour
             if (itemIndexById != null)
                 itemIndexById[itemId] = entries.Count;
 
-            entries.Add(new ResultEntry(itemId, 1));
+            entries.Add(new ResultEntry(itemId, 1, isRare));
         }
 
         return entries;
@@ -425,11 +442,52 @@ public sealed class CachaResultPopupUI : MonoBehaviour
     {
         public int ItemId;
         public int Count;
+        public bool IsRare;
 
-        public ResultEntry(int itemId, int count)
+        public ResultEntry(int itemId, int count, bool isRare)
         {
             ItemId = itemId;
             Count = count;
+            IsRare = isRare;
         }
+    }
+
+    private void PlayRevealAnimation()
+    {
+        if (revealRoutine != null)
+            StopCoroutine(revealRoutine);
+
+        revealRoutine = StartCoroutine(CoRevealResultItems());
+    }
+
+    private IEnumerator CoRevealResultItems()
+    {
+        const float normalRevealIntervalSeconds = 0.1f;
+        const float rareBeforeRevealSeconds = 0.5f;
+        const float rareAfterRevealSeconds = 0.5f;
+
+        for (int i = 0; i < resultItemUIs.Count; i++)
+        {
+            CachaResultItemUI itemUI = resultItemUIs[i];
+            if (itemUI == null)
+                continue;
+
+            bool isRare = itemUI.IsRareResult;
+            if (isRare)
+                yield return new WaitForSecondsRealtime(rareBeforeRevealSeconds);
+
+            itemUI.gameObject.SetActive(true);
+
+            if (isRare)
+            {
+                itemUI.PlayRareEffect();
+                yield return new WaitForSecondsRealtime(rareAfterRevealSeconds);
+                continue;
+            }
+
+            yield return new WaitForSecondsRealtime(normalRevealIntervalSeconds);
+        }
+
+        revealRoutine = null;
     }
 }
