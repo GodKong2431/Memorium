@@ -13,6 +13,7 @@ public sealed class InstanceMessageManager : MonoBehaviour
     private const float BossEnterDuration = 1.5f;
     private const string DungeonInProgressMessage = "\uC774\uBBF8 \uB358\uC804\uC744 \uC9C4\uD589 \uC911\uC785\uB2C8\uB2E4.";
     private const string InsufficientGoldMessage = "\uB3C8\uC774 \uBD80\uC871\uD569\uB2C8\uB2E4.";
+    private const string InsufficientCrystalMessage = "\uD06C\uB9AC\uC2A4\uD0C8\uC774 \uBD80\uC871\uD569\uB2C8\uB2E4.";
 
     private static InstanceMessageManager instance;
 
@@ -44,6 +45,11 @@ public sealed class InstanceMessageManager : MonoBehaviour
         return TryShow(InsufficientGoldMessage, duration);
     }
 
+    public static bool TryShowInsufficientCrystal(float duration = DefaultDuration)
+    {
+        return TryShow(InsufficientCrystalMessage, duration);
+    }
+    
     public static bool TryShowBossEnter(float duration = BossEnterDuration)
     {
         InstanceMessageManager manager = ResolveInstance();

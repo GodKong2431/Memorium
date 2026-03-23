@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using System.Linq;
+using Unity.Burst.Intrinsics;
 
 [System.Serializable]
 public class AbilityStone
@@ -57,6 +58,8 @@ public class AbilityStone
     public int currentProbabilityCount;
 
     public bool stoneMult;
+    
+    public int tier;
     
     public int GetOpportunityCount(int slotIndex)
     {
@@ -129,6 +132,8 @@ public class AbilityStone
         secondUpOpportunity = table.stoneSecondUpOpportunity;
         thirdUpOpportunity = table.stoneThirdUpOpportunity;
         stoneMult = table.stoneTier;
+        Debug.Log("스톤"+table.stoneTier);
+        tier = stoneMult ? 1 : 0;
         
         AbilityStoneManager.Instance.OnReset += Reset;
         
@@ -198,7 +203,7 @@ public class AbilityStone
 
             AbilityStoneSlot slot = Slots[i];
             slot.successCounter ??= new List<bool>();
-            slot.increaseStat = ResolveIncreaseStat(slot.SlotType);
+            slot.increaseStat = ResolveIncreaseStat(slot.SlotType,tier);
 
             if (mgr != null)
             {
@@ -230,7 +235,7 @@ public class AbilityStone
             }
             
             Slots[i].TypeSetting(currentType);
-            Slots[i].increaseStat = AbilityStoneManager.Instance.so.StoneGradeStatUpDict[currentType].SetStat(stoneGrade);
+            Slots[i].increaseStat = AbilityStoneManager.Instance.so.StoneGradeStatUpDict[tier][currentType].SetStat(stoneGrade);
         }
         
     }
@@ -286,7 +291,7 @@ public class AbilityStone
         return totalUpCount;
     }
 
-    private float ResolveIncreaseStat(StatType statType)
+    private float ResolveIncreaseStat(StatType statType, int tier)
     {
         if (statType == StatType.None)
         {
@@ -296,7 +301,8 @@ public class AbilityStone
         AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
         if (abilityStoneManager != null
             && abilityStoneManager.so != null
-            && abilityStoneManager.so.StoneGradeStatUpDict.TryGetValue(statType, out StoneGradeStatUp statUpData))
+            && abilityStoneManager.so.StoneGradeStatUpDict.TryGetValue(tier, out var tierIndex)
+            && tierIndex.TryGetValue(statType, out StoneGradeStatUp statUpData))
         {
             return statUpData.SetStat(stoneGrade);
         }

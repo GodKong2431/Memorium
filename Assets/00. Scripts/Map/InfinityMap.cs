@@ -143,6 +143,8 @@ public class InfinityMap : MonoBehaviour
 
         if (monsterSpawner != null)
             monsterSpawner.ChangeMonsterSpawnPos();
+
+        Debug.Log("[InfinityMap] 맵 이동");
     }
 
     public void MapReset()
@@ -186,6 +188,8 @@ public class InfinityMap : MonoBehaviour
             }
         }
         MapManager.Instance.readyToMonsterSpawnerMove = true;
+
+        Debug.Log("[InfinityMap] Goal 이동");
 
         goal.ResetTrigger();
     }
@@ -296,6 +300,9 @@ public class InfinityMap : MonoBehaviour
         agent.ResetPath();
         agent.velocity = Vector3.zero;
         InitialPlacementComplete = true;
+
+
+        Debug.Log("[InfinityMap] 플레이어 위치 초기화");
     }
 
     private Vector3 ResolveNavMeshPosition(Vector3 targetPosition)

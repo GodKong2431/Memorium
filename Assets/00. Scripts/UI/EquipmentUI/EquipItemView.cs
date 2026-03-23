@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -97,6 +98,19 @@ public sealed class EquipItemView
             return;
 
         canvasGroup.alpha = dimmed ? DimAlpha : 1f;
+    }
+
+    public void SetEquipEffect()
+    {
+        //여기서 UI 아이콘 위치 찾고 거기서 이펙트를 옮기고 실행시켜라
+        //ui.Icon.transform.
+        EquipParticleManager.Instance.PlayUpgradeEffect(ui.Icon.transform);
+    }
+    public void SetMergeEffect()
+    {
+        //여기서 UI 아이콘 위치 찾고 거기서 이펙트를 옮기고 실행시켜라
+        //ui.Icon.transform.
+        EquipParticleManager.Instance.PlayMergeEffect(ui.Icon.transform);
     }
 
     private void SetLevelText(string levelText)
