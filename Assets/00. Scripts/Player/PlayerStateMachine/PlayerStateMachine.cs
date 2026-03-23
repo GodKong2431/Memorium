@@ -23,6 +23,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     [SerializeField] private float stopAngle;
     
     [SerializeField] private float attackRange = 3f;
+    [SerializeField] private Transform effectTransform;
     private float _prevValue;
     public PlayerStateContext _ctx { get; private set; }
     private Dictionary<PlayerStateType, IPlayerState> _states;
@@ -75,6 +76,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
     }
+    
     private void OnDisable()
     {
         if (_ctx != null)
@@ -88,11 +90,9 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
         init();
         
-        if (CharacterStatManager.playerTransform == null)
-        {
-            CharacterStatManager.playerTransform = transform;
-            Debug.Log("플레이어 설정됨"+CharacterStatManager.playerTransform.name.ToString());
-        }
+        CharacterStatManager.playerTransform = transform;
+        BerserkerModeController.Instance.vfxParent = effectTransform;
+        BerserkerModeController.Instance.RebindFollow(effectTransform);
         
         CharacterStatManager playerStat = _ctx.StatPresenter?.PlayerStat;
 

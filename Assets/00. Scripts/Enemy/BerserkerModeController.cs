@@ -29,7 +29,7 @@ public class BerserkerModeController : MonoBehaviour
     [SerializeField] private float startDelay = 0.3f;
     
     [Tooltip("비워두면 이 컴포넌트의 transform 사용. VFX 위치용 (플레이어 루트 등).")]
-    [SerializeField] private Transform vfxParent;
+    [SerializeField] public Transform vfxParent;
     
     BerserkmodeManageTable berserkmodeManageTable;
     
@@ -78,7 +78,6 @@ public class BerserkerModeController : MonoBehaviour
         
         durationSeconds = berserkmodeManageTable.durationTime;
         PlayerBerserkerOrb.Instance.Init(berserkmodeManageTable);
-        
         EnemyKillRewardDispatcher.OnBerserkerOrb += (pos, count) => SpawnOrb(OrbKey, pos, false, count);
         
     }
@@ -159,14 +158,14 @@ public class BerserkerModeController : MonoBehaviour
     {
         if (string.IsNullOrEmpty(key)) return;
         
-        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(key, vfxParent,follow,true));
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(key, VfxParent,follow,true));
     }
     
     private void SpawnLoopEffect(string key, bool follow)
     {
         if (string.IsNullOrEmpty(key)) return;
         
-        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(key, vfxParent,follow,false,onSpawned: OnGradeEffectSpawned));
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(key, VfxParent,follow,false,onSpawned: OnGradeEffectSpawned));
     }
     
     private IEnumerator DelayVfx()
@@ -182,6 +181,17 @@ public class BerserkerModeController : MonoBehaviour
     {
         SpawnLoopEffect(EffectKet1, true);
         SpawnLoopEffect(EffectKet2, true);
+    }
+    
+    public void RebindFollow (Transform transform)
+    {
+        if (gradeEffects != null)
+        {
+            foreach(var effect in gradeEffects)
+            {
+                effect.SetFollow(transform);
+            }
+        }
     }
     
     private void RemoveVfx(bool notifyEvent = true)

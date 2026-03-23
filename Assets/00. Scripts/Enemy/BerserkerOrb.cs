@@ -55,5 +55,7 @@ public class BerserkerOrb : MonoBehaviour
 
             yield return null;
         }
+        
+        particle?.StopAndReturnManual();
     }
 }
