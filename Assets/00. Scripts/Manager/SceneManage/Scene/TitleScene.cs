@@ -12,27 +12,49 @@ public class TitleScene : SceneBase
     [SerializeField] private RectTransform loadingPanelRoot;
     [SerializeField] private Slider loadingSlider;
     [SerializeField] private TextMeshProUGUI loadingText;
+    [SerializeField] private Color loadingErrorTextColor = new Color(1f, 0.55f, 0.55f, 1f);
 
     private DataManager dataManager;
+    private float currentLoadingProgress;
+    private string currentLoadingStatus = string.Empty;
+    private bool currentLoadingStatusIsError;
+    private Color defaultLoadingTextColor = Color.white;
 
     public override IEnumerator EnterScene()
     {
         dataManager = DataManager.Instance;
+
+        if (loadingText != null)
+            defaultLoadingTextColor = loadingText.color;
+
         ShowLoadingUi();
+        SetLoadingStatus("게임 데이터를 준비하는 중...");
         SetLoadingProgress(0f);
 
         SubscribeLoadingEvents();
 
-        if (!dataManager.DataLoad)
-        {
-            dataManager.LoadStart();
-            yield return new WaitUntil(() => dataManager.DataLoad);
-        }
-        else
+        if (dataManager.DataLoad)
         {
             ApplyDataLoadProgress(1f);
+            SetLoadingStatus("게임 데이터를 확인했습니다.");
+        }
+        else if (!dataManager.IsLoading)
+        {
+            dataManager.LoadStart();
         }
 
+        while (!dataManager.DataLoad)
+        {
+            if (dataManager.RequiresUserRetry && WasRetryRequestedThisFrame())
+            {
+                SetLoadingStatus("다시 시도하는 중...");
+                dataManager.RetryLoad();
+            }
+
+            yield return null;
+        }
+
+        SetLoadingStatus("게임 씬을 준비하는 중...");
         UnsubscribeLoadingEvents();
         yield return StartCoroutine(LoadNextSceneAsync(nextScene));
     }
@@ -45,6 +67,11 @@ public class TitleScene : SceneBase
     private void HandleDataLoadProgress(float normalizedProgress, string currentFileName)
     {
         ApplyDataLoadProgress(normalizedProgress);
+    }
+
+    private void HandleStatusMessageChanged(string statusMessage, bool isError)
+    {
+        SetLoadingStatus(statusMessage, isError);
     }
 
     private void ApplyDataLoadProgress(float normalizedProgress)
@@ -73,6 +100,7 @@ public class TitleScene : SceneBase
         }
 
         SceneManager.sceneLoaded += HandleSceneLoaded;
+        SetLoadingStatus("게임 씬을 불러오는 중...");
 
         AsyncOperation operation = SceneManager.LoadSceneAsync(targetSceneName, LoadSceneMode.Additive);
         if (operation == null)
@@ -106,8 +134,10 @@ public class TitleScene : SceneBase
         }
 
         SetLoadingProgress(0.99f);
+        SetLoadingStatus("스테이지를 준비하는 중...");
         yield return new WaitUntil(() => stageScene.IsSceneReady);
         SetLoadingProgress(1f);
+        SetLoadingStatus("준비 완료");
 
         ExitScene();
         SceneManager.SetActiveScene(loadedScene);
@@ -143,6 +173,11 @@ public class TitleScene : SceneBase
 
         dataManager.OnNormalizedProgress -= HandleDataLoadProgress;
         dataManager.OnNormalizedProgress += HandleDataLoadProgress;
+        dataManager.OnStatusMessageChanged -= HandleStatusMessageChanged;
+        dataManager.OnStatusMessageChanged += HandleStatusMessageChanged;
+
+        if (!string.IsNullOrWhiteSpace(dataManager.CurrentStatusMessage))
+            HandleStatusMessageChanged(dataManager.CurrentStatusMessage, dataManager.CurrentStatusIsError);
     }
 
     private void UnsubscribeLoadingEvents()
@@ -151,6 +186,7 @@ public class TitleScene : SceneBase
             return;
 
         dataManager.OnNormalizedProgress -= HandleDataLoadProgress;
+        dataManager.OnStatusMessageChanged -= HandleStatusMessageChanged;
     }
 
     private void ShowLoadingUi()
@@ -169,17 +205,53 @@ public class TitleScene : SceneBase
 
     private void SetLoadingProgress(float progress)
     {
-        float clampedProgress = Mathf.Clamp01(progress);
+        currentLoadingProgress = Mathf.Clamp01(progress);
+        RefreshLoadingUi();
+    }
+
+    private void SetLoadingStatus(string statusMessage, bool isError = false)
+    {
+        currentLoadingStatus = statusMessage ?? string.Empty;
+        currentLoadingStatusIsError = isError;
+        RefreshLoadingUi();
+    }
+
+    private void RefreshLoadingUi()
+    {
         ShowLoadingUi();
 
         if (loadingSlider != null)
         {
             loadingSlider.minValue = 0f;
             loadingSlider.maxValue = 1f;
-            loadingSlider.value = clampedProgress;
+            loadingSlider.value = currentLoadingProgress;
         }
 
-        if (loadingText != null)
-            loadingText.text = $"{(clampedProgress * 100f):F0}%";
+        if (loadingText == null)
+            return;
+
+        loadingText.color = currentLoadingStatusIsError ? loadingErrorTextColor : defaultLoadingTextColor;
+
+        string progressText = $"{(currentLoadingProgress * 100f):F0}%";
+        loadingText.text = string.IsNullOrWhiteSpace(currentLoadingStatus)
+            ? progressText
+            : $"{progressText}\n{currentLoadingStatus}";
+    }
+
+    private static bool WasRetryRequestedThisFrame()
+    {
+        if (Input.GetMouseButtonDown(0))
+            return true;
+
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
+            return true;
+
+        for (int i = 0; i < Input.touchCount; i++)
+        {
+            if (Input.GetTouch(i).phase == TouchPhase.Began)
+                return true;
+        }
+
+        return false;
     }
 }
