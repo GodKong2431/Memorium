@@ -218,9 +218,9 @@ public class StageManager : Singleton<StageManager>
         monsterSpawner?.SetMonster();
 
         if (normalEnemyReward != null)
-            normalEnemyReward.expBase = stageData.commonMonsterExp*10000;
+            normalEnemyReward.expBase = stageData.commonMonsterExp;
         if (bossEnemyReward != null)
-            bossEnemyReward.expBase = stageData.bossMonsterExp*10000;
+            bossEnemyReward.expBase = stageData.bossMonsterExp;
 
         int dropTableId = stageData.dropTableID;
 
