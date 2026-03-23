@@ -9,11 +9,6 @@ public class SaveGachaData : ISaveData
     //인덱스 값은 가챠 타입의 int 값을 기반으로 하면 이후에 가챠 타입의 값이 바뀌어도 최종갑 - weapon 가챠타입 하면 된다.
     public List<int> level;
     public List<int> drawCountInCurrentLevel;
-    //public List<int> stage;
-    //public List<int> drawsUntilNextLevel;
-    //public List<bool> isMaxLevel;
-
-    public bool onCBT = false;
 
     public SaveGachaData() { }
 
@@ -25,14 +20,6 @@ public class SaveGachaData : ISaveData
 
     public void InitGachaData()
     {
-
-        if (!onCBT)
-        {
-            level = null;
-            drawCountInCurrentLevel = null;
-
-            onCBT = true;
-        }
 
         int typeCount = Enum.GetNames(typeof(GachaType)).Length;
 
