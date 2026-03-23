@@ -57,6 +57,12 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     // 기본 설명 텍스트입니다.
     [SerializeField] private TMP_Text defaultDescriptionText;
 
+    [Header("Level Up")]
+    // 레벨업 실행 버튼입니다.
+    [SerializeField] private Button levelUpButton;
+    // 레벨업 비용을 표시할 텍스트입니다.
+    [SerializeField] private TMP_Text levelUpCostText;
+
     [Header("Gem")]
     // 열린 젬 슬롯 개수만큼 보여줄 버튼 배열입니다.
     [SerializeField] private Button[] gemButtons;
@@ -158,7 +164,11 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
             rarityInfoButton.onClick.RemoveListener(HandleRarityInfoButtonClicked);
             rarityInfoButton.onClick.AddListener(HandleRarityInfoButtonClicked);
         }
-
+        if (levelUpButton != null)
+        {
+            levelUpButton.onClick.RemoveListener(HandleLevelUpButtonClicked);
+            levelUpButton.onClick.AddListener(HandleLevelUpButtonClicked);
+        }
         isBound = true;
     }
 
@@ -191,6 +201,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     {
         ApplyHeader(table, ownedData);
         ApplyDefaultInfo(table, ownedData);
+        ApplyLevelUpButton(ownedData); 
         ApplyGemButtons(ownedData);
         ApplyRarityDescriptions(ownedData);
     }
@@ -229,6 +240,56 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
 
         if (defaultDescriptionText != null)
             defaultDescriptionText.SetText(GetDescription(table));
+    }
+    private void ApplyLevelUpButton(OwnedSkillData ownedData)
+    {
+        SkillInventoryModule skillModule = GetSkillModule();
+
+        bool showLevelUp = ownedData != null && ownedData.IsEquippable;
+
+        if (levelUpButton != null)
+            levelUpButton.gameObject.SetActive(showLevelUp);
+
+        if (levelUpCostText != null)
+            levelUpCostText.gameObject.SetActive(showLevelUp);
+
+        if (!showLevelUp)
+            return;
+
+        BigDouble cost = BigDouble.Zero;
+
+        bool hasCost = skillModule != null
+            && skillModule.TryGetLevelUpCost(currentSkillId, out cost);
+
+        if (levelUpCostText != null)
+        {
+            if (hasCost)
+                levelUpCostText.SetText(cost.ToString());
+            else
+                levelUpCostText.SetText("MAX");
+        }
+
+        if (levelUpButton != null)
+        {
+            bool canLevelUp = skillModule != null
+                && skillModule.CanLevelUpSkill(currentSkillId);
+
+            levelUpButton.interactable = canLevelUp;
+        }
+    }
+    private void HandleLevelUpButtonClicked()
+    {
+        if (currentSkillId < 0)
+            return;
+
+        SkillInventoryModule skillModule = GetSkillModule();
+        if (skillModule == null)
+            return;
+
+        if (!skillModule.TryLevelUpSkill(currentSkillId))
+            return;
+
+        RefreshCurrentSkill();
     }
 
     // 열린 젬 슬롯 개수만큼 버튼을 표시합니다.
