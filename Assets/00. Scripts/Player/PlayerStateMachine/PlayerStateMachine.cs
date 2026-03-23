@@ -75,7 +75,11 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
 
-
+        if (CharacterStatManager.playerTransform == null)
+        {
+            CharacterStatManager.playerTransform = transform;
+            Debug.Log("플레이어 설정됨"+CharacterStatManager.playerTransform.name.ToString());
+        }
     }
     private void OnDisable()
     {
