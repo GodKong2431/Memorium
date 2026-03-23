@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 
 // 스테이지 진행 상태, 보상 세팅, 처치 진행도, 씬 전환 시 진입 상태를 관리한다.
@@ -81,6 +82,24 @@ public class StageManager : Singleton<StageManager>
     public float waitNextStageTime = 0.5f;
 
     Coroutine stageMoveCoroutine;
+
+    public PlayerStateMachine player;
+
+    public bool dungeonClear=false;
+    private bool continueDungeonAfterClear = false;
+    private StageType continuedDungeonStageType = StageType.None;
+    private int continuedDungeonLevel = 1;
+
+    public bool stageChanging
+    {
+        get 
+        {
+            if(stageMoveCoroutine!=null)
+                return true;
+            else
+                return false;
+        }
+    }
 
     private IEnumerator Start()
     {
@@ -193,7 +212,9 @@ public class StageManager : Singleton<StageManager>
 
         if (monsterSpawner == null)
             monsterSpawner = GameObject.FindFirstObjectByType<MonsterSpawner>();
-
+        if (infinityMap == null)
+            infinityMap = GameObject.FindFirstObjectByType<InfinityMap>();
+        infinityMap?.MapReset();
         monsterSpawner?.SetMonster();
 
         if (normalEnemyReward != null)
@@ -237,14 +258,27 @@ public class StageManager : Singleton<StageManager>
         if (stageMoveCoroutine == null)
             StartCoroutine(StageClearCoroutine());
     }
+
+    public bool CheckPlayerStateToStageChanged()
+    {
+        if(player==null)
+            player = GameObject.FindAnyObjectByType<PlayerStateMachine>();
+        if (player.CurrentType == PlayerStateType.Attack)
+            return false;
+        else
+            return true;
+    }
+
     IEnumerator StageClearCoroutine()
     {
         ResetBoss();
-
-        yield return CoroutineManager.waitForSeconds(waitNextStageTime);
+        yield return new WaitUntil(() => CheckPlayerStateToStageChanged());
 
         if (curStageType == StageType.NormalStage)
         {
+            yield return CoroutineManager.waitForSeconds(waitNextStageTime);
+
+            player.GetComponent<NavMeshAgent>().enabled = false;
             onFailedStage = false;
             if (stageKeyList != null && curStage < stageKeyList.Count)
                 curStage++;
@@ -252,7 +286,7 @@ public class StageManager : Singleton<StageManager>
             normalStage = curStage;
             SetReward();
             SetKillCount();
-            infinityMap?.MapReset();
+            //infinityMap?.MapReset();
 
             if (curStage > maxStage[0])
             {
@@ -260,7 +294,11 @@ public class StageManager : Singleton<StageManager>
                 saveStageData.SetMaxStage(curStageType, curStage - 1);
             }
 
+            AutoDataSaveManager.Instance.SaveData();
+
             OnStageClearOrFailed.Invoke();
+            player.GetComponent<NavMeshAgent>().enabled = true;
+            Debug.Log("[StageManager] 스테이지 클리어");
         }
         else
         {
@@ -269,11 +307,57 @@ public class StageManager : Singleton<StageManager>
                 maxStage[(int)curStageType - (int)StageType.NormalStage] = curStage;
                 saveStageData.SetMaxStage(curStageType, curStage);
             }
-            SetStageType(StageType.NormalStage, normalStage);
-            SceneController.Instance.LoadScene(SceneType.StageScene);
+            AutoDataSaveManager.Instance.SaveData();
+
+            player.GetComponent<NavMeshAgent>().isStopped = true;
+
+            ResetDungeonClearFlow();
+            dungeonClear = false;
+            bool popupShown = DungeonClearPopupController.TryShowAny(curStageType, curStage);
+            if (!popupShown && GameEventManager.OnDungeonClearPopupRequested != null)
+            {
+                GameEventManager.OnDungeonClearPopupRequested.Invoke(curStageType, curStage);
+                popupShown = true;
+            }
+
+            if (!popupShown)
+                CheckDungeonClear();
+
+            yield return new WaitUntil(() => dungeonClear);
+            dungeonClear = false;
+
+            if (continueDungeonAfterClear && continuedDungeonStageType != StageType.None)
+            {
+                StageType nextDungeonStageType = continuedDungeonStageType;
+                int nextDungeonLevel = continuedDungeonLevel;
+                ResetDungeonClearFlow();
+
+                SetStageType(nextDungeonStageType, nextDungeonLevel);
+                SceneController.Instance.LoadScene(SceneType.DungeonScene);
+            }
+            else
+            {
+                ResetDungeonClearFlow();
+                SetStageType(StageType.NormalStage, normalStage);
+                SceneController.Instance.LoadScene(SceneType.StageScene);
+            }
         }
 
         stageMoveCoroutine = null;
+    }
+
+    public void CheckDungeonClear()
+    {
+        ResetDungeonClearFlow();
+        dungeonClear=true;
+    }
+
+    public void ContinueDungeonAfterClear(StageType dungeonStageType, int dungeonLevel)
+    {
+        continueDungeonAfterClear = true;
+        continuedDungeonStageType = dungeonStageType;
+        continuedDungeonLevel = Mathf.Max(1, dungeonLevel);
+        dungeonClear = true;
     }
 
     // 스테이지 실패 처리
@@ -291,34 +375,77 @@ public class StageManager : Singleton<StageManager>
 
         ResetBoss();
 
-        yield return CoroutineManager.waitForSeconds(waitNextStageTime);
+        yield return new WaitUntil(() => CheckPlayerStateToStageChanged());
 
         if (curStageType == StageType.NormalStage)
         {
+            yield return CoroutineManager.waitForSeconds(waitNextStageTime);
+
             onFailedStage = true;
+            saveStageData.SetOnFailedStage();
 
             if (curStage - 2 >= 0 && !failedDuringBossStage)
                 curStage--;
+            saveStageData.SetCurStage(curStage);
+
+            AutoDataSaveManager.Instance.SaveData();
+
 
             normalStage = curStage;
             SetReward();
             SetKillCount();
-            infinityMap?.MapReset();
+            //infinityMap?.MapReset();
 
             if (failedDuringBossStage)
                 MarkManualBossSummonRequiredForCurrentStage();
 
             OnStageClearOrFailed.Invoke();
+
+            if (player != null)
+            {
+                player._ctx.Heal(player._ctx.MaxHealth);
+                player._ctx.Animator.SetTrigger("Alive");
+                //player._ctx.RequestState(PlayerStateType.Idle);
+                player._ctx.RequestIdle();
+            }
         }
         else
         {
             if (failedDuringBossStage)
                 MarkManualBossSummonRequiredForCurrentStage();
 
-            SetStageType(StageType.NormalStage, normalStage);
-            SceneController.Instance.LoadScene(SceneType.StageScene);
+
+            player.GetComponent<NavMeshAgent>().isStopped = true;
+
+            ResetDungeonClearFlow();
+            dungeonClear = false;
+
+            bool popupShown = DungeonClearPopupController.TryShowAny(curStageType, curStage, true);
+            if (!popupShown)
+                CheckDungeonClear();
+
+            yield return new WaitUntil(() => dungeonClear);
+            dungeonClear = false;
+
+            if (continueDungeonAfterClear && continuedDungeonStageType != StageType.None)
+            {
+                StageType retryDungeonStageType = continuedDungeonStageType;
+                int retryDungeonLevel = continuedDungeonLevel;
+                ResetDungeonClearFlow();
+
+                SetStageType(retryDungeonStageType, retryDungeonLevel);
+                SceneController.Instance.LoadScene(SceneType.DungeonScene);
+            }
+            else
+            {
+                ResetDungeonClearFlow();
+                SetStageType(StageType.NormalStage, normalStage);
+                SceneController.Instance.LoadScene(SceneType.StageScene);
+            }
         }
+
         stageMoveCoroutine = null;
+
     }
     // 스테이지 타입/레벨 변경 요청을 큐에 저장하고 즉시 상태에 반영한다.
     public void SetStageType(StageType dungeonType, int level)
@@ -543,17 +670,10 @@ public class StageManager : Singleton<StageManager>
         return true;
     }
 
-    //protected override void OnApplicationQuit()
-    //{
-    //    // 종료 시 저장 데이터 기록
-    //    base.OnApplicationQuit();
-    //    JSONService.Save(saveStageData);
-    //}
-
-    //public async Task AutoSaveTask()
-    //{
-    //    Debug.Log("[StageManager] 스테이지 변경사항 확인 및 데이터 저장");
-    //    await JSONService.SaveFileOnAsync(saveStageData);
-    //    saveStageData.ClearDirty();
-    //}
+    private void ResetDungeonClearFlow()
+    {
+        continueDungeonAfterClear = false;
+        continuedDungeonStageType = StageType.None;
+        continuedDungeonLevel = 1;
+    }
 }

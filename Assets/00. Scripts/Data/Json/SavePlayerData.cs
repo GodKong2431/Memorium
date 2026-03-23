@@ -24,9 +24,6 @@ public class SavePlayerData : ISaveData
     private Dictionary<int, StatUpgrade> upgrades=new Dictionary<int, StatUpgrade>();
     private Dictionary<int, PlayerTrait> traits =new Dictionary<int, PlayerTrait>();
 
-    //특성은 CurrentLevel만
-
-
     private bool isDirty = false;
     public bool IsDirty => isDirty;
 
@@ -83,7 +80,7 @@ public class SavePlayerData : ISaveData
 
     public int GetLevel()
     {
-        if (playerLevel <= 0)
+        if (playerLevel <= 0 )
         {
             //playerLevel = 1;
             return 1;

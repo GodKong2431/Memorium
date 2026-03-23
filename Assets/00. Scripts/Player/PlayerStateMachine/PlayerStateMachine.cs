@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,7 +21,9 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
     [SerializeField] private float angularTime;
     [SerializeField] private float stopAngle;
-
+    
+    [SerializeField] private float attackRange = 3f;
+    private float _prevValue;
     public PlayerStateContext _ctx { get; private set; }
     private Dictionary<PlayerStateType, IPlayerState> _states;
     //private IPlayerState _current;
@@ -53,6 +56,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
             AngularTime = angularTime,
             StopAngle = stopAngle,
             EffectController = effectController,
+            AttackRange = attackRange,
         };
         _ctx.Initialize();
         _ctx.SetStateChangeCallback(OnRequestStateChange);
@@ -71,11 +75,16 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
 
-
+        if (CharacterStatManager.playerTransform == null)
+        {
+            CharacterStatManager.playerTransform = transform;
+            Debug.Log("플레이어 설정됨"+CharacterStatManager.playerTransform.name.ToString());
+        }
     }
     private void OnDisable()
     {
-        _ctx.ObjDisable();
+        if (_ctx != null)
+            _ctx.ObjDisable();
     }
 
     IEnumerator Start()
@@ -100,9 +109,6 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         if (DataManager.Instance.DataLoad)
         {
             _ctx.playerSkillHandler.InitFromPreset();
-
-
-            PixieSpawnTest();//TO DO: UI 연동시 삭제 할것
         }
         else
         {
@@ -112,26 +118,9 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         playerStateMachine.ChangeState(PlayerStateType.Idle);
 
         IsComplete = true;
+        NotifyPlayerSpawned();
     }
 
-    [ContextMenu("픽시소환")]
-    public void PixieSpawnTest()//TO DO:UI 연동시 삭제
-    {
-        InventoryManager.Instance.AddItem(3310001, 100);
-
-        var pixieModule = InventoryManager.Instance.GetModule<PixieInventoryModule>();
-        if (pixieModule != null)
-        {
-            int targetFairyID = 5000001;
-            bool isUnlocked = pixieModule.TryUnlockPixie(targetFairyID);
-
-            if (isUnlocked)
-            {
-                pixieModule.EquipPixie(targetFairyID);
-                Debug.Log("픽시");
-            }
-        }
-    }
     private void OnDataLoaded()
     {
         DataManager.Instance.OnComplete -= OnDataLoaded;
@@ -188,10 +177,30 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         BerserkerModeController.OnBerserkerModeChanged -= OnBerserkerModeChanged;
     }
 
+    private void NotifyPlayerSpawned()
+    {
+        ScenePlayerLocator.SetPlayerTransform(transform);
+        GameEventManager.OnPlayerSpawned?.Invoke(transform);
+    }
+
     public void TakeDamage(float damage, DamageType damageType)
     {
         _ctx.TakeDamage(damage, damageType);
     }
 
-
+    public void OnAttackReady()
+    {
+        animator.SetBool("AttackReady", false);
+    }
+    void OnValidate()
+    {
+        if (attackRange == _prevValue) return;
+        
+        _prevValue = attackRange;
+        
+        if (_ctx != null)
+        {
+            _ctx.AttackRange = attackRange;
+        }
+    }
 }

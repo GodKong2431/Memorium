@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ public static class EnemyKillRewardDispatcher
     public static event Action<int> OnExpEarned;
     public static event Action<string, int> OnItemDropped;
     public static event Action<string, int, int> OnEquipmentDropped;
-    public static event Action<int> OnBerserkerOrbEarned;
+    public static event Action<Vector3, int> OnBerserkerOrb;
     public static event Action OnBossKilled;
     public static event Action OnNormalEnemyKilled;
 
@@ -113,9 +113,9 @@ public static class EnemyKillRewardDispatcher
             var prefab = Resources.Load<GameObject>(DropItemPrefabPath);
             foreach (var drop in _itemDropBuffer)
             {
-            if (prefab != null)
-            {
-                    var go = UnityEngine.Object.Instantiate(prefab, worldPosition + Vector3.up * 0.5f, Quaternion.identity);
+                if (prefab != null)
+                {
+                    var go = UnityEngine.Object.Instantiate(prefab, worldPosition + Vector3.up * 1f, Quaternion.identity);
                     // 아이템 드랍 이펙트 추가 예정 (드랍 시 파티클 등)
                     // 아이템 드랍 효과음 추가 예정
                     var ctrl = go.GetComponent<DropItemController>();
@@ -136,10 +136,11 @@ public static class EnemyKillRewardDispatcher
         }
 
         // 버서커 오브: 일반 1개, 보스 10개 (PlayerBerserkerOrb 구독). 버서커 모드 중에는 수집 안 함.
-        if (BerserkerModeController.Instance == null || !BerserkerModeController.Instance.IsActive)
+        if (BerserkerModeController.Instance != null && !BerserkerModeController.Instance.IsActive)
         {
             int berserkerOrb = isBoss ? PlayerBerserkerOrb.BossBerserkerOrb : PlayerBerserkerOrb.NormalBerserkerOrb;
-            OnBerserkerOrbEarned?.Invoke(berserkerOrb);
+            
+            OnBerserkerOrb?.Invoke(worldPosition + Vector3.up * 0.5f, berserkerOrb);
         }
 
         if (isBoss)

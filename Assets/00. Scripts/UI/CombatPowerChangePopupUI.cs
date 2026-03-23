@@ -15,7 +15,6 @@ public class CombatPowerChangePopupUI : MonoBehaviour
     [Header("Timing")]
     [SerializeField] private float visibleDuration = 1.5f;
     [SerializeField] private float fadeDuration = 0.25f;
-    [SerializeField] private float coalesceDuration = 0.05f;
 
     [Header("Style")]
     [SerializeField] private Color titleColor = new Color(1f, 0.94f, 0.55f, 1f);
@@ -34,10 +33,6 @@ public class CombatPowerChangePopupUI : MonoBehaviour
     private bool _isShowing;
     private float _hideAt;
     private float _lastKnownCombatPower;
-    private float _pendingBeforeCombatPower;
-    private float _pendingAfterCombatPower;
-    private float _applyPendingAt;
-    private bool _hasPendingChange;
 
     private void Awake()
     {
@@ -73,15 +68,11 @@ public class CombatPowerChangePopupUI : MonoBehaviour
         _boundStatManager = null;
         _isBound = false;
         _isShowing = false;
-        _hasPendingChange = false;
         SetHiddenImmediate();
     }
 
     private void Update()
     {
-        if (_hasPendingChange && Time.unscaledTime >= _applyPendingAt)
-            ApplyPendingChange();
-
         if (!_isShowing || canvasGroup == null)
             return;
 
@@ -126,40 +117,13 @@ public class CombatPowerChangePopupUI : MonoBehaviour
     private void OnStatUpdated()
     {
         float currentCombatPower = GetCurrentCombatPower();
-        if (_hasPendingChange)
-        {
-            if (Mathf.Approximately(currentCombatPower, _pendingAfterCombatPower))
-                return;
-        }
-        else
-        {
-            if (Mathf.Approximately(currentCombatPower, _lastKnownCombatPower))
-                return;
-
-            _pendingBeforeCombatPower = _lastKnownCombatPower;
-        }
-
-        _pendingAfterCombatPower = currentCombatPower;
-        _applyPendingAt = Time.unscaledTime + Mathf.Max(0.01f, coalesceDuration);
-        _hasPendingChange = true;
-    }
-
-    private void ApplyPendingChange()
-    {
-        if (!_hasPendingChange)
+        float beforeCombatPower = _lastKnownCombatPower;
+        if (Mathf.Approximately(currentCombatPower, beforeCombatPower))
             return;
 
-        _hasPendingChange = false;
+        UpdateTexts(beforeCombatPower, currentCombatPower);
 
-        if (Mathf.Approximately(_pendingBeforeCombatPower, _pendingAfterCombatPower))
-        {
-            _lastKnownCombatPower = _pendingAfterCombatPower;
-            return;
-        }
-
-        UpdateTexts(_pendingBeforeCombatPower, _pendingAfterCombatPower);
-
-        _lastKnownCombatPower = _pendingAfterCombatPower;
+        _lastKnownCombatPower = currentCombatPower;
         _hideAt = Time.unscaledTime + visibleDuration;
 
         if (!_isShowing)
@@ -271,5 +235,16 @@ public class CombatPowerChangePopupUI : MonoBehaviour
         canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = false;
         canvasGroup.interactable = false;
+    }
+
+    public void ResetForSceneChange()
+    {
+        _isShowing = false;
+        _hideAt = 0f;
+
+        float currentCombatPower = GetCurrentCombatPower();
+        _lastKnownCombatPower = currentCombatPower;
+
+        SetHiddenImmediate();
     }
 }

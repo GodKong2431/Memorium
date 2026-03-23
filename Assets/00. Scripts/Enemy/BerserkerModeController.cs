@@ -13,10 +13,20 @@ public class BerserkerModeController : MonoBehaviour
     public static BerserkerModeController Instance { get; private set; }
     
     [SerializeField] public BerserkModeSo _berserkModeSo;
-    private const string VfxResourcePath = "vfx_Electricity_01";
-
+    
+    [Header("오브 오브젝트")]
+    [SerializeField] private string OrbKey = "Assets/02. Prefabs/Design/BerserkEffect/HCFX_ElementOrb_04.prefab";
+    
+    [Header("시작 이펙트")]
+    [SerializeField] private string StartEffectKey1 = "Assets/02. Prefabs/Design/BerserkEffect/HCFX_Explosion_02_Air.prefab";
+    [SerializeField] private string StartEffectKey2 = "Assets/02. Prefabs/Design/BerserkEffect/HCFX_Energy_04.prefab";
+    [Header("시전중 이펙트")]
+    [SerializeField] private string EffectKet1 = "Assets/02. Prefabs/Design/BerserkEffect/Poison aura.prefab";
+    [SerializeField] private string EffectKet2 = "Assets/02. Prefabs/Design/BerserkEffect/Star aura.prefab";
+    
     [Header("설정")]
     [SerializeField] private float durationSeconds = 60f;
+    [SerializeField] private float startDelay = 0.3f;
     
     [Tooltip("비워두면 이 컴포넌트의 transform 사용. VFX 위치용 (플레이어 루트 등).")]
     [SerializeField] private Transform vfxParent;
@@ -35,6 +45,7 @@ public class BerserkerModeController : MonoBehaviour
     private GameObject _berserkerVfx;
     private Coroutine _durationCoroutine;
     private float _endTime;
+    private readonly List<PoolableParticle> gradeEffects = new();
 
     private void Awake()
     {
@@ -68,6 +79,8 @@ public class BerserkerModeController : MonoBehaviour
         durationSeconds = berserkmodeManageTable.durationTime;
         PlayerBerserkerOrb.Instance.Init(berserkmodeManageTable);
         
+        EnemyKillRewardDispatcher.OnBerserkerOrb += (pos, count) => SpawnOrb(OrbKey, pos, false, count);
+        
     }
 
     private void SOset()
@@ -83,20 +96,8 @@ public class BerserkerModeController : MonoBehaviour
         {
             switch (key)
             {
-                case StatType.HP:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseHPStatMultiplier;
-                    break;
                 case StatType.ATK:
                     _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseAttackStatMultiplier;
-                    break;
-                case StatType.HP_REGEN:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseHPRegenStatMultiplier;
-                    break;
-                case StatType.MP:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseMPStatMultiplier;
-                    break;
-                case StatType.MP_REGEN:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseMPRegenStatMultiplier;
                     break;
                 case StatType.CRIT_MULT:
                     _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseCriticalStatMultiplier;
@@ -137,39 +138,76 @@ public class BerserkerModeController : MonoBehaviour
 
     private void AddVfx()
     {
-        if (_berserkerVfx == null)
-        {
-            var prefab = Resources.Load<GameObject>(VfxResourcePath);
-            if (prefab == null)
-            {
-                Debug.LogWarning($"[BerserkerModeController] Resources/{VfxResourcePath} 프리팹을 찾을 수 없습니다.");
-                return;
-            }
-            _berserkerVfx = Instantiate(prefab, VfxParent);
-            _berserkerVfx.transform.localPosition = Vector3.zero;
-            _berserkerVfx.name = "BerserkerVfx";
-        }
-
-        _berserkerVfx.SetActive(true);
-        foreach (var ps in _berserkerVfx.GetComponentsInChildren<ParticleSystem>())
-            ps.Play();
+        SpawnEffect(StartEffectKey1, true);
+        SpawnEffect(StartEffectKey2, true);
+        
+        StartCoroutine(DelayVfx());
     }
-
+    
+    private void SpawnOrb(string key, Vector3 transform,bool follow, int count)
+    {
+        
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(OrbKey, follow : follow, autoReturn : false, targetPosition : transform,
+        onSpawned : particle =>{if (particle != null && particle.TryGetComponent<BerserkerOrb>(out var orb))
+        {
+                orb.Init(count);
+            }
+        }));
+    }
+    
+    private void SpawnEffect(string key, bool follow)
+    {
+        if (string.IsNullOrEmpty(key)) return;
+        
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(key, vfxParent,follow,true));
+    }
+    
+    private void SpawnLoopEffect(string key, bool follow)
+    {
+        if (string.IsNullOrEmpty(key)) return;
+        
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(key, vfxParent,follow,false,onSpawned: OnGradeEffectSpawned));
+    }
+    
+    private IEnumerator DelayVfx()
+    {
+        yield return new WaitForSeconds(startDelay);
+        
+        if (!IsActive) yield break;
+        
+        PlayLoopEffect();
+    }
+    
+    private void PlayLoopEffect()
+    {
+        SpawnLoopEffect(EffectKet1, true);
+        SpawnLoopEffect(EffectKet2, true);
+    }
+    
     private void RemoveVfx(bool notifyEvent = true)
     {
-        if (_berserkerVfx != null)
+        foreach(var effect in gradeEffects)
         {
-            _berserkerVfx.SetActive(false);
+            effect.StopAndReturnManual();
         }
+        
+        gradeEffects.Clear();
+        
         if (IsActive)
         {
             IsActive = false;
             _endTime = 0f;
+            
             if (notifyEvent)
                 OnBerserkerModeChanged?.Invoke(false);
         }
     }
-
+    
+    private void OnGradeEffectSpawned(PoolableParticle particle)
+    {
+        gradeEffects.Add(particle);
+    }
+    
     private IEnumerator DurationRoutine()
     {
         yield return new WaitForSeconds(durationSeconds);

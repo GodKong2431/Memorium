@@ -1,4 +1,4 @@
-﻿
+
 using UnityEngine;
 
 // 부식 출혈+독
@@ -20,7 +20,7 @@ public class CorrosionEffect : StatusEffectBase
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         base.OnApply(target, buffApplicable);
-        float count = poisonData.duration / poisonData.damage;
+        float count = poisonData.duration / poisonData.tickInterval;
         float totalDamage = burstDamage * count;
         target.TakeDamage(totalDamage);
     }

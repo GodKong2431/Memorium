@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class CharacterStatManager : Singleton<CharacterStatManager>
 {
+    public static Transform playerTransform;
+    
     [SerializeField] CharacterStatSO characterStatSO;
     // 키들
     [Tooltip("1000001 ~ 1000003")]
@@ -46,6 +48,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     [SerializeField] private float expectedCrit;
 
     private EffectController _playerEffectController;
+    private bool _isBatchUpdatingStats;
     
     public bool isBerserker;
     IEnumerator Start()
@@ -170,15 +173,21 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         EventSet();
 
-        RecalculateAllStats(false);
+        AllStatUpdate();
     }
 
     public void FinalStat(StatType playerStatType)
     {
-        if (!RecalculateSingleStat(playerStatType))
+        if (playerStatType == StatType.None)
+            return;
+        FinalStats.TryGetValue(playerStatType, out var finalStat);
+        finalStat.FinalStatCalculate();
+
+        if (_isBatchUpdatingStats)
             return;
 
         NormalPowerCalculate();
+
         StatUpdate?.Invoke();
     }
 
@@ -237,7 +246,10 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         float equipStatValue = PlayerSlot != null ? PlayerSlot.GetStat(statType) : 0f;
 
         float abilityStoneStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
-            ? AbilityStoneManager.Instance.GetStat(statType)
+            ? AbilityStoneManager.Instance.GetStat(statType, 0)
+            : 0f;
+        float abilityStoneMultStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
+            ? AbilityStoneManager.Instance.GetStat(statType, 1)
             : 0f;
         float abilityStoneBonusStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
             ? AbilityStoneManager.Instance.GetBonusStat(statType)
@@ -248,7 +260,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         float previewValue =
             (baseStatValue + upgradeStatValue + levelBonusValue + traitStatValue + additionalTraitValue + equipStatValue + abilityStoneStat) *
-            (1 + abilityStoneBonusStat + bingoSynergyStat);
+            (1 + abilityStoneBonusStat + bingoSynergyStat + abilityStoneMultStat);
 
         if (isBerserker && BerserkerModeController.Instance != null)
         {
@@ -266,32 +278,16 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
     public void AllStatUpdate()
     {
-        RecalculateAllStats(true);
-    }
+        _isBatchUpdatingStats = true;
 
-    private bool RecalculateSingleStat(StatType playerStatType)
-    {
-        if (playerStatType == StatType.None)
-            return false;
-
-        if (!FinalStats.TryGetValue(playerStatType, out var finalStat) || finalStat == null)
-            return false;
-
-        finalStat.FinalStatCalculate();
-        return true;
-    }
-
-    private void RecalculateAllStats(bool notify)
-    {
         foreach (StatType statType in Enum.GetValues(typeof(StatType)))
         {
-            RecalculateSingleStat(statType);
+            FinalStat(statType);
         }
 
+        _isBatchUpdatingStats = false;
         NormalPowerCalculate();
-
-        if (notify)
-            StatUpdate?.Invoke();
+        StatUpdate?.Invoke();
     }
 
     public void Upgrade(StatUpgrade statUpgrade)

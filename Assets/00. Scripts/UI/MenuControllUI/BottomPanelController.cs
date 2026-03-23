@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(ToggleGroup))]
@@ -27,6 +28,13 @@ public class BottomPanelController : MonoBehaviour
 
 #region Runtime Types
     // 페이지 안쪽 ScrollRect의 기준 높이를 기억해 두는 캐시다.
+    private sealed class ExternalPageToggleBinding
+    {
+        public Toggle toggle;
+        public RectTransform page;
+        public UnityAction<bool> listener;
+    }
+
     private sealed class PageResizeCache
     {
         public RectTransform page;
@@ -56,6 +64,8 @@ public class BottomPanelController : MonoBehaviour
     [Header("References - Gesture")]
     [SerializeField] private RectTransform headerGestureArea;
     [SerializeField] private SheetHeaderGestureHandle headerGestureHandle;
+    [SerializeField] private RectTransform gestureBlockerContainer;
+    [SerializeField] private List<RectTransform> gestureBlockerRoots = new List<RectTransform>();
 
     [Header("References - Tabs")]
     [SerializeField] private List<TabConfig> tabs = new List<TabConfig>();
@@ -87,6 +97,7 @@ public class BottomPanelController : MonoBehaviour
 
 #region Runtime Fields
     private readonly List<PageResizeCache> pageResizeCaches = new List<PageResizeCache>();
+    private readonly List<ExternalPageToggleBinding> externalPageToggleBindings = new List<ExternalPageToggleBinding>();
 
     private ToggleGroup toggleGroup;
     private Canvas parentCanvas;
@@ -94,6 +105,7 @@ public class BottomPanelController : MonoBehaviour
     private Coroutine singleTapCoroutine;
     private int activeTab = -1;
     private int activeSub = -1;
+    private RectTransform activeStandalonePage;
 
     private float initialSheetHeight;
     private float contentsAreaHeightOffset;
@@ -125,10 +137,7 @@ public class BottomPanelController : MonoBehaviour
     // 비활성화될 때 입력 대기 상태를 정리한다.
     private void OnDisable()
     {
-        CancelPendingSingleTap();
-        waitingForSecondTap = false;
-        isDraggingHeader = false;
-        suppressNextPointerUpTap = false;
+        ResetHeaderGestureState();
     }
 #endregion
 
@@ -291,11 +300,12 @@ public class BottomPanelController : MonoBehaviour
     private void SelectMain(int index, bool force = false)
     {
         int nextIndex = IsValidTabIndex(index) ? index : -1;
-        if (!force && activeTab == nextIndex)
+        if (!force && activeTab == nextIndex && activeStandalonePage == null)
             return;
 
         activeTab = nextIndex;
         activeSub = -1;
+        activeStandalonePage = null;
 
         if (waitingForSecondTap)
         {
@@ -312,6 +322,7 @@ public class BottomPanelController : MonoBehaviour
         }
 
         RefreshMainSelection();
+        RefreshExternalPageToggles();
 
         if (activeTab < 0)
         {
@@ -367,16 +378,81 @@ public class BottomPanelController : MonoBehaviour
 
     public bool ShowManagedPage(RectTransform page)
     {
-        if (page == null || !TryFindManagedPage(page, out int tabIndex, out int pageIndex))
+        if (page == null)
             return false;
 
-        OpenManagedPage(tabIndex, pageIndex);
-        return true;
+        if (TryFindManagedPage(page, out int tabIndex, out int pageIndex))
+        {
+            OpenManagedPage(tabIndex, pageIndex);
+            return true;
+        }
+
+        if (TryResolveStandaloneManagedPage(page, out RectTransform standalonePage))
+        {
+            OpenStandaloneManagedPage(standalonePage);
+            return true;
+        }
+
+        return false;
     }
 
     public void OpenManagedContent(RectTransform page)
     {
         ShowManagedPage(page);
+    }
+
+    public void RegisterExternalPageToggle(Toggle toggle, RectTransform page)
+    {
+        if (toggle == null || page == null)
+            return;
+
+        UnregisterExternalPageToggle(toggle);
+
+        toggle.group = null;
+        toggle.toggleTransition = Toggle.ToggleTransition.None;
+        toggle.transition = Selectable.Transition.None;
+        if (toggle.graphic == toggle.targetGraphic)
+            toggle.graphic = null;
+
+        ExternalPageToggleBinding binding = new ExternalPageToggleBinding
+        {
+            toggle = toggle,
+            page = page
+        };
+        binding.listener = isOn => OnExternalPageToggleChanged(binding, isOn);
+        externalPageToggleBindings.Add(binding);
+        toggle.onValueChanged.AddListener(binding.listener);
+        SyncExternalPageToggle(binding);
+    }
+
+    public void UnregisterExternalPageToggle(Toggle toggle)
+    {
+        if (toggle == null)
+            return;
+
+        for (int i = externalPageToggleBindings.Count - 1; i >= 0; i--)
+        {
+            ExternalPageToggleBinding binding = externalPageToggleBindings[i];
+            if (binding.toggle != toggle)
+                continue;
+
+            if (binding.listener != null)
+                binding.toggle.onValueChanged.RemoveListener(binding.listener);
+
+            externalPageToggleBindings.RemoveAt(i);
+        }
+    }
+
+    public bool IsManagedPageRegistered(RectTransform page)
+    {
+        return page != null &&
+               (TryFindManagedPage(page, out _, out _) ||
+                TryResolveStandaloneManagedPage(page, out _));
+    }
+
+    public void ResetForSceneChange()
+    {
+        SelectMain(-1, true);
     }
 
     private bool TryFindManagedPage(RectTransform page, out int tabIndex, out int pageIndex)
@@ -404,6 +480,50 @@ public class BottomPanelController : MonoBehaviour
         return false;
     }
 
+    private bool TryResolveStandaloneManagedPage(RectTransform page, out RectTransform standalonePage)
+    {
+        standalonePage = null;
+        if (page == null)
+            return false;
+
+        Transform current = page;
+        while (current != null)
+        {
+            RectTransform currentRect = current as RectTransform;
+            if (currentRect == null)
+            {
+                current = current.parent;
+                continue;
+            }
+
+            if (currentRect == contentsArea || currentRect == contentsContainer)
+                break;
+
+            if (TryFindManagedPage(currentRect, out _, out _))
+                return false;
+
+            if (currentRect.GetComponent<BottomPanelManagedPage>() != null &&
+                IsStandaloneManagedPageRoot(currentRect))
+            {
+                standalonePage = currentRect;
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
+    }
+
+    private bool IsStandaloneManagedPageRoot(RectTransform page)
+    {
+        if (page == null)
+            return false;
+
+        RectTransform parent = page.parent as RectTransform;
+        return parent == contentsArea || parent == contentsContainer;
+    }
+
     private void OpenManagedPage(int tabIndex, int pageIndex)
     {
         if (!IsValidTabIndex(tabIndex))
@@ -416,6 +536,7 @@ public class BottomPanelController : MonoBehaviour
 
         activeTab = tabIndex;
         activeSub = -1;
+        activeStandalonePage = null;
 
         for (int i = 0; i < tabs.Count; i++)
         {
@@ -425,6 +546,7 @@ public class BottomPanelController : MonoBehaviour
         }
 
         RefreshMainSelection();
+        RefreshExternalPageToggles();
 
         TabConfig tab = tabs[activeTab];
         bool wasVisible = sheetPanel != null && sheetPanel.activeSelf;
@@ -445,27 +567,84 @@ public class BottomPanelController : MonoBehaviour
         ShowSubPage(tab, pageIndex);
     }
 
+    private void OpenStandaloneManagedPage(RectTransform page)
+    {
+        if (page == null)
+            return;
+
+        CancelPendingSingleTap();
+        waitingForSecondTap = false;
+        lastHeaderTapTime = -10f;
+        suppressNextPointerUpTap = false;
+
+        activeTab = -1;
+        activeSub = -1;
+        activeStandalonePage = page;
+
+        for (int i = 0; i < tabs.Count; i++)
+        {
+            Toggle toggle = tabs[i].mainToggle;
+            if (toggle != null)
+                toggle.SetIsOnWithoutNotify(false);
+        }
+
+        RefreshMainSelection();
+        RefreshExternalPageToggles();
+
+        bool wasVisible = sheetPanel != null && sheetPanel.activeSelf;
+        SetSheetVisible(true);
+        if (!wasVisible)
+            ResetSheetHeight();
+
+        PrepareStandalonePageLayout(page);
+        AttachRect(page, contentsArea, true);
+        RefreshResizableContent();
+    }
+
     // 시트를 닫고 활성 콘텐츠를 원래 컨테이너로 되돌린다.
     private void PrepareTabLayout(TabConfig tab, int pageIndex)
     {
         RectTransform page = GetPage(tab, pageIndex);
         BottomPanelManagedPage managedPage = GetManagedPage(page);
+        RectTransform subMenuRoot = ResolveSubMenuRoot(tab, managedPage);
 
         SetTitle(GetPageTitle(tab, pageIndex, managedPage));
 
         MoveChildren(subMenuPos, subMenuContainer);
         MoveChildren(contentsArea, contentsContainer);
 
-        if (ShouldShowSubMenu(tab, pageIndex, managedPage))
+        if (ShouldShowSubMenu(tab, pageIndex, managedPage, subMenuRoot))
         {
-            AttachRect(tab.subMenuRoot, subMenuPos, false);
+            AttachRect(subMenuRoot, subMenuPos, false);
             EnsureSubVisible(tab);
         }
     }
 
-    private static bool ShouldShowSubMenu(TabConfig tab, int pageIndex, BottomPanelManagedPage managedPage)
+    private void PrepareStandalonePageLayout(RectTransform page)
     {
-        if (tab == null || tab.subMenuRoot == null)
+        BottomPanelManagedPage managedPage = GetManagedPage(page);
+        RectTransform subMenuRoot = managedPage != null ? managedPage.SubMenuRootOverride : null;
+
+        SetTitle(GetStandalonePageTitle(page, managedPage));
+
+        MoveChildren(subMenuPos, subMenuContainer);
+        MoveChildren(contentsArea, contentsContainer);
+
+        if (managedPage != null && managedPage.ShowSubMenu && subMenuRoot != null)
+            AttachRect(subMenuRoot, subMenuPos, false);
+    }
+
+    private static RectTransform ResolveSubMenuRoot(TabConfig tab, BottomPanelManagedPage managedPage)
+    {
+        if (managedPage != null && managedPage.SubMenuRootOverride != null)
+            return managedPage.SubMenuRootOverride;
+
+        return tab != null ? tab.subMenuRoot : null;
+    }
+
+    private static bool ShouldShowSubMenu(TabConfig tab, int pageIndex, BottomPanelManagedPage managedPage, RectTransform subMenuRoot)
+    {
+        if (tab == null || subMenuRoot == null)
             return false;
 
         if (managedPage != null)
@@ -493,21 +672,39 @@ public class BottomPanelController : MonoBehaviour
         if (page == null)
             return fallbackTitle;
 
+        string pageName = GetDisplayPageName(page);
+        return string.IsNullOrEmpty(pageName) ? fallbackTitle : pageName;
+    }
+
+    private static string GetStandalonePageTitle(RectTransform page, BottomPanelManagedPage managedPage)
+    {
+        if (managedPage != null && !string.IsNullOrWhiteSpace(managedPage.PageTitle))
+            return managedPage.PageTitle;
+
+        return GetDisplayPageName(page);
+    }
+
+    private static string GetDisplayPageName(RectTransform page)
+    {
+        if (page == null)
+            return string.Empty;
+
         string pageName = page.gameObject.name;
         if (pageName.EndsWith("Contents"))
             pageName = pageName.Substring(0, pageName.Length - "Contents".Length);
 
-        pageName = pageName.Replace("(ScrollView)", string.Empty).Trim();
-        return string.IsNullOrEmpty(pageName) ? fallbackTitle : pageName;
+        return pageName.Replace("(ScrollView)", string.Empty).Trim();
     }
 
     private void CloseSheet()
     {
+        activeStandalonePage = null;
         MoveChildren(subMenuPos, subMenuContainer);
         MoveChildren(contentsArea, contentsContainer);
         SetTitle(string.Empty);
         SetSheetVisible(false);
         ResetSheetHeight();
+        RefreshExternalPageToggles();
     }
 
     // 탭 오픈 시 기본 서브 페이지를 결정한다.
@@ -579,6 +776,7 @@ public class BottomPanelController : MonoBehaviour
 
         RefreshSubSelection(tab, activeSub);
         ShowSubPage(tab, activeSub);
+        RefreshExternalPageToggles();
     }
 
     // 서브 토글 선택 색상을 갱신한다.
@@ -674,8 +872,11 @@ public class BottomPanelController : MonoBehaviour
     // 헤더 터치 시작 시 싱글 탭 대기만 정리한다.
     public void HandleHeaderPointerDown()
     {
-        if (activeTab < 0 || sheetRect == null)
+        if (!HasActiveSheetPage() || sheetRect == null || IsHeaderGestureBlocked())
+        {
+            ResetHeaderGestureState();
             return;
+        }
 
         if (waitingForSecondTap)
             CancelPendingSingleTap();
@@ -684,8 +885,11 @@ public class BottomPanelController : MonoBehaviour
     // 헤더 터치 종료 시 싱글 탭 닫기 또는 더블 탭 확장을 판정한다.
     public void HandleHeaderPointerUp()
     {
-        if (activeTab < 0 || sheetRect == null || sheetPanel == null || !sheetPanel.activeSelf)
+        if (!HasActiveSheetPage() || sheetRect == null || sheetPanel == null || !sheetPanel.activeSelf || IsHeaderGestureBlocked())
+        {
+            ResetHeaderGestureState();
             return;
+        }
 
         if (isDraggingHeader || ConsumeSuppressedPointerUp())
             return;
@@ -708,8 +912,11 @@ public class BottomPanelController : MonoBehaviour
     // 헤더 드래그가 시작되면 탭 판정을 끊고 높이 조절 모드로 들어간다.
     public void HandleHeaderBeginDrag()
     {
-        if (activeTab < 0 || sheetRect == null || sheetPanel == null || !sheetPanel.activeSelf)
+        if (!HasActiveSheetPage() || sheetRect == null || sheetPanel == null || !sheetPanel.activeSelf || IsHeaderGestureBlocked())
+        {
+            ResetHeaderGestureState();
             return;
+        }
 
         CancelPendingSingleTap();
         waitingForSecondTap = false;
@@ -721,6 +928,12 @@ public class BottomPanelController : MonoBehaviour
     // 드래그 중에는 손가락 이동량만큼 시트 높이를 반영한다.
     public void HandleHeaderDrag(float deltaY)
     {
+        if (IsHeaderGestureBlocked())
+        {
+            ResetHeaderGestureState();
+            return;
+        }
+
         if (!isDraggingHeader || sheetRect == null)
             return;
 
@@ -731,6 +944,12 @@ public class BottomPanelController : MonoBehaviour
     // 드래그 종료 시 닫힘, 기본, 최대 중 하나로 스냅한다.
     public void HandleHeaderEndDrag()
     {
+        if (IsHeaderGestureBlocked())
+        {
+            ResetHeaderGestureState();
+            return;
+        }
+
         if (!isDraggingHeader)
             return;
 
@@ -747,6 +966,87 @@ public class BottomPanelController : MonoBehaviour
             return false;
 
         suppressNextPointerUpTap = false;
+        return true;
+    }
+
+    private void ResetHeaderGestureState()
+    {
+        CancelPendingSingleTap();
+        waitingForSecondTap = false;
+        isDraggingHeader = false;
+        suppressNextPointerUpTap = false;
+        lastHeaderTapTime = -10f;
+    }
+
+    private bool IsHeaderGestureBlocked()
+    {
+        if (HasActiveRaycastBlockingTarget(gestureBlockerContainer, false))
+            return true;
+
+        for (int i = 0; i < gestureBlockerRoots.Count; i++)
+        {
+            if (HasActiveRaycastBlockingTarget(gestureBlockerRoots[i], true))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasActiveRaycastBlockingTarget(Transform root, bool includeSelf)
+    {
+        if (root == null || !root.gameObject.activeInHierarchy)
+            return false;
+
+        if (includeSelf && IsRaycastBlockingTarget(root))
+            return true;
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            if (HasActiveRaycastBlockingTarget(root.GetChild(i), true))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsRaycastBlockingTarget(Transform target)
+    {
+        if (!AllowsRaycasts(target))
+            return false;
+
+        Graphic[] graphics = target.GetComponents<Graphic>();
+        for (int i = 0; i < graphics.Length; i++)
+        {
+            Graphic graphic = graphics[i];
+            if (graphic != null && graphic.enabled && graphic.raycastTarget)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool AllowsRaycasts(Transform target)
+    {
+        Transform current = target;
+        while (current != null)
+        {
+            CanvasGroup[] groups = current.GetComponents<CanvasGroup>();
+            for (int i = 0; i < groups.Length; i++)
+            {
+                CanvasGroup group = groups[i];
+                if (group == null || !group.enabled)
+                    continue;
+
+                if (!group.blocksRaycasts)
+                    return false;
+
+                if (group.ignoreParentGroups)
+                    return true;
+            }
+
+            current = current.parent;
+        }
+
         return true;
     }
 
@@ -1117,16 +1417,90 @@ public class BottomPanelController : MonoBehaviour
         if (rect == null)
             return;
 
+        RectTransform parent = rect.parent as RectTransform;
+        if (parent == null)
+            return;
+
+        Vector3[] worldCorners = new Vector3[4];
+        rect.GetWorldCorners(worldCorners);
+
+        Vector3 bottomLeft = parent.InverseTransformPoint(worldCorners[0]);
+        Vector3 topRight = parent.InverseTransformPoint(worldCorners[2]);
+        Rect parentRect = parent.rect;
+
+        float left = bottomLeft.x - parentRect.xMin;
+        float bottom = bottomLeft.y - parentRect.yMin;
+        float right = parentRect.xMax - topRight.x;
+        float top = parentRect.yMax - topRight.y;
+
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
-        rect.anchoredPosition = Vector2.zero;
+        rect.offsetMin = new Vector2(left, bottom);
+        rect.offsetMax = new Vector2(-right, -top);
     }
 #endregion
 
 #region Utility
     // 활성 영역의 자식들을 원래 컨테이너로 되돌린다.
+    private void OnExternalPageToggleChanged(ExternalPageToggleBinding binding, bool isOn)
+    {
+        if (binding == null || binding.page == null)
+            return;
+
+        if (isOn)
+        {
+            ShowManagedPage(binding.page);
+            return;
+        }
+
+        if (IsManagedPageSelected(binding.page))
+            CloseActiveSheet();
+    }
+
+    private void RefreshExternalPageToggles()
+    {
+        for (int i = 0; i < externalPageToggleBindings.Count; i++)
+            SyncExternalPageToggle(externalPageToggleBindings[i]);
+    }
+
+    private void SyncExternalPageToggle(ExternalPageToggleBinding binding)
+    {
+        if (binding == null || binding.toggle == null)
+            return;
+
+        binding.toggle.SetIsOnWithoutNotify(IsManagedPageSelected(binding.page));
+    }
+
+    private bool IsManagedPageSelected(RectTransform page)
+    {
+        if (page == null)
+            return false;
+
+        if (TryFindManagedPage(page, out int tabIndex, out int pageIndex))
+        {
+            if (tabIndex != activeTab || !IsValidTabIndex(tabIndex))
+                return false;
+
+            TabConfig tab = tabs[tabIndex];
+            if (!tab.routeBySubMenu)
+                return true;
+
+            if (activeSub < 0)
+                return pageIndex == 0;
+
+            return activeSub == pageIndex;
+        }
+
+        return TryResolveStandaloneManagedPage(page, out RectTransform standalonePage) &&
+               activeTab < 0 &&
+               activeStandalonePage == standalonePage;
+    }
+
+    private bool HasActiveSheetPage()
+    {
+        return activeTab >= 0 || activeStandalonePage != null;
+    }
+
     private static RectTransform GetPage(TabConfig tab, int pageIndex)
     {
         if (tab == null || pageIndex < 0 || pageIndex >= tab.pages.Count)
@@ -1175,7 +1549,7 @@ public class BottomPanelController : MonoBehaviour
         lastHeaderTapTime = -10f;
         suppressNextPointerUpTap = false;
 
-        if (activeTab >= 0)
+        if (HasActiveSheetPage())
         {
             SelectMain(-1);
             return;

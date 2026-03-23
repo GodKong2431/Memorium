@@ -24,7 +24,9 @@ public abstract class StatusEffectBase
         this.target = target;
         this.buffApplicable = buffApplicable;
         elapsedTime = 0f;
-        tickTimer = 0f;
+        tickTimer = 0f; 
+
+
     }
     public void Tick(float deltaTime)
     {

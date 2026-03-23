@@ -10,18 +10,18 @@ public abstract class SkillObjectileBase : MonoBehaviour, ISkillDetectable
 
     public Collider[] GetBuffer() => hitBuffer;
 
-    protected SkillDataContext skillDataContext;
-    public SkillDataContext GetSkillDataContext() => skillDataContext;
+    protected SkillDataContext dataContext;
+    public SkillDataContext GetSkillDataContext() => dataContext;
 
     protected Vector3 debugLastCastPos;
     protected Vector3 debugLastCastDir;
 
-    public virtual void Initialize(ISkillHitHandler _owner, SkillDataContext _skillDataContext, LayerMask layer)
+    public virtual void Initialize(ISkillHitHandler _owner, SkillDataContext dataContext, LayerMask layer)
     {
         owner = _owner;
-        skillDataContext = _skillDataContext;
+        this.dataContext = dataContext;
         targetLayer = layer;
-        data= skillDataContext.skillData;
+        data = this.dataContext.skillData;
         debugLastCastPos =transform.position;
 
     }

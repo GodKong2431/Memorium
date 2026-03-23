@@ -30,8 +30,7 @@ public class EnemyStateChase : IEnemyState
         // 해당 객체는 스테이지에 소환된 직후 플레이어와의 거리가 공격 사거리보다 클 동안 플레이어 위치로 이동
         // 플레이어와의 거리가 공격 사거리 이하(dist <= AttackRange)가 되는 시점에 전투 상태로 전환
 
-        float dist = Vector3.Distance(ctx.EnemyTransform.position, player.position);
-        // 거리가 공격 사거리 이하일 때 Attack 상태로 전환
+        float dist = ctx.GetBoundsDistanceToPlayer();
         if (dist <= ctx.AttackRange)
         {
             ctx.RequestState(EnemyStateType.Attack);
@@ -40,6 +39,16 @@ public class EnemyStateChase : IEnemyState
 
         // 이 부분에 버프/디버프 적용된 이동속도 반영하도록 추가했습니다.
         ctx.Agent.speed = ctx.MoveSpeed;
+
+        // 블렌드 트리(Locomotion)용 파라미터 갱신: 0=Idle, 1=Run 기준
+        // Animator Controller에서 Locomotion Blend Tree를 구성해두면, 몬스터별 클립만 Override해도 자연스럽게 동작함.
+        if (ctx.Agent != null)
+        {
+            float speed01 = 0f;
+            float denom = Mathf.Max(0.01f, ctx.MoveSpeed);
+            speed01 = Mathf.Clamp01(ctx.Agent.velocity.magnitude / denom);
+            ctx.SetLocomotion(speed01);
+        }
 
         NavMeshAgent agent = ctx.Agent;
         if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh && !agent.isStopped)

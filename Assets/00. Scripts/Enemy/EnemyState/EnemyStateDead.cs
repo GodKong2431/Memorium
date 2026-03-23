@@ -17,7 +17,7 @@ public class EnemyStateDead : IEnemyState
     {
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = true;
-        ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Dead);
+        ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Die);
         // 사망 이펙트 추가 예정
         // 사망 효과음 추가 예정
         _destroyTime = Time.time + DestroyDelay;
@@ -37,6 +37,7 @@ public class EnemyStateDead : IEnemyState
             Vector3 pos = ctx.EnemyTransform != null ? ctx.EnemyTransform.position : Vector3.zero;
             EnemyKillRewardDispatcher.GrantRewards(rewardData, isBoss: ctx.IsBoss, stageLevel: EnemyKillRewardDispatcher.CurrentStageLevel, worldPosition: pos);
         }
+        EnemyRegistry.UnRegister(ctx.EnemyTransform.GetComponent<Enemy>());
     }
 
     public void OnUpdate(EnemyStateContext ctx)

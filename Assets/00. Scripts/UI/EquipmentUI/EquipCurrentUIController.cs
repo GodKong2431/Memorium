@@ -13,6 +13,7 @@ public class EquipCurrentUIController : UIControllerBase
     [SerializeField] private RectTransform root;
     [SerializeField] private GameObject itemPrefab;
     [SerializeField] private RectTransform mergeResultPanelRoot;
+    [SerializeField] private RectTransform mergeResultPopupContentRoot;
     [SerializeField] private TextMeshProUGUI mergeResultTitle;
     [SerializeField] private ScrollRect mergeResultScrollView;
     [SerializeField] private RectTransform mergeResultContentRoot;
@@ -20,6 +21,8 @@ public class EquipCurrentUIController : UIControllerBase
     [SerializeField] private string levelText = "Lv. 0";
     [SerializeField] private string mergeResultTitleText = "합성 결과";
     [SerializeField] private string mergeResultCountFormat = "x{0}";
+
+    public GameObject ItemPrefab => itemPrefab;
 
     private static readonly EquipmentType[] Order =
     {
@@ -385,15 +388,50 @@ public class EquipCurrentUIController : UIControllerBase
 
     private bool IsInsideMergeResultPopup(Vector2 screenPosition)
     {
-        if (mergeResultPanelRoot == null)
+        RectTransform hitRoot = ResolveMergeResultPopupHitRoot();
+        if (hitRoot == null)
             return false;
 
-        Canvas parentCanvas = mergeResultPanelRoot.GetComponentInParent<Canvas>();
+        Canvas parentCanvas = hitRoot.GetComponentInParent<Canvas>();
         Camera eventCamera = null;
         if (parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
             eventCamera = parentCanvas.worldCamera;
 
-        return RectTransformUtility.RectangleContainsScreenPoint(mergeResultPanelRoot, screenPosition, eventCamera);
+        return RectTransformUtility.RectangleContainsScreenPoint(hitRoot, screenPosition, eventCamera);
+    }
+
+    private RectTransform ResolveMergeResultPopupHitRoot()
+    {
+        if (mergeResultPopupContentRoot != null)
+            return mergeResultPopupContentRoot;
+
+        if (mergeResultScrollView != null)
+        {
+            RectTransform scrollRect = mergeResultScrollView.transform as RectTransform;
+            if (scrollRect != null)
+            {
+                RectTransform parentRect = scrollRect.parent as RectTransform;
+                if (parentRect != null && parentRect != mergeResultPanelRoot)
+                    return parentRect;
+
+                return scrollRect;
+            }
+        }
+
+        if (mergeResultTitle != null)
+        {
+            RectTransform titleRect = mergeResultTitle.transform as RectTransform;
+            if (titleRect != null)
+            {
+                RectTransform parentRect = titleRect.parent as RectTransform;
+                if (parentRect != null && parentRect != mergeResultPanelRoot)
+                    return parentRect;
+
+                return titleRect;
+            }
+        }
+
+        return mergeResultContentRoot != null ? mergeResultContentRoot : mergeResultPanelRoot;
     }
 
     private static Sprite LoadIcon(EquipListTable table)
@@ -402,7 +440,7 @@ public class EquipCurrentUIController : UIControllerBase
             ? table.equipmentName
             : table.iconResource;
 
-        return string.IsNullOrEmpty(key) ? null : Resources.Load<Sprite>(key);
+        return EquipmentIconResolver.LoadSprite(key);
     }
 
     private static int GetStarCount(int tier)

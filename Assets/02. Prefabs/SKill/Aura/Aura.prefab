@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3780205199647110876}
   - component: {fileID: 9068166651305275078}
+  - component: {fileID: 8538624289297637504}
   m_Layer: 0
   m_Name: Aura
   m_TagString: Untagged
@@ -44,3 +45,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5018cb8550e54114ba1103c380b0695f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkillAura
+--- !u!114 &8538624289297637504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2459820414868955857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3941da6a3fde0df49b2d387dfb0dc8c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoolableObject

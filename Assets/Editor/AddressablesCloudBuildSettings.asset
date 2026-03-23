@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c07ecb5a265440088b8bd0e0d3a2d11, type: 3}
+  m_Name: AddressablesCloudBuildSettings
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::AddressablesCloudBuildSettings
+  automationEnabled: 1
+  interceptUnityBuildButton: 1
+  saveModifiedScenesBeforeBuild: 1
+  cleanLocalServerDataBeforeBuild: 1
+  uploadAfterPlayerBuild: 1
+  createReleaseOnUpload: 1
+  deleteRemoteEntriesMissingLocally: 1
+  backupReleaseArtifacts: 1
+  promoteReleaseToLatestBadge: 1
+  includeEntriesAddedDuringSync: 1
+  buildMode: 1
+  releaseBadgeOverride: 
+  releaseBadgePrefix: release-
+  latestBadgeName: latest
+  ccdEnvironmentName: production
+  ccdProjectIdOverride: 
+  ccdBucketNameOverride: Bravo6 Memorium
+  ugsCliExecutablePath: C:\Tools\ugs\ugs-windows-x64.exe
+  backupRootFolder: BuildBackups/Addressables
+  logRootFolder: BuildBackups/AddressablesLogs
+  releaseNotesFormat: '{ProductName} {BundleVersion} {BuildTarget} {BuildMode} {Timestamp}'
+  syncTimeoutSeconds: 900
+  uploadRetryCount: 3
+  concurrentUploadCount: 10

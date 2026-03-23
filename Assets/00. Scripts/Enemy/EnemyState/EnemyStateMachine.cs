@@ -21,10 +21,19 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     [Header("에셋 (비워두면 몬스터 ID로 MonsterAssetDatabase에서 자동 조회)")]
     [SerializeField][Tooltip("비워두면 본인/자식에서 Animator 자동 검색.")]
     private Animator animator;
+
     [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
     private MonsterAnimationConfig animationConfig;
+
     [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
     private GameObject attackEffectPrefab;
+    
+    [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
+    private GameObject onHitEffectPrefab;
+    
+    [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
+    private AudioClip onHitSfx;
+
     [SerializeField][Tooltip("비워두면 Resources 또는 전역 DB 사용.")]
     private MonsterAssetDatabase assetDatabaseOverride;
 
@@ -58,6 +67,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             AnimationConfig = animationConfig,
             IsBoss = statPresenter != null && statPresenter.IsBoss,
             AttackEffectPrefab = attackEffectPrefab,
+            OnHitEffectPrefab = onHitEffectPrefab,
+            OnHitSfx = onHitSfx,
             SkillHandler = skillHandler,
             EnemyEffectController = effectController
         };
@@ -70,7 +81,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             { EnemyStateType.Chase, new EnemyStateChase() },
             { EnemyStateType.Attack, new EnemyStateAttack() },
             { EnemyStateType.Onhit, new EnemyStateOnhit() },
-            { EnemyStateType.Dead, new EnemyStateDead() }
+            { EnemyStateType.Dead, new EnemyStateDead() },
+            { EnemyStateType.Spawn, new EnemyStateSpawn() }
         };
     }
 
@@ -90,8 +102,18 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             {
                 if (animationConfig == null && entry.animationConfig != null)
                     animationConfig = entry.animationConfig;
+
+                // 몬스터별 OverrideController 자동 적용 (공통 Controller + 클립 교체 방식)
+                if (animator != null && entry.animatorOverrideController != null)
+                    animator.runtimeAnimatorController = entry.animatorOverrideController;
+
                 if (attackEffectPrefab == null && entry.attackEffectPrefab != null)
                     attackEffectPrefab = entry.attackEffectPrefab;
+
+                if (onHitEffectPrefab == null && entry.onHitEffectPrefab != null)
+                    onHitEffectPrefab = entry.onHitEffectPrefab;
+                if (onHitSfx == null && entry.onHitSfx != null)
+                    onHitSfx = entry.onHitSfx;
             }
         }
     }
@@ -123,8 +145,11 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             _ctx.Agent.stoppingDistance = data.attackRange;
         }
 
-        // 스폰되면 바로 chase 상태로 전환
-        ChangeState(EnemyStateType.Chase);
+        // 보스: 스폰 연출 후 Chase. 일반몹: 바로 Chase
+        if (_ctx.IsBoss)
+            ChangeState(EnemyStateType.Spawn);
+        else
+            ChangeState(EnemyStateType.Chase);
     }
 
     /// <summary>
@@ -225,7 +250,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     {
         _ctx.SpawnPosition = transform.position;
         _ctx.Initialize();
-        // 풀 재사용 시 플레이어 참조 갱신 (파괴/리스폰 시 stale 참조 방지)
         RefreshPlayerTransform();
         if (_ctx.SkillHandler != null && _ctx.PlayerTransform != null)
             _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
@@ -240,6 +264,19 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             _ctx.Agent.speed = data.monsterSpeed;
             _ctx.Agent.stoppingDistance = data.attackRange;
         }
-        ChangeState(EnemyStateType.Chase);
+
+        // 애니메이터 초기화 + Idle로 보내기
+        if (_ctx.Animator != null)
+        {
+            _ctx.Animator.Rebind();
+            _ctx.Animator.Update(0f);
+            _ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Idle);
+        }
+
+        // 보스는 풀 재스폰에서도 Spawn 연출 후 Chase로 가야 일관적임
+        if (_ctx.IsBoss)
+            ChangeState(EnemyStateType.Spawn);
+        else
+            ChangeState(EnemyStateType.Chase);
     }
 }

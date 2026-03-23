@@ -23,6 +23,12 @@ public class SaveStageData :ISaveData
         return (GetCurStage(), GetAllMaxStage(), GetOnFailedStage());
     }
 
+    public void SetCurStage(int cur)
+    {
+        curStage = cur;
+        isDirty = true;
+    }
+
     public int GetCurStage()
     {
         if (curStage <= 0)
@@ -55,11 +61,19 @@ public class SaveStageData :ISaveData
 
     public void SetMaxStage(StageType type, int stage)
     {
+        isDirty = true;
         if (GetMaxStage(type) < stage)
             maxStage[(int)type - (int)StageType.NormalStage] = stage;
         else
             return;
     }
+
+    public void SetOnFailedStage()
+    {
+        onFailedStage=true;
+        isDirty = true;
+    }
+
     public bool GetOnFailedStage()
     {
         return onFailedStage;

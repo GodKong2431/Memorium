@@ -1,14 +1,15 @@
-﻿using UnityEngine;
+using UnityEngine;
 public class FireEffect : StatusEffectBase
 {
     private float defReduction;
     private SkillModule5Table tableData;
+    private PoolableParticle effect;
 
     public FireEffect(SkillModule5Table data)
     {
         tableData = data;
         duration = 0.15f;
-        tickInterval = data.damage;        
+        tickInterval = data.tickInterval;        
         damage = 1;
         defReduction = data.defDown;
     }
@@ -25,6 +26,7 @@ public class FireEffect : StatusEffectBase
         // 첫 적용
         base.OnApply(target, buffApplicable);
         ApplyDefDebuff();
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(tableData.m5VFX, target.transform, true, false, onSpawned: OnParticleSpawned));
     }
 
     private void ApplyDefDebuff()
@@ -42,8 +44,14 @@ public class FireEffect : StatusEffectBase
     {
         target.TakeDamage(damage);
     }
-
     public override void OnExpire()
     {
+        base.OnExpire();
+        effect?.StopAndReturnManual();
+
+    }
+    public void OnParticleSpawned(PoolableParticle particle)
+    {
+        effect = particle;
     }
 }

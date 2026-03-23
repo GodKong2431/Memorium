@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -5,15 +6,18 @@ using UnityEngine.UI;
 
 public sealed partial class StoneUI
 {
-    private void RenderStoneItem(StoneItemUI itemUI, StoneGrade grade, AbilityStone stoneData)
+    private void RenderStoneItem(StoneItemUI itemUI, StoneGrade grade, AbilityStone stoneData, int tier)
     {
         if (itemUI == null)
         {
             return;
         }
 
-        bool unlocked = IsStoneUnlocked(grade);
-        bool isSelected = selectedGrade == grade && upgradePanel != null && upgradePanel.gameObject.activeSelf;
+        bool unlocked = IsStoneUnlocked(grade, tier);
+        bool isSelected = selectedGrade == grade
+            && selectedtier == tier
+            && upgradePanel != null
+            && upgradePanel.gameObject.activeSelf;
 
         if (itemUI.FrameImage != null)
         {
@@ -26,8 +30,8 @@ public sealed partial class StoneUI
 
         if (itemUI.GradeText != null)
         {
-            itemUI.GradeText.text = $"{GetGradeName(grade)} {TextStone}";
-            itemUI.GradeText.color = unlocked ? Color.white : disabledTextColor;
+            itemUI.GradeText.text = $"{tier+1}티어 {GetGradeName(grade)} {TextStone}";
+            itemUI.GradeText.color = unlocked ? AbilityStoneManager.Instance.so.StoneGradeColorDict[grade] : disabledTextColor;
         }
 
         itemUI.SetLocked(!unlocked);
@@ -76,7 +80,7 @@ public sealed partial class StoneUI
 
         if (itemUI.ValueText != null)
         {
-            itemUI.ValueText.text = FormatSignedStatValue(bonusData.statType, bonusData.increaseStat);
+            itemUI.ValueText.text = FormatSignedStatValue(bonusData.statType, bonusData.increaseStat, true);
             itemUI.ValueText.color = unlocked ? Color.white : disabledTextColor;
         }
 
@@ -103,7 +107,7 @@ public sealed partial class StoneUI
         {
             itemUI.StatNameText.text = slotData == null || slotData.SlotType == StatType.None
                 ? TextNotConfigured
-                : GetStatName(slotData.SlotType);
+                : GetStatName(slotData.SlotType, stoneData.tier);
             itemUI.StatNameText.color = stoneUnlocked ? Color.white : disabledTextColor;
         }
 
@@ -117,6 +121,11 @@ public sealed partial class StoneUI
         {
             itemUI.ButtonText.text = canAttempt ? TextUpgrade : BuildSlotStateText(stoneData, slotIndex, stoneUnlocked, canAffordUpgrade);
             itemUI.ButtonText.color = canAttempt ? Color.white : disabledTextColor;
+        }
+        
+        if (itemUI.CostCurrencyImage != null)
+        {
+            itemUI.CostCurrencyImage.sprite = stoneData.stoneMult ? IconManager.GetStatIcon(CurrencyType.Crystal) : IconManager.GetStatIcon(CurrencyType.Gold);
         }
 
         if (itemUI.CostText != null)
@@ -284,7 +293,8 @@ public sealed partial class StoneUI
 
         if (upgradePanel.GradeText != null)
         {
-            upgradePanel.GradeText.text = $"{GetGradeName(selectedGrade.Value)} {TextStone}";
+            upgradePanel.GradeText.text = $"{selectedtier+1}티어 {GetGradeName(selectedGrade.Value)} {TextStone}";
+            upgradePanel.GradeText.color = AbilityStoneManager.Instance.so.StoneGradeColorDict[selectedGrade.Value];
         }
 
         TextMeshProUGUI[] probabilityTexts = upgradePanel.ProbabilityTexts;
@@ -408,7 +418,7 @@ public sealed partial class StoneUI
         SetPanelActive(infoPanel != null ? infoPanel.gameObject : null, false);
     }
 
-    private void OpenUpgradePanel(StoneGrade grade)
+    private void OpenUpgradePanel(StoneGrade grade, int tierIndex)
     {
         // 같은 스톤을 다시 누르면 팝업을 닫는다.
         if (!HasSceneRefs() || upgradePanel == null)
@@ -418,13 +428,18 @@ public sealed partial class StoneUI
 
         BuildIfNeeded();
 
-        if (selectedGrade == grade && upgradePanel.gameObject.activeSelf)
+        if (selectedGrade == grade && selectedtier == tierIndex && upgradePanel.gameObject.activeSelf)
         {
-            CloseUpgradePanel();
+            if (TryPrepareRuntimeData())
+            {
+                RefreshUpgradePanel();
+                RefreshStoneList();
+            }
             return;
         }
 
         selectedGrade = grade;
+        selectedtier = tierIndex;
         SetPanelActive(infoPanel != null ? infoPanel.gameObject : null, false);
         SetPanelActive(upgradePanel.gameObject, true);
         upgradePanel.HidePopups();
@@ -467,7 +482,7 @@ public sealed partial class StoneUI
         upgradePanel?.HidePopups();
     }
 
-    private void OpenReconfigurePopup()
+    private void OpenReconfigurePopup(CurrencyType currencyType)
     {
         AbilityStone stoneData = GetSelectedStone();
         if (stoneData == null || selectedGrade == null || upgradePanel == null)
@@ -475,7 +490,7 @@ public sealed partial class StoneUI
             return;
         }
 
-        if (!IsStoneUnlocked(selectedGrade.Value))
+        if (!IsStoneUnlocked(selectedGrade.Value, selectedtier))
         {
             return;
         }
@@ -486,10 +501,10 @@ public sealed partial class StoneUI
             upgradePanel.ReconfigurePopupRoot.SetActive(true);
         }
 
-        RefreshReconfigurePopup(stoneData, true);
+        RefreshReconfigurePopup(stoneData, true, currencyType);
     }
 
-    private void OpenResetPopup()
+    private void OpenResetPopup(CurrencyType currencyType)
     {
         AbilityStone stoneData = GetSelectedStone();
         if (stoneData == null || selectedGrade == null || upgradePanel == null)
@@ -498,7 +513,7 @@ public sealed partial class StoneUI
         }
 
         int totalAttemptCount = stoneData.GetAttemptCount(0) + stoneData.GetAttemptCount(1) + stoneData.GetAttemptCount(2);
-        if (!IsStoneUnlocked(selectedGrade.Value) || totalAttemptCount <= 0)
+        if (!IsStoneUnlocked(selectedGrade.Value, selectedtier) || totalAttemptCount <= 0)
         {
             return;
         }
@@ -509,10 +524,10 @@ public sealed partial class StoneUI
             upgradePanel.ResetPopupRoot.SetActive(true);
         }
 
-        RefreshResetPopup(stoneData, true, totalAttemptCount);
+        RefreshResetPopup(stoneData, true, totalAttemptCount, currencyType);
     }
 
-    private void UpdateNextGradeButton(StoneGrade grade, bool unlocked)
+    private void UpdateNextGradeButton(StoneGrade grade, bool unlocked, int tier)
     {
         if (upgradePanel == null || upgradePanel.NextGradeButton == null)
         {
@@ -527,14 +542,15 @@ public sealed partial class StoneUI
             nextButton.interactable = false;
             if (nextText != null)
             {
-                nextText.text = GetUnlockReason(grade);
+                nextText.text = GetUnlockReason(grade, tier);
                 nextText.color = disabledTextColor;
             }
 
             return;
         }
 
-        if (grade == StoneGrade.Myth)
+        bool hasNextTier = TryGetNextTierKey(tier, out int nextTierKey);
+        if (grade == StoneGrade.Myth && !hasNextTier)
         {
             nextButton.interactable = false;
             if (nextText != null)
@@ -546,20 +562,33 @@ public sealed partial class StoneUI
             return;
         }
 
-        StoneGrade nextGrade = (StoneGrade)((int)grade + 1);
-        bool nextUnlocked = IsStoneUnlocked(nextGrade);
+        StoneGrade nextGrade;
+        int targetTier;
+
+        if (grade == StoneGrade.Myth)
+        {
+            nextGrade = StoneGrade.Normal;
+            targetTier = nextTierKey;
+        }
+        else
+        {
+            nextGrade = (StoneGrade)((int)grade + 1);
+            targetTier = tier;
+        }
+
+        bool nextUnlocked = IsStoneUnlocked(nextGrade, targetTier);
         nextButton.interactable = nextUnlocked;
 
         if (nextText != null)
         {
             nextText.text = nextUnlocked
                 ? $"{GetGradeName(nextGrade)} {TextOpen}"
-                : GetUnlockReason(nextGrade);
+                : GetUnlockReason(nextGrade, targetTier);
             nextText.color = nextUnlocked ? Color.white : disabledTextColor;
         }
     }
 
-    private void RefreshReconfigurePopup(AbilityStone stoneData, bool unlocked)
+    private void RefreshReconfigurePopup(AbilityStone stoneData, bool unlocked, CurrencyType currencyType)
     {
         if (upgradePanel == null)
         {
@@ -579,8 +608,8 @@ public sealed partial class StoneUI
             if (slotTexts[i] != null)
             {
                 AbilityStoneSlot slotData = i < stoneData.Slots.Count ? stoneData.Slots[i] : null;
-                slotTexts[i].text = BuildPopupSlotText(slotData, i);
-                slotImages[i].sprite = IconManager.GetIcon(slotData.SlotType);
+                slotTexts[i].text = BuildPopupSlotText(slotData, i, stoneData.tier);
+                slotImages[i].sprite = IconManager.GetStatIcon(slotData.SlotType);
             }
         }
 
@@ -591,11 +620,11 @@ public sealed partial class StoneUI
 
         if (upgradePanel.ReconfigureConfirmButton != null)
         {
-            upgradePanel.ReconfigureConfirmButton.interactable = unlocked && CanAfford(stoneData.StatRerollCost);
+            upgradePanel.ReconfigureConfirmButton.interactable = unlocked && CanAfford(stoneData.StatRerollCost, currencyType);
         }
     }
 
-    private void RefreshResetPopup(AbilityStone stoneData, bool unlocked, int totalAttemptCount)
+    private void RefreshResetPopup(AbilityStone stoneData, bool unlocked, int totalAttemptCount, CurrencyType currencyType)
     {
         if (upgradePanel == null)
         {
@@ -615,7 +644,7 @@ public sealed partial class StoneUI
             if (slotTexts[i] != null)
             {
                 slotTexts[i].text = $"{stoneData.GetSuccessCount(i)} / {stoneData.GetOpportunityCount(i)}";
-                slotImegs[i].sprite = IconManager.GetIcon(stoneData.GetStatType(i));
+                slotImegs[i].sprite = IconManager.GetStatIcon(stoneData.GetStatType(i));
             }
         }
 
@@ -629,24 +658,40 @@ public sealed partial class StoneUI
             upgradePanel.ResetConfirmButton.interactable =
                 unlocked &&
                 totalAttemptCount > 0 &&
-                CanAfford(stoneData.UpResetCostValue);
+                CanAfford(stoneData.UpResetCostValue, currencyType);
         }
     }
 
     private void OnClickNextGrade()
     {
-        if (selectedGrade == null || selectedGrade == StoneGrade.Myth)
+        if (selectedGrade == null)
         {
             return;
         }
 
-        StoneGrade nextGrade = (StoneGrade)((int)selectedGrade.Value + 1);
-        if (!IsStoneUnlocked(nextGrade))
+        StoneGrade nextGrade;
+        int targetTier = selectedtier;
+
+        if (selectedGrade == StoneGrade.Myth)
+        {
+            if (!TryGetNextTierKey(selectedtier, out targetTier))
+            {
+                return;
+            }
+
+            nextGrade = StoneGrade.Normal;
+        }
+        else
+        {
+            nextGrade = (StoneGrade)((int)selectedGrade.Value + 1);
+        }
+
+        if (!IsStoneUnlocked(nextGrade, targetTier))
         {
             return;
         }
 
-        OpenUpgradePanel(nextGrade);
+        OpenUpgradePanel(nextGrade, targetTier);
     }
 
     private void OnClickUpgradeSlot(int slotIndex)
@@ -657,7 +702,7 @@ public sealed partial class StoneUI
             return;
         }
 
-        if (!IsStoneUnlocked(selectedGrade.Value))
+        if (!IsStoneUnlocked(selectedGrade.Value, selectedtier))
         {
             return;
         }
@@ -666,11 +711,23 @@ public sealed partial class StoneUI
         {
             return;
         }
-
-        if (!TrySpendGold(stoneData.UpCost))
+        if (stoneData.stoneMult)
         {
-            return;
+            if (!TrySpendCrystal(stoneData.UpCost))
+            {
+                return;
+            }
         }
+        
+        else
+        {
+            if (!TrySpendGold(stoneData.UpCost))
+            {
+                return;
+            }
+        }
+
+        
 
         stoneData.UpStone(slotIndex);
         RefreshAll();
@@ -684,7 +741,7 @@ public sealed partial class StoneUI
             return;
         }
 
-        if (!IsStoneUnlocked(selectedGrade.Value) || !TrySpendGold(stoneData.StatRerollCost))
+        if (!IsStoneUnlocked(selectedGrade.Value, selectedtier) || !TrySpendGold(stoneData.StatRerollCost))
         {
             return;
         }
@@ -702,7 +759,7 @@ public sealed partial class StoneUI
             return;
         }
 
-        if (!IsStoneUnlocked(selectedGrade.Value) || !TrySpendGold(stoneData.UpResetCostValue))
+        if (!IsStoneUnlocked(selectedGrade.Value, selectedtier) || !TrySpendCrystal(stoneData.UpResetCostValue))
         {
             return;
         }
@@ -716,13 +773,13 @@ public sealed partial class StoneUI
     {
         if (type == CurrencyType.Gold)
         {
-            RefreshAll();
+            RefreshView();
         }
     }
 
     private void OnStatUpdated()
     {
-        RefreshAll();
+        RefreshView();
     }
 
     private AbilityStone GetSelectedStone()
@@ -738,9 +795,12 @@ public sealed partial class StoneUI
             return null;
         }
 
-        return abilityStoneManager.so.AbilityStoneDict.TryGetValue(selectedGrade.Value, out AbilityStone stoneData)
-            ? stoneData
-            : null;
+        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(selectedtier, out var tierStoneDict))
+        {
+            return null;
+        }
+
+        return tierStoneDict.TryGetValue(selectedGrade.Value, out AbilityStone stoneData) ? stoneData : null;
     }
 
     private List<StoneTotalUpBonusA> GetOrderedBonusData()
@@ -780,18 +840,22 @@ public sealed partial class StoneUI
         }
 
         int totalSuccessCount = 0;
-        foreach (AbilityStone stoneData in abilityStoneManager.so.AbilityStoneDict.Values)
+        foreach (var index in abilityStoneManager.so.AbilityStoneDict.Values)
         {
-            if (stoneData != null)
+            foreach (AbilityStone stoneData in index.Values)
             {
-                totalSuccessCount += stoneData.GetUpCount();
+                if (stoneData != null)
+                {
+                    totalSuccessCount += stoneData.GetUpCount();
+                }
             }
         }
+        
 
         return totalSuccessCount;
     }
 
-    private bool CanAfford(int goldCost)
+    private bool CanAfford(int Cost, CurrencyType currencyType)
     {
         CurrencyInventoryModule currentCurrencyModule = currencyModule;
         if (currentCurrencyModule == null && InventoryManager.Instance != null)
@@ -801,7 +865,7 @@ public sealed partial class StoneUI
         }
 
         return currentCurrencyModule != null
-            && currentCurrencyModule.HasEnough(CurrencyType.Gold, new BigDouble(goldCost));
+            && currentCurrencyModule.HasEnough(currencyType, new BigDouble(Cost));
     }
 
     private bool TrySpendGold(int goldCost)
@@ -824,6 +888,29 @@ public sealed partial class StoneUI
         }
 
         InstanceMessageManager.TryShowInsufficientGold();
+        return false;
+    }
+    
+    private bool TrySpendCrystal(int crystalCost)
+    {
+        CurrencyInventoryModule currentCurrencyModule = currencyModule;
+        if (currentCurrencyModule == null && InventoryManager.Instance != null)
+        {
+            currentCurrencyModule = InventoryManager.Instance.GetModule<CurrencyInventoryModule>();
+            currencyModule = currentCurrencyModule;
+        }
+
+        if (currentCurrencyModule == null)
+        {
+            return false;
+        }
+
+        if (currentCurrencyModule.TrySpend(CurrencyType.Crystal, new BigDouble(crystalCost)))
+        {
+            return true;
+        }
+
+        InstanceMessageManager.TryShowInsufficientCrystal();
         return false;
     }
 
@@ -861,7 +948,7 @@ public sealed partial class StoneUI
         };
     }
 
-    private string GetUnlockReason(StoneGrade grade)
+    private string GetUnlockReason(StoneGrade grade, int tier)
     {
         AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
         if (abilityStoneManager == null || !abilityStoneManager.LoadStone || abilityStoneManager.so == null)
@@ -869,7 +956,17 @@ public sealed partial class StoneUI
             return TextDataLoading;
         }
 
-        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(grade, out AbilityStone stoneData) || stoneData == null)
+        if (!Enum.IsDefined(typeof(StoneGrade), grade))
+        {
+            return TextNoData;
+        }
+
+        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(tier, out var tierStoneDict))
+        {
+            return TextNoData;
+        }
+
+        if (!tierStoneDict.TryGetValue(grade, out AbilityStone stoneData) || stoneData == null)
         {
             return TextNoData;
         }
@@ -884,11 +981,35 @@ public sealed partial class StoneUI
 
         if (grade == StoneGrade.Normal)
         {
+            if (!TryGetPreviousTierKey(tier, out int previousTier))
+            {
+                return TextOpen;
+            }
+
+            if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(previousTier, out var previousTierStoneDict))
+            {
+                return TextNoData;
+            }
+
+            if (!previousTierStoneDict.TryGetValue(StoneGrade.Myth, out AbilityStone previousTierMythStone)
+                || previousTierMythStone == null)
+            {
+                return TextNoData;
+            }
+
+            int _currentUpCount = previousTierMythStone.GetUpCount();
+            
+            if (_currentUpCount < stoneData.NeedUp)
+            {
+                return $"{_currentUpCount} / {stoneData.NeedUp}{TextTimesNeed}";
+            }
+
             return TextOpen;
         }
 
         StoneGrade previousGrade = (StoneGrade)((int)grade - 1);
-        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(previousGrade, out AbilityStone previousStone) || previousStone == null)
+
+        if (!tierStoneDict.TryGetValue(previousGrade, out AbilityStone previousStone) || previousStone == null)
         {
             return TextNoData;
         }
@@ -902,7 +1023,7 @@ public sealed partial class StoneUI
         return TextOpen;
     }
 
-    private bool IsStoneUnlocked(StoneGrade grade)
+    private bool IsStoneUnlocked(StoneGrade grade, int tier)
     {
         AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
         if (abilityStoneManager == null || !abilityStoneManager.LoadStone || abilityStoneManager.so == null)
@@ -910,7 +1031,17 @@ public sealed partial class StoneUI
             return false;
         }
 
-        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(grade, out AbilityStone stoneData) || stoneData == null)
+        if (!Enum.IsDefined(typeof(StoneGrade), grade))
+        {
+            return false;
+        }
+
+        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(tier, out var tierStoneDict))
+        {
+            return false;
+        }
+
+        if (!tierStoneDict.TryGetValue(grade, out AbilityStone stoneData) || stoneData == null)
         {
             return false;
         }
@@ -925,19 +1056,105 @@ public sealed partial class StoneUI
 
         if (grade == StoneGrade.Normal)
         {
+            if (!TryGetPreviousTierKey(tier, out int previousTier))
+            {
+                stoneData.isUnlock = true;
+                return true;
+            }
+
+            if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(previousTier, out var previousTierStoneDict))
+            {
+                return false;
+            }
+
+            if (!previousTierStoneDict.TryGetValue(StoneGrade.Myth, out AbilityStone previousTierMythStone)
+                || previousTierMythStone == null)
+            {
+                return false;
+            }
+
+            if (!stoneData.isUnlock)
+            {
+                stoneData.isUnlock = previousTierMythStone.GetUpCount() >= stoneData.NeedUp;
+                return previousTierMythStone.GetUpCount() >= stoneData.NeedUp;
+            }
+
             return true;
         }
 
         StoneGrade previousGrade = (StoneGrade)((int)grade - 1);
-        if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(previousGrade, out AbilityStone previousStone) || previousStone == null)
+
+        if (!tierStoneDict.TryGetValue(previousGrade, out AbilityStone previousStone) || previousStone == null)
+        {
+            return false;
+        }
+        
+        if (!stoneData.isUnlock)
+        {
+            stoneData.isUnlock = previousStone.GetUpCount() >= stoneData.NeedUp;
+            return previousStone.GetUpCount() >= stoneData.NeedUp;
+        }
+        
+        return true;
+    }
+
+    private bool TryGetNextTierKey(int currentTier, out int nextTier)
+    {
+        nextTier = currentTier;
+
+        AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
+        if (abilityStoneManager == null || abilityStoneManager.so == null)
         {
             return false;
         }
 
-        return previousStone.GetUpCount() >= stoneData.NeedUp;
+        int candidateTier = int.MaxValue;
+        foreach (int tierKey in abilityStoneManager.so.AbilityStoneDict.Keys)
+        {
+            if (tierKey > currentTier && tierKey < candidateTier)
+            {
+                candidateTier = tierKey;
+            }
+        }
+
+        if (candidateTier == int.MaxValue)
+        {
+            return false;
+        }
+
+        nextTier = candidateTier;
+        return true;
     }
 
-    private static string GetStatName(StatType statType)
+    private bool TryGetPreviousTierKey(int currentTier, out int previousTier)
+    {
+        previousTier = currentTier;
+
+        AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
+        if (abilityStoneManager == null || abilityStoneManager.so == null)
+        {
+            return false;
+        }
+
+        int candidateTier = int.MinValue;
+        foreach (int tierKey in abilityStoneManager.so.AbilityStoneDict.Keys)
+        {
+            if (tierKey < currentTier && tierKey > candidateTier)
+            {
+                candidateTier = tierKey;
+            }
+        }
+
+        if (candidateTier == int.MinValue)
+        {
+            return false;
+        }
+
+        previousTier = candidateTier;
+        return true;
+    }
+
+    private static string GetStatName(StatType statType, int tier)
     {
         if (statType == StatType.None)
         {
@@ -947,7 +1164,7 @@ public sealed partial class StoneUI
         AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
         if (abilityStoneManager != null && abilityStoneManager.LoadStone && abilityStoneManager.so != null)
         {
-            if (abilityStoneManager.so.StoneGradeStatUpDict.TryGetValue(statType, out StoneGradeStatUp statUpData)
+            if (abilityStoneManager.so.StoneGradeStatUpDict[tier].TryGetValue(statType, out StoneGradeStatUp statUpData)
                 && !string.IsNullOrWhiteSpace(statUpData.statName))
             {
                 return statUpData.statName;
@@ -970,11 +1187,11 @@ public sealed partial class StoneUI
             return TextNotConfigured;
         }
 
-        float displayValue = slotIndex == 2 ? -slotData.increaseStat : slotData.increaseStat;
-        return FormatSignedStatValue(slotData.SlotType, displayValue);
+        float displayValue = slotIndex == 2 ? -slotData.totalStat : slotData.totalStat;
+        return FormatSignedStatValue(slotData.SlotType, displayValue, false);
     }
 
-    private static string BuildPopupSlotText(AbilityStoneSlot slotData, int slotIndex)
+    private static string BuildPopupSlotText(AbilityStoneSlot slotData, int slotIndex, int tier)
     {
         if (slotData == null || slotData.SlotType == StatType.None)
         {
@@ -982,7 +1199,7 @@ public sealed partial class StoneUI
         }
 
         float displayValue = slotIndex == 2 ? -slotData.increaseStat : slotData.increaseStat;
-        return $"{GetStatName(slotData.SlotType)} {FormatSignedStatValue(slotData.SlotType, displayValue)}";
+        return $"{GetStatName(slotData.SlotType, tier)} {FormatSignedStatValue(slotData.SlotType, displayValue, false)}";
     }
 
     private static string BuildSlotStateText(AbilityStone stoneData, int slotIndex, bool stoneUnlocked, bool canAffordUpgrade)
@@ -1004,23 +1221,31 @@ public sealed partial class StoneUI
 
         if (!canAffordUpgrade)
         {
-            return TextNotEnoughGold;
+            if (stoneData.stoneMult)
+                return TextNotEnoughCrystal;
+            else
+                return TextNotEnoughGold;
         }
 
         return TextUpgrade;
     }
 
-    private static string FormatSignedStatValue(StatType statType, float value)
+    private static string FormatSignedStatValue(StatType statType, float value, bool mult)
     {
         string sign = value >= 0f ? "+" : "-";
         float absValue = Mathf.Abs(value);
-
-        if (StatGroups.MultTypes.Contains(statType))
+        
+        if (mult)
         {
-            return $"{sign}{(absValue * 100f):0.##}%";
+            return $"{sign}{(absValue * 100f):0.###}%";
+        }
+        
+        else if (StatGroups.MultTypes.Contains(statType))
+        {
+            return $"{sign}{(absValue * 100f):0.###}%";
         }
 
-        return $"{sign}{absValue:0.##}";
+        return $"{sign}{absValue:0.###}";
     }
 
     private static string FormatCurrency(int value)

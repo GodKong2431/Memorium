@@ -1,0 +1,8 @@
+﻿패시브 등급 고유 ID,등급 명칭,해당 등급의 최대 레벨,1레벨업 골드 기본 비용,레벨당 골드 비용 증가율,다음 등급 승급 시 요구되는 주문서 수량
+gradeID,gradeName,maxLevel,lvCostBase,lvCostSlope,reqPromCount
+int,string,int,int,float,int
+4140001,Normal (일반),5,1000,0.05,2
+4140002,Rare (희귀),5,2000,0.1,2
+4140003,Epic (레어),5,3000,0.15,2
+4140004,Legend (전설),5,5000,0.2,2
+4140005,Mythic (신화),5,10000,0.3,0

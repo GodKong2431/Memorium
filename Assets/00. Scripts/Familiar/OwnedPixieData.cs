@@ -59,7 +59,15 @@ public class OwnedPixieData
     /// 신화등급 한정이고, 나머지 등급에선 조각 사용 코스트 없습니다
     /// </summary>
     /// <returns></returns>
-    public float GetFragmentCost() => gradeTable.fragmentCostBase + (1f + (level - 1f) * gradeTable.fragmentCostSlope);
+    public int GetFragmentCost()
+    {
+        if (gradeTable == null)
+            return 0;
+
+        double levelOffset = Math.Max(0, level - 1);
+        double rawCost = gradeTable.fragmentCostBase + (levelOffset * gradeTable.fragmentCostSlope);
+        return Math.Max(0, (int)Math.Ceiling(rawCost));
+    }
 
     public void ExecuteLevelUp() => level++;
 }

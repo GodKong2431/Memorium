@@ -412,8 +412,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e8e6d77d7dd4ab6b88f54df4599c1f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ActiveSkillItemBinding
-  root: {fileID: 990002000000000002}
-  layout: {fileID: 0}
   iconImage: {fileID: 0}
   nameLabel: {fileID: 8793896095919893544}
   lockedSharedRoot: {fileID: 990002000000000005}
@@ -430,6 +428,19 @@ MonoBehaviour:
   gemPanelRoot: {fileID: 5862263733343694331}
   iconLevelLabel: {fileID: 8267683039312720773}
   equipButton: {fileID: 6545766418110444837}
+  upgradeGemPanelRoot: {fileID: 1705943456666478207}
+  upgradeGemSlotRoots:
+  - {fileID: 8129104377830982738}
+  - {fileID: 3453878418145264228}
+  - {fileID: 5699310561086558813}
+  upgradeGemImages:
+  - {fileID: 1492816736089697007}
+  - {fileID: 2189552829475443761}
+  - {fileID: 6660564976147305714}
+  upgradeGemLockObjects:
+  - {fileID: 5297451713017109137}
+  - {fileID: 4993096650822116584}
+  - {fileID: 6463477348325254612}
 --- !u!1 &990002000000000003
 GameObject:
   m_ObjectHideFlags: 0
@@ -2105,7 +2116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.39215687}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

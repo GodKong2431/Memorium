@@ -15,11 +15,12 @@ public class PlayerStateChase : IPlayerState
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = false;
         _lastDestinationTime = -DestinationRefreshInterval;
-        SetAnimatorTrigger(ctx, "Chase");
+        SetAnimatorTrigger(ctx, "Move");
     }
 
     public void OnExit(PlayerStateContext ctx)
     {
+        ctx.Animator.ResetTrigger("Move");
     }
 
     public void OnUpdate(PlayerStateContext ctx)
@@ -40,19 +41,24 @@ public class PlayerStateChase : IPlayerState
         // 해당 객체는 스테이지에 소환된 직후 플레이어와의 거리가 공격 사거리보다 클 동안 플레이어 위치로 이동
         // 플레이어와의 거리가 공격 사거리 이하(dist <= AttackRange)가 되는 시점에 전투 상태로 전환
 
-        float dist = Vector3.Distance(ctx.PlayerTransform.position, enemy.position);
-        // 거리가 공격 사거리 이하일 때 Attack 상태로 전환
+        Collider enemyCol = enemy.GetComponent<Enemy>().EnemyCollider;
 
-        if (ctx.playerSkillHandler.ReadySkill(dist) || dist <= ctx.AttackRange)
+        if (enemyCol != null)
         {
-            ctx.RequestState(PlayerStateType.Attack);
-            return;
-        }
+            Vector3 closestPoint = enemyCol.ClosestPoint(ctx.PlayerTransform.position);
+            float dist = Vector3.Distance(ctx.PlayerTransform.position, closestPoint);
 
-        if (dist <= ctx.AttackRange)
-        {
-            ctx.RequestState(PlayerStateType.Attack);
-            return;
+            if (ctx.playerSkillHandler.ReadySkill(dist) || dist <= ctx.AttackRange)
+            {
+                ctx.RequestState(PlayerStateType.Attack);
+                return;
+            }
+            // 거리가 공격 사거리 이하일 때 Attack 상태로 전환
+            if (dist <= ctx.AttackRange)
+            {
+                ctx.RequestState(PlayerStateType.Attack);
+                return;
+            }
         }
 
         NavMeshAgent agent = ctx.Agent;
