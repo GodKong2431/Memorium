@@ -14,13 +14,16 @@ public class BerserkerModeController : MonoBehaviour
     
     [SerializeField] public BerserkModeSo _berserkModeSo;
     
+    [Header("오브 오브젝트")]
+    [SerializeField] private string OrbKey = "Assets/02. Prefabs/Design/BerserkEffect/HCFX_ElementOrb_04.prefab";
+    
     [Header("시작 이펙트")]
     [SerializeField] private string StartEffectKey1 = "Assets/02. Prefabs/Design/BerserkEffect/HCFX_Explosion_02_Air.prefab";
     [SerializeField] private string StartEffectKey2 = "Assets/02. Prefabs/Design/BerserkEffect/HCFX_Energy_04.prefab";
     [Header("시전중 이펙트")]
     [SerializeField] private string EffectKet1 = "Assets/02. Prefabs/Design/BerserkEffect/Poison aura.prefab";
     [SerializeField] private string EffectKet2 = "Assets/02. Prefabs/Design/BerserkEffect/Star aura.prefab";
-
+    
     [Header("설정")]
     [SerializeField] private float durationSeconds = 60f;
     [SerializeField] private float startDelay = 0.3f;
@@ -75,6 +78,8 @@ public class BerserkerModeController : MonoBehaviour
         
         durationSeconds = berserkmodeManageTable.durationTime;
         PlayerBerserkerOrb.Instance.Init(berserkmodeManageTable);
+        
+        EnemyKillRewardDispatcher.OnBerserkerOrb += (pos, count) => SpawnOrb(OrbKey, pos, false, count);
         
     }
 
@@ -137,6 +142,17 @@ public class BerserkerModeController : MonoBehaviour
         SpawnEffect(StartEffectKey2, true);
         
         StartCoroutine(DelayVfx());
+    }
+    
+    private void SpawnOrb(string key, Vector3 transform,bool follow, int count)
+    {
+        
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(OrbKey, follow : follow, autoReturn : false, targetPosition : transform,
+        onSpawned : particle =>{if (particle != null && particle.TryGetComponent<BerserkerOrb>(out var orb))
+        {
+                orb.Init(count);
+            }
+        }));
     }
     
     private void SpawnEffect(string key, bool follow)

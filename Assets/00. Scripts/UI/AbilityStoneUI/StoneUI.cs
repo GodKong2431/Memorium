@@ -34,6 +34,7 @@ public sealed partial class StoneUI : UIControllerBase
     private const string TextLocked = "잠김";
     private const string TextUpgradeComplete = "강화 완료";
     private const string TextNotEnoughGold = "골드 부족";
+    private const string TextNotEnoughCrystal = "크리스탈 부족";
     private const string TextDataLoading = "데이터 로딩 중";
     private const string TextNoData = "데이터 없음";
     private const string TextFinalGrade = "최종 등급";
@@ -535,13 +536,13 @@ public sealed partial class StoneUI : UIControllerBase
     // 재설정 버튼에서 바로 호출한다.
     public void OnRerollClick()
     {
-        OpenReconfigurePopup();
+        OpenReconfigurePopup(CurrencyType.Gold);
     }
 
     // 강화 초기화 버튼에서 바로 호출한다.
     public void OnResetClick()
     {
-        OpenResetPopup();
+        OpenResetPopup(CurrencyType.Crystal);
     }
 
     // 재설정 확인 버튼에서 바로 호출한다.
@@ -765,12 +766,12 @@ public sealed partial class StoneUI : UIControllerBase
 
         StoneGrade grade = selectedGrade.Value;
         bool unlocked = IsStoneUnlocked(grade,selectedtier);
-        bool canAffordUpgrade = CanAfford(stoneData.UpCost);
+        bool canAffordUpgrade = CanAfford(stoneData.UpCost, stoneData.stoneMult ? CurrencyType.Crystal : CurrencyType.Gold);
         int totalAttemptCount = stoneData.GetAttemptCount(0) + stoneData.GetAttemptCount(1) + stoneData.GetAttemptCount(2);
 
         if (upgradePanel.GradeText != null)
         {
-            upgradePanel.GradeText.text = $"{selectedtier}티어 {GetGradeName(grade)} {TextStone}";
+            upgradePanel.GradeText.text = $"{selectedtier+1}티어 {GetGradeName(grade)} {TextStone}";
             upgradePanel.GradeText.color = AbilityStoneManager.Instance.so.StoneGradeColorDict[grade];
         }
 
@@ -818,8 +819,8 @@ public sealed partial class StoneUI : UIControllerBase
             }
         }
 
-        RefreshReconfigurePopup(stoneData, unlocked);
-        RefreshResetPopup(stoneData, unlocked, totalAttemptCount);
+        RefreshReconfigurePopup(stoneData, unlocked, CurrencyType.Gold);
+        RefreshResetPopup(stoneData, unlocked, totalAttemptCount, CurrencyType.Crystal);
     }
     public void LockButton()
     {

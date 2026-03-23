@@ -24,8 +24,6 @@ public class SavePlayerData : ISaveData
     private Dictionary<int, StatUpgrade> upgrades=new Dictionary<int, StatUpgrade>();
     private Dictionary<int, PlayerTrait> traits =new Dictionary<int, PlayerTrait>();
 
-    public bool onCBT = false;
-
     private bool isDirty = false;
     public bool IsDirty => isDirty;
 
@@ -34,19 +32,6 @@ public class SavePlayerData : ISaveData
 
     public void InitPlayerData(CharacterStatSO so)
     {
-        if (!onCBT)
-        {
-            playerLevel = 0;
-            playerStatType_GoldUpgrades = null;
-            statUpgradeCount_GoldUpgrades=null;
-            statUpgradeCost_GoldUpgrades= null;
-
-            playerStatType_Traits = null;
-            currentLevel_Traits = null;
-
-            onCBT=true;
-        }
-
         characterStatSO = so;
         if (playerLevel <= 0)
         {
@@ -95,7 +80,7 @@ public class SavePlayerData : ISaveData
 
     public int GetLevel()
     {
-        if (playerLevel <= 0 || !onCBT)
+        if (playerLevel <= 0 )
         {
             //playerLevel = 1;
             return 1;

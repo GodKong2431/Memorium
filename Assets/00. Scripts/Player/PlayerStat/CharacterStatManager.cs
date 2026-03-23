@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class CharacterStatManager : Singleton<CharacterStatManager>
 {
+    public static Transform playerTransform;
+    
     [SerializeField] CharacterStatSO characterStatSO;
     // 키들
     [Tooltip("1000001 ~ 1000003")]

@@ -5,8 +5,6 @@ public class SaveQuestData : ISaveData
     public int currentQuestId = -1;
     public int currentProgress = 0;
 
-    public bool onCBT = false;
-
     //변경 여부 체크
     private bool isDirty = false;
     public bool IsDirty => isDirty;
@@ -16,14 +14,6 @@ public class SaveQuestData : ISaveData
 
     public (int id, int progress) InitQuestData()
     {
-
-        if (!onCBT)
-        {
-            currentQuestId = -1;
-            currentProgress = 0;
-
-            onCBT = true;
-        }
 
         return (ReturnQuestId(), ReturnProgress());
     }

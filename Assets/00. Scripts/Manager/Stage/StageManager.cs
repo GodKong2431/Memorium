@@ -218,9 +218,9 @@ public class StageManager : Singleton<StageManager>
         monsterSpawner?.SetMonster();
 
         if (normalEnemyReward != null)
-            normalEnemyReward.expBase = stageData.commonMonsterExp*10000;
+            normalEnemyReward.expBase = stageData.commonMonsterExp;
         if (bossEnemyReward != null)
-            bossEnemyReward.expBase = stageData.bossMonsterExp*10000;
+            bossEnemyReward.expBase = stageData.bossMonsterExp;
 
         int dropTableId = stageData.dropTableID;
 
@@ -298,6 +298,7 @@ public class StageManager : Singleton<StageManager>
 
             OnStageClearOrFailed.Invoke();
             player.GetComponent<NavMeshAgent>().enabled = true;
+            Debug.Log("[StageManager] 스테이지 클리어");
         }
         else
         {

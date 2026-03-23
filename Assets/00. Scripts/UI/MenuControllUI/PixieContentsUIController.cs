@@ -617,7 +617,7 @@ public sealed class PixieContentsUIController : UIControllerBase
                 slot.Button.interactable = false;
 
             if (slot.IconImage != null)
-                slot.IconImage.sprite = IconManager.GetIcon(stat.statType);
+                slot.IconImage.sprite = IconManager.GetStatIcon(stat.statType);
 
             if (slot.LabelText != null)
                 slot.LabelText.text = BuildStatLabel(stat, ownedPixie);

@@ -8,8 +8,6 @@ public class SaveAbilityStoneData:ISaveData
 
     public List<AbiltyStoneDictData> abiltyStoneDictDatas;
 
-    public bool onCBT = false;
-
     //변경 여부 체크
     private bool isDirty = false;
     public bool IsDirty => isDirty;
@@ -20,12 +18,6 @@ public class SaveAbilityStoneData:ISaveData
     public void InitAblityStoneData()
     {
         AbilityStoneSO so = AbilityStoneManager.Instance != null ? AbilityStoneManager.Instance.so : null;
-
-        if (!onCBT)
-        {
-            abiltyStoneDictDatas = null;
-            onCBT = true;
-        }
 
         if (abiltyStoneDictDatas == null)
         {

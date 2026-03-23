@@ -62,10 +62,14 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         
         ID = stoneStatUpID;
         
-        foreach (var item in so.StoneGradeStatUpDict)
+        foreach (var tier in so.StoneGradeStatUpDict)
         {
-            item.Value.LoadStone(item.Key);
+            foreach (var item in tier.Value)
+            {
+                item.Value.LoadStone(item.Key);
+            }
         }
+        
         
         if (resetBnt != null)
         {

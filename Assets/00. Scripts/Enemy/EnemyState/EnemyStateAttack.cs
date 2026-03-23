@@ -38,18 +38,10 @@ public class EnemyStateAttack : IEnemyState
             _attackEndTime = Time.time + delay;
             _attackInProgress = true;
 
-            if (ctx.IsBoss)
-                ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.AttackBoss);
-            else
-                ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
+           
+            ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
 
-            if (ctx.AttackEffectPrefab != null)
-            {
-                if (_currentAttackEffect != null)
-                    Object.Destroy(_currentAttackEffect);
-                Transform t = ctx.EnemyTransform;
-                _currentAttackEffect = Object.Instantiate(ctx.AttackEffectPrefab, t.position + Vector3.up * 1f, Quaternion.identity, t);
-            }
+            SpawnAttackEffect(ctx, spawnOnPlayer: true);
             return;
         }
 
@@ -78,15 +70,10 @@ public class EnemyStateAttack : IEnemyState
         if (!string.IsNullOrEmpty(bossAttack.animation))
             ctx.SetAnimatorTrigger(bossAttack.animation);
         else
-            ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.AttackBoss);
+            ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
 
-        if (ctx.AttackEffectPrefab != null)
-        {
-            if (_currentAttackEffect != null)
-                Object.Destroy(_currentAttackEffect);
-            Transform t = ctx.EnemyTransform;
-            _currentAttackEffect = Object.Instantiate(ctx.AttackEffectPrefab, t.position + Vector3.up * 1f, Quaternion.identity, t);
-        }
+        // 스킬 이펙트는 플레이어 쪽에 표시
+        SpawnAttackEffect(ctx, spawnOnPlayer: true);
         // BossManageTable.effect 컬럼과 실제 파티클 매핑은 별도 세팅에서 처리
     }
 
@@ -190,5 +177,29 @@ public class EnemyStateAttack : IEnemyState
             Object.Destroy(_currentAttackEffect);
             _currentAttackEffect = null;
         }
+    }
+
+    private void SpawnAttackEffect(EnemyStateContext ctx, bool spawnOnPlayer)
+    {
+        if (ctx.AttackEffectPrefab == null) return;
+
+        if (_currentAttackEffect != null)
+            Object.Destroy(_currentAttackEffect);
+
+        Transform anchor = ctx.EnemyTransform;
+        Transform parent = ctx.EnemyTransform;
+
+        if (spawnOnPlayer && ctx.PlayerTransform != null)
+        {
+            anchor = ctx.PlayerTransform;
+            parent = ctx.PlayerTransform;
+        }
+
+        _currentAttackEffect = Object.Instantiate(
+            ctx.AttackEffectPrefab,
+            anchor.position + Vector3.up * 1f,
+            Quaternion.identity,
+            parent
+        );
     }
 }

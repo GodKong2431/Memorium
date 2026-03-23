@@ -12,6 +12,7 @@ public sealed class StoneSlotItemUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI successCountText;
     [SerializeField] private RectTransform progressIconRoot;
     [SerializeField] private TextMeshProUGUI upgradeButtonText;
+    [SerializeField] private Image costCurrencyImage;
     [SerializeField] private TextMeshProUGUI costText;
 
     private Image[] progressIcons;
@@ -22,6 +23,7 @@ public sealed class StoneSlotItemUI : MonoBehaviour
     public TextMeshProUGUI StatNameText => statNameText;
     public TextMeshProUGUI SuccessCountText => successCountText;
     public TextMeshProUGUI ButtonText => upgradeButtonText;
+    public Image CostCurrencyImage => costCurrencyImage;
     public TextMeshProUGUI CostText => costText;
     public Image[] ProgressIcons => GetProgressIcons();
 

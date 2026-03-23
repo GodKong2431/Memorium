@@ -81,7 +81,7 @@ public class BerserkerGageUI : MonoBehaviour
         if (_button == null)
             return;
 
-        int current = berserkerOrb != null ? berserkerOrb.BerserkerOrb : 0;
+        int current = berserkerOrb != null ? berserkerOrb.CurrentBerserkerOrb : 0;
         int max = PlayerBerserkerOrb.MaxBerserkerOrb;
 
         bool canUseMode =
@@ -107,7 +107,7 @@ public class BerserkerGageUI : MonoBehaviour
             return;
         }
 
-        int current = berserkerOrb != null ? berserkerOrb.BerserkerOrb : 0;
+        int current = berserkerOrb != null ? berserkerOrb.CurrentBerserkerOrb : 0;
         int max = PlayerBerserkerOrb.MaxBerserkerOrb;
         float normalized = max > 0 ? Mathf.Clamp01((float)current / max) : 0f;
 
