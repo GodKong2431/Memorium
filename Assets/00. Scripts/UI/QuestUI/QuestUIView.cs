@@ -13,6 +13,7 @@ public sealed class QuestUIView
     private readonly GameObject questProgressSliderRoot;
     private readonly Slider questProgressSlider;
     private readonly Image questRewardImage;
+    private readonly TextMeshProUGUI rewardCountText;
     private readonly Button rewardTouchButton;
     private readonly TextMeshProUGUI rewardTouchText;
 
@@ -22,6 +23,7 @@ public sealed class QuestUIView
         GameObject questProgressSliderRoot,
         Slider questProgressSlider,
         Image questRewardImage,
+        TextMeshProUGUI rewardCountText,
         Button rewardTouchButton,
         TextMeshProUGUI rewardTouchText)
     {
@@ -30,6 +32,7 @@ public sealed class QuestUIView
         this.questProgressSliderRoot = questProgressSliderRoot;
         this.questProgressSlider = questProgressSlider;
         this.questRewardImage = questRewardImage;
+        this.rewardCountText = rewardCountText;
         this.rewardTouchButton = rewardTouchButton;
         this.rewardTouchText = rewardTouchText;
     }
@@ -48,6 +51,18 @@ public sealed class QuestUIView
     public void SetRewardSprite(Sprite sprite)
     {
         questRewardImage.sprite = sprite;
+    }
+
+    public void SetRewardCountText(string text)
+    {
+        if (rewardCountText != null)
+            rewardCountText.text = text ?? string.Empty;
+    }
+
+    public void SetRewardCountVisible(bool visible)
+    {
+        if (rewardCountText != null)
+            rewardCountText.gameObject.SetActive(visible);
     }
 
     public void SetProgressVisible(bool visible)
