@@ -298,6 +298,7 @@ public class StageManager : Singleton<StageManager>
 
             OnStageClearOrFailed.Invoke();
             player.GetComponent<NavMeshAgent>().enabled = true;
+            Debug.Log("[StageManager] 스테이지 클리어");
         }
         else
         {

@@ -105,6 +105,8 @@ public class MonsterSpawner : MonoBehaviour
             // 보스 스폰 효과음 추가 예정
             InstanceMessageManager.TryShowBossEnter();
             StageManager.Instance.StartBoss(boss);
+
+            Debug.Log("[MonsterSpawner] 보스 소환");
         }
     }
     public void ChangeMonsterSpawnPos(Transform parent)
