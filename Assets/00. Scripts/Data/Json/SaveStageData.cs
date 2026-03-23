@@ -12,8 +12,6 @@ public class SaveStageData :ISaveData
     public List<int> maxStage;
     public bool onFailedStage;
 
-    public bool onCBT = false;
-
     private bool isDirty=false;
     public bool IsDirty => isDirty;
 
@@ -22,16 +20,6 @@ public class SaveStageData :ISaveData
 
     public (int cur, List<int> max, bool onFailed) InitStageData()
     {
-
-        if (!onCBT)
-        {
-            curStage = 0;
-            maxStage = null;
-            onFailedStage = false;
-
-            onCBT = true;
-        }
-
         return (GetCurStage(), GetAllMaxStage(), GetOnFailedStage());
     }
 

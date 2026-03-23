@@ -17,8 +17,6 @@ public class SaveEquipmentData : ISaveData
     [Header("저장된 해금 장비")]
     public List<EquipmentData> unLockEquipment;
 
-    public bool onCBT=false;
-
     private bool isDirty = false;
     public bool IsDirty => isDirty;
 
@@ -36,16 +34,6 @@ public class SaveEquipmentData : ISaveData
     //만약 데이터를 받아오지 않았다면 무기 id가 -1이므로 초기 세팅 진행
     public void InitPlayerEquipmentData()
     {
-        if (!onCBT)
-        {
-            weaponId = -1;
-            helmetId = -1;
-            gloveId = -1;
-            armorId = -1;
-            bootsId = -1;
-            unLockEquipment = null;
-            onCBT = true;
-        }
 
         if (weaponId <= 0)
         {
