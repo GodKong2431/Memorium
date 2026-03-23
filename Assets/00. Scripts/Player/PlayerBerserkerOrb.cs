@@ -69,7 +69,6 @@ public class PlayerBerserkerOrb : MonoBehaviour
 
     public void AddBerserkerOrb(int amount)
     {
-        Debug.Log("버서커 오브"+amount);
         if (amount <= 0) return;
         _currentBerserkerOrb = Mathf.Min(MaxBerserkerOrb, _currentBerserkerOrb + amount);
         OnBerserkerOrbChanged?.Invoke();
