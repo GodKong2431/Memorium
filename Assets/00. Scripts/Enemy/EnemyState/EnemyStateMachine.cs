@@ -210,6 +210,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
 
         if (_ctx.CurrentHealth <= 0f)
         {
+            _ctx.EnemyEffectController.OnDeath();
             ChangeState(EnemyStateType.Dead);
             return;
         }
@@ -228,7 +229,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     /// <param name="duration"></param>
     public void ApplyKnockback(Vector3 direction, float distance, float duration)
     {
-        if (!IsAlive) return;
 
         _ctx.PendingKnockback = new KnockbackInfo
         {
@@ -237,6 +237,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             duration = duration
         };
 
+        if (!IsAlive) return;
         if (_currentType != EnemyStateType.Onhit && _currentType != EnemyStateType.Dead)
         {
             ChangeState(EnemyStateType.Onhit);

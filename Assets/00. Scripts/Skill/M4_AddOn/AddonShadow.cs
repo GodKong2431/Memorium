@@ -1,15 +1,19 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class AddonShadow : ISkillCastAddon
 {
-    public void OnCast(ISkillHitHandler handler,ISkillCasterMovement caster, ISkillStatProvider stat, ISkillTargetProvider target, SkillDataContext dataContext, GameObject prefab)
+    public void OnCast(ISkillHitHandler handler,ISkillCasterMovement caster, ISkillStatProvider stat, ISkillTargetProvider target, SkillDataContext dataContext)
     {
 
-        Vector3 spawnPos = caster.CastPosition;
-        Quaternion spawnRot = Quaternion.LookRotation(caster.CastDirection);
-        GameObject cloneObj = Object.Instantiate(prefab, spawnPos, spawnRot);
+        var originalCaster = caster as SkillCaster;
+        if (originalCaster == null) return;
 
-        // 겁나 하드 코딩같은데 뭐......... 잘안떠오르네이거 흠
+        Vector3 spawnPos = originalCaster.CastPosition;
+        Quaternion spawnRot = Quaternion.LookRotation(originalCaster.CastDirection);
+
+        var cloneObj = PoolAddressableManager.Instance.GetPooledObject("Assets/02. Prefabs/SKill/Shadow/Shadow.prefab", spawnPos, spawnRot);
+        if (cloneObj == null)
+            return;
 
         if (cloneObj.TryGetComponent<SkillCaster>(out var skillCaster))
         {
@@ -18,7 +22,8 @@ public class AddonShadow : ISkillCastAddon
 
         if (cloneObj.TryGetComponent<Shadow>(out var shadow))
         {
-            shadow.Cast(dataContext, SkillConstants.SHADOW_CAST_DELAY);
+            // 원본의 캐싱된 타겟 위치와 시전 방향을 넘겨줌
+            shadow.Cast(dataContext, SkillConstants.SHADOW_CAST_DELAY, originalCaster.CastTargetPosition, originalCaster.CastDirection);
         }
     }
 }

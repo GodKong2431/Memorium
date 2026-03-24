@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public enum GemGrade
 {
@@ -24,6 +25,19 @@ public struct GemSaveData
         this.gemId = gemId;
         this.count = count;
         this.grade = grade;
+    }
+}
+public readonly struct GemDisplayData
+{
+    public readonly int GemId;
+    public readonly GemGrade HighestGrade;
+    public readonly int HighestGradeCount;
+
+    public GemDisplayData(int gemId, GemGrade highestGrade, int highestGradeCount)
+    {
+        GemId = gemId;
+        HighestGrade = highestGrade;
+        HighestGradeCount = highestGradeCount;
     }
 }
 public class OwnedGemData
@@ -57,7 +71,7 @@ public sealed class GemInventoryModule : IInventoryModule
     public event Action OnGemInventoryChanged;
 
     public List<GemSaveData> saveList = new List<GemSaveData>();
-
+    private bool isMappingInitialized;
 
     //구조체 리스트는 저장 할 수 있다고 이해해서 이렇게 만?들어놨는데 이상하다 싶으시면 다른 방식으로 하셔도 괜찮습니다.
 
@@ -94,6 +108,13 @@ public sealed class GemInventoryModule : IInventoryModule
             }
             data.gradeCounts[(int)saveData.grade] = saveData.count;
         }
+    }
+    private void EnsureMappingData()
+    {
+        if (isMappingInitialized)
+            return;
+
+        InitGemMappingData();
     }
     #region IInventoryModule
     public bool CanHandle(ItemType itemType)
@@ -134,6 +155,8 @@ public sealed class GemInventoryModule : IInventoryModule
 
     #region UI 표시용 
 
+
+
     /// <summary>
     /// 해당 스킬이 프리셋에 장착되어있는지 반환 (젬 슬롯 활성화 판단용)
     /// </summary>
@@ -173,6 +196,7 @@ public sealed class GemInventoryModule : IInventoryModule
     /// <returns></returns>
     public List<OwnedGemData> GetEquippableOwnedM4Gems(int skillId)
     {
+        EnsureMappingData();
         List<OwnedGemData> result = new List<OwnedGemData>();
 
         if (SkillToM4Dict.TryGetValue(skillId, out int[] m4Array))
@@ -198,6 +222,7 @@ public sealed class GemInventoryModule : IInventoryModule
     /// </summary>
     public List<OwnedGemData> GetEquippableOwnedM5Gems(int skillId)
     {
+        EnsureMappingData();
         List<OwnedGemData> result = new List<OwnedGemData>();
 
         if (SkillToM5Dict.TryGetValue(skillId, out int[] m5Array))
@@ -218,7 +243,41 @@ public sealed class GemInventoryModule : IInventoryModule
         }
         return result;
     }
+    public List<GemDisplayData> GetEquippableM4GemDisplayList(int skillId)
+    {
+        return ConvertToDisplayData(GetEquippableOwnedM4Gems(skillId));
+    }
 
+    public List<GemDisplayData> GetEquippableM5GemDisplayList(int skillId)
+    {
+        return ConvertToDisplayData(GetEquippableOwnedM5Gems(skillId));
+    }
+
+    private List<GemDisplayData> ConvertToDisplayData(List<OwnedGemData> ownedGems)
+    {
+        List<GemDisplayData> result = new List<GemDisplayData>();
+        if (ownedGems == null)
+            return result;
+
+        for (int i = 0; i < ownedGems.Count; i++)
+        {
+            OwnedGemData data = ownedGems[i];
+            if (data == null)
+                continue;
+
+            GemGrade highestGrade = GetHighestGrade(data.gemId);
+            if (highestGrade == GemGrade.None)
+                continue;
+
+            int count = data.GetCount(highestGrade);
+            if (count <= 0)
+                continue;
+
+            result.Add(new GemDisplayData(data.gemId, highestGrade, count));
+        }
+
+        return result;
+    }
     #endregion
 
     #region UI 버튼용
@@ -395,18 +454,21 @@ public sealed class GemInventoryModule : IInventoryModule
 
     public int GetM4IdByItemId(int itemId)
     {
+        EnsureMappingData();
         if (ItemToM4Dict.TryGetValue(itemId, out int m4Id))
             return m4Id;
         return 0;
     }
     public int GetItemIdByM4Id(int m4Id)
     {
+        EnsureMappingData();
         if (DataManager.Instance.SkillModule4Dict.TryGetValue(m4Id, out var m4Data))
             return m4Data.m4ItemID;
         return 0;
     }
     public int GetM4IdBySkillId(int skillId, int m4Type)
     {
+        EnsureMappingData();
         if (SkillToM4Dict.TryGetValue(skillId, out int[] m4Array))
         {
             if (m4Type >= 0 && m4Type < m4Array.Length)
@@ -417,6 +479,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
     public int GetSkillIdByM4Id(int m4Id)
     {
+        EnsureMappingData();
         if (DataManager.Instance.SkillModule4Dict.TryGetValue(m4Id, out var m4Data))
             return m4Data.skillID;
         return 0;
@@ -424,6 +487,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
     public int GetSkillIdByM4ItemId(int itemId)
     {
+        EnsureMappingData();
         int m4Id = GetM4IdByItemId(itemId);
         if (m4Id != 0)
             return GetSkillIdByM4Id(m4Id);
@@ -432,6 +496,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
     public int GetM4ItemIdBySkillId(int skillId, int m4Type)
     {
+        EnsureMappingData();
         int m4Id = GetM4IdBySkillId(skillId, m4Type);
         if (m4Id != 0)
             return GetItemIdByM4Id(m4Id);
@@ -443,6 +508,7 @@ public sealed class GemInventoryModule : IInventoryModule
     #region M5 변환 Getter
     public int GetM5IdByItemId(int itemId)
     {
+        EnsureMappingData();
         if (ItemToM5Dict.TryGetValue(itemId, out int m5Id))
             return m5Id;
         return 0;
@@ -450,6 +516,7 @@ public sealed class GemInventoryModule : IInventoryModule
     
     public int GetItemIdByM5Id(int m5Id)
     {
+        EnsureMappingData();
         if (DataManager.Instance.SkillModule5Dict.TryGetValue(m5Id, out var m5Data))
             return m5Data.m5ItemID;
         return 0;
@@ -457,6 +524,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
     public int GetM5IdBySkillId(int skillId, int m5Type)
     {
+        EnsureMappingData();
         if (SkillToM5Dict.TryGetValue(skillId, out int[] m5Array))
         {
             if (m5Type >= 0 && m5Type < m5Array.Length)
@@ -467,6 +535,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
     public int GetSkillIdByM5Id(int m5Id)
     {
+        EnsureMappingData();
         if (DataManager.Instance.SkillModule5Dict.TryGetValue(m5Id, out var m5Data))
             return m5Data.skillID;
         return 0;
@@ -474,6 +543,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
     public int GetSkillIdByM5ItemId(int itemId)
     {
+        EnsureMappingData();
         int m5Id = GetM5IdByItemId(itemId);
         if (m5Id != 0)
             return GetSkillIdByM5Id(m5Id);
@@ -482,6 +552,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
     public int GetM5ItemIdBySkillId(int skillId, int m5Type)
     {
+        EnsureMappingData();
         int m5Id = GetM5IdBySkillId(skillId, m5Type);
         if (m5Id != 0)
             return GetItemIdByM5Id(m5Id);
@@ -544,5 +615,51 @@ public sealed class GemInventoryModule : IInventoryModule
         count = (int)floored;
         return true;
     }
+    public void DebugPrintSkillGemStatus(int skillId, int slotIndex)
+    {
+        EnsureMappingData();
+        bool isM4 = (slotIndex == 2);
+        string typeStr = isM4 ? "M4" : "M5";
 
+        Debug.Log($"[디버그] 스킬 ID: {skillId}, 슬롯 인덱스: {slotIndex} ({typeStr} 젬 확인 시작)");
+
+        if (isM4)
+        {
+            if (SkillToM4Dict.TryGetValue(skillId, out int[] m4Array))
+                PrintGemDebugInfo(m4Array, true);
+            else
+                Debug.Log($" -> SkillToM4Dict에 매핑 데이터가 없습니다.");
+        }
+        else
+        {
+            if (SkillToM5Dict.TryGetValue(skillId, out int[] m5Array))
+                PrintGemDebugInfo(m5Array, false);
+            else
+                Debug.Log($" -> SkillToM5Dict에 매핑 데이터가 없습니다.");
+        }
+    }
+
+    private void PrintGemDebugInfo(int[] array, bool isM4)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            int mappingId = array[i];
+            if (mappingId == 0) continue;
+
+            int itemId = isM4 ? GetItemIdByM4Id(mappingId) : GetItemIdByM5Id(mappingId);
+            Debug.Log($"인덱스[{i}] 매핑됨: id={mappingId}, 필요 itemId={itemId}");
+
+            if (itemId != 0)
+            {
+                bool hasGem = gemDict.TryGetValue(itemId, out var data);
+                Debug.Log($" -> 인벤토리 보유 여부: {hasGem}");
+
+                if (hasGem)
+                {
+                    GemGrade highestGrade = GetHighestGrade(itemId);
+                    Debug.Log($" -> 최고 등급: {highestGrade}, 해당 등급 개수: {data.GetCount(highestGrade)}");
+                }
+            }
+        }
+    }
 }

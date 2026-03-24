@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 // 발화 출혈+화상
 public class IgnitionEffect : StatusEffectBase
@@ -29,7 +29,7 @@ public class IgnitionEffect : StatusEffectBase
 #if UNITY_EDITOR
                 Debug.Log($"발화 데미지 : {explosionDamage}");
 #endif
-                enemy.TakeDamage(explosionDamage);
+                enemy.TakeDamage(explosionDamage, DamageType.FixedPercentageDamage);
             }
         }
     }

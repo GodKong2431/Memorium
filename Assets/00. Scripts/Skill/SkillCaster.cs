@@ -32,6 +32,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     private SkillDataContext skillDataContext;
     private bool isCasting = false;
     private bool isChanneling = false;
+    public bool isShadow=false; //개씹하드코코딩
     public bool IsCasting() => isCasting;
     public bool IsChanneling() => isChanneling;
     private Coroutine currentSkillRoutine;
@@ -39,6 +40,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     private Action<bool> onInvincibleChanged;       
 
     private Collider[] hitBuffer = new Collider[SkillConstants.HIT_BUFFER_SIZE];//타격 대상 버퍼, nonalloc 저장용도
+
+    private Collider[] cachedTargets = new Collider[SkillConstants.HIT_BUFFER_SIZE];//스플래시용
 
     // 기즈모 디버그용
     private SkillData debugLastSkillData;
@@ -50,6 +53,10 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
     public Vector3 CastPosition => castPostion;//스킬 시전 위치 저장용
     public Vector3 CastDirection => castDirection;//스킬 시전 방향 저장용
+
+    private Vector3 castTargetPosition;
+    public Vector3 CastTargetPosition => castTargetPosition;
+
     public Vector3 Position => transform.position;
     public event Action OnSkillEnd;
     private NavMeshAgent agent; 
@@ -88,6 +95,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     }
     public Vector3 GetTargetPosition()
     {
+        if (isShadow) return castTargetPosition;
         if (targetProvider != null)
         {
             Transform target = targetProvider.GetTarget();
@@ -97,6 +105,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     }
     public Vector3 GetTargetDirection()
     {
+        if (isShadow) return castDirection;
         if (targetProvider != null)
         {
             Transform target = targetProvider.GetTarget();
@@ -129,7 +138,10 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
             dataContext.ResetAddonState();
         if (currentSkillRoutine != null)
             StopCoroutine(currentSkillRoutine);
-        CacheCastState();
+        if (!isShadow)
+        {
+            CacheCastState();
+        }
         PreLoadSKillPrefab(dataContext);
 
         currentSkillRoutine = StartCoroutine(SkillSequence(skillDataContext, extraDelay));
@@ -158,6 +170,13 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     {
         castPostion = transform.position;
         castDirection = GetTargetDirection();
+        castTargetPosition = GetTargetPosition();
+    }
+    public void SetShadowData(Vector3 targetPos, Vector3 dir)
+    {
+        isShadow = true;
+        castTargetPosition = targetPos;
+        castDirection = dir;
     }
     private IEnumerator SkillSequence(SkillDataContext dataContext, float extraDelay = 0)
     {
@@ -296,7 +315,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         if (m4Strategy is ISkillCastAddon castAddon && data.GetAddonTriggerCount()==0)//추후 횟수제한 스킬나오면 csv에 필드만들고 체크하는식으로
         {
             data.RecordAddonTrigger();
-            castAddon.OnCast(this,this,statProvider,targetProvider, skillDataContext, shadowPrepab);
+            castAddon.OnCast(this,this,statProvider,targetProvider, skillDataContext);
         }
 
         for (int i = 0; i < hitCount; i++)
@@ -304,20 +323,26 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
             if (hitBuffer[i].TryGetComponent<IDamageable>(out var target))
             {
                 var module = InventoryManager.Instance.GetModule<SkillInventoryModule>();
-                var OwnedSKill = module.GetSkillData(data.skillData.skillTable.ID);
-                var skillGrade = OwnedSKill.GetGrade();
-                float level = OwnedSKill.level;
-                float damage = data.skillData.skillTable.skillDamage + statProvider.GetAttack() * (1 + data.skillData.skillTable.skillDamageValue) * (1 + (0.1f * level));
-                if (skillGrade == SkillGrade.Mythic)
-                    damage *= 1.5f;
-                target.TakeDamage(damage);
-
-                PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(effectPath, target.transform, true));
-
-                if (m4Strategy is ISkillHitAddon hitAddon)
                 {
+                    var OwnedSKill = module.GetSkillData(data.skillData.skillTable.ID);
+                    var skillGrade = OwnedSKill.GetGrade();
+                    float level = OwnedSKill.level;
+                    float damage = data.skillData.skillTable.skillDamage + statProvider.GetAttack() * (1 + data.skillData.skillTable.skillDamageValue) * (1 + (0.1f * level));
+                    if (skillGrade == SkillGrade.Mythic)
+                        damage *= 1.5f;
+                    target.TakeDamage(damage);
+                }
+
+                if(applyAddon)
+                    PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(effectPath, target.transform, true));
+                else
+                    PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.m4Data.m4VFX2, target.transform, true));
+
+                Debug.Log($"[ProcessHit] applyAddon={applyAddon}, m4Strategy={m4Strategy?.GetType().Name ?? "NULL"}");
+                if (applyAddon && m4Strategy is ISkillHitAddon hitAddon)
+                {
+                    Debug.Log("[ProcessHit] AddonImpact.OnHit 호출");
                     hitAddon.OnHit(this, target.transform, data, targetLayer);
-                    PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.m4Data.m4VFX, target.transform, true));
                 }
 
                 if (hitBuffer[i].TryGetComponent<EffectController>(out var controller))
@@ -347,7 +372,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         }
         if (activeData.applyType == ApplyType.strikeLocation)
         {
-            var obj = PoolAddressableManager.Instance.GetPooledObject(fireZonePath,hitPos,Quaternion.identity);//아니구나이거 FireZone이름으로 되있는걸로 불러오고, 걔안에서 vfx소환해야하네
+            Debug.Log("화염 소환");
+            var obj = PoolAddressableManager.Instance.GetPooledObject(fireZonePath,hitPos,Quaternion.identity);
             if (obj != null)
             {
                 if (obj.TryGetComponent<FireZone>(out var fireZone))
@@ -356,6 +382,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         }
         else
         {
+            Debug.Log("상태이상 적용");
             var effect = StatusEffectFactory.Create(activeData);
             if (effect != null&& !controller.HasStatusEffect()) 
                 controller.ApplyStatusEffect(effect);

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -67,7 +68,11 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     // 열린 젬 슬롯 개수만큼 보여줄 버튼 배열입니다.
     [SerializeField] private Button[] gemButtons;
     [SerializeField] private GameObject[] gemAddObjects;
-    [SerializeField] private GameObject[] gemLockObjects;
+    [SerializeField] private GameObject[] gemLockObjects; 
+    [SerializeField] private RectTransform gemListRoot;   
+    [SerializeField] private GameObject gemItemPrefab;
+    int selectedGemSlotIndex;
+
 
     [Header("Rarity Info")]
     // 등급 정보 카드별 설명 텍스트 배열입니다.
@@ -168,6 +173,19 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         {
             levelUpButton.onClick.RemoveListener(HandleLevelUpButtonClicked);
             levelUpButton.onClick.AddListener(HandleLevelUpButtonClicked);
+        }
+        if (gemButtons != null)
+        {
+            for (int i = 0; i < gemButtons.Length; i++)
+            {
+                Button gemButton = gemButtons[i];
+                if (gemButton == null)
+                    continue;
+
+                int capturedIndex = i;
+                gemButton.onClick.RemoveAllListeners();
+                gemButton.onClick.AddListener(() => HandleGemButtonClicked(capturedIndex));
+            }
         }
         isBound = true;
     }
@@ -303,7 +321,88 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
             SetGemObjectState(gemAddObjects, i, isOpen && !hasEquippedGem);
         }
     }
+    private void HandleGemButtonClicked(int gemSlotIndex)
+    {
+        if (currentSkillId < 0)
+            return;
 
+        if (!TryGetSkillState(currentSkillId, out _, out OwnedSkillData ownedData))
+            return;
+
+        if (!IsGemSlotOpen(ownedData, gemSlotIndex))
+            return;
+
+        selectedGemSlotIndex = gemSlotIndex;
+        ShowGemSelect();
+    }
+    private void ShowGemSelect()
+    {
+        if (gemSelectRoot == null)
+            return;
+
+        gemSelectRoot.gameObject.SetActive(true);
+        PopulateGemList();
+    }
+    private void PopulateGemList()
+    {
+        if (gemListRoot == null || gemItemPrefab == null)
+            return;
+
+        for (int i = gemListRoot.childCount - 1; i >= 0; i--)
+            Destroy(gemListRoot.GetChild(i).gameObject);
+
+        var gemModule = InventoryManager.Instance.GetModule<GemInventoryModule>();
+        if (gemModule == null)
+            return;
+
+        List<GemDisplayData> gemList;
+        if (selectedGemSlotIndex == 2)
+            gemList = gemModule.GetEquippableM4GemDisplayList(currentSkillId);
+        else
+            gemList = gemModule.GetEquippableM5GemDisplayList(currentSkillId);
+
+        foreach (var gem in gemList)
+        {
+            GameObject obj = Instantiate(gemItemPrefab, gemListRoot);
+            GemItemView view = obj.GetComponent<GemItemView>();
+            if (view == null)
+                continue;
+
+            int gemId = gem.GemId;
+            Sprite icon = GetGemIcon(gemId);
+            int count = gem.HighestGradeCount;
+
+            view.Bind(gemId, icon, count, OnGemSelected);
+        }
+    }
+    private void OnGemSelected(int gemId)
+    {
+        var gemModule = InventoryManager.Instance.GetModule<GemInventoryModule>();
+        if (gemModule == null)
+            return;
+
+        if (selectedGemSlotIndex == 2)
+        {
+            gemModule.TryEquipM4GemBySkillId(currentSkillId, gemId);
+        }
+        else
+        {
+            gemModule.TryEquipM5GemBySkillId(currentSkillId, selectedGemSlotIndex, gemId);
+        }
+
+        HideGemSelect();
+        RefreshCurrentSkill();
+    }
+
+    private Sprite GetGemIcon(int itemId)
+    {
+        if (DataManager.Instance?.ItemInfoDict != null &&
+            DataManager.Instance.ItemInfoDict.TryGetValue(itemId, out ItemInfoTable itemInfo))
+        {
+            return Resources.Load<Sprite>(itemInfo.itemIcon);
+        }
+        return null;
+    }
     // 등급 정보 탭의 설명 문구를 현재 보유 등급 기준으로 채웁니다.
     private void ApplyRarityDescriptions(OwnedSkillData ownedData)
     {
