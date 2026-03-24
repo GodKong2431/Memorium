@@ -11,38 +11,54 @@ public static class SkillScrollGachaLogic
 {
     private static readonly int[] CountOptions = { 1, 2, 3, 4, 5, 10, 20, 30 };
 
+    public struct DrawRoll
+    {
+        public int ItemId;
+        public int Count;
+    }
+
     /// <summary>1회 뽑기: 레벨에 맞는 테이블 행에서 개수 가중치 롤 → 그 개수만큼 스킬 주문서 ID 리스트 반환.</summary>
     public static List<int> DrawSkillScrolls(int gachaLevel)
     {
         var result = new List<int>();
-        if (DataManager.Instance == null || !DataManager.Instance.DataLoad)
+        DrawRoll roll = DrawSkillScrollRoll(gachaLevel);
+        if (roll.ItemId <= 0 || roll.Count <= 0)
             return result;
+
+        for (int i = 0; i < roll.Count; i++)
+            result.Add(roll.ItemId);
+
+        return result;
+    }
+
+    /// <summary>1회 뽑기 결과를 "스킬 스크롤 ID + 수량" 형태로 반환.</summary>
+    public static DrawRoll DrawSkillScrollRoll(int gachaLevel)
+    {
+        DrawRoll roll = new DrawRoll();
+        if (DataManager.Instance == null || !DataManager.Instance.DataLoad)
+            return roll;
 
         var table = DataManager.Instance.GachaSkillScrollDict;
         if (table == null || table.Count == 0)
-            return result;
+            return roll;
 
         GachaSkillScrollTable row = table.Values.FirstOrDefault(r => r.gachaLevel == gachaLevel);
         if (row == null)
             row = table.Values.OrderByDescending(r => r.gachaLevel).FirstOrDefault();
         if (row == null)
-            return result;
+            return roll;
 
         int count = RollCount(row);
         if (count <= 0)
-            return result;
+            return roll;
 
         var scrollIds = GetSkillScrollItemIds();
         if (scrollIds == null || scrollIds.Count == 0)
-            return result;
+            return roll;
 
-        for (int i = 0; i < count; i++)
-        {
-            int id = scrollIds[Random.Range(0, scrollIds.Count)];
-            result.Add(id);
-        }
-
-        return result;
+        roll.ItemId = scrollIds[Random.Range(0, scrollIds.Count)];
+        roll.Count = count;
+        return roll;
     }
 
     /// <summary>테이블 행의 weight1~weight30으로 등장 개수(1/2/3/4/5/10/20/30) 롤.</summary>

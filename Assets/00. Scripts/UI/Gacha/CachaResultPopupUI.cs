@@ -361,7 +361,7 @@ public sealed class CachaResultPopupUI : MonoBehaviour
     private static List<ResultEntry> BuildResultItems(GachaType gachaType, GachaDrawResult result)
     {
         List<ResultEntry> entries = new List<ResultEntry>();
-        Dictionary<int, int> itemIndexById = gachaType == GachaType.SkillScroll ? new Dictionary<int, int>() : null;
+        Dictionary<int, int> itemIndexById = gachaType == GachaType.SkillScroll ? null : new Dictionary<int, int>();
 
         if (result.ItemIds == null)
             return entries;
@@ -374,10 +374,22 @@ public sealed class CachaResultPopupUI : MonoBehaviour
             bool isRare = result.ItemRareFlags != null
                 && i < result.ItemRareFlags.Count
                 && result.ItemRareFlags[i];
+            int itemCount = result.ItemCounts != null
+                && i < result.ItemCounts.Count
+                && result.ItemCounts[i] > 0
+                ? result.ItemCounts[i]
+                : 1;
+
+            if (gachaType == GachaType.SkillScroll)
+            {
+                // 스킬스크롤은 1회 뽑기 결과를 1슬롯으로 유지한다.
+                entries.Add(new ResultEntry(itemId, itemCount, false));
+                continue;
+            }
 
             if (ShouldDisplayAsSingleEntry(itemId))
             {
-                entries.Add(new ResultEntry(itemId, 1, isRare));
+                entries.Add(new ResultEntry(itemId, itemCount, isRare));
                 continue;
             }
 

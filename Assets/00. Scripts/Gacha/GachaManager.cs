@@ -223,15 +223,13 @@ public class GachaManager : Singleton<GachaManager>
         {
             if (IsSkillScrollGacha(gachaType))
             {
-                var scrollIds = SkillScrollGachaLogic.DrawSkillScrolls(state.Level);
-                foreach (int scrollId in scrollIds)
+                SkillScrollGachaLogic.DrawRoll scrollRoll = SkillScrollGachaLogic.DrawSkillScrollRoll(state.Level);
+                if (scrollRoll.ItemId > 0 && scrollRoll.Count > 0)
                 {
-                    if (scrollId <= 0)
-                        continue;
-
-                    result.ItemIds.Add(scrollId);
+                    result.ItemIds.Add(scrollRoll.ItemId);
+                    result.ItemCounts.Add(scrollRoll.Count);
                     result.ItemRareFlags.Add(false);
-                    InventoryManager.Instance?.AddItem(scrollId, 1);
+                    InventoryManager.Instance?.AddItem(scrollRoll.ItemId, scrollRoll.Count);
                 }
 
                 state.AddDraws(1);
@@ -248,6 +246,7 @@ public class GachaManager : Singleton<GachaManager>
             if (drawResult.ItemId > 0)
             {
                 result.ItemIds.Add(drawResult.ItemId);
+                result.ItemCounts.Add(1);
                 result.ItemRareFlags.Add(drawResult.IsRare);
                 if (drawResult.IsRare)
                     result.HasRareItem = true;

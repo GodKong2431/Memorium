@@ -23,6 +23,8 @@ public struct GachaDrawResult
 
     /// <summary>ItemIds 인덱스와 동일한 희귀 연출 플래그(장비 전용).</summary>
     public List<bool> ItemRareFlags;
+    /// <summary>ItemIds 인덱스와 동일한 수량. 스킬스크롤 슬롯 표시용.</summary>
+    public List<int> ItemCounts;
 
     /// <summary>결과 초기화. TryDraw 호출 전에 반드시 사용.</summary>
     public static GachaDrawResult Create()
@@ -32,7 +34,8 @@ public struct GachaDrawResult
             ItemIds = new List<int>(),
             PixieIds = new List<int>(),
             SpentCurrencies = new Dictionary<CurrencyType, int>(),
-            ItemRareFlags = new List<bool>()
+            ItemRareFlags = new List<bool>(),
+            ItemCounts = new List<int>()
         };
     }
 }
