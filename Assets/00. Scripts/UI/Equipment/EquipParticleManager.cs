@@ -57,7 +57,7 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
             return;
 
         particle.transform.SetParent(target, false);
-        ApplyLocalTransform(particle.transform, template.transform);
+        ApplyMergeTransform(particle.transform, template.transform, target);
 
         if (particle.gameObject.layer != 5)
             particle.gameObject.layer = 5;
@@ -177,5 +177,28 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
         target.localPosition = template.localPosition;
         target.localRotation = template.localRotation;
         target.localScale = template.localScale;
+    }
+
+    private static void ApplyMergeTransform(Transform target, Transform template, Transform parent)
+    {
+        if (target == null || template == null)
+            return;
+
+        RectTransform targetRect = target as RectTransform;
+        RectTransform parentRect = parent as RectTransform;
+
+        if (targetRect != null && parentRect != null)
+        {
+            targetRect.anchorMin = Vector2.zero;
+            targetRect.anchorMax = Vector2.one;
+            targetRect.offsetMin = Vector2.zero;
+            targetRect.offsetMax = Vector2.zero;
+            targetRect.anchoredPosition = Vector2.zero;
+            targetRect.localRotation = template.localRotation;
+            targetRect.localScale = Vector3.one;
+            return;
+        }
+
+        ApplyLocalTransform(target, template);
     }
 }

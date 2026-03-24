@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,7 +21,6 @@ public sealed class MiscContentsUIController : UIControllerBase
     private sealed class FilterButtonBinding
     {
         public MiscFilter Filter;
-        public Button Button;
         public Image Image;
         public Color BaseColor;
         public float UnselectedAlpha;
@@ -35,13 +33,6 @@ public sealed class MiscContentsUIController : UIControllerBase
         public BigDouble Amount;
         public string Name;
         public Sprite Icon;
-    }
-
-    private sealed class RuntimeItemBinding
-    {
-        public int ItemId;
-        public ItemType ItemType;
-        public MiscItemFrameUI View;
     }
 
     [Header("Root")]
@@ -59,23 +50,25 @@ public sealed class MiscContentsUIController : UIControllerBase
     [SerializeField] private MiscItemFrameUI itemPrefab;
 
     private readonly List<FilterButtonBinding> filterButtons = new(4);
-    private readonly List<MiscItemEntry> workingEntries = new();
-    private readonly List<RuntimeItemBinding> runtimeItems = new();
+    private readonly List<MiscItemEntry> visibleEntries = new();
+    private readonly List<MiscItemFrameUI> itemViews = new();
+    private readonly HashSet<int> visibleConsumableIds = new();
+    private readonly HashSet<int> visibleSkillScrollIds = new();
 
     private InventoryManager inventory;
     private SkillInventoryModule skillModule;
     private GemInventoryModule gemModule;
     private MiscFilter currentFilter = MiscFilter.All;
     private bool buttonsSubscribed;
-    private bool pendingRefresh;
+    private bool isDirty;
     private bool shouldResetScrollPosition = true;
     private bool missingTemplateLogged;
-    private bool forceRebuild = true;
 
     protected override void Initialize()
     {
         ResolveSerializedReferences();
         RebuildFilterButtonBindings();
+        HideContentChildren();
     }
 
     protected override void Subscribe()
@@ -83,42 +76,38 @@ public sealed class MiscContentsUIController : UIControllerBase
         ResolveSerializedReferences();
         RebuildFilterButtonBindings();
         currentFilter = MiscFilter.All;
-        BindInventory();
         SubscribeButtons();
-        HideContentChildren();
         shouldResetScrollPosition = true;
-        forceRebuild = true;
-        pendingRefresh = true;
+        MarkDirty();
     }
 
     protected override void Unsubscribe()
     {
         UnsubscribeButtons();
         UnbindInventory();
-        pendingRefresh = false;
+        isDirty = false;
     }
 
     protected override void RefreshView()
     {
         ResolveSerializedReferences();
-        if (!CanRender())
+        if (!TryPrepareRuntime())
+        {
+            isDirty = true;
             return;
+        }
 
         CollectVisibleEntries();
         RefreshFilterButtonVisuals();
-
-        if (forceRebuild || NeedsRebuild())
-            RebuildVisibleItems();
-        else
-            RefreshVisibleItemCounts();
+        RebuildItemViews();
+        isDirty = false;
     }
 
     private void LateUpdate()
     {
-        if (!isActiveAndEnabled || !pendingRefresh)
+        if (!isActiveAndEnabled || !isDirty)
             return;
 
-        pendingRefresh = false;
         RefreshView();
     }
 
@@ -157,14 +146,13 @@ public sealed class MiscContentsUIController : UIControllerBase
         filterButtons.Add(new FilterButtonBinding
         {
             Filter = filter,
-            Button = button,
             Image = image,
             BaseColor = baseColor,
             UnselectedAlpha = Mathf.Clamp01(unselectedAlpha)
         });
     }
 
-    private bool CanRender()
+    private bool TryPrepareRuntime()
     {
         if (panelRoot == null || listContentRoot == null)
             return false;
@@ -172,7 +160,8 @@ public sealed class MiscContentsUIController : UIControllerBase
         if (buttonShowAll == null || buttonSkillScroll == null || buttonGem == null || buttonConsumable == null)
             return false;
 
-        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.ItemInfoDict == null)
+        DataManager dataManager = DataManager.Instance;
+        if (dataManager == null || !dataManager.DataLoad || dataManager.ItemInfoDict == null)
             return false;
 
         if (!BindInventory())
@@ -195,19 +184,19 @@ public sealed class MiscContentsUIController : UIControllerBase
 
     private bool BindInventory()
     {
-        InventoryManager current = InventoryManager.Instance;
-        if (current == null)
+        InventoryManager currentInventory = InventoryManager.Instance;
+        if (currentInventory == null)
             return false;
 
-        SkillInventoryModule nextSkillModule = current.GetModule<SkillInventoryModule>();
-        GemInventoryModule nextGemModule = current.GetModule<GemInventoryModule>();
+        SkillInventoryModule nextSkillModule = currentInventory.GetModule<SkillInventoryModule>();
+        GemInventoryModule nextGemModule = currentInventory.GetModule<GemInventoryModule>();
 
-        if (inventory == current && skillModule == nextSkillModule && gemModule == nextGemModule)
+        if (inventory == currentInventory && skillModule == nextSkillModule && gemModule == nextGemModule)
             return true;
 
         UnbindInventory();
 
-        inventory = current;
+        inventory = currentInventory;
         skillModule = nextSkillModule;
         gemModule = nextGemModule;
 
@@ -300,11 +289,13 @@ public sealed class MiscContentsUIController : UIControllerBase
 
     private void SetFilter(MiscFilter nextFilter)
     {
+        if (currentFilter == nextFilter)
+            return;
+
         currentFilter = nextFilter;
         shouldResetScrollPosition = true;
-        forceRebuild = true;
-        pendingRefresh = true;
         RefreshFilterButtonVisuals();
+        MarkDirty();
     }
 
     private void RefreshFilterButtonVisuals()
@@ -321,6 +312,11 @@ public sealed class MiscContentsUIController : UIControllerBase
         }
     }
 
+    private void MarkDirty()
+    {
+        isDirty = true;
+    }
+
     private void HideContentChildren()
     {
         if (listContentRoot == null)
@@ -334,203 +330,128 @@ public sealed class MiscContentsUIController : UIControllerBase
         }
     }
 
-    private bool NeedsRebuild()
+    private void RebuildItemViews()
     {
-        if (runtimeItems.Count != workingEntries.Count)
-            return true;
+        ClearRuntimeItems();
 
-        for (int i = 0; i < workingEntries.Count; i++)
+        for (int i = 0; i < visibleEntries.Count; i++)
         {
-            RuntimeItemBinding binding = runtimeItems[i];
-            MiscItemEntry entry = workingEntries[i];
-            if (binding == null || binding.View == null || !binding.View.HasBindings)
-                return true;
-
-            if (binding.ItemId != entry.ItemId || binding.ItemType != entry.ItemType)
-                return true;
-        }
-
-        return false;
-    }
-
-    private void RebuildVisibleItems()
-    {
-        ClearContentChildren();
-
-        if (itemPrefab == null || !itemPrefab.HasBindings)
-            return;
-
-        for (int i = 0; i < workingEntries.Count; i++)
-        {
+            MiscItemEntry entry = visibleEntries[i];
             MiscItemFrameUI view = Instantiate(itemPrefab, listContentRoot, false);
+            if (view == null)
+                continue;
+
+            view.PrepareForRuntime();
             view.gameObject.name = string.Format(
                 CultureInfo.InvariantCulture,
                 "MiscItem_{0:00}_{1}_{2}",
                 i + 1,
-                workingEntries[i].ItemType,
-                workingEntries[i].ItemId);
+                entry.ItemType,
+                entry.ItemId);
 
-            RuntimeItemBinding binding = new RuntimeItemBinding
-            {
-                ItemId = workingEntries[i].ItemId,
-                ItemType = workingEntries[i].ItemType,
-                View = view
-            };
-
-            PrepareRuntimeItem(view);
-            BindRuntimeItem(view, workingEntries[i]);
-            runtimeItems.Add(binding);
+            view.Bind(entry.Icon, FormatAmount(entry.Amount));
+            itemViews.Add(view);
         }
 
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(listContentRoot);
+        ResetScrollPositionIfNeeded();
+    }
 
-        if (shouldResetScrollPosition && listScrollRect != null)
+    private void ClearRuntimeItems()
+    {
+        for (int i = 0; i < itemViews.Count; i++)
         {
-            listScrollRect.StopMovement();
-            listScrollRect.verticalNormalizedPosition = 1f;
+            MiscItemFrameUI view = itemViews[i];
+            if (view != null)
+                Destroy(view.gameObject);
         }
 
+        itemViews.Clear();
+    }
+
+    private void ResetScrollPositionIfNeeded()
+    {
+        if (!shouldResetScrollPosition || listScrollRect == null)
+            return;
+
+        listScrollRect.StopMovement();
+        listScrollRect.verticalNormalizedPosition = 1f;
         shouldResetScrollPosition = false;
-        forceRebuild = false;
-    }
-
-    private void RefreshVisibleItemCounts()
-    {
-        for (int i = 0; i < workingEntries.Count && i < runtimeItems.Count; i++)
-        {
-            MiscItemFrameUI view = runtimeItems[i].View;
-            if (view == null)
-                continue;
-
-            BindRuntimeItem(view, workingEntries[i]);
-        }
-
-        forceRebuild = false;
-    }
-
-    private void ClearContentChildren()
-    {
-        if (listContentRoot == null)
-            return;
-
-        for (int i = listContentRoot.childCount - 1; i >= 0; i--)
-        {
-            Transform child = listContentRoot.GetChild(i);
-            if (child == null)
-                continue;
-
-            child.gameObject.SetActive(false);
-            Destroy(child.gameObject);
-        }
-
-        runtimeItems.Clear();
-    }
-
-    private static void PrepareRuntimeItem(MiscItemFrameUI view)
-    {
-        if (view == null)
-            return;
-
-        if (view.Button != null)
-        {
-            view.Button.onClick.RemoveAllListeners();
-            view.Button.transition = Selectable.Transition.None;
-            view.Button.interactable = true;
-        }
-
-        if (view.IconImage != null)
-            view.IconImage.preserveAspect = true;
-
-        if (view.CountText != null)
-            view.CountText.gameObject.SetActive(true);
-    }
-
-    private static void BindRuntimeItem(MiscItemFrameUI view, MiscItemEntry entry)
-    {
-        if (view == null || entry == null)
-            return;
-
-        if (view.IconImage != null)
-        {
-            view.IconImage.sprite = entry.Icon;
-            view.IconImage.enabled = entry.Icon != null;
-        }
-
-        if (view.CountText != null)
-        {
-            view.CountText.gameObject.SetActive(true);
-            view.CountText.text = FormatAmount(entry.Amount);
-        }
     }
 
     private void HandleItemAmountChanged(InventoryItemContext item, BigDouble amount)
     {
-        if (item.ItemType == ItemType.Weapon ||
-            item.ItemType == ItemType.Helmet ||
-            item.ItemType == ItemType.Glove ||
-            item.ItemType == ItemType.Armor ||
-            item.ItemType == ItemType.Boots)
+        if (InventoryTypeMapper.TryToEquipmentType(item.ItemType, out _))
             return;
 
-        pendingRefresh = true;
+        if (item.ItemType == ItemType.Pixie)
+            return;
+
+        MarkDirty();
     }
 
     private void HandleSkillInventoryChanged()
     {
-        pendingRefresh = true;
+        MarkDirty();
     }
 
     private void HandleGemInventoryChanged()
     {
-        pendingRefresh = true;
+        MarkDirty();
     }
 
     private void CollectVisibleEntries()
     {
-        workingEntries.Clear();
+        visibleEntries.Clear();
+        visibleConsumableIds.Clear();
+        visibleSkillScrollIds.Clear();
 
-        if (inventory == null || DataManager.Instance == null || DataManager.Instance.ItemInfoDict == null)
+        DataManager dataManager = DataManager.Instance;
+        if (inventory == null || dataManager == null || dataManager.ItemInfoDict == null)
             return;
 
         if (currentFilter == MiscFilter.All || currentFilter == MiscFilter.SkillScroll)
-            CollectSkillScrollEntries();
+            CollectSkillScrollEntries(dataManager);
 
         if (currentFilter == MiscFilter.All || currentFilter == MiscFilter.Gem)
-            CollectGemEntries();
+            CollectGemEntries(dataManager);
 
         if (currentFilter == MiscFilter.All || currentFilter == MiscFilter.Consumable)
-            CollectConsumableEntries();
+            CollectConsumableEntries(dataManager);
 
-        workingEntries.Sort(CompareEntryOrder);
+        visibleEntries.Sort(CompareEntryOrder);
     }
 
-    private void CollectSkillScrollEntries()
+    private void CollectSkillScrollEntries(DataManager dataManager)
     {
-        if (skillModule == null)
+        if (skillModule == null || dataManager.SkillInfoDict == null)
             return;
 
-
-        foreach (KeyValuePair<int, SkillInfoTable> pair in DataManager.Instance.SkillInfoDict)
+        foreach (KeyValuePair<int, SkillInfoTable> pair in dataManager.SkillInfoDict)
         {
-            int scrollId = pair.Value.skillScrollID;
-            if (scrollId <= 0)
+            SkillInfoTable skillInfo = pair.Value;
+            if (skillInfo == null || skillInfo.skillScrollID <= 0)
                 continue;
 
-            BigDouble count = InventoryManager.Instance.GetItemAmount(scrollId);
+            int scrollId = skillInfo.skillScrollID;
+            if (!visibleSkillScrollIds.Add(scrollId))
+                continue;
+
+            BigDouble count = inventory.GetItemAmount(scrollId);
             if (count <= BigDouble.Zero)
                 continue;
 
-            if (!DataManager.Instance.ItemInfoDict.TryGetValue(scrollId, out ItemInfoTable itemInfo))
+            if (!dataManager.ItemInfoDict.TryGetValue(scrollId, out ItemInfoTable itemInfo) || itemInfo == null)
                 continue;
 
-            AddEntry(scrollId, itemInfo.itemType, count, itemInfo.itemName, LoadItemIcon(itemInfo));
+            AddOrUpdateEntry(scrollId, itemInfo.itemType, count, itemInfo.itemName, ResolveItemIcon(itemInfo));
         }
     }
 
-    private void CollectGemEntries()
+    private void CollectGemEntries(DataManager dataManager)
     {
-        foreach (KeyValuePair<int, ItemInfoTable> pair in DataManager.Instance.ItemInfoDict)
+        foreach (KeyValuePair<int, ItemInfoTable> pair in dataManager.ItemInfoDict)
         {
             ItemInfoTable itemInfo = pair.Value;
             if (itemInfo == null || !IsGemType(itemInfo.itemType))
@@ -540,15 +461,13 @@ public sealed class MiscContentsUIController : UIControllerBase
             if (amount <= BigDouble.Zero)
                 continue;
 
-            AddEntry(pair.Key, itemInfo.itemType, amount, itemInfo.itemName, LoadItemIcon(itemInfo));
+            AddOrUpdateEntry(pair.Key, itemInfo.itemType, amount, itemInfo.itemName, ResolveItemIcon(itemInfo));
         }
     }
 
-    private void CollectConsumableEntries()
+    private void CollectConsumableEntries(DataManager dataManager)
     {
-        HashSet<int> addedDisplayItemIds = new();
-
-        foreach (KeyValuePair<int, ItemInfoTable> pair in DataManager.Instance.ItemInfoDict)
+        foreach (KeyValuePair<int, ItemInfoTable> pair in dataManager.ItemInfoDict)
         {
             ItemInfoTable itemInfo = pair.Value;
             if (itemInfo == null || !IsConsumableType(itemInfo.itemType))
@@ -557,15 +476,73 @@ public sealed class MiscContentsUIController : UIControllerBase
             if (!TryResolveConsumableDisplayInfo(pair.Key, itemInfo, out int displayItemId, out ItemInfoTable displayInfo))
                 continue;
 
-            if (!addedDisplayItemIds.Add(displayItemId))
+            if (!visibleConsumableIds.Add(displayItemId))
                 continue;
 
             BigDouble amount = inventory.GetItemAmount(displayItemId);
             if (amount <= BigDouble.Zero)
                 continue;
 
-            AddEntry(displayItemId, displayInfo.itemType, amount, displayInfo.itemName, LoadItemIcon(displayInfo));
+            AddOrUpdateEntry(displayItemId, displayInfo.itemType, amount, displayInfo.itemName, ResolveItemIcon(displayInfo));
         }
+    }
+
+    private void AddOrUpdateEntry(int itemId, ItemType itemType, BigDouble amount, string itemName, Sprite icon)
+    {
+        if (amount <= BigDouble.Zero)
+            return;
+
+        for (int i = 0; i < visibleEntries.Count; i++)
+        {
+            MiscItemEntry entry = visibleEntries[i];
+            if (entry.ItemId != itemId)
+                continue;
+
+            if (amount > entry.Amount)
+                entry.Amount = amount;
+
+            if (entry.Icon == null && icon != null)
+                entry.Icon = icon;
+
+            if (string.IsNullOrEmpty(entry.Name) && !string.IsNullOrEmpty(itemName))
+                entry.Name = itemName;
+
+            return;
+        }
+
+        visibleEntries.Add(new MiscItemEntry
+        {
+            ItemId = itemId,
+            ItemType = itemType,
+            Amount = amount,
+            Name = itemName ?? string.Empty,
+            Icon = icon
+        });
+    }
+
+    private BigDouble GetGemAmount(int itemId)
+    {
+        BigDouble amount = inventory != null ? inventory.GetItemAmount(itemId) : BigDouble.Zero;
+        if (gemModule == null)
+            return amount;
+
+        foreach (OwnedGemData gemData in gemModule.GetAllGems())
+        {
+            if (gemData == null || gemData.gemId != itemId)
+                continue;
+
+            int totalCount = 0;
+            for (int i = (int)GemGrade.Common; i < (int)GemGrade.Count; i++)
+                totalCount += Mathf.Max(0, gemData.gradeCounts[i]);
+
+            BigDouble moduleAmount = new BigDouble(totalCount);
+            if (moduleAmount > amount)
+                amount = moduleAmount;
+
+            break;
+        }
+
+        return amount;
     }
 
     private static bool TryResolveConsumableDisplayInfo(int itemId, ItemInfoTable itemInfo, out int displayItemId, out ItemInfoTable displayInfo)
@@ -613,56 +590,6 @@ public sealed class MiscContentsUIController : UIControllerBase
         }
 
         return 0;
-    }
-
-    private BigDouble GetGemAmount(int itemId)
-    {
-        BigDouble resolvedAmount = inventory != null ? inventory.GetItemAmount(itemId) : BigDouble.Zero;
-        if (gemModule == null)
-            return resolvedAmount;
-
-        foreach (OwnedGemData data in gemModule.GetAllGems())
-        {
-            if (data == null || data.gemId != itemId)
-                continue;
-
-            int totalCount = 0;
-            for (int i = (int)GemGrade.Common; i < (int)GemGrade.Count; i++)
-                totalCount += Mathf.Max(0, data.gradeCounts[i]);
-
-            BigDouble moduleAmount = new BigDouble(totalCount);
-            if (moduleAmount > resolvedAmount)
-                resolvedAmount = moduleAmount;
-            break;
-        }
-
-        return resolvedAmount;
-    }
-
-    private void AddEntry(int itemId, ItemType itemType, BigDouble amount, string itemName, Sprite icon)
-    {
-        if (amount <= BigDouble.Zero)
-            return;
-
-        for (int i = 0; i < workingEntries.Count; i++)
-        {
-            if (workingEntries[i].ItemId != itemId)
-                continue;
-
-            if (amount > workingEntries[i].Amount)
-                workingEntries[i].Amount = amount;
-
-            return;
-        }
-
-        workingEntries.Add(new MiscItemEntry
-        {
-            ItemId = itemId,
-            ItemType = itemType,
-            Amount = amount,
-            Name = itemName ?? string.Empty,
-            Icon = icon
-        });
     }
 
     private static int CompareEntryOrder(MiscItemEntry lhs, MiscItemEntry rhs)
@@ -716,34 +643,8 @@ public sealed class MiscContentsUIController : UIControllerBase
         return amount.ToString();
     }
 
-    private static Sprite LoadItemIcon(ItemInfoTable itemInfo)
+    private static Sprite ResolveItemIcon(ItemInfoTable itemInfo)
     {
-        if (itemInfo == null || string.IsNullOrWhiteSpace(itemInfo.itemIcon))
-            return null;
-
-        string key = itemInfo.itemIcon.Trim();
-        Sprite sprite = Resources.Load<Sprite>(key);
-        if (sprite != null)
-            return sprite;
-
-        int extensionIndex = key.LastIndexOf(".", StringComparison.Ordinal);
-        if (extensionIndex > 0)
-        {
-            sprite = Resources.Load<Sprite>(key[..extensionIndex]);
-            if (sprite != null)
-                return sprite;
-        }
-
-        const string resourcesToken = "Resources/";
-        int resourcesIndex = key.IndexOf(resourcesToken, StringComparison.OrdinalIgnoreCase);
-        if (resourcesIndex < 0)
-            return null;
-
-        string relativePath = key[(resourcesIndex + resourcesToken.Length)..];
-        int relativeExtensionIndex = relativePath.LastIndexOf(".", StringComparison.Ordinal);
-        if (relativeExtensionIndex > 0)
-            relativePath = relativePath[..relativeExtensionIndex];
-
-        return Resources.Load<Sprite>(relativePath);
+        return IconManager.GetItemIcon(itemInfo);
     }
 }
