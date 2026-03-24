@@ -18,7 +18,7 @@ public struct AblityStoneEnforce
 }
 
 [CreateAssetMenu(fileName = "StoneIconSO", menuName = "Scriptable Objects/StoneIconSO")]
-public class StoneIconSO : CurrencyIconSO
+public class StoneIconSO : ScriptableObject
 {
     [SerializeField] public SerializedDictionary<AblityStoneEnum, AblityStoneEnforce> EnforceSprites = new SerializedDictionary<AblityStoneEnum, AblityStoneEnforce>();
     
