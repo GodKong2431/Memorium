@@ -24,7 +24,10 @@ public class EffectController : MonoBehaviour, IBuffApplicable
     {
         ClearAll();
     }
-
+    public void OnDeath()
+    {
+        StatusEffect?.OnDeath();
+    }
     public void ApplyBuff(StatModifier modifier)
     {
         BuffDebuff.AddOrRefreshModifier(modifier);

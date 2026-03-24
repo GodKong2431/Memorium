@@ -239,11 +239,11 @@ public class InventoryManager : Singleton<InventoryManager>
 
         RegisterModule(new CurrencyInventoryModule());
         RegisterModule(new SkillInventoryModule());
+        RegisterModule(new GemInventoryModule());
+        RegisterModule(new PassiveSkillModule());
         RegisterModule(new StackItemInventoryModule());
         RegisterModule(new EquipmentInventoryModule());
 
-        RegisterModule(new GemInventoryModule());
-        RegisterModule(new PassiveSkillModule());
         
 
         StartCoroutine(LoadData());

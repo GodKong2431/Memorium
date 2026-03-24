@@ -1,6 +1,5 @@
 
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 
 public class FireZone : MonoBehaviour
 {
@@ -13,7 +12,7 @@ public class FireZone : MonoBehaviour
     private int targetLayer;
 
     private static readonly Collider[] hitBuffer = new Collider[SkillConstants.HIT_BUFFER_SIZE];
-
+    private PoolableParticle currentParticle;
     public void Init(SkillModule5Table data,float radius,int layerMask)
     {
         tableData = data;
@@ -22,8 +21,9 @@ public class FireZone : MonoBehaviour
         targetLayer = layerMask;
         elapsed = 0f;
         detectTimer = 0f;
+        PoolableParticleManager.Instance.SpawnParticle(
+            new ParticleSpawnContext(data?.m5VFX2, transform, true, false, onSpawned: (particle) => currentParticle = particle));
     }
-
     private void Update()
     {
         float dt = Time.deltaTime;
@@ -31,7 +31,7 @@ public class FireZone : MonoBehaviour
 
         if (elapsed >= zoneDuration)
         {
-            Destroy(gameObject);
+            ObjectPoolManager.Return(gameObject);
             // TODO: 풀에 반납
             return;
         }
@@ -61,5 +61,14 @@ public class FireZone : MonoBehaviour
                     effectController.ApplyStatusEffect(StatusEffectFactory.Create(tableData));
             }
         }
+    }
+    private void OnDisable()
+    {
+        if (currentParticle != null)
+        {
+            currentParticle.StopAndReturnManual();
+            currentParticle = null;
+        }
+        ObjectPoolManager.Return(gameObject);
     }
 }

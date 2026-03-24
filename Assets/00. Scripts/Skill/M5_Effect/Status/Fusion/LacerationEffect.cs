@@ -1,4 +1,4 @@
-﻿
+
 //부식
 using UnityEngine;
 
@@ -32,7 +32,7 @@ public class LacerationEffect : StatusEffectBase
 
     protected override void OnTick()
     {
-        target.TakeDamage(damage);
+        target.TakeDamage(damage, DamageType.FixedPercentageDamage);
     }
 
     public override void OnExpire()

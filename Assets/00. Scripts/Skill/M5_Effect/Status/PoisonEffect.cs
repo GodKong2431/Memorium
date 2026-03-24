@@ -15,14 +15,17 @@ public class PoisonEffect : StatusEffectBase
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
+        base.OnApply(target, buffApplicable);
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(tableData.m5VFX, target.transform, true, false, onSpawned: OnParticleSpawned));
     }
 
     protected override void OnTick()
     {
-        target.TakeDamage(damage);
+        target.TakeDamage(damage, DamageType.FixedPercentageDamage);
     }
     public override void OnTargetDeath()
     {
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(tableData.m5VFX2, target.transform, true, false, onSpawned: OnParticleSpawned));
         int count = DetectInRadius(target.transform.position, spreadRadius, layerMask);
         var buffer = GetHitBuffer();
 

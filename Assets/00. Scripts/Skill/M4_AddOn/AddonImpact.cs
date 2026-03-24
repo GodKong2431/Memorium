@@ -16,7 +16,7 @@ public class AddonImpact : ISkillHitAddon
             if (count > 0)
             {
                 owner.HandleAddonHit(count, data, provider.GetBuffer());
-                PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.m4Data.m4VFX2, target.transform, true));
+                PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.m4Data.m4VFX, target.transform, true));
             }
         }
     }
