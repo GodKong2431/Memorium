@@ -17,6 +17,18 @@ public static class InventoryTypeMapper
             case ItemType.PixiePiece:
                 currencyType = CurrencyType.PixieFragment;
                 return true;
+            case ItemType.BingoItem_A:
+                currencyType = CurrencyType.BingoItem_A;
+                return true;
+            case ItemType.BingoItem_B:
+                currencyType = CurrencyType.BingoItem_B;
+                return true;
+            case ItemType.BingoLink:
+                currencyType = CurrencyType.BingoLink;
+                return true;
+            case ItemType.BingoSynergy:
+                currencyType = CurrencyType.BingoSynergy;
+                return true;
             default:
                 currencyType = default;
                 return false;

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 적의 스탯 데이터를 제공.
@@ -34,6 +34,10 @@ public class EnemyStatPresenter : MonoBehaviour
         return null;
     }
 
+    private void OnEnable()
+    {
+        RefreshFromDataManager();
+    }
     public void SetData(EnemyStatData data)
     {
         _data = data;

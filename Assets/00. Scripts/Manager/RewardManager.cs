@@ -66,6 +66,25 @@ public class RewardManager : Singleton<RewardManager>
         DropSettings.skillScrollChance = (float)(dropTable.scrollRate);
         DropSettings.skillGemChance = (float)(dropTable.gemRate);
         DropSettings.dungeonTicketChance = (float)(dropTable.keyRate);
+
+        if(DropSettings.bingoLinks.Count > 0)
+            DropSettings.bingoLinks.Clear();
+        DropSettings.bingoLinks.Add(dropTable.link_0);
+        DropSettings.bingoLinks.Add(dropTable.link_1);
+        DropSettings.bingoLinks.Add(dropTable.link_2);
+        DropSettings.bingoLinks.Add(dropTable.link_3);
+        DropSettings.bingoLinks.Add(dropTable.link_4);
+
+        DropSettings.bingoItem_A = dropTable.bingoItem_A;
+        DropSettings.bingoItem_B = dropTable.bingoItem_B;
+
+        if (DropSettings.bingoSynergy.Count > 0)
+            DropSettings.bingoSynergy.Clear();
+        DropSettings.bingoSynergy.Add(dropTable.synergy_0);
+        DropSettings.bingoSynergy.Add(dropTable.synergy_1);
+        DropSettings.bingoSynergy.Add(dropTable.synergy_2);
+        DropSettings.bingoSynergy.Add(dropTable.synergy_3);
+        DropSettings.bingoSynergy.Add(dropTable.synergy_4);
     }
 
     /// <summary>

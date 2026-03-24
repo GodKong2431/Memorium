@@ -40,6 +40,8 @@ public class StageManager : Singleton<StageManager>
     [SerializeField] private StageType manualBossSummonRequiredStageType = StageType.None;
     [SerializeField] private int manualBossSummonRequiredStageLevel = 0;
 
+    public MonsterStatusByStage monsterStatusByStage;
+
     // 현재 보스 스테이지 흐름 안에 있는지 여부
     public bool onBossStage = false;
     private EnemyStateMachine boss;
@@ -206,6 +208,8 @@ public class StageManager : Singleton<StageManager>
     {
         if (!TryGetCurrentStageData(out StageManageTable stageData))
             return;
+
+        monsterStatusByStage = new MonsterStatusByStage(stageData.monsterGrowthid);
 
         curFloor = stageData.floorNumber;
         MapManager.Instance.MapSetting(curStageType, curFloor);

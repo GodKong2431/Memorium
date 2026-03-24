@@ -16,4 +16,5 @@ public class StageManageTable : TableBase
     public int bossMonsterExp;
     public int monsterSpawnGroup;
     public string mapObject;
+    public int monsterGrowthid;
 }

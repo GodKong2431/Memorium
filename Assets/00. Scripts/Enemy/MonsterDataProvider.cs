@@ -5,6 +5,23 @@ using System.Collections.Generic;
 /// DataManager의 몬스터 테이블을 Enemy 시스템에서 사용할 수 있도록 변환·제공.
 /// MonsterBasestatTable → EnemyStatData 변환, MonsterStringTable 이름 조회 등.
 /// </summary>
+/// 
+public struct MonsterStatusByStage
+{
+    public float monsterAttScale;
+    public float monsterAttsScale;
+    public float monsterHPScale;
+
+    public MonsterStatusByStage(int growthId)
+    {
+        MonsterGrowthTable monsterGrowthTable = DataManager.Instance.EnemyGrowthDict[growthId];
+
+        monsterAttScale = Mathf.Pow(monsterGrowthTable.monsterAttScale,monsterGrowthTable.stageLevelScale-1);
+        monsterAttsScale = Mathf.Pow(monsterGrowthTable.monsterAttsScale, monsterGrowthTable.stageLevelScale - 1);
+        monsterHPScale = Mathf.Pow(monsterGrowthTable.monsterHPScale, monsterGrowthTable.stageLevelScale - 1);
+    }
+
+}
 public static class MonsterDataProvider
 {
     /// <summary>
@@ -31,9 +48,9 @@ public static class MonsterDataProvider
             monsterID = table.ID.ToString(),
             monsterName = GetDisplayName(table.monsterName) ?? table.monsterName,
             monsterType = table.monsterType.ToString(),
-            monsterHealth = table.healthPoint,
-            monsterAttackpoint = table.attackPoint,
-            monsterAttackspeed = table.attackSpeed,
+            monsterHealth = table.healthPoint * StageManager.Instance.monsterStatusByStage.monsterHPScale,
+            monsterAttackpoint = table.attackPoint * StageManager.Instance.monsterStatusByStage.monsterAttScale,
+            monsterAttackspeed = table.attackSpeed * StageManager.Instance.monsterStatusByStage.monsterAttsScale,
             monsterSpeed = table.speed,
             attackRange = table.attackRange,
             monsterDefense = table.baseDef,

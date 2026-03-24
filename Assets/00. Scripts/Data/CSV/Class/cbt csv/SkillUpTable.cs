@@ -5,5 +5,5 @@ using System.Collections.Generic;
 public class SkillUpTable : TableBase
 {
     public int skillLevel;
-    public BigDouble reqGold;
+    public BigDouble reqScroll;
 }

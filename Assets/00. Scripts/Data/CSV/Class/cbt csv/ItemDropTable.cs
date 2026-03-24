@@ -12,6 +12,16 @@ public class ItemDropTable : TableBase
     public float scrollRate;
     public float gemRate;
     public float keyRate;
-    public float normalBingo;
-    public float bingoItem;
+    public float link_0;
+    public float link_1;
+    public float link_2;
+    public float link_3;
+    public float link_4;
+    public float bingoItem_A;
+    public float bingoItem_B;
+    public float synergy_0;
+    public float synergy_1;
+    public float synergy_2;
+    public float synergy_3;
+    public float synergy_4;
 }

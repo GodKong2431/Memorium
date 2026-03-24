@@ -6,12 +6,16 @@ using UnityEngine.UI;
 
 public class TitleScene : SceneBase
 {
+    private const string LoadingBackgroundName = "BackGround";
+    private const string LoadingBackgroundImageName = "(Img)BackGround";
+
     [SerializeField] private SceneType nextScene = SceneType.StageScene;
     [SerializeField, Range(0.5f, 0.95f)] private float dataLoadProgressWeight = 0.9f;
     [SerializeField] private RectTransform loadingCanvasRoot;
     [SerializeField] private RectTransform loadingPanelRoot;
     [SerializeField] private Slider loadingSlider;
     [SerializeField] private TextMeshProUGUI loadingText;
+    [SerializeField] private Image loadingBackgroundImage;
     [SerializeField] private Color loadingErrorTextColor = new Color(1f, 0.55f, 0.55f, 1f);
 
     private DataManager dataManager;
@@ -19,16 +23,20 @@ public class TitleScene : SceneBase
     private string currentLoadingStatus = string.Empty;
     private bool currentLoadingStatusIsError;
     private Color defaultLoadingTextColor = Color.white;
+    private bool suppressLoadingUi;
+    private Color loadingBackgroundBaseColor = Color.black;
 
     public override IEnumerator EnterScene()
     {
         dataManager = DataManager.Instance;
+        suppressLoadingUi = false;
+        CacheLoadingBackground();
 
         if (loadingText != null)
             defaultLoadingTextColor = loadingText.color;
 
         ShowLoadingUi();
-        SetLoadingStatus("게임 데이터를 준비하는 중...");
+        SetLoadingStatus("Preparing game data...");
         SetLoadingProgress(0f);
 
         SubscribeLoadingEvents();
@@ -36,7 +44,7 @@ public class TitleScene : SceneBase
         if (dataManager.DataLoad)
         {
             ApplyDataLoadProgress(1f);
-            SetLoadingStatus("게임 데이터를 확인했습니다.");
+            SetLoadingStatus("Game data ready.");
         }
         else if (!dataManager.IsLoading)
         {
@@ -47,20 +55,22 @@ public class TitleScene : SceneBase
         {
             if (dataManager.RequiresUserRetry && WasRetryRequestedThisFrame())
             {
-                SetLoadingStatus("다시 시도하는 중...");
+                SetLoadingStatus("Retrying...");
                 dataManager.RetryLoad();
             }
 
             yield return null;
         }
 
-        SetLoadingStatus("게임 씬을 준비하는 중...");
+        SetLoadingStatus("Opening stage...");
         UnsubscribeLoadingEvents();
         yield return StartCoroutine(LoadNextSceneAsync(nextScene));
     }
 
     public override void ExitScene()
     {
+        suppressLoadingUi = true;
+        HideLoadingUi();
         UnsubscribeLoadingEvents();
     }
 
@@ -81,89 +91,23 @@ public class TitleScene : SceneBase
 
     private IEnumerator LoadNextSceneAsync(SceneType sceneType)
     {
-        if (UIRoot.Instance != null)
-            UIRoot.Instance.PrepareForSceneTransfer();
+        SetLoadingProgress(1f);
+        SetLoadingStatus("Opening stage...");
 
-        Scene sourceScene = gameObject.scene;
-        string targetSceneName = sceneType.ToString();
-        Scene loadedScene = default;
-        bool targetSceneLoaded = false;
-
-        void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+        SceneController sceneController = SceneController.Instance;
+        if (sceneController != null)
         {
-            if (!string.Equals(scene.name, targetSceneName, System.StringComparison.Ordinal))
-                return;
+            sceneController.LoadScene(sceneType);
+            yield return null;
 
-            loadedScene = scene;
-            targetSceneLoaded = true;
-            SceneManager.SetActiveScene(scene);
-        }
+            while (sceneController != null && sceneController.IsLoading)
+                yield return null;
 
-        SceneManager.sceneLoaded += HandleSceneLoaded;
-        SetLoadingStatus("게임 씬을 불러오는 중...");
-
-        AsyncOperation operation = SceneManager.LoadSceneAsync(targetSceneName, LoadSceneMode.Additive);
-        if (operation == null)
-        {
-            SceneManager.sceneLoaded -= HandleSceneLoaded;
             yield break;
         }
-
-        operation.allowSceneActivation = false;
-
-        while (!operation.isDone || !targetSceneLoaded)
-        {
-            float sceneProgress = Mathf.Clamp01(operation.progress / 0.9f);
-            float blendedProgress = Mathf.Lerp(dataLoadProgressWeight, 0.98f, sceneProgress);
-
-            SetLoadingProgress(blendedProgress);
-
-            if (sceneProgress >= 1f)
-                operation.allowSceneActivation = true;
-
-            yield return null;
-        }
-
-        SceneManager.sceneLoaded -= HandleSceneLoaded;
-
-        StageScene stageScene = null;
-        while (stageScene == null)
-        {
-            stageScene = FindSceneComponent<StageScene>(loadedScene);
-            yield return null;
-        }
-
-        SetLoadingProgress(0.99f);
-        SetLoadingStatus("스테이지를 준비하는 중...");
-        yield return new WaitUntil(() => stageScene.IsSceneReady);
-        SetLoadingProgress(1f);
-        SetLoadingStatus("준비 완료");
 
         ExitScene();
-        SceneManager.SetActiveScene(loadedScene);
-
-        AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync(sourceScene);
-        if (unloadOperation == null)
-            yield break;
-
-        while (!unloadOperation.isDone)
-            yield return null;
-    }
-
-    private static T FindSceneComponent<T>(Scene scene) where T : Component
-    {
-        if (!scene.IsValid() || !scene.isLoaded)
-            return null;
-
-        GameObject[] rootObjects = scene.GetRootGameObjects();
-        for (int i = 0; i < rootObjects.Length; i++)
-        {
-            T component = rootObjects[i].GetComponentInChildren<T>(true);
-            if (component != null)
-                return component;
-        }
-
-        return null;
+        SceneManager.LoadScene(sceneType.ToString());
     }
 
     private void SubscribeLoadingEvents()
@@ -191,6 +135,9 @@ public class TitleScene : SceneBase
 
     private void ShowLoadingUi()
     {
+        if (suppressLoadingUi)
+            return;
+
         if (loadingCanvasRoot != null)
         {
             loadingCanvasRoot.gameObject.SetActive(true);
@@ -201,6 +148,53 @@ public class TitleScene : SceneBase
 
         if (loadingPanelRoot != null)
             loadingPanelRoot.gameObject.SetActive(true);
+
+        SetLoadingBackgroundVisible(false);
+    }
+
+    private void HideLoadingUi()
+    {
+        if (loadingPanelRoot != null)
+            loadingPanelRoot.gameObject.SetActive(false);
+
+        if (loadingCanvasRoot != null)
+            loadingCanvasRoot.gameObject.SetActive(false);
+    }
+
+    private void CacheLoadingBackground()
+    {
+        if (loadingBackgroundImage != null)
+        {
+            loadingBackgroundBaseColor = loadingBackgroundImage.color;
+            return;
+        }
+
+        if (loadingCanvasRoot == null)
+            return;
+
+        Transform backgroundTransform = FindChildRecursive(loadingCanvasRoot, LoadingBackgroundName);
+        if (backgroundTransform == null)
+            backgroundTransform = FindChildRecursive(loadingCanvasRoot, LoadingBackgroundImageName);
+
+        if (backgroundTransform == null)
+            return;
+
+        loadingBackgroundImage = backgroundTransform.GetComponent<Image>();
+        if (loadingBackgroundImage != null)
+            loadingBackgroundBaseColor = loadingBackgroundImage.color;
+    }
+
+    private void SetLoadingBackgroundVisible(bool visible)
+    {
+        if (loadingBackgroundImage == null)
+            CacheLoadingBackground();
+
+        if (loadingBackgroundImage == null)
+            return;
+
+        Color backgroundColor = loadingBackgroundBaseColor;
+        backgroundColor.a = visible ? loadingBackgroundBaseColor.a : 0f;
+        loadingBackgroundImage.color = backgroundColor;
     }
 
     private void SetLoadingProgress(float progress)
@@ -218,7 +212,8 @@ public class TitleScene : SceneBase
 
     private void RefreshLoadingUi()
     {
-        ShowLoadingUi();
+        if (!suppressLoadingUi)
+            ShowLoadingUi();
 
         if (loadingSlider != null)
         {
@@ -253,5 +248,23 @@ public class TitleScene : SceneBase
         }
 
         return false;
+    }
+
+    private static Transform FindChildRecursive(Transform root, string targetName)
+    {
+        if (root == null || string.IsNullOrWhiteSpace(targetName))
+            return null;
+
+        if (string.Equals(root.name, targetName, System.StringComparison.Ordinal))
+            return root;
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform foundChild = FindChildRecursive(root.GetChild(i), targetName);
+            if (foundChild != null)
+                return foundChild;
+        }
+
+        return null;
     }
 }

@@ -38,6 +38,26 @@ public class ItemDropSettings : ScriptableObject
     [Range(0f, 1f)]
     public float dungeonTicketChance = 0.00001f;
 
+    [Tooltip("빙고 재화")]
+    public List<float> bingoLinks=new List<float>(); 
+    //public float bingoLink_0;
+    //public float bingoLink_1;
+    //public float bingoLink_2;
+    //public float bingoLink_3;
+    //public float bingoLink_4;
+
+    [Tooltip("빙고 아이템")]
+    public float bingoItem_A;
+    public float bingoItem_B;
+
+    [Tooltip("빙고 시너지")]
+    public List<float> bingoSynergy = new List<float>();
+    //public float bingoSynergy_0;
+    //public float bingoSynergy_1;
+    //public float bingoSynergy_2;
+    //public float bingoSynergy_3;
+    //public float bingoSynergy_4;
+
     [Header("장비 드랍 수식 (환경설정 테이블)")]
     [Tooltip("stageGap: 매 N스테이지마다 기준 파워 +100")]
     public int stageGap = 3;
@@ -61,6 +81,9 @@ public class ItemDropSettings : ScriptableObject
     public int[] skillGemIds = { 3220001 };
     public int[] dungeonTicketIds = { 3831001 };
 
+    //일단 아이디 다 가져오고 
+    public int[] bingoLinkIds = Array.Empty<int>();
+
     public Dictionary<ItemType, List<int>> itemTypeToItemTable = new Dictionary<ItemType, List<int>>();
 
     [Serializable]
@@ -83,6 +106,7 @@ public class ItemDropSettings : ScriptableObject
         }
         return itemTypeToItemTable[type];
     }
+
 
     /// <summary>ItemDropSettings는 RewardManager.DropSettings를 통해서만 접근. SetDropTable은 RewardManager에서 처리.</summary>
 }

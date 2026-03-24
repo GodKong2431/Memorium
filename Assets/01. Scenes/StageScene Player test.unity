@@ -47687,6 +47687,7 @@ MonoBehaviour:
   objQuestProgressSliderRoot: {fileID: 232563561}
   sliderQuestProgress: {fileID: 232563563}
   imageQuestReward: {fileID: 611951386}
+  textQuestRewardCount: {fileID: 1060218745}
   spriteRewardInProgress: {fileID: 21300000, guid: 08f350ce50ebc1d41bd39eb18fbbbfd9, type: 3}
   spriteRewardReady: {fileID: 21300000, guid: 08f350ce50ebc1d41bd39eb18fbbbfd9, type: 3}
   btnRewardTouch: {fileID: 348605694}
@@ -55888,7 +55889,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1418028766}
-  - component: {fileID: 1418028767}
   m_Layer: 0
   m_Name: UI
   m_TagString: Untagged
@@ -55914,18 +55914,6 @@ Transform:
   - {fileID: 1771992385}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1418028767
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1418028765}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb13501055942f240840acd35410f2cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIRoot
 --- !u!1 &1419946964
 GameObject:
   m_ObjectHideFlags: 0

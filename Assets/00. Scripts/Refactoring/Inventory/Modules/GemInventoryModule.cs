@@ -132,7 +132,17 @@ public sealed class GemInventoryModule : IInventoryModule
     }
     #endregion
 
-    #region UI 표시용
+    #region UI 표시용 
+
+    /// <summary>
+    /// 해당 스킬이 프리셋에 장착되어있는지 반환 (젬 슬롯 활성화 판단용)
+    /// </summary>
+    public bool IsSkillEquipped(int skillId)
+    {
+        var skillModule = InventoryManager.Instance.GetModule<SkillInventoryModule>();
+        if (skillModule == null) return false;
+        return skillModule.IsEquippedInCurrentPreset(skillId);
+    }
 
     /// <summary>
     /// 스킬 ID로 해당 스킬의 M4 슬롯 해금 여부를 반환 / 마지막칸

@@ -2,16 +2,79 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
+[DefaultExecutionOrder(-1000)]
 public class EquipmentHandler : MonoBehaviour
 {
     public static event Action EquipmentUiRefreshRequested;
+    private static EquipmentHandler persistentInstance;
+    public static EquipmentHandler Instance => persistentInstance;
 
     [SerializeField] private PlayerEquipment playerEquipment;
 
     public bool dataLoad;
 
     public int goldId = 0;
+    private Coroutine sceneRefreshRoutine;
+
+    private void Awake()
+    {
+        if (persistentInstance != null && persistentInstance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        persistentInstance = this;
+        StripLegacyUiControllers();
+
+        if (playerEquipment == null)
+            playerEquipment = GetComponent<PlayerEquipment>();
+
+        if (playerEquipment != null)
+            playerEquipment.equipmentHandler = this;
+
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+
+        if (sceneRefreshRoutine != null)
+        {
+            StopCoroutine(sceneRefreshRoutine);
+            sceneRefreshRoutine = null;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (persistentInstance == this)
+            persistentInstance = null;
+    }
+
+    private void StripLegacyUiControllers()
+    {
+        RemoveLegacyUiController(GetComponent<EquipCurrentUIController>());
+        RemoveLegacyUiController(GetComponent<EquipReinforceUIController>());
+        RemoveLegacyUiController(GetComponent<EquipSlotUIController>());
+    }
+
+    private static void RemoveLegacyUiController(MonoBehaviour controller)
+    {
+        if (controller == null)
+            return;
+
+        controller.enabled = false;
+        Destroy(controller);
+    }
 
     public void TestEquipmentReinforcement()
     {
@@ -295,6 +358,30 @@ public class EquipmentHandler : MonoBehaviour
 
         RaiseEquipmentUiRefreshRequested();
         return true;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (persistentInstance != this)
+            return;
+
+        if (playerEquipment == null)
+            playerEquipment = GetComponent<PlayerEquipment>();
+
+        if (playerEquipment != null)
+            playerEquipment.equipmentHandler = this;
+
+        if (sceneRefreshRoutine != null)
+            StopCoroutine(sceneRefreshRoutine);
+
+        sceneRefreshRoutine = StartCoroutine(RefreshAfterSceneLoad());
+    }
+
+    private System.Collections.IEnumerator RefreshAfterSceneLoad()
+    {
+        yield return null;
+        RaiseEquipmentUiRefreshRequested();
+        sceneRefreshRoutine = null;
     }
 
     public void SetGoldID()

@@ -21,6 +21,10 @@ public class PlayerBerserkerOrb : MonoBehaviour
     public int CurrentBerserkerOrb => _currentBerserkerOrb;
 
     public event Action OnBerserkerOrbChanged;
+    
+    public event Action OnBerserkerOrbFull;
+    
+    public bool isAuto;
 
     private void Awake()
     {
@@ -73,6 +77,10 @@ public class PlayerBerserkerOrb : MonoBehaviour
         _currentBerserkerOrb = Mathf.Min(MaxBerserkerOrb, _currentBerserkerOrb + amount);
         OnBerserkerOrbChanged?.Invoke();
         BerserkerGageUI.RefreshAll();
+        if (isAuto && MaxBerserkerOrb == _currentBerserkerOrb)
+        {
+            OnBerserkerOrbFull?.Invoke();
+        }
     }
 
     /// <summary>버서커 모드 발동 시 오브 소모. 보유량이 부족하면 false.</summary>
