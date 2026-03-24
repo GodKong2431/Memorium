@@ -12,9 +12,11 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
 {
     public ParticleSystem upgradeEffect;
     public ParticleSystem mergeEffect;
+    public ParticleSystem gachaEffect;
 
     private readonly Queue<ParticleSystem> upgradeParticleQueue = new Queue<ParticleSystem>();
     private readonly Queue<ParticleSystem> mergeParticleQueue = new Queue<ParticleSystem>();
+    private readonly Queue<ParticleSystem> gachaParticleQueue = new Queue<ParticleSystem>();
     private Transform poolRoot;
 
     protected override void Awake()
@@ -65,6 +67,24 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
         StartCoroutine(PlayOnceAndReturnToQueue(particle, template, mergeParticleQueue));
     }
 
+    public void PlayGachaEffect(Transform target)
+    {
+        if (target == null || !TryGetTemplate(gachaEffect, nameof(gachaEffect), out ParticleSystem template))
+            return;
+
+        ParticleSystem particle = GetParticle(gachaParticleQueue, template);
+        if (particle == null)
+            return;
+
+        particle.transform.SetParent(target, false);
+        ApplyLocalTransform(particle.transform, template.transform);
+
+        if (particle.gameObject.layer != 5)
+            particle.gameObject.layer = 5;
+
+        StartCoroutine(PlayOnceAndReturnToQueue(particle, template, gachaParticleQueue, false));
+    }
+
     private IEnumerator PlayTwiceAndReturnToQueue(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue)
     {
         if (particle == null)
@@ -92,7 +112,7 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
         ReturnToPool(particle, template, queue);
     }
 
-    private IEnumerator PlayOnceAndReturnToQueue(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue)
+    private IEnumerator PlayOnceAndReturnToQueue(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue, bool checkReturn=true)
     {
         if (particle == null)
             yield break;
@@ -103,7 +123,8 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
 
         yield return new WaitForSeconds(duration);
 
-        ReturnToPool(particle, template, queue);
+        if(checkReturn)
+            ReturnToPool(particle, template, queue);
     }
 
     private ParticleSystem GetParticle(Queue<ParticleSystem> queue, ParticleSystem template)
