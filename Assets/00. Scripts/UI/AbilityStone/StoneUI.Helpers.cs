@@ -125,7 +125,9 @@ public sealed partial class StoneUI
         
         if (itemUI.CostCurrencyImage != null)
         {
-            itemUI.CostCurrencyImage.sprite = stoneData.stoneMult ? IconManager.GetStatIcon(CurrencyType.Crystal) : IconManager.GetStatIcon(CurrencyType.Gold);
+            itemUI.CostCurrencyImage.sprite = stoneData.stoneMult
+                ? IconManager.GetCurrencyIcon(CurrencyType.Crystal)
+                : IconManager.GetCurrencyIcon(CurrencyType.Gold);
         }
 
         if (itemUI.CostText != null)

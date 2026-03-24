@@ -37,12 +37,14 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
             return;
 
         particle.transform.SetParent(poolRoot, false);
+        ApplyLocalTransform(particle.transform, template.transform);
         particle.transform.position = target.position;
+        particle.transform.rotation = template.transform.rotation;
 
         if (particle.gameObject.layer != 5)
             particle.gameObject.layer = 5;
 
-        StartCoroutine(PlayTwiceAndReturnToQueue(particle, upgradeParticleQueue));
+        StartCoroutine(PlayTwiceAndReturnToQueue(particle, template, upgradeParticleQueue));
     }
 
     public void PlayMergeEffect(Transform target)
@@ -55,12 +57,15 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
             return;
 
         particle.transform.SetParent(target, false);
-        particle.transform.localPosition = Vector3.zero;
+        ApplyLocalTransform(particle.transform, template.transform);
 
-        StartCoroutine(PlayOnceAndReturnToQueue(particle, mergeParticleQueue));
+        if (particle.gameObject.layer != 5)
+            particle.gameObject.layer = 5;
+
+        StartCoroutine(PlayOnceAndReturnToQueue(particle, template, mergeParticleQueue));
     }
 
-    private IEnumerator PlayTwiceAndReturnToQueue(ParticleSystem particle, Queue<ParticleSystem> queue)
+    private IEnumerator PlayTwiceAndReturnToQueue(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue)
     {
         if (particle == null)
             yield break;
@@ -84,10 +89,10 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
             particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
-        ReturnToPool(particle, queue);
+        ReturnToPool(particle, template, queue);
     }
 
-    private IEnumerator PlayOnceAndReturnToQueue(ParticleSystem particle, Queue<ParticleSystem> queue)
+    private IEnumerator PlayOnceAndReturnToQueue(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue)
     {
         if (particle == null)
             yield break;
@@ -98,7 +103,7 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
 
         yield return new WaitForSeconds(duration);
 
-        ReturnToPool(particle, queue);
+        ReturnToPool(particle, template, queue);
     }
 
     private ParticleSystem GetParticle(Queue<ParticleSystem> queue, ParticleSystem template)
@@ -123,7 +128,7 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
         return created;
     }
 
-    private void ReturnToPool(ParticleSystem particle, Queue<ParticleSystem> queue)
+    private void ReturnToPool(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue)
     {
         if (particle == null)
             return;
@@ -131,6 +136,8 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
         EnsurePoolRoot();
         particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         particle.transform.SetParent(poolRoot, false);
+        if (template != null)
+            ApplyLocalTransform(particle.transform, template.transform);
         particle.gameObject.SetActive(false);
         queue.Enqueue(particle);
     }
@@ -160,5 +167,15 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
         GameObject root = new GameObject("ParticlePool");
         root.transform.SetParent(transform, false);
         poolRoot = root.transform;
+    }
+
+    private static void ApplyLocalTransform(Transform target, Transform template)
+    {
+        if (target == null || template == null)
+            return;
+
+        target.localPosition = template.localPosition;
+        target.localRotation = template.localRotation;
+        target.localScale = template.localScale;
     }
 }

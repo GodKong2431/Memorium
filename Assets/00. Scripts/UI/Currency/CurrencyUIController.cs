@@ -7,11 +7,9 @@ public class CurrencyUIController : UIControllerBase
     [SerializeField] private CurrencyType targetCurrency = CurrencyType.Gold;
     [SerializeField] private TextMeshProUGUI amountText;
 
-    private CurrencyUIView currencyView;
-
     protected override void Initialize()
     {
-        currencyView = new CurrencyUIView(amountText);
+        RenderAmount(GetAmount(targetCurrency));
     }
 
     protected override void Subscribe()
@@ -26,7 +24,7 @@ public class CurrencyUIController : UIControllerBase
 
     protected override void RefreshView()
     {
-        currencyView.SetAmount(GetAmount(targetCurrency));
+        RenderAmount(GetAmount(targetCurrency));
     }
 
     private void OnCurrencyChanged(CurrencyType type, BigDouble amount)
@@ -34,7 +32,13 @@ public class CurrencyUIController : UIControllerBase
         if (type != targetCurrency)
             return;
 
-        currencyView.SetAmount(amount);
+        RenderAmount(amount);
+    }
+
+    private void RenderAmount(BigDouble amount)
+    {
+        if (amountText != null)
+            amountText.text = amount.ToString();
     }
 
     private static BigDouble GetAmount(CurrencyType type)

@@ -10,16 +10,12 @@ public class PlayerLevelUIController : UIControllerBase
     [SerializeField] private Slider sliderExpBar;
     [SerializeField] private TextMeshProUGUI textPlayerLevel;
 
-    private PlayerLevelUIView playerLevelView;
     private PlayerLevel subscribedLevel;
     private Coroutine delayedRefreshRoutine;
 
     protected override void Initialize()
     {
-        playerLevelView = new PlayerLevelUIView(
-            textProgress,
-            sliderExpBar,
-            textPlayerLevel);
+        RenderLevel(0, 0f);
     }
 
     protected override void Subscribe()
@@ -46,7 +42,7 @@ public class PlayerLevelUIController : UIControllerBase
 
         if (!TryGetLevelProgress(out int level, out BigDouble currentExp, out BigDouble requiredExp))
         {
-            playerLevelView.Render(0, 0f);
+            RenderLevel(0, 0f);
             return;
         }
 
@@ -54,7 +50,7 @@ public class PlayerLevelUIController : UIControllerBase
             ? Mathf.Clamp01((currentExp / requiredExp).ToFloat())
             : 0f;
 
-        playerLevelView.Render(level, progress01);
+        RenderLevel(level, progress01);
     }
 
     private void OnCurrencyChanged(CurrencyType type, BigDouble amount)
@@ -123,5 +119,26 @@ public class PlayerLevelUIController : UIControllerBase
         requiredExp = levelData.RequiredExp;
         currentExp = currencyModule.GetAmount(CurrencyType.Exp);
         return true;
+    }
+
+    private void RenderLevel(int level, float progress01)
+    {
+        float clamped = Mathf.Clamp01(progress01);
+
+        if (sliderExpBar != null)
+        {
+            sliderExpBar.minValue = 0f;
+            sliderExpBar.maxValue = 1f;
+            sliderExpBar.SetValueWithoutNotify(clamped);
+        }
+
+        if (textProgress != null)
+        {
+            int percent = Mathf.RoundToInt(clamped * 100f);
+            textProgress.text = $"{percent}%";
+        }
+
+        if (textPlayerLevel != null)
+            textPlayerLevel.text = level > 0 ? $"{level}" : "-";
     }
 }
