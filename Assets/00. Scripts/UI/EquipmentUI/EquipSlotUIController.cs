@@ -7,6 +7,15 @@ using UnityEngine.UI;
 // 축약 장착 슬롯 UI를 갱신한다.
 public class EquipSlotUIController : UIControllerBase
 {
+    private static readonly string[] SlotNames =
+    {
+        "WeaponTap",
+        "HeadpieceTap",
+        "ArmorTap",
+        "GlovesTap",
+        "BootsTap"
+    };
+
     // 현재 장착 아이템 ID를 읽어올 플레이어 장비 참조다.
     [SerializeField] private PlayerEquipment player;
     // 인스펙터에서 연결한 슬롯 오브젝트 목록이다.
@@ -15,12 +24,14 @@ public class EquipSlotUIController : UIControllerBase
     // 장착 변경 이벤트를 구독한다.
     protected override void Subscribe()
     {
+        EquipmentHandler.EquipmentUiRefreshRequested += RefreshView;
         PlayerEquipment.EquippedItemChanged += HandleEquippedChanged;
     }
 
     // 장착 변경 이벤트 구독을 해제한다.
     protected override void Unsubscribe()
     {
+        EquipmentHandler.EquipmentUiRefreshRequested -= RefreshView;
         PlayerEquipment.EquippedItemChanged -= HandleEquippedChanged;
     }
 
@@ -31,6 +42,13 @@ public class EquipSlotUIController : UIControllerBase
             return;
 
         RefreshAll();
+    }
+
+    public void ResetForSceneChange()
+    {
+        player = null;
+        ClearAllSlots();
+        slots.Clear();
     }
 
     // 단일 장착 변경 이벤트를 받아 해당 슬롯을 갱신한다.
@@ -58,14 +76,27 @@ public class EquipSlotUIController : UIControllerBase
         int index = (int)type - (int)EquipmentType.Weapon;
         if (index < 0 || index >= slots.Count)
             return;
-        if (!DataManager.Instance.EquipListDict.TryGetValue(itemId, out EquipListTable info))
-            return;
 
         GameObject slot = slots[index];
         if (slot == null)
             return;
 
+        if (itemId == 0 || !DataManager.Instance.EquipListDict.TryGetValue(itemId, out EquipListTable info))
+        {
+            ClearSlot(slot);
+            return;
+        }
+
         RenderSlot(slot, info);
+    }
+
+    private void ClearAllSlots()
+    {
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (slots[i] != null)
+                ClearSlot(slots[i]);
+        }
     }
 
     // 슬롯 오브젝트의 색상과 라벨 텍스트를 반영한다.
@@ -95,15 +126,82 @@ public class EquipSlotUIController : UIControllerBase
             tmpText.text = label;
     }
 
+    private static void ClearSlot(GameObject slot)
+    {
+        Image image = slot.GetComponent<Image>();
+        if (image != null)
+            image.color = Color.white;
+
+        Text legacyText = slot.GetComponentInChildren<Text>(true);
+        if (legacyText != null)
+            legacyText.text = string.Empty;
+
+        TMP_Text tmpText = slot.GetComponentInChildren<TMP_Text>(true);
+        if (tmpText != null)
+            tmpText.text = string.Empty;
+    }
+
     // 갱신에 필요한 런타임 데이터와 바인딩 상태를 검사한다.
     private bool IsReady()
     {
-        if (player == null)
+        if (!TryResolvePlayer())
             return false;
         if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.EquipListDict == null)
             return false;
-        if (slots.Count == 0)
+        if (!TryResolveSlots())
             return false;
+
+        return true;
+    }
+
+    private bool TryResolvePlayer()
+    {
+        if (player != null)
+            return true;
+
+        EquipmentHandler equipmentHandler = UnityEngine.Object.FindFirstObjectByType<EquipmentHandler>();
+        if (equipmentHandler != null && equipmentHandler.TryGetPlayerEquipment(out PlayerEquipment currentPlayer))
+        {
+            player = currentPlayer;
+            return true;
+        }
+
+        player = UnityEngine.Object.FindFirstObjectByType<PlayerEquipment>();
+        return player != null;
+    }
+
+    private bool TryResolveSlots()
+    {
+        bool hasAllSerializedSlots = slots.Count == SlotNames.Length;
+        if (hasAllSerializedSlots)
+        {
+            hasAllSerializedSlots = true;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                if (slots[i] == null)
+                {
+                    hasAllSerializedSlots = false;
+                    break;
+                }
+            }
+        }
+
+        if (hasAllSerializedSlots)
+            return true;
+
+        slots.Clear();
+
+        for (int i = 0; i < SlotNames.Length; i++)
+        {
+            Transform slotTransform = EquipmentUiRuntimeLocator.FindChild(SlotNames[i]);
+            slots.Add(slotTransform != null ? slotTransform.gameObject : null);
+        }
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (slots[i] == null)
+                return false;
+        }
 
         return true;
     }

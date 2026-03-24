@@ -55,4 +55,9 @@ public static class ScenePlayerLocator
     {
         cachedPlayerTransform = playerTransform;
     }
+
+    public static void ClearCachedPlayerTransform()
+    {
+        cachedPlayerTransform = null;
+    }
 }

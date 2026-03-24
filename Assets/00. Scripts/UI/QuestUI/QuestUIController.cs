@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,6 +25,7 @@ public class QuestUIController : UIControllerBase
 
     [Header("공통 보상 UI")]
     [SerializeField] private Image imageQuestReward;
+    [SerializeField] private TextMeshProUGUI textQuestRewardCount;
     [SerializeField] private Sprite spriteRewardInProgress;
     [SerializeField] private Sprite spriteRewardReady;
     [SerializeField] private Button btnRewardTouch;
@@ -45,6 +48,7 @@ public class QuestUIController : UIControllerBase
     private bool hasCachedTogglePosition;
     private Vector3 cachedArrowScale;
     private bool hasCachedArrowScale;
+    private readonly Dictionary<string, Sprite> rewardIconCache = new Dictionary<string, Sprite>(StringComparer.Ordinal);
 
     protected override void Initialize()
     {
@@ -54,6 +58,7 @@ public class QuestUIController : UIControllerBase
             objQuestProgressSliderRoot,
             sliderQuestProgress,
             imageQuestReward,
+            textQuestRewardCount,
             btnRewardTouch,
             textRewardTouch
         );
@@ -128,11 +133,14 @@ public class QuestUIController : UIControllerBase
             questView.SetQuestInfo("-", allClearTitle);
             questView.SetProgress(1f);
             questView.SetRewardSprite(spriteRewardInProgress);
+            questView.SetRewardCountText(string.Empty);
+            questView.SetRewardCountVisible(false);
             questView.SetRewardButtonInteractable(false);
             ApplyFoldState();
             return;
         }
 
+        QuestRewardsTable rewardData = GetRewardData(questData);
         int requiredCount = Mathf.Max(1, questData.reqCount);
         int clampedCurrent = Mathf.Clamp(currentProgress, 0, requiredCount);
         float progress01 = (float)clampedCurrent / requiredCount;
@@ -140,16 +148,19 @@ public class QuestUIController : UIControllerBase
         isQuestCompleted = currentProgress >= questData.reqCount;
         questView.SetQuestInfo($"no. {questData.questNum}", questData.questTitle);
         questView.SetProgress(progress01);
+        questView.SetRewardSprite(ResolveRewardSprite(rewardData) ?? GetRewardFallbackSprite());
+
+        string rewardCountText = FormatRewardCount(rewardData);
+        questView.SetRewardCountText(rewardCountText);
+        questView.SetRewardCountVisible(!string.IsNullOrEmpty(rewardCountText));
 
         if (isQuestCompleted)
         {
-            questView.SetRewardSprite(spriteRewardReady);
             questView.SetRewardButtonInteractable(true);
             questView.SetRewardTouchText(rewardTouchText);
         }
         else
         {
-            questView.SetRewardSprite(spriteRewardInProgress);
             questView.SetRewardButtonInteractable(false);
         }
 
@@ -325,5 +336,88 @@ public class QuestUIController : UIControllerBase
         float baseAbsX = Mathf.Approximately(cachedArrowScale.x, 0f) ? 1f : Mathf.Abs(cachedArrowScale.x);
         float targetScaleX = baseAbsX * (isOpened ? openedArrowScaleX : foldedArrowScaleX);
         rectToggleArrow.localScale = new Vector3(targetScaleX, cachedArrowScale.y, cachedArrowScale.z);
+    }
+
+    private QuestRewardsTable GetRewardData(LineQuestTable questData)
+    {
+        if (questData == null || DataManager.Instance?.QuestRewardsDict == null)
+            return null;
+
+        DataManager.Instance.QuestRewardsDict.TryGetValue(questData.rewardGroupID, out QuestRewardsTable rewardData);
+        return rewardData;
+    }
+
+    private Sprite ResolveRewardSprite(QuestRewardsTable rewardData)
+    {
+        if (rewardData == null)
+            return null;
+
+        Sprite sprite = LoadRewardSprite(rewardData.rewardItemIcon);
+        if (sprite != null)
+            return sprite;
+
+        if (DataManager.Instance?.ItemInfoDict != null &&
+            DataManager.Instance.ItemInfoDict.TryGetValue(rewardData.ItemID, out ItemInfoTable itemInfo))
+        {
+            return LoadRewardSprite(itemInfo.itemIcon);
+        }
+
+        return null;
+    }
+
+    private Sprite LoadRewardSprite(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return null;
+
+        string trimmedKey = key.Trim();
+        if (rewardIconCache.TryGetValue(trimmedKey, out Sprite cachedSprite))
+            return cachedSprite;
+
+        Sprite resolvedSprite = LoadSpriteInternal(trimmedKey);
+        rewardIconCache[trimmedKey] = resolvedSprite;
+        return resolvedSprite;
+    }
+
+    private static Sprite LoadSpriteInternal(string path)
+    {
+        path = path.Replace('\\', '/');
+
+        Sprite sprite = Resources.Load<Sprite>(path);
+        if (sprite != null)
+            return sprite;
+
+        int extensionIndex = path.LastIndexOf(".", StringComparison.Ordinal);
+        if (extensionIndex > 0)
+        {
+            sprite = Resources.Load<Sprite>(path.Substring(0, extensionIndex));
+            if (sprite != null)
+                return sprite;
+        }
+
+        const string resourcesToken = "Resources/";
+        int resourcesIndex = path.IndexOf(resourcesToken, StringComparison.OrdinalIgnoreCase);
+        if (resourcesIndex < 0)
+            return null;
+
+        string relativePath = path.Substring(resourcesIndex + resourcesToken.Length);
+        int relativeExtensionIndex = relativePath.LastIndexOf(".", StringComparison.Ordinal);
+        if (relativeExtensionIndex > 0)
+            relativePath = relativePath.Substring(0, relativeExtensionIndex);
+
+        return Resources.Load<Sprite>(relativePath);
+    }
+
+    private Sprite GetRewardFallbackSprite()
+    {
+        return isQuestCompleted ? spriteRewardReady : spriteRewardInProgress;
+    }
+
+    private static string FormatRewardCount(QuestRewardsTable rewardData)
+    {
+        if (rewardData == null || rewardData.rewardItemCount <= 0)
+            return string.Empty;
+
+        return rewardData.rewardItemCount.ToString("N0");
     }
 }

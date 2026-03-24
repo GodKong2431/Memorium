@@ -129,6 +129,7 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         shouldResetStatScrollPosition = true;
         GameEventManager.OnPlayerSpawned += OnPlayerSpawned;
         PlayerEquipment.EquippedItemChanged += OnEquippedItemChanged;
+        EquipmentHandler.EquipmentUiRefreshRequested += RefreshView;
         BindStatManager();
         TryBindCurrentPlayer();
     }
@@ -137,6 +138,7 @@ public sealed class CharacterInfoPanelController : UIControllerBase
     {
         GameEventManager.OnPlayerSpawned -= OnPlayerSpawned;
         PlayerEquipment.EquippedItemChanged -= OnEquippedItemChanged;
+        EquipmentHandler.EquipmentUiRefreshRequested -= RefreshView;
         UnbindStatManager();
         SetPreviewVisible(false);
     }
@@ -252,6 +254,7 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         if (DataManager.Instance == null || !DataManager.Instance.DataLoad)
             return false;
 
+        TryBindCurrentPlayer();
         BindStatManager();
         ResolvePlayerEquipment();
 
@@ -293,6 +296,9 @@ public sealed class CharacterInfoPanelController : UIControllerBase
 
     private void ResolvePlayerEquipment()
     {
+        if (playerTransform == null)
+            TryBindCurrentPlayer();
+
         if (playerTransform != null)
         {
             PlayerEquipment boundEquipment = playerTransform.GetComponentInChildren<PlayerEquipment>(true);
@@ -1234,7 +1240,15 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         }
 
         if (previewRenderTexture != null && previewRenderTexture.width == size && previewRenderTexture.height == size)
+        {
+            if (previewCamera != null)
+                previewCamera.targetTexture = previewRenderTexture;
+
+            if (characterPreviewImage != null)
+                characterPreviewImage.texture = previewRenderTexture;
+
             return;
+        }
 
         ReleasePreviewTexture();
 

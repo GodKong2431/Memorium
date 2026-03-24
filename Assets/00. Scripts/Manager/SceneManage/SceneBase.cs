@@ -6,6 +6,8 @@ using System.Collections;
 /// </summary>
 public abstract class SceneBase : MonoBehaviour
 {
+    public virtual bool IsSceneReady => true;
+
     protected virtual void Start()
     {
         StartCoroutine(EnterScene());

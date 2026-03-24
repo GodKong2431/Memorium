@@ -41,6 +41,10 @@ public class EquipCurrentUIController : UIControllerBase
     private bool isBuilt;
     private bool isMergeResultVisible;
     private int ignoreMergeResultCloseUntilFrame = -1;
+    private Button boundMergeButton;
+    private Button boundEquipButton;
+    private RectTransform builtRoot;
+    private RectTransform builtMergeResultContentRoot;
 
     protected override void Initialize()
     {
@@ -55,7 +59,7 @@ public class EquipCurrentUIController : UIControllerBase
             return;
         }
 
-        if (!isBuilt)
+        if (!isBuilt || NeedsRebuild())
             RefreshView();
     }
 
@@ -63,13 +67,7 @@ public class EquipCurrentUIController : UIControllerBase
     {
         EquipmentHandler.EquipmentUiRefreshRequested += RefreshView;
         PlayerEquipment.EquippedItemChanged += HandleEquippedChanged;
-
-        if (mergeButton != null)
-            mergeButton.onClick.AddListener(ClickMerge);
-
-        if (equipButton != null)
-            equipButton.onClick.AddListener(ClickEquip);
-
+        BindActionButtons();
         BindInventory();
     }
 
@@ -77,13 +75,7 @@ public class EquipCurrentUIController : UIControllerBase
     {
         EquipmentHandler.EquipmentUiRefreshRequested -= RefreshView;
         PlayerEquipment.EquippedItemChanged -= HandleEquippedChanged;
-
-        if (mergeButton != null)
-            mergeButton.onClick.RemoveListener(ClickMerge);
-
-        if (equipButton != null)
-            equipButton.onClick.RemoveListener(ClickEquip);
-
+        UnbindActionButtons();
         UnbindInventory();
     }
 
@@ -92,18 +84,46 @@ public class EquipCurrentUIController : UIControllerBase
         if (!TryPrepare())
             return;
 
-        if (!isBuilt)
+        BindActionButtons();
+
+        if (!isBuilt || NeedsRebuild())
             BuildViews();
 
+        RebindCurrentItemViews();
         RefreshButtons();
         RefreshCurrent();
         RefreshMergeResults();
         ApplyMergeResultVisibility();
     }
 
+    public void ResetForSceneChange()
+    {
+        handler = null;
+        reinforceController = null;
+        mergeButton = null;
+        equipButton = null;
+        root = null;
+        mergeResultPanelRoot = null;
+        mergeResultPopupContentRoot = null;
+        mergeResultTitle = null;
+        mergeResultScrollView = null;
+        mergeResultContentRoot = null;
+        isBuilt = false;
+        builtRoot = null;
+        builtMergeResultContentRoot = null;
+        views.Clear();
+        mergeResultViews.Clear();
+        UnbindActionButtons();
+        UnbindInventory();
+        HideMergeResultPopup();
+    }
+
     private bool TryPrepare()
     {
-        if (handler == null || !handler.dataLoad)
+        if (!TryResolveUiReferences())
+            return false;
+
+        if (!TryResolveHandler() || !handler.dataLoad)
             return false;
 
         if (root == null || itemPrefab == null)
@@ -117,6 +137,15 @@ public class EquipCurrentUIController : UIControllerBase
 
         EquipmentInventoryModule module = inventory.GetModule<EquipmentInventoryModule>();
         return module != null && module.IsInitialized;
+    }
+
+    private bool TryResolveHandler()
+    {
+        if (handler != null)
+            return true;
+
+        handler = Object.FindFirstObjectByType<EquipmentHandler>();
+        return handler != null;
     }
 
     private bool BindInventory()
@@ -146,6 +175,7 @@ public class EquipCurrentUIController : UIControllerBase
     private void BuildViews()
     {
         views.Clear();
+        builtRoot = root;
 
         for (int i = root.childCount - 1; i >= 0; i--)
             Destroy(root.GetChild(i).gameObject);
@@ -165,22 +195,32 @@ public class EquipCurrentUIController : UIControllerBase
                 ui.MergeSlider.gameObject.SetActive(false);
 
             EquipItemView view = new EquipItemView(ui);
-            if (reinforceController != null)
-            {
-                EquipmentType equipmentType = Order[i];
-                view.Bind(() => ClickCurrent(equipmentType));
-                view.SetDimmed(false);
-            }
-            else if (ui.Button != null)
-            {
-                ui.Button.onClick.RemoveAllListeners();
-                ui.Button.interactable = false;
-            }
-
             views.Add(view);
         }
 
         isBuilt = true;
+    }
+
+    private void RebindCurrentItemViews()
+    {
+        bool canOpenReinforce = TryResolveReinforceController();
+
+        for (int i = 0; i < views.Count && i < Order.Length; i++)
+        {
+            EquipItemView view = views[i];
+            if (view == null)
+                continue;
+
+            if (canOpenReinforce)
+            {
+                EquipmentType equipmentType = Order[i];
+                view.Bind(() => ClickCurrent(equipmentType));
+            }
+            else if (view.Button != null)
+            {
+                view.Button.onClick.RemoveAllListeners();
+            }
+        }
     }
 
     private void RefreshMergeResults()
@@ -247,6 +287,12 @@ public class EquipCurrentUIController : UIControllerBase
         GameObject prefab = mergeResultItemPrefab != null ? mergeResultItemPrefab : itemPrefab;
         if (prefab == null || mergeResultContentRoot == null)
             return;
+
+        if (builtMergeResultContentRoot != mergeResultContentRoot || HasInvalidMergeResultViews())
+        {
+            mergeResultViews.Clear();
+            builtMergeResultContentRoot = mergeResultContentRoot;
+        }
 
         while (mergeResultViews.Count < requiredCount)
         {
@@ -323,7 +369,7 @@ public class EquipCurrentUIController : UIControllerBase
 
             views[i].Render(icon, levelText, starCount, RarityColor.TierColorByTier(info.grade));
             views[i].SetFrameColor(RarityColor.ItemGradeColor(info.rarityType));
-            views[i].SetDimmed(reinforceController == null);
+            views[i].SetDimmed(!TryResolveReinforceController());
             if(equipmentId==itemId)
                 views[i].SetEquipEffect();
         }
@@ -331,14 +377,150 @@ public class EquipCurrentUIController : UIControllerBase
 
     private void ClickCurrent(EquipmentType type)
     {
-        if (reinforceController == null)
+        if (!TryResolveReinforceController())
             return;
 
         reinforceController.Show(type);
     }
 
+    private bool TryResolveReinforceController()
+    {
+        if (reinforceController != null)
+            return true;
+
+        EquipReinforceUIController[] controllers = Resources.FindObjectsOfTypeAll<EquipReinforceUIController>();
+        for (int i = 0; i < controllers.Length; i++)
+        {
+            EquipReinforceUIController candidate = controllers[i];
+            if (candidate == null)
+                continue;
+
+            if (!candidate.gameObject.scene.IsValid())
+                continue;
+
+            reinforceController = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TryResolveUiReferences()
+    {
+        RectTransform resolvedRoot = EquipmentUiRuntimeLocator.FindRectTransform("(Panel)CurrentEquipment");
+        if (resolvedRoot != null)
+            root = resolvedRoot;
+
+        Transform equipmentContentsRoot = root != null ? root.parent : null;
+
+        Button resolvedMergeButton = EquipmentUiRuntimeLocator.FindButton("(Btn)Merge", equipmentContentsRoot);
+        if (resolvedMergeButton != null)
+            mergeButton = resolvedMergeButton;
+
+        Button resolvedEquipButton = EquipmentUiRuntimeLocator.FindButton("(Btn)Equip", equipmentContentsRoot);
+        if (resolvedEquipButton != null)
+            equipButton = resolvedEquipButton;
+
+        RectTransform resolvedMergeResultPanel = EquipmentUiRuntimeLocator.FindRectTransform("(Panel)MergeResult", equipmentContentsRoot);
+        if (resolvedMergeResultPanel != null)
+            mergeResultPanelRoot = resolvedMergeResultPanel;
+
+        if (mergeResultPanelRoot != null)
+        {
+            TextMeshProUGUI resolvedMergeResultTitle = EquipmentUiRuntimeLocator.FindText("(Text)Result", mergeResultPanelRoot);
+            if (resolvedMergeResultTitle != null)
+                mergeResultTitle = resolvedMergeResultTitle;
+
+            ScrollRect resolvedMergeResultScrollView = EquipmentUiRuntimeLocator.FindComponent<ScrollRect>("(ScrollView)Result", mergeResultPanelRoot);
+            if (resolvedMergeResultScrollView != null)
+                mergeResultScrollView = resolvedMergeResultScrollView;
+        }
+
+        if (mergeResultScrollView != null && mergeResultScrollView.content != null)
+            mergeResultContentRoot = mergeResultScrollView.content;
+
+        if (mergeResultPopupContentRoot == null)
+            mergeResultPopupContentRoot = mergeResultPanelRoot;
+
+        return root != null;
+    }
+
+    private void BindActionButtons()
+    {
+        if (mergeButton != boundMergeButton)
+        {
+            if (boundMergeButton != null)
+                boundMergeButton.onClick.RemoveListener(ClickMerge);
+
+            boundMergeButton = mergeButton;
+
+            if (boundMergeButton != null)
+            {
+                boundMergeButton.onClick.RemoveListener(ClickMerge);
+                boundMergeButton.onClick.AddListener(ClickMerge);
+            }
+        }
+
+        if (equipButton != boundEquipButton)
+        {
+            if (boundEquipButton != null)
+                boundEquipButton.onClick.RemoveListener(ClickEquip);
+
+            boundEquipButton = equipButton;
+
+            if (boundEquipButton != null)
+            {
+                boundEquipButton.onClick.RemoveListener(ClickEquip);
+                boundEquipButton.onClick.AddListener(ClickEquip);
+            }
+        }
+    }
+
+    private void UnbindActionButtons()
+    {
+        if (boundMergeButton != null)
+            boundMergeButton.onClick.RemoveListener(ClickMerge);
+
+        if (boundEquipButton != null)
+            boundEquipButton.onClick.RemoveListener(ClickEquip);
+
+        boundMergeButton = null;
+        boundEquipButton = null;
+    }
+
+    private bool NeedsRebuild()
+    {
+        if (root == null || builtRoot != root)
+            return true;
+
+        if (views.Count != Order.Length)
+            return true;
+
+        for (int i = 0; i < views.Count; i++)
+        {
+            if (views[i] == null || views[i].GameObject == null)
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool HasInvalidMergeResultViews()
+    {
+        for (int i = 0; i < mergeResultViews.Count; i++)
+        {
+            if (mergeResultViews[i] == null || mergeResultViews[i].GameObject == null)
+                return true;
+        }
+
+        return false;
+    }
+
     private void ClickMerge()
     {
+        if (!TryResolveHandler())
+            return;
+
         if (handler.TryAutoMerge())
             ShowMergeResultPopup();
         else
@@ -349,6 +531,9 @@ public class EquipCurrentUIController : UIControllerBase
 
     private void ClickEquip()
     {
+        if (!TryResolveHandler())
+            return;
+
         handler.TryAutoEquip();
         RefreshButtons();
     }
