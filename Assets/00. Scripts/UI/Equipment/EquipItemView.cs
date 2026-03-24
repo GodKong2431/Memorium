@@ -105,12 +105,18 @@ public sealed class EquipItemView
     {
         //여기서 UI 아이콘 위치 찾고 거기서 이펙트를 옮기고 실행시켜라
         //ui.Icon.transform.
+        if (ui.Icon == null || EquipParticleManager.Instance == null)
+            return;
+
         EquipParticleManager.Instance.PlayUpgradeEffect(ui.Icon.transform);
     }
     public void SetMergeEffect()
     {
         //여기서 UI 아이콘 위치 찾고 거기서 이펙트를 옮기고 실행시켜라
         //ui.Icon.transform.
+        if (ui.Icon == null || EquipParticleManager.Instance == null)
+            return;
+
         EquipParticleManager.Instance.PlayMergeEffect(ui.Icon.transform);
     }
 

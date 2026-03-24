@@ -44639,6 +44639,7 @@ GameObject:
   - component: {fileID: 8167890795154648944}
   - component: {fileID: 60525366280653798}
   - component: {fileID: 6745882298146983769}
+  - component: {fileID: 5119517705029327454}
   m_Layer: 5
   m_Name: EquipmentContents
   m_TagString: Untagged
@@ -44709,6 +44710,33 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5119517705029327454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3603568656508287402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a46834c9d8464b3d9349dd9983a2d69b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentUiRoot
+  currentRoot: {fileID: 7824845643802339883}
+  itemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}
+  equipButton: {fileID: 4900324813771637118}
+  mergeButton: {fileID: 1627880742090397886}
+  mergeResultPanelRoot: {fileID: 5731718492020500762}
+  mergeResultTitle: {fileID: 1382000501833409964}
+  mergeResultScrollView: {fileID: 6152770203554244736}
+  mergeResultItemPrefab: {fileID: 8045108865130864414, guid: 1e9e0386ee9dd554b9136c31d5f5c1f9, type: 3}
+  reinforcePanelRoot: {fileID: 7492740308370291844}
+  reinforcePopupRoot: {fileID: 8350836174111335180}
+  reinforceButton: {fileID: 8161500027199826607}
+  reinforceCostText: {fileID: 3945876374185265172}
+  previewButton: {fileID: 6596644985411886125}
+  previewNameText: {fileID: 5591015664554986027}
+  statRowTemplate: {fileID: 3373867227520468099}
 --- !u!1 &3603752328527198971
 GameObject:
   m_ObjectHideFlags: 0
