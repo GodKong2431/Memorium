@@ -319,7 +319,7 @@ public class SkillInventoryPanel : MonoBehaviour
     // 전체 합성 버튼 클릭 시 모든 스킬을 합성합니다.
     private void OnMergeAllClicked()
     {
-        GetSkillModule()?.MergeAllSkills();
+        return;
     }
 
     // 프리셋에 장착 가능한 스킬 타입만 통과시킵니다.

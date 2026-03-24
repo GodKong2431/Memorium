@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -56,7 +57,8 @@ public class ActiveSkillUIController : UIControllerBase
     [Header("Events")]
     // 스킬 아이콘 클릭 시 상세보기로 넘길 이벤트입니다.
     [SerializeField] private SkillDetailRequestedEvent onSkillDetailRequested = new SkillDetailRequestedEvent();
-
+    
+    
     // 생성된 스킬 아이템 뷰를 스킬 ID 기준으로 캐시합니다.
     private readonly Dictionary<int, ActiveSkillItemView> itemViews = new Dictionary<int, ActiveSkillItemView>();
     // 로드한 아이콘을 재사용하기 위한 캐시입니다.
@@ -174,7 +176,7 @@ public class ActiveSkillUIController : UIControllerBase
     private void RebuildAll()
     {
         RebuildPresetButtons();
-        RebuildSkillItems();
+        RebuildSkillItems();    
         RebuildEquippedSkills();
         UpdateEquipSelectionState();
     }
@@ -199,10 +201,40 @@ public class ActiveSkillUIController : UIControllerBase
             int level = ownedData != null ? ownedData.level : 0;
             int openGemCount = GetOpenGemCount(ownedData);
             bool canEquip = ownedData != null && ownedData.IsEquippable;
-            int currentCount = GetCurrentMergeCount(ownedData);
+            int currentCount;
+            if (ownedData != null)
+            {
+                currentCount = Mathf.FloorToInt(ownedData.GetOwnedScrollCount().ToFloat());
+            }
+            else
+            {
+                int scrollItemId = table.skillScrollID;
+                currentCount = scrollItemId > 0
+                    ? Mathf.FloorToInt(InventoryManager.Instance.GetItemAmount(scrollItemId).ToFloat())
+                    : 0;
+            }
             ActiveSkillItemVisualState visualState = GetVisualState(ownedData, currentCount);
             bool canTriggerStateAction = CanTriggerStateAction(ownedData, visualState, currentCount);
             ActiveSkillItemGemSlotDisplayData[] upgradeGemSlots = BuildUpgradeGemSlots(pair.Key, ownedData);
+            bool canLevelUp = skillModule.CanLevelUpSkill(pair.Key);
+            string levelUpCostString;
+            if (ownedData != null)
+            {
+                int owned = Mathf.FloorToInt(ownedData.GetOwnedScrollCount().ToFloat());
+                if (ownedData.CanLevelUp)
+                {
+                    int cost = Mathf.FloorToInt(ownedData.GetLevelUpCost().ToFloat());
+                    levelUpCostString = $"{owned}/{cost}";
+                }
+                else
+                {
+                    levelUpCostString = $"{owned}/MAX";
+                }
+            }
+            else
+            {
+                levelUpCostString = "0/MAX";
+            }
 
             pair.Value.Bind(
                 new ActiveSkillItemDisplayData(
@@ -216,10 +248,13 @@ public class ActiveSkillUIController : UIControllerBase
                     currentCount,
                     RequiredMergeCount,
                     canTriggerStateAction,
-                    upgradeGemSlots),
+                    upgradeGemSlots,
+                    canLevelUp, 
+                    levelUpCostString),
                 HandleSkillDetailRequested,
                 BeginEquipSelection,
-                HandleItemStateActionClicked);
+                HandleItemStateActionClicked,
+                HandleLevelUpClicked);
         }
     }
 
@@ -373,7 +408,7 @@ public class ActiveSkillUIController : UIControllerBase
             return;
 
         ClearEquipSelection();
-        skillModule.MergeChain(skillId);
+        skillModule.TryUnlockSkill(skillId);
     }
 
     // 장착 대기 상태를 초기화합니다.
@@ -382,6 +417,15 @@ public class ActiveSkillUIController : UIControllerBase
         pendingEquipSkillId = -1;
         pendingEquipSkillType = default;
         UpdateEquipSelectionState();
+    }
+    private void HandleLevelUpClicked(int skillId)
+    {
+        SkillInventoryModule skillModule = GetSkillModule();
+        if (skillModule == null)
+            return;
+
+        skillModule.TryLevelUpSkill(skillId);
+        // OnInventoryChanged 이벤트로 RebuildAll 자동 호출
     }
 
     // 상세보기 요청 스킬 ID를 저장하고 이벤트를 발행합니다.
@@ -675,12 +719,10 @@ public class ActiveSkillUIController : UIControllerBase
         ActiveSkillItemVisualState visualState,
         int currentCount)
     {
-        if (currentCount < RequiredMergeCount)
-            return false;
-        if (visualState == ActiveSkillItemVisualState.Upgrade)
-            return ownedData != null && ownedData.CanLevelUp;
+        if (visualState == ActiveSkillItemVisualState.Enough)
+            return currentCount >= RequiredMergeCount;
 
-        return visualState == ActiveSkillItemVisualState.Enough;
+        return false;
     }
 
     // 슬롯 타입과 스킬 타입이 서로 맞는지 검사합니다.

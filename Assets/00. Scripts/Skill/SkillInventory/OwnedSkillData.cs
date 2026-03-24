@@ -6,7 +6,7 @@ using UnityEngine;
 public class OwnedSkillData
 {
     public int skillID;
-    public int level;
+    public int level=1;
 
     public void AddLevel()
     {   

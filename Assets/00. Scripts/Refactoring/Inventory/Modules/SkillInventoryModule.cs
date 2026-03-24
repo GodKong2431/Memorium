@@ -37,10 +37,11 @@ public sealed class SkillInventoryModule : IInventoryModule
         {
             foreach (OwnedSkillData data in ownedSkillDatas)
             {
+                if (data.level < 1)
+                    data.level = 1;
                 skillDataById[data.skillID] = data;
             }
         }
-
         for (int i = 0; i < PresetCount; i++)
             presets[i] = NormalizeLoadedPreset(InventoryManager.Instance.saveSkillData.LoadSkillPreset(i));
 
@@ -92,7 +93,7 @@ public sealed class SkillInventoryModule : IInventoryModule
 
         foreach (var pair in DataManager.Instance.SkillUpDict)
         {
-            skillUpCostByLevel[pair.Value.skillLevel] = pair.Value.reqGold;
+            skillUpCostByLevel[pair.Value.skillLevel] = pair.Value.reqScroll;
         }
     }
 
@@ -268,21 +269,6 @@ public sealed class SkillInventoryModule : IInventoryModule
     }
 
 
-    #region 삭제? 해야할 
-    // 지정 스킬 체인을 가능한 만큼 합성한다.
-    public int MergeChain(int skillId, bool notify = true)
-    {
-        OnInventoryChanged?.Invoke();
-        return 0;
-    }
-
-    // 전체 스킬을 일괄 합성한다.
-    public int MergeAllSkills()
-    {
-            OnInventoryChanged?.Invoke();
-        return 0;
-    }
-    #endregion
 
     // 현재 선택된 프리셋을 반환한다.
     public SkillPreset GetCurrentPreset()

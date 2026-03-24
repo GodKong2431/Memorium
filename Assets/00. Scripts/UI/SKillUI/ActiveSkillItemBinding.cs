@@ -32,6 +32,10 @@ public class ActiveSkillItemBinding : MonoBehaviour
     [SerializeField] private Image[] upgradeGemImages = new Image[UpgradeGemSlotCount];
     [SerializeField] private GameObject[] upgradeGemLockObjects = new GameObject[UpgradeGemSlotCount];
 
+    [Header("Level Up")]
+    [SerializeField] private Button levelUpButton;
+    [SerializeField] private TMP_Text levelUpCostText;
+
     public Image IconImage => iconImage;
     public TMP_Text NameLabel => nameLabel;
     public GameObject LockedSharedRoot => lockedSharedRoot;
@@ -52,6 +56,8 @@ public class ActiveSkillItemBinding : MonoBehaviour
     public RectTransform[] UpgradeGemSlotRoots => upgradeGemSlotRoots;
     public Image[] UpgradeGemImages => upgradeGemImages;
     public GameObject[] UpgradeGemLockObjects => upgradeGemLockObjects;
+    public Button LevelUpButton => levelUpButton;
+    public TMP_Text LevelUpCostText => levelUpCostText;
 
     private void Awake()
     {

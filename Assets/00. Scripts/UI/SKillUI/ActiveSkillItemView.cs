@@ -37,7 +37,8 @@ public readonly struct ActiveSkillItemDisplayData
     public readonly int RequiredCount;
     public readonly bool CanTriggerStateAction;
     public readonly ActiveSkillItemGemSlotDisplayData[] UpgradeGemSlots;
-
+    public readonly bool CanLevelUp;
+    public readonly string LevelUpCostString;
     public ActiveSkillItemDisplayData(
         int skillId,
         string skillName,
@@ -49,7 +50,10 @@ public readonly struct ActiveSkillItemDisplayData
         int currentCount,
         int requiredCount,
         bool canTriggerStateAction,
-        ActiveSkillItemGemSlotDisplayData[] upgradeGemSlots)
+        ActiveSkillItemGemSlotDisplayData[] upgradeGemSlots,
+        bool canLevelUp,
+        string levelUpCostString
+       )
     {
         SkillId = skillId;
         SkillName = skillName;
@@ -62,6 +66,8 @@ public readonly struct ActiveSkillItemDisplayData
         RequiredCount = requiredCount;
         CanTriggerStateAction = canTriggerStateAction;
         UpgradeGemSlots = upgradeGemSlots;
+        CanLevelUp = canLevelUp;
+        LevelUpCostString = levelUpCostString;
     }
 }
 
@@ -73,6 +79,7 @@ public sealed class ActiveSkillItemView
     private Action<int> onSkillClick;
     private Action<int> onEquipClick;
     private Action<int> onStateActionClick;
+    private Action<int> onLevelUpClick;
 
     public ActiveSkillItemView(ActiveSkillItemBinding binding)
     {
@@ -85,13 +92,15 @@ public sealed class ActiveSkillItemView
         ActiveSkillItemDisplayData data,
         Action<int> skillClickHandler,
         Action<int> equipClickHandler,
-        Action<int> stateActionClickHandler)
+        Action<int> stateActionClickHandler,
+        Action<int> levelUpClickHandler)
     {
         binding.EnsureReferences();
         currentSkillId = data.SkillId;
         onSkillClick = skillClickHandler;
         onEquipClick = equipClickHandler;
         onStateActionClick = stateActionClickHandler;
+        onLevelUpClick = levelUpClickHandler;
 
         if (binding.SkillIconDisplay != null)
             binding.SkillIconDisplay.sprite = data.Icon;
@@ -101,6 +110,13 @@ public sealed class ActiveSkillItemView
 
         if (binding.NameLabel != null)
             binding.NameLabel.text = data.SkillName;
+
+        if (binding.LevelUpButton != null)
+        {
+            bool canLevelUp = data.VisualState == ActiveSkillItemVisualState.Upgrade
+                && data.CanLevelUp;
+            binding.LevelUpButton.interactable = canLevelUp;
+        }
 
         SetLevelText(binding.IconLevelLabel, data.Level);
         SetLevelText(binding.LevelLabel, data.Level);
@@ -112,6 +128,9 @@ public sealed class ActiveSkillItemView
 
         if (binding.EquipButton != null)
             binding.EquipButton.interactable = data.CanEquip;
+
+        if (binding.LevelUpCostText != null)
+            binding.LevelUpCostText.SetText(data.LevelUpCostString ?? "");
     }
 
     private void BindButtonsOnce()
@@ -139,8 +158,19 @@ public sealed class ActiveSkillItemView
             binding.UpgradeButton.onClick.RemoveListener(HandleStateActionClick);
             binding.UpgradeButton.onClick.AddListener(HandleStateActionClick);
         }
+
+        if (binding.LevelUpButton != null)
+        {
+            binding.LevelUpButton.onClick.RemoveListener(HandleLevelUpClick);
+            binding.LevelUpButton.onClick.AddListener(HandleLevelUpClick);
+        }
     }
 
+    private void HandleLevelUpClick()
+    {
+        if (currentSkillId >= 0)
+            onLevelUpClick?.Invoke(currentSkillId);
+    }
     private void HandleSkillClick()
     {
         if (currentSkillId >= 0)

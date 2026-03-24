@@ -229,6 +229,9 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     // 기본 정보 탭의 레벨, 마나, 쿨타임, 설명을 채웁니다.
     private void ApplyDefaultInfo(SkillInfoTable table, OwnedSkillData ownedData)
     {
+        int level = ownedData != null ? ownedData.level : 0;
+        Debug.Log($"[SkillInfoPanel] skillId={currentSkillId} level={level} maxLevel={ownedData?.MaxLevel}");
+
         SetNumberText(currentLevelText, ownedData != null ? ownedData.level : 0);
         SetNumberText(maxLevelText, ownedData != null ? ownedData.MaxLevel : 0);
 
@@ -256,24 +259,11 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         if (!showLevelUp)
             return;
 
-        BigDouble cost = BigDouble.Zero;
-
-        bool hasCost = skillModule != null
-            && skillModule.TryGetLevelUpCost(currentSkillId, out cost);
-
-        if (levelUpCostText != null)
-        {
-            if (hasCost)
-                levelUpCostText.SetText(cost.ToString());
-            else
-                levelUpCostText.SetText("MAX");
-        }
 
         if (levelUpButton != null)
         {
             bool canLevelUp = skillModule != null
                 && skillModule.CanLevelUpSkill(currentSkillId);
-
             levelUpButton.interactable = canLevelUp;
         }
     }
@@ -404,7 +394,10 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         //    ? ownedData.OwnedScollCount
         //    : ownedData.GetCount(SkillGrade.Scroll);
 
-        return 0;
+        if (ownedData == null)
+            return 0;
+
+        return (int)ownedData.GetOwnedScrollCount().ToDouble();
     }
 
     // 열린 젬 슬롯 수를 보유 데이터에서 계산합니다.
@@ -445,7 +438,6 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
                 return -1;
         }
     }
-
     private static SkillPresetSlot GetCurrentPresetSlot(int skillId)
     {
         SkillInventoryModule skillModule = GetSkillModule();

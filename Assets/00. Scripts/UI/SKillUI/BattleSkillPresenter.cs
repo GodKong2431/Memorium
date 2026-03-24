@@ -145,6 +145,9 @@ public class BattleSkillPresenter : MonoBehaviour
                 continue;
             }
 
+            int level = GetSkillLevel(slot.skillID);
+            int gemCount = GetOpenGemCount(slot.skillID);
+            slotViews[i].SetSkillDisplay(slot.skillID, GetSkillIcon(slot.skillID), level, gemCount);
             slotViews[i].UpdateIcon(GetSkillIcon(slot.skillID));
         }
     }
@@ -245,5 +248,24 @@ public class BattleSkillPresenter : MonoBehaviour
         return DataManager.Instance == null
             || DataManager.Instance.SkillInfoDict == null
             || !DataManager.Instance.SkillInfoDict.ContainsKey(slot.skillID);
+    }
+    private static int GetSkillLevel(int skillId)
+    {
+        var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
+        var data = skillModule?.GetSkillData(skillId);
+        return data != null ? data.level : 0;
+    }
+
+    private static int GetOpenGemCount(int skillId)
+    {
+        var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
+        var data = skillModule?.GetSkillData(skillId);
+        if (data == null) return 0;
+
+        int count = 0;
+        if (data.IsM5JemSlotOpen(0)) count++;
+        if (data.IsM5JemSlotOpen(1)) count++;
+        if (data.IsM4JemSlotOpen) count++;
+        return count;
     }
 }
