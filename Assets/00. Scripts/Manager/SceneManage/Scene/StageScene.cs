@@ -3,11 +3,13 @@ using UnityEngine;
 
 public class StageScene : SceneBase
 {
-    public bool IsSceneReady { get; private set; }
+    private bool isSceneReady;
+
+    public override bool IsSceneReady => isSceneReady;
 
     public override IEnumerator EnterScene()
     {
-        IsSceneReady = false;
+        isSceneReady = false;
 
         yield return new WaitUntil(() => StageManager.Instance != null && StageManager.Instance.DataLoad);
         yield return new WaitUntil(() => MapManager.Instance != null && MapManager.Instance.mapSetting);
@@ -23,10 +25,24 @@ public class StageScene : SceneBase
                    infinityMap.InitialPlacementComplete;
         });
 
+        Transform playerTransform = null;
+        yield return new WaitUntil(() => ScenePlayerLocator.TryGetPlayerTransform(out playerTransform));
+
+        QuarterViewCamera sceneCamera = null;
+        yield return new WaitUntil(() =>
+        {
+            if (sceneCamera == null)
+                sceneCamera = Object.FindFirstObjectByType<QuarterViewCamera>();
+
+            return sceneCamera != null &&
+                   (sceneCamera.Target != null || sceneCamera.FindTarget());
+        });
+
+        sceneCamera.Snap();
         yield return null;
         yield return new WaitForEndOfFrame();
 
-        IsSceneReady = true;
+        isSceneReady = true;
     }
 
     public override void ExitScene()

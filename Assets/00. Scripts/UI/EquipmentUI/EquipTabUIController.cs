@@ -68,6 +68,13 @@ public class EquipTabUIController : UIControllerBase
         RefreshAllItems();
     }
 
+    public void ResetForSceneChange()
+    {
+        UnbindInventory();
+        equipModule = null;
+        reinforceController = null;
+    }
+
     // 필수 참조와 런타임 모듈 준비 상태를 검사한다.
     private bool TryPrepare()
     {
@@ -315,9 +322,18 @@ public class EquipTabUIController : UIControllerBase
     // 장비 아이템 셀 클릭 이벤트를 처리한다.
     private void ClickItem(int itemId)
     {
-        if (reinforceController == null || itemId == 0)
+        if (!TryResolveReinforceController() || itemId == 0)
             return;
 
         reinforceController.Show(itemId);
+    }
+
+    private bool TryResolveReinforceController()
+    {
+        if (reinforceController != null)
+            return true;
+
+        reinforceController = UnityEngine.Object.FindFirstObjectByType<EquipReinforceUIController>();
+        return reinforceController != null;
     }
 }

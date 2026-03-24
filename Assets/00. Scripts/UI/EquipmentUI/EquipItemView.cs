@@ -21,6 +21,7 @@ public sealed class EquipItemView
     }
 
     public GameObject GameObject => ui != null ? ui.gameObject : null;
+    public Button Button => ui != null ? ui.Button : null;
 
     public void Bind(UnityAction onClick)
     {

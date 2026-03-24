@@ -62,6 +62,8 @@ public class UIRoot : MonoBehaviour
             isTransferringBetweenScenes = false;
         }
 
+        ScenePlayerLocator.ClearCachedPlayerTransform();
+        BroadcastMessage("ResetForSceneChange", SendMessageOptions.DontRequireReceiver);
         sceneRefreshRoutine = StartCoroutine(RefreshSceneUiRoutine());
     }
 
@@ -69,7 +71,6 @@ public class UIRoot : MonoBehaviour
     {
         yield return null;
 
-        BroadcastMessage("ResetForSceneChange", SendMessageOptions.DontRequireReceiver);
         BroadcastMessage("RefreshView", SendMessageOptions.DontRequireReceiver);
         sceneRefreshRoutine = null;
     }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class QuarterViewCamera : MonoBehaviour
 {
@@ -17,6 +18,8 @@ public class QuarterViewCamera : MonoBehaviour
     [SerializeField] private Vector3 targetOffset = new Vector3(0f, 1.2f, 0f);
     [SerializeField] private float moveSmooth = 10f;
     [SerializeField] private float turnSmooth = 12f;
+
+    private bool shouldSnapToResolvedTarget = true;
 
     public Transform Target
     {
@@ -40,11 +43,13 @@ public class QuarterViewCamera : MonoBehaviour
     private void OnEnable()
     {
         GameEventManager.OnPlayerSpawned += OnPlayerSpawned;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
         GameEventManager.OnPlayerSpawned -= OnPlayerSpawned;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void OnDestroy()
@@ -58,13 +63,24 @@ public class QuarterViewCamera : MonoBehaviour
         if (findOnStart)
             FindTarget();
 
+        shouldSnapToResolvedTarget = false;
         Snap();
     }
 
     private void LateUpdate()
     {
-        if (target == null && !FindTarget())
-            return;
+        if (target == null)
+        {
+            if (!FindTarget())
+                return;
+
+            if (shouldSnapToResolvedTarget)
+            {
+                shouldSnapToResolvedTarget = false;
+                Snap();
+                return;
+            }
+        }
 
         UpdateCamera(Time.deltaTime);
     }
@@ -137,6 +153,13 @@ public class QuarterViewCamera : MonoBehaviour
             return;
 
         target = playerTransform;
+        shouldSnapToResolvedTarget = false;
         Snap();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        target = null;
+        shouldSnapToResolvedTarget = true;
     }
 }
