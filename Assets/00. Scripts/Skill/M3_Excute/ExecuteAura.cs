@@ -9,7 +9,7 @@
         {
 
 
-            var obj = PoolAddressableManager.Instance.GetPooledObject("Assets/02. Prefabs/SKill/Aura/Aura.prefab", startPosition, rotation: Quaternion.LookRotation(direction));
+            var obj = PoolAddressableManager.Instance.GetPooledObject("Assets/02. Prefabs/SKill/Aura/Aura.prefab", startPosition, owner.transform.localRotation);
 
             if (obj == null) yield break;
             if (obj.TryGetComponent<SkillObjectileBase>(out var aura))

@@ -9,7 +9,7 @@ public class ExecuteDeploy : ISkillExecuteStrategy
         Vector3 targetPos = startPosition + (direction * dataContext.skillData.m3Data.m3Distance);
 
 
-        var obj = PoolAddressableManager.Instance.GetPooledObject("Assets/02. Prefabs/SKill/Deploy/Deploy.prefab", targetPos, rotation: Quaternion.LookRotation(direction));
+        var obj = PoolAddressableManager.Instance.GetPooledObject("Assets/02. Prefabs/SKill/Deploy/Deploy.prefab", targetPos, owner.transform.localRotation);
 
         if (obj == null) yield break;
         if (obj.TryGetComponent<SkillObjectileBase>(out var deployer))
