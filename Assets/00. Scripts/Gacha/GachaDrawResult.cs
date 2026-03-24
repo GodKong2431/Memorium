@@ -21,6 +21,9 @@ public struct GachaDrawResult
     /// <summary>대박 아이템(4%, 1% 확률) 포함 여부. UI 연출용</summary>
     public bool HasRareItem;
 
+    /// <summary>ItemIds 인덱스와 동일한 희귀 연출 플래그(장비 전용).</summary>
+    public List<bool> ItemRareFlags;
+
     /// <summary>결과 초기화. TryDraw 호출 전에 반드시 사용.</summary>
     public static GachaDrawResult Create()
     {
@@ -28,7 +31,8 @@ public struct GachaDrawResult
         {
             ItemIds = new List<int>(),
             PixieIds = new List<int>(),
-            SpentCurrencies = new Dictionary<CurrencyType, int>()
+            SpentCurrencies = new Dictionary<CurrencyType, int>(),
+            ItemRareFlags = new List<bool>()
         };
     }
 }

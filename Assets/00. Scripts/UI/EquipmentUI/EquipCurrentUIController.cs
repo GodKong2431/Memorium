@@ -21,6 +21,7 @@ public class EquipCurrentUIController : UIControllerBase
     [SerializeField] private string levelText = "Lv. 0";
     [SerializeField] private string mergeResultTitleText = "합성 결과";
     [SerializeField] private string mergeResultCountFormat = "x{0}";
+    //[SerializeField] private 
 
     public GameObject ItemPrefab => itemPrefab;
 
@@ -210,10 +211,13 @@ public class EquipCurrentUIController : UIControllerBase
             mergeResultViews[i].Render(icon, resultCountText, starCount, RarityColor.TierColorByTier(info.grade));
             mergeResultViews[i].SetFrameColor(RarityColor.ItemGradeColor(info.rarityType));
             mergeResultViews[i].SetDimmed(false);
+            //mergeResultViews[i].SetMergeEffect(); //정리되면서 위치가 어긋난다
         }
+
 
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(mergeResultContentRoot);
+
 
         if (mergeResultScrollView != null)
         {
@@ -221,6 +225,12 @@ public class EquipCurrentUIController : UIControllerBase
             mergeResultScrollView.verticalNormalizedPosition = 1f;
             mergeResultScrollView.horizontalNormalizedPosition = 0f;
         }
+
+        foreach (EquipItemView view in mergeResultViews)
+        {
+            view.SetMergeEffect();
+        }
+
     }
 
     private void ApplyMergeResultVisibility()
@@ -284,7 +294,7 @@ public class EquipCurrentUIController : UIControllerBase
             equipButton.interactable = handler.CanAutoEquip();
     }
 
-    private void RefreshCurrent()
+    private void RefreshCurrent(int equipmentId=0)
     {
         if (!handler.TryGetPlayerEquipment(out PlayerEquipment player))
             return;
@@ -314,6 +324,8 @@ public class EquipCurrentUIController : UIControllerBase
             views[i].Render(icon, levelText, starCount, RarityColor.TierColorByTier(info.grade));
             views[i].SetFrameColor(RarityColor.ItemGradeColor(info.rarityType));
             views[i].SetDimmed(reinforceController == null);
+            if(equipmentId==itemId)
+                views[i].SetEquipEffect();
         }
     }
 
@@ -343,7 +355,7 @@ public class EquipCurrentUIController : UIControllerBase
 
     private void HandleEquippedChanged(EquipmentType type, int itemId)
     {
-        RefreshCurrent();
+        RefreshCurrent(itemId);
     }
 
     private void HandleAmountChanged(InventoryItemContext item, BigDouble amount)
