@@ -15,6 +15,7 @@ public class TitleScene : SceneBase
     [SerializeField] private RectTransform loadingPanelRoot;
     [SerializeField] private Slider loadingSlider;
     [SerializeField] private TextMeshProUGUI loadingText;
+    [SerializeField] private Image loadingBackgroundImage;
     [SerializeField] private Color loadingErrorTextColor = new Color(1f, 0.55f, 0.55f, 1f);
 
     private DataManager dataManager;
@@ -23,7 +24,6 @@ public class TitleScene : SceneBase
     private bool currentLoadingStatusIsError;
     private Color defaultLoadingTextColor = Color.white;
     private bool suppressLoadingUi;
-    private Image loadingBackgroundImage;
     private Color loadingBackgroundBaseColor = Color.black;
 
     public override IEnumerator EnterScene()
@@ -91,9 +91,6 @@ public class TitleScene : SceneBase
 
     private IEnumerator LoadNextSceneAsync(SceneType sceneType)
     {
-        if (UIRoot.Instance != null)
-            UIRoot.Instance.PrepareForSceneTransfer();
-
         SetLoadingProgress(1f);
         SetLoadingStatus("Opening stage...");
 
@@ -166,6 +163,12 @@ public class TitleScene : SceneBase
 
     private void CacheLoadingBackground()
     {
+        if (loadingBackgroundImage != null)
+        {
+            loadingBackgroundBaseColor = loadingBackgroundImage.color;
+            return;
+        }
+
         if (loadingCanvasRoot == null)
             return;
 

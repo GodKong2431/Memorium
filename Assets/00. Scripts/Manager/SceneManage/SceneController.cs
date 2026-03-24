@@ -59,9 +59,6 @@ public class SceneController : Singleton<SceneController>
         isLoading = true;
         string targetSceneName = type.ToString();
 
-        if (UIRoot.Instance != null)
-            UIRoot.Instance.PrepareForSceneTransfer();
-
         SceneBase currentScene = Object.FindFirstObjectByType<SceneBase>();
         AsyncOperation operation = SceneManager.LoadSceneAsync(targetSceneName);
         if (operation == null)

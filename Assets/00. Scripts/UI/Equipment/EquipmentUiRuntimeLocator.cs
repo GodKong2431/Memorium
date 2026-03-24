@@ -42,11 +42,7 @@ internal static class EquipmentUiRuntimeLocator
         if (searchRoot != null)
             return searchRoot;
 
-        if (UIRoot.Instance != null)
-            return UIRoot.Instance.transform;
-
-        UIRoot runtimeRoot = Object.FindFirstObjectByType<UIRoot>();
-        return runtimeRoot != null ? runtimeRoot.transform : null;
+        return SceneUi.Root;
     }
 
     private static Transform FindRecursive(Transform current, string objectName)
