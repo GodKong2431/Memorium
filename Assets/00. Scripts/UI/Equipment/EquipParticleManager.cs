@@ -1,110 +1,164 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 enum EquipParticle
 {
-    UPGRADE=0, MERGE=1
+    UPGRADE = 0,
+    MERGE = 1
 }
+
 public class EquipParticleManager : Singleton<EquipParticleManager>
 {
     public ParticleSystem upgradeEffect;
     public ParticleSystem mergeEffect;
 
-    Queue<ParticleSystem> upgradeParticleQueue=new Queue<ParticleSystem> ();
-    Queue<ParticleSystem> mergeParticleQueue=new Queue<ParticleSystem> ();
+    private readonly Queue<ParticleSystem> upgradeParticleQueue = new Queue<ParticleSystem>();
+    private readonly Queue<ParticleSystem> mergeParticleQueue = new Queue<ParticleSystem>();
+    private Transform poolRoot;
 
-    public void PlayUpgradeEffect(Transform transform)
+    protected override void Awake()
     {
-        if (upgradeEffect.gameObject.layer != 5)
-        {
-            upgradeEffect.gameObject.layer = 5;
-        }
+        base.Awake();
 
-        ParticleSystem particle;
-        if (upgradeParticleQueue.Count > 0)
-        {
-            particle = upgradeParticleQueue.Dequeue();
-            particle.gameObject.SetActive(true);
-        }
-        else
-        {
-            particle = Instantiate(upgradeEffect);
-        }
-        particle.transform.position=transform.position;
-        StartCoroutine(PlayTwiceAndReturnToQueue(particle, true));
+        if (Instance != this)
+            return;
+
+        EnsurePoolRoot();
     }
-    public void PlayMergeEffect(Transform transform)
+
+    public void PlayUpgradeEffect(Transform target)
     {
-        ParticleSystem particle;
-        if (mergeParticleQueue.Count > 0)
-        {
-            particle = mergeParticleQueue.Dequeue();
-            particle.gameObject.SetActive(true);
-        }
-        else
-        {
-            particle = Instantiate(mergeEffect);
-        }
-        particle.transform.SetParent(transform);
+        if (target == null || !TryGetTemplate(upgradeEffect, nameof(upgradeEffect), out ParticleSystem template))
+            return;
+
+        ParticleSystem particle = GetParticle(upgradeParticleQueue, template);
+        if (particle == null)
+            return;
+
+        particle.transform.SetParent(poolRoot, false);
+        particle.transform.position = target.position;
+
+        if (particle.gameObject.layer != 5)
+            particle.gameObject.layer = 5;
+
+        StartCoroutine(PlayTwiceAndReturnToQueue(particle, upgradeParticleQueue));
+    }
+
+    public void PlayMergeEffect(Transform target)
+    {
+        if (target == null || !TryGetTemplate(mergeEffect, nameof(mergeEffect), out ParticleSystem template))
+            return;
+
+        ParticleSystem particle = GetParticle(mergeParticleQueue, template);
+        if (particle == null)
+            return;
+
+        particle.transform.SetParent(target, false);
         particle.transform.localPosition = Vector3.zero;
-        //particle.transform.position=transform.position;
-        StartCoroutine(PlayOnceAndReturnToQueue(particle, false));
+
+        StartCoroutine(PlayOnceAndReturnToQueue(particle, mergeParticleQueue));
     }
 
-    IEnumerator PlayTwiceAndReturnToQueue(ParticleSystem ps, bool upgrade)
+    private IEnumerator PlayTwiceAndReturnToQueue(ParticleSystem particle, Queue<ParticleSystem> queue)
     {
+        if (particle == null)
+            yield break;
+
         int playCount = 0;
-        float duration = ps.main.duration;
-        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        float duration = particle.main.duration;
+        particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
         while (playCount < 2)
         {
-            
-            ps.Play(true);
+            if (particle == null)
+                yield break;
+
+            particle.Play(true);
             playCount++;
-
-            // 파티클 한 주기(duration)만큼 대기
             yield return new WaitForSeconds(duration);
-            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            if (particle == null)
+                yield break;
+
+            particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
-        // 4. 재생이 끝나면 비활성화하고 다시 큐에 삽입 (재사용 준비)
-        ps.gameObject.SetActive(false);
-        if (upgrade)
-        {
-            upgradeParticleQueue.Enqueue(ps);
-        }
-        else
-        {
-            mergeParticleQueue.Enqueue(ps);
-        }
+        ReturnToPool(particle, queue);
     }
-    IEnumerator PlayOnceAndReturnToQueue(ParticleSystem ps, bool upgrade)
+
+    private IEnumerator PlayOnceAndReturnToQueue(ParticleSystem particle, Queue<ParticleSystem> queue)
     {
-        int playCount = 0;
-        float duration = ps.main.duration;
+        if (particle == null)
+            yield break;
 
-        while (playCount < 1)
+        float duration = particle.main.duration;
+        particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        particle.Play(true);
+
+        yield return new WaitForSeconds(duration);
+
+        ReturnToPool(particle, queue);
+    }
+
+    private ParticleSystem GetParticle(Queue<ParticleSystem> queue, ParticleSystem template)
+    {
+        EnsurePoolRoot();
+
+        while (queue.Count > 0)
         {
-            ps.Play();
-            playCount++;
+            ParticleSystem cached = queue.Dequeue();
+            if (cached == null)
+                continue;
 
-            // 파티클 한 주기(duration)만큼 대기
-            yield return new WaitForSeconds(duration);
+            cached.transform.SetParent(poolRoot, false);
+            cached.gameObject.SetActive(true);
+            cached.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            return cached;
         }
 
-        // 4. 재생이 끝나면 비활성화하고 다시 큐에 삽입 (재사용 준비)
-        ps.gameObject.SetActive(false);
-        if (upgrade)
+        ParticleSystem created = Instantiate(template, poolRoot);
+        created.gameObject.SetActive(true);
+        created.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        return created;
+    }
+
+    private void ReturnToPool(ParticleSystem particle, Queue<ParticleSystem> queue)
+    {
+        if (particle == null)
+            return;
+
+        EnsurePoolRoot();
+        particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        particle.transform.SetParent(poolRoot, false);
+        particle.gameObject.SetActive(false);
+        queue.Enqueue(particle);
+    }
+
+    private bool TryGetTemplate(ParticleSystem template, string fieldName, out ParticleSystem resolved)
+    {
+        resolved = template;
+        if (resolved != null)
+            return true;
+
+        Debug.LogWarning($"[EquipParticleManager] {fieldName} is missing.", this);
+        return false;
+    }
+
+    private void EnsurePoolRoot()
+    {
+        if (poolRoot != null)
+            return;
+
+        Transform existing = transform.Find("ParticlePool");
+        if (existing != null)
         {
-            upgradeParticleQueue.Enqueue(ps);
-        }
-        else
-        {
-            mergeParticleQueue.Enqueue(ps);
+            poolRoot = existing;
+            return;
         }
 
-        ps.transform.SetParent(null);
+        GameObject root = new GameObject("ParticlePool");
+        root.transform.SetParent(transform, false);
+        poolRoot = root.transform;
     }
 }

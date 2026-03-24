@@ -13,13 +13,6 @@ public class EquipReinforceUIController : UIControllerBase
         InventoryItem
     }
 
-    [Serializable]
-    private struct StatIconEntry
-    {
-        [SerializeField] public StatType statType;
-        [SerializeField] public Sprite icon;
-    }
-
     private readonly struct StatPreviewLine
     {
         public StatPreviewLine(StatType statType, float currentValue, float nextValue)
@@ -63,9 +56,7 @@ public class EquipReinforceUIController : UIControllerBase
 
     [Header("Stat")]
     [SerializeField] private EquipReinforceStatRowUI statRowTemplate;
-    [SerializeField] private List<StatIconEntry> statIcons = new List<StatIconEntry>();
 
-    private readonly Dictionary<StatType, Sprite> iconByStat = new Dictionary<StatType, Sprite>();
     private readonly List<Image> previewStars = new List<Image>();
     private readonly List<EquipReinforceStatRowUI> statRows = new List<EquipReinforceStatRowUI>();
 
@@ -78,7 +69,6 @@ public class EquipReinforceUIController : UIControllerBase
     private Vector2 statRowTemplatePosition;
     private Vector3 statRowTemplateScale;
     private Button boundReinforceButton;
-    private RectTransform cachedPreviewTierRoot;
 
     private void Update()
     {
@@ -91,11 +81,53 @@ public class EquipReinforceUIController : UIControllerBase
 
     protected override void Initialize()
     {
-        CacheStatIcons();
-        TryResolveUiReferences();
         CacheStatRows();
         SetVisible(false);
         RefreshPreviewButtonState();
+        BindReinforceButton();
+    }
+
+    public void ApplyBindings(
+        EquipmentHandler sourceHandler,
+        RectTransform sourcePanelRoot,
+        RectTransform sourcePopupRoot,
+        Button sourceReinforceButton,
+        TextMeshProUGUI sourceCostText,
+        Button sourcePreviewButton,
+        Image sourcePreviewIcon,
+        TextMeshProUGUI sourcePreviewNameText,
+        RectTransform sourcePreviewLevelRoot,
+        RectTransform sourcePreviewTierRoot,
+        RectTransform sourcePreviewTierStarTemplate,
+        Image[] sourcePreviewFrames,
+        EquipReinforceStatRowUI sourceStatRowTemplate)
+    {
+        handler = sourceHandler;
+        panelRoot = sourcePanelRoot;
+        popupRoot = sourcePopupRoot;
+        reinforceButton = sourceReinforceButton;
+        costText = sourceCostText;
+        previewButton = sourcePreviewButton;
+        previewIcon = sourcePreviewIcon;
+        previewNameText = sourcePreviewNameText;
+        previewLevelRoot = sourcePreviewLevelRoot;
+        previewLevelText = null;
+        previewTierRoot = sourcePreviewTierRoot;
+        previewTierPanel = sourcePreviewTierRoot != null
+            ? sourcePreviewTierRoot.GetComponent<Image>()
+            : null;
+        previewTierStarTemplate = sourcePreviewTierStarTemplate;
+        previewFrames = sourcePreviewFrames;
+        statRowTemplate = sourceStatRowTemplate;
+
+        previewStars.Clear();
+        CacheStatRows();
+        BindReinforceButton();
+        RefreshPreviewButtonState();
+        SetVisible(isVisible);
+
+        if (isActiveAndEnabled)
+            RefreshView();
     }
 
     protected override void Subscribe()
@@ -116,7 +148,7 @@ public class EquipReinforceUIController : UIControllerBase
 
     protected override void RefreshView()
     {
-        if (!TryResolveUiReferences())
+        if (!HasBindings())
             return;
 
         if (!isVisible)
@@ -132,31 +164,6 @@ public class EquipReinforceUIController : UIControllerBase
             return;
 
         Render(equipInfo, equipmentData);
-    }
-
-    public void ResetForSceneChange()
-    {
-        handler = null;
-        panelRoot = null;
-        popupRoot = null;
-        reinforceButton = null;
-        costText = null;
-        previewButton = null;
-        previewIcon = null;
-        previewNameText = null;
-        previewLevelRoot = null;
-        previewLevelText = null;
-        previewTierPanel = null;
-        previewTierRoot = null;
-        previewTierStarTemplate = null;
-        previewFrames = null;
-        statRowTemplate = null;
-        cachedPreviewTierRoot = null;
-        previewStars.Clear();
-        statRows.Clear();
-        UnbindReinforceButton();
-        Hide();
-        UnbindInventory();
     }
 
     public void Show(EquipmentType type)
@@ -176,8 +183,8 @@ public class EquipReinforceUIController : UIControllerBase
             return;
 
         selectionMode = SelectionMode.InventoryItem;
-        isVisible = true;
         selectedItemId = itemId;
+        isVisible = true;
 
         if (TryGetEquipmentType(itemId, out EquipmentType type))
             selectedType = type;
@@ -191,6 +198,24 @@ public class EquipReinforceUIController : UIControllerBase
         selectedItemId = 0;
         selectionMode = SelectionMode.EquippedSlot;
         SetVisible(false);
+    }
+
+    private bool HasBindings()
+    {
+        if (previewLevelText == null && previewLevelRoot != null)
+            previewLevelText = previewLevelRoot.GetComponentInChildren<TextMeshProUGUI>(true);
+
+        return panelRoot != null &&
+               popupRoot != null &&
+               reinforceButton != null &&
+               costText != null &&
+               previewButton != null &&
+               previewIcon != null &&
+               previewNameText != null &&
+               previewLevelRoot != null &&
+               previewTierRoot != null &&
+               previewTierStarTemplate != null &&
+               statRowTemplate != null;
     }
 
     private void ClickReinforce()
@@ -240,14 +265,6 @@ public class EquipReinforceUIController : UIControllerBase
 
         inventory.OnItemAmountChanged -= HandleAmountChanged;
         inventory = null;
-    }
-
-    private void CacheStatIcons()
-    {
-        iconByStat.Clear();
-
-        for (int i = 0; i < statIcons.Count; i++)
-            iconByStat[statIcons[i].statType] = statIcons[i].icon;
     }
 
     private bool TryResolveSelectedItem(EquipmentType type, out int itemId)
@@ -304,14 +321,9 @@ public class EquipReinforceUIController : UIControllerBase
             : 0;
         currentLevel = Mathf.Clamp(currentLevel, 0, MaxReinforcementLevel);
 
-        if (previewNameText != null)
-            previewNameText.text = equipInfo.equipmentName;
-
-        if (previewIcon != null)
-            previewIcon.sprite = LoadIcon(equipInfo);
-
-        if (previewLevelRoot != null)
-            previewLevelRoot.gameObject.SetActive(true);
+        previewNameText.text = equipInfo.equipmentName;
+        previewIcon.sprite = IconManager.GetEquipmentIcon(equipInfo);
+        previewLevelRoot.gameObject.SetActive(true);
 
         if (previewLevelText != null)
             previewLevelText.text = $"Lv. {currentLevel}";
@@ -354,11 +366,8 @@ public class EquipReinforceUIController : UIControllerBase
         BigDouble cost = isMax ? BigDouble.Zero : CalculateCost(equipInfo, currentLevel);
         bool canReinforce = isOwned && !isMax && CanAfford(cost);
 
-        if (costText != null)
-            costText.text = isMax ? maxCostText : cost.ToString();
-
-        if (reinforceButton != null)
-            reinforceButton.interactable = canReinforce;
+        costText.text = isMax ? maxCostText : cost.ToString();
+        reinforceButton.interactable = canReinforce;
     }
 
     private List<StatPreviewLine> BuildStatPreviewLines(EquipListTable equipInfo, int currentLevel)
@@ -433,7 +442,6 @@ public class EquipReinforceUIController : UIControllerBase
             return false;
 
         handler.SetGoldID();
-
         if (handler.goldId == 0)
             return false;
 
@@ -445,84 +453,8 @@ public class EquipReinforceUIController : UIControllerBase
         if (handler != null)
             return true;
 
-        handler = UnityEngine.Object.FindFirstObjectByType<EquipmentHandler>();
+        handler = EquipmentHandler.Instance;
         return handler != null;
-    }
-
-    private bool TryResolveUiReferences()
-    {
-        RectTransform resolvedPanelRoot = EquipmentUiRuntimeLocator.FindRectTransform("(Panel)EquipReinforce");
-        if (resolvedPanelRoot != null)
-            panelRoot = resolvedPanelRoot;
-
-        RectTransform resolvedPopupRoot = EquipmentUiRuntimeLocator.FindRectTransform("(Panel)ReinforceBackground", panelRoot);
-        if (resolvedPopupRoot != null)
-            popupRoot = resolvedPopupRoot;
-
-        Button resolvedReinforceButton = EquipmentUiRuntimeLocator.FindButton("(Btn)Reinforce", popupRoot);
-        if (resolvedReinforceButton != null)
-            reinforceButton = resolvedReinforceButton;
-
-        TextMeshProUGUI resolvedCostText = EquipmentUiRuntimeLocator.FindText("(Text)RequireCurrency", popupRoot);
-        if (resolvedCostText != null)
-            costText = resolvedCostText;
-
-        Button resolvedPreviewButton = ResolvePreviewButton();
-        if (resolvedPreviewButton != null)
-            previewButton = resolvedPreviewButton;
-
-        if (previewButton != null)
-        {
-            Transform previewRoot = previewButton.transform;
-
-            TextMeshProUGUI resolvedPreviewNameText = EquipmentUiRuntimeLocator.FindText("(Text)EquipmentName", previewRoot);
-            if (resolvedPreviewNameText != null)
-                previewNameText = resolvedPreviewNameText;
-
-            RectTransform resolvedPreviewLevelRoot = EquipmentUiRuntimeLocator.FindRectTransform("TextBox", previewRoot);
-            if (resolvedPreviewLevelRoot != null)
-                previewLevelRoot = resolvedPreviewLevelRoot;
-
-            if (previewLevelRoot != null && previewLevelText == null)
-                previewLevelText = previewLevelRoot.GetComponentInChildren<TextMeshProUGUI>(true);
-
-            RectTransform resolvedPreviewTierRoot = ResolvePreviewTierRoot(previewRoot);
-            if (resolvedPreviewTierRoot != null)
-                previewTierRoot = resolvedPreviewTierRoot;
-
-            if (previewTierRoot != null)
-            {
-                previewTierPanel = previewTierRoot.GetComponent<Image>();
-
-                if (previewTierRoot.childCount > 0)
-                    previewTierStarTemplate = previewTierRoot.GetChild(0) as RectTransform;
-            }
-
-            Image resolvedPreviewIcon = ResolvePreviewIcon(previewRoot);
-            if (resolvedPreviewIcon != null)
-                previewIcon = resolvedPreviewIcon;
-
-            Image[] resolvedPreviewFrames = ResolvePreviewFrames(previewRoot);
-            if (resolvedPreviewFrames.Length > 0)
-                previewFrames = resolvedPreviewFrames;
-        }
-
-        EquipReinforceStatRowUI resolvedStatRowTemplate = EquipmentUiRuntimeLocator.FindComponent<EquipReinforceStatRowUI>("(Panel)Stat", popupRoot);
-        if (resolvedStatRowTemplate != null && resolvedStatRowTemplate != statRowTemplate)
-        {
-            statRowTemplate = resolvedStatRowTemplate;
-            CacheStatRows();
-        }
-
-        if (cachedPreviewTierRoot != previewTierRoot)
-        {
-            cachedPreviewTierRoot = previewTierRoot;
-            previewStars.Clear();
-        }
-
-        BindReinforceButton();
-        RefreshPreviewButtonState();
-        return panelRoot != null && popupRoot != null;
     }
 
     private void BindReinforceButton()
@@ -557,113 +489,6 @@ public class EquipReinforceUIController : UIControllerBase
 
         previewButton.onClick.RemoveAllListeners();
         previewButton.interactable = false;
-    }
-
-    private Button ResolvePreviewButton()
-    {
-        if (popupRoot == null)
-            return previewButton;
-
-        Button[] buttons = popupRoot.GetComponentsInChildren<Button>(true);
-        for (int i = 0; i < buttons.Length; i++)
-        {
-            if (buttons[i] == null || buttons[i] == reinforceButton)
-                continue;
-
-            return buttons[i];
-        }
-
-        return previewButton;
-    }
-
-    private static RectTransform ResolvePreviewTierRoot(Transform previewRoot)
-    {
-        if (previewRoot == null)
-            return null;
-
-        RectTransform namedTierRoot = EquipmentUiRuntimeLocator.FindRectTransform("패널_성급", previewRoot);
-        if (namedTierRoot != null)
-            return namedTierRoot;
-
-        HorizontalLayoutGroup[] layouts = previewRoot.GetComponentsInChildren<HorizontalLayoutGroup>(true);
-        for (int i = 0; i < layouts.Length; i++)
-        {
-            RectTransform rect = layouts[i].transform as RectTransform;
-            if (rect != null && rect.parent == previewRoot)
-                return rect;
-        }
-
-        return null;
-    }
-
-    private static Image ResolvePreviewIcon(Transform previewRoot)
-    {
-        if (previewRoot == null)
-            return null;
-
-        Image namedIcon = EquipmentUiRuntimeLocator.FindImage("아이콘", previewRoot);
-        if (namedIcon != null)
-            return namedIcon;
-
-        Image[] images = previewRoot.GetComponentsInChildren<Image>(true);
-        for (int i = 0; i < images.Length; i++)
-        {
-            if (images[i] == null)
-                continue;
-
-            Transform imageTransform = images[i].transform;
-            if (imageTransform == previewRoot)
-                continue;
-
-            if (imageTransform.parent != previewRoot)
-                continue;
-
-            if (TryParseFrameIndex(imageTransform.name, out _))
-                continue;
-
-            if (images[i].GetComponent<HorizontalLayoutGroup>() != null)
-                continue;
-
-            if (imageTransform.name == "TextBox")
-                continue;
-
-            return images[i];
-        }
-
-        return null;
-    }
-
-    private static Image[] ResolvePreviewFrames(Transform previewRoot)
-    {
-        if (previewRoot == null)
-            return Array.Empty<Image>();
-
-        Image[] children = previewRoot.GetComponentsInChildren<Image>(true);
-        List<Image> frames = new List<Image>(5);
-
-        for (int i = 0; i < children.Length; i++)
-        {
-            if (children[i] == null || children[i].transform.parent != previewRoot)
-                continue;
-
-            if (TryParseFrameIndex(children[i].name, out _))
-                frames.Add(children[i]);
-        }
-
-        frames.Sort((lhs, rhs) =>
-        {
-            TryParseFrameIndex(lhs.name, out int leftIndex);
-            TryParseFrameIndex(rhs.name, out int rightIndex);
-            return leftIndex.CompareTo(rightIndex);
-        });
-
-        return frames.ToArray();
-    }
-
-    private static bool TryParseFrameIndex(string rawName, out int frameIndex)
-    {
-        frameIndex = 0;
-        return int.TryParse(rawName, out frameIndex);
     }
 
     private void SetPreviewFrameColor(Color color)
@@ -718,16 +543,13 @@ public class EquipReinforceUIController : UIControllerBase
 
     private void SetVisible(bool visible)
     {
-        if (panelRoot == null)
-            TryResolveUiReferences();
-
         if (panelRoot != null && panelRoot.gameObject.activeSelf != visible)
             panelRoot.gameObject.SetActive(visible);
     }
 
     private void ShowSelectedItem()
     {
-        if (!TryResolveUiReferences())
+        if (!HasBindings())
             return;
 
         isVisible = true;
@@ -798,11 +620,6 @@ public class EquipReinforceUIController : UIControllerBase
         return false;
     }
 
-    private Sprite GetStatIcon(StatType statType)
-    {
-        return iconByStat.TryGetValue(statType, out Sprite icon) ? icon : null;
-    }
-
     private static string GetStatDisplayName(StatType statType)
     {
         switch (statType)
@@ -832,15 +649,6 @@ public class EquipReinforceUIController : UIControllerBase
             return $"+{value * 100f:0.##}%";
 
         return $"+{value:0.##}";
-    }
-
-    private static Sprite LoadIcon(EquipListTable table)
-    {
-        string key = string.IsNullOrEmpty(table.iconResource)
-            ? table.equipmentName
-            : table.iconResource;
-
-        return EquipmentIconResolver.LoadSprite(key);
     }
 
     private static int GetStarCount(int tier)
@@ -932,7 +740,7 @@ public class EquipReinforceUIController : UIControllerBase
 
         if (row.Icon != null)
         {
-            row.Icon.sprite = GetStatIcon(line.StatType);
+            row.Icon.sprite = IconManager.GetStatIcon(line.StatType);
             row.Icon.enabled = row.Icon.sprite != null;
         }
 

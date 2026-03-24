@@ -9,6 +9,7 @@ public class EquipmentHandler : MonoBehaviour
 {
     public static event Action EquipmentUiRefreshRequested;
     private static EquipmentHandler persistentInstance;
+    public static EquipmentHandler Instance => persistentInstance;
 
     [SerializeField] private PlayerEquipment playerEquipment;
 
@@ -26,6 +27,7 @@ public class EquipmentHandler : MonoBehaviour
         }
 
         persistentInstance = this;
+        StripLegacyUiControllers();
 
         if (playerEquipment == null)
             playerEquipment = GetComponent<PlayerEquipment>();
@@ -56,6 +58,22 @@ public class EquipmentHandler : MonoBehaviour
     {
         if (persistentInstance == this)
             persistentInstance = null;
+    }
+
+    private void StripLegacyUiControllers()
+    {
+        RemoveLegacyUiController(GetComponent<EquipCurrentUIController>());
+        RemoveLegacyUiController(GetComponent<EquipReinforceUIController>());
+        RemoveLegacyUiController(GetComponent<EquipSlotUIController>());
+    }
+
+    private static void RemoveLegacyUiController(MonoBehaviour controller)
+    {
+        if (controller == null)
+            return;
+
+        controller.enabled = false;
+        Destroy(controller);
     }
 
     public void TestEquipmentReinforcement()
@@ -352,8 +370,6 @@ public class EquipmentHandler : MonoBehaviour
 
         if (playerEquipment != null)
             playerEquipment.equipmentHandler = this;
-
-        BroadcastMessage("ResetForSceneChange", SendMessageOptions.DontRequireReceiver);
 
         if (sceneRefreshRoutine != null)
             StopCoroutine(sceneRefreshRoutine);

@@ -313,15 +313,13 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         }
 
         if (equipmentHandler == null)
-            equipmentHandler = UnityEngine.Object.FindFirstObjectByType<EquipmentHandler>();
+            equipmentHandler = EquipmentHandler.Instance;
 
         if (equipmentHandler != null && equipmentHandler.TryGetPlayerEquipment(out PlayerEquipment currentEquipment))
         {
             playerEquipment = currentEquipment;
             return;
         }
-
-        playerEquipment = UnityEngine.Object.FindFirstObjectByType<PlayerEquipment>();
     }
 
     private void CacheCategorizedStats()
@@ -1012,7 +1010,11 @@ public sealed class CharacterInfoPanelController : UIControllerBase
         }
 
         if (equipmentUiController == null)
-            equipmentUiController = UnityEngine.Object.FindFirstObjectByType<EquipCurrentUIController>();
+        {
+            Transform sceneUiRoot = SceneUi.Root;
+            if (sceneUiRoot != null)
+                equipmentUiController = sceneUiRoot.GetComponentInChildren<EquipCurrentUIController>(true);
+        }
 
         if (equipmentUiController != null)
             resolvedEquipmentItemPrefab = equipmentUiController.ItemPrefab;
@@ -1446,7 +1448,7 @@ public sealed class CharacterInfoPanelController : UIControllerBase
             return null;
 
         string key = string.IsNullOrEmpty(table.iconResource) ? table.equipmentName : table.iconResource;
-        return EquipmentIconResolver.LoadSprite(key);
+        return IconManager.GetEquipmentIcon(key);
     }
 
     private static int GetEquipmentStarCount(int tier)
