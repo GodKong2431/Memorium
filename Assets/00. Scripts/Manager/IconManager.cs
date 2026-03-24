@@ -37,6 +37,16 @@ public static class IconManager
 
     public static Sprite GetEquipmentIcon(string key)
     {
+        return GetResourceSprite(key);
+    }
+
+    public static Sprite GetItemIcon(ItemInfoTable table)
+    {
+        return table == null ? null : GetResourceSprite(table.itemIcon);
+    }
+
+    public static Sprite GetResourceSprite(string key)
+    {
         if (string.IsNullOrWhiteSpace(key))
             return null;
 
@@ -45,17 +55,6 @@ public static class IconManager
             return null;
 
         return Resources.Load<Sprite>(normalizedKey);
-    }
-
-    public static Sprite GetStatIcon(object key)
-    {
-        if (key is StatType statType)
-            return GetStatIcon(statType);
-
-        if (key is CurrencyType currencyType)
-            return GetCurrencyIcon(currencyType);
-
-        return null;
     }
 
     private static string NormalizeResourcesPath(string rawKey)

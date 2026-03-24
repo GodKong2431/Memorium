@@ -65,25 +65,19 @@ public class EquipReinforceUIController : UIControllerBase
     private EquipmentType selectedType = EquipmentType.Weapon;
     private int selectedItemId;
     private bool isVisible;
-    private int ignoreCloseUntilFrame = -1;
     private Vector2 statRowTemplatePosition;
     private Vector3 statRowTemplateScale;
+    private Button backgroundButton;
+    private Button boundBackgroundButton;
     private Button boundReinforceButton;
-
-    private void Update()
-    {
-        if (!isVisible)
-            return;
-
-        if (ShouldClosePopup())
-            Hide();
-    }
+    private int ignoreCloseUntilFrame = -1;
 
     protected override void Initialize()
     {
         CacheStatRows();
         SetVisible(false);
         RefreshPreviewButtonState();
+        BindBackgroundButton();
         BindReinforceButton();
     }
 
@@ -119,9 +113,17 @@ public class EquipReinforceUIController : UIControllerBase
         previewTierStarTemplate = sourcePreviewTierStarTemplate;
         previewFrames = sourcePreviewFrames;
         statRowTemplate = sourceStatRowTemplate;
+        if (backgroundButton != null)
+        {
+            Transform currentParent = backgroundButton.transform.parent;
+            Transform nextParent = sourcePanelRoot != null ? sourcePanelRoot.parent : null;
+            if (currentParent != nextParent)
+                backgroundButton = null;
+        }
 
         previewStars.Clear();
         CacheStatRows();
+        BindBackgroundButton();
         BindReinforceButton();
         RefreshPreviewButtonState();
         SetVisible(isVisible);
@@ -134,6 +136,7 @@ public class EquipReinforceUIController : UIControllerBase
     {
         EquipmentHandler.EquipmentUiRefreshRequested += RefreshView;
         PlayerEquipment.EquippedItemChanged += HandleEquippedItemChanged;
+        BindBackgroundButton();
         BindReinforceButton();
         BindInventory();
     }
@@ -142,6 +145,7 @@ public class EquipReinforceUIController : UIControllerBase
     {
         EquipmentHandler.EquipmentUiRefreshRequested -= RefreshView;
         PlayerEquipment.EquippedItemChanged -= HandleEquippedItemChanged;
+        UnbindBackgroundButton();
         UnbindReinforceButton();
         UnbindInventory();
     }
@@ -164,6 +168,15 @@ public class EquipReinforceUIController : UIControllerBase
             return;
 
         Render(equipInfo, equipmentData);
+    }
+
+    private void Update()
+    {
+        if (!isVisible || Time.frameCount <= ignoreCloseUntilFrame)
+            return;
+
+        if (ShouldCloseFromOutsidePointer())
+            Hide();
     }
 
     public void Show(EquipmentType type)
@@ -204,6 +217,8 @@ public class EquipReinforceUIController : UIControllerBase
     {
         if (previewLevelText == null && previewLevelRoot != null)
             previewLevelText = previewLevelRoot.GetComponentInChildren<TextMeshProUGUI>(true);
+
+        EnsureBackgroundButton();
 
         return panelRoot != null &&
                popupRoot != null &&
@@ -474,12 +489,38 @@ public class EquipReinforceUIController : UIControllerBase
         }
     }
 
+    private void BindBackgroundButton()
+    {
+        Button current = EnsureBackgroundButton();
+        if (current == boundBackgroundButton)
+            return;
+
+        if (boundBackgroundButton != null)
+            boundBackgroundButton.onClick.RemoveListener(HandleBackgroundClick);
+
+        boundBackgroundButton = current;
+
+        if (boundBackgroundButton != null)
+        {
+            boundBackgroundButton.onClick.RemoveListener(HandleBackgroundClick);
+            boundBackgroundButton.onClick.AddListener(HandleBackgroundClick);
+        }
+    }
+
     private void UnbindReinforceButton()
     {
         if (boundReinforceButton != null)
             boundReinforceButton.onClick.RemoveListener(ClickReinforce);
 
         boundReinforceButton = null;
+    }
+
+    private void UnbindBackgroundButton()
+    {
+        if (boundBackgroundButton != null)
+            boundBackgroundButton.onClick.RemoveListener(HandleBackgroundClick);
+
+        boundBackgroundButton = null;
     }
 
     private void RefreshPreviewButtonState()
@@ -543,6 +584,12 @@ public class EquipReinforceUIController : UIControllerBase
 
     private void SetVisible(bool visible)
     {
+        if (visible)
+            RefreshOverlayOrder();
+
+        if (backgroundButton != null && backgroundButton.gameObject.activeSelf != visible)
+            backgroundButton.gameObject.SetActive(visible);
+
         if (panelRoot != null && panelRoot.gameObject.activeSelf != visible)
             panelRoot.gameObject.SetActive(visible);
     }
@@ -558,66 +605,135 @@ public class EquipReinforceUIController : UIControllerBase
         RefreshView();
     }
 
-    private bool ShouldClosePopup()
+    private void HandleBackgroundClick()
     {
-        if (Time.frameCount <= ignoreCloseUntilFrame)
-            return false;
+        if (!isVisible)
+            return;
 
-        if (!TryGetPointerDownPosition(out Vector2 pointerPosition))
-            return false;
+        Hide();
+    }
 
-        return !IsInsidePopup(pointerPosition);
+    private bool ShouldCloseFromOutsidePointer()
+    {
+        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+            return !IsInsidePopup(Touchscreen.current.primaryTouch.position.ReadValue());
+
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            return !IsInsidePopup(Mouse.current.position.ReadValue());
+
+        return false;
     }
 
     private bool IsInsidePopup(Vector2 screenPosition)
     {
-        if (popupRoot == null)
+        if (popupRoot != null)
+        {
+            bool hasVisibleChild = false;
+
+            for (int i = 0; i < popupRoot.childCount; i++)
+            {
+                RectTransform child = popupRoot.GetChild(i) as RectTransform;
+                if (child == null || !child.gameObject.activeInHierarchy)
+                    continue;
+
+                hasVisibleChild = true;
+                if (ContainsScreenPoint(child, screenPosition))
+                    return true;
+            }
+
+            if (hasVisibleChild)
+                return false;
+        }
+
+        if (popupRoot != null)
+            return ContainsScreenPoint(popupRoot, screenPosition);
+
+        return panelRoot != null && ContainsScreenPoint(panelRoot, screenPosition);
+    }
+
+    private static bool ContainsScreenPoint(RectTransform target, Vector2 screenPosition)
+    {
+        if (target == null)
             return false;
 
-        Canvas parentCanvas = popupRoot.GetComponentInParent<Canvas>();
+        Canvas parentCanvas = target.GetComponentInParent<Canvas>();
         Camera eventCamera = null;
         if (parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
             eventCamera = parentCanvas.worldCamera;
 
-        return RectTransformUtility.RectangleContainsScreenPoint(popupRoot, screenPosition, eventCamera);
+        return RectTransformUtility.RectangleContainsScreenPoint(target, screenPosition, eventCamera);
     }
 
-    private static bool TryGetPointerDownPosition(out Vector2 screenPosition)
+    private void RefreshOverlayOrder()
     {
-#if ENABLE_INPUT_SYSTEM
-        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-        {
-            screenPosition = Touchscreen.current.primaryTouch.position.ReadValue();
-            return true;
-        }
+        if (panelRoot == null)
+            return;
 
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            screenPosition = Mouse.current.position.ReadValue();
-            return true;
-        }
-#endif
+        Transform parent = panelRoot.parent;
+        if (parent == null)
+            return;
 
-#if ENABLE_LEGACY_INPUT_MANAGER
-        if (UnityEngine.Input.touchCount > 0)
+        panelRoot.SetAsLastSibling();
+
+        if (backgroundButton == null)
+            return;
+
+        if (backgroundButton.transform.parent != parent)
+            return;
+
+        int panelIndex = panelRoot.GetSiblingIndex();
+        backgroundButton.transform.SetSiblingIndex(Mathf.Max(0, panelIndex - 1));
+    }
+
+    private Button EnsureBackgroundButton()
+    {
+        if (panelRoot == null)
+            return null;
+
+        if (backgroundButton != null)
         {
-            Touch touch = UnityEngine.Input.GetTouch(0);
-            if (touch.phase == UnityEngine.TouchPhase.Began)
+            RectTransform currentRoot = backgroundButton.transform as RectTransform;
+            if (currentRoot != null && currentRoot.parent == panelRoot.parent)
             {
-                screenPosition = touch.position;
-                return true;
+                RefreshOverlayOrder();
+                return backgroundButton;
             }
         }
 
-        if (UnityEngine.Input.GetMouseButtonDown(0))
-        {
-            screenPosition = UnityEngine.Input.mousePosition;
-            return true;
-        }
-#endif
+        Transform parent = panelRoot.parent;
+        if (parent == null)
+            return backgroundButton;
 
-        screenPosition = default;
-        return false;
+        GameObject blocker = new GameObject(
+            "EquipReinforceDismissBlocker",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image),
+            typeof(Button));
+        blocker.layer = panelRoot.gameObject.layer;
+        blocker.transform.SetParent(parent, false);
+
+        RectTransform blockerRoot = blocker.GetComponent<RectTransform>();
+        blockerRoot.anchorMin = Vector2.zero;
+        blockerRoot.anchorMax = Vector2.one;
+        blockerRoot.offsetMin = Vector2.zero;
+        blockerRoot.offsetMax = Vector2.zero;
+        blockerRoot.SetSiblingIndex(panelRoot.GetSiblingIndex());
+
+        Image image = blocker.GetComponent<Image>();
+        image.color = new Color(0f, 0f, 0f, 0f);
+        image.raycastTarget = true;
+
+        backgroundButton = blocker.GetComponent<Button>();
+        backgroundButton.targetGraphic = image;
+        backgroundButton.gameObject.SetActive(false);
+
+        backgroundButton.transition = Selectable.Transition.None;
+        backgroundButton.navigation = new Navigation { mode = Navigation.Mode.None };
+
+        RefreshOverlayOrder();
+
+        return backgroundButton;
     }
 
     private static string GetStatDisplayName(StatType statType)

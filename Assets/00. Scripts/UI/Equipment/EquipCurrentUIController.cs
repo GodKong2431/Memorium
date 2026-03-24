@@ -39,6 +39,7 @@ public class EquipCurrentUIController : UIControllerBase
     private InventoryManager inventory;
     private bool isBuilt;
     private bool isMergeResultVisible;
+    private bool mergeEffectsPending;
     private int ignoreMergeResultCloseUntilFrame = -1;
     private Button boundMergeButton;
     private Button boundEquipButton;
@@ -288,8 +289,13 @@ public class EquipCurrentUIController : UIControllerBase
             mergeResultScrollView.horizontalNormalizedPosition = 0f;
         }
 
-        for (int i = 0; i < mergeResultViews.Count; i++)
+        if (!mergeEffectsPending)
+            return;
+
+        for (int i = 0; i < mergeResults.Count && i < mergeResultViews.Count; i++)
             mergeResultViews[i].SetMergeEffect();
+
+        mergeEffectsPending = false;
     }
 
     private void ApplyMergeResultVisibility()
@@ -531,6 +537,7 @@ public class EquipCurrentUIController : UIControllerBase
     private void ShowMergeResultPopup()
     {
         isMergeResultVisible = true;
+        mergeEffectsPending = true;
         ignoreMergeResultCloseUntilFrame = Time.frameCount + 1;
         RefreshMergeResults();
         ApplyMergeResultVisibility();

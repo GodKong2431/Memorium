@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -38,8 +36,6 @@ public class QuestUIController : UIControllerBase
 
     private Coroutine initializeRoutine;
     private Coroutine panelMoveRoutine;
-    private QuestUIView questView;
-
     private bool isOpened;
     private bool isQuestCompleted;
     private Vector2 openedAnchoredPosition;
@@ -48,21 +44,9 @@ public class QuestUIController : UIControllerBase
     private bool hasCachedTogglePosition;
     private Vector3 cachedArrowScale;
     private bool hasCachedArrowScale;
-    private readonly Dictionary<string, Sprite> rewardIconCache = new Dictionary<string, Sprite>(StringComparer.Ordinal);
 
     protected override void Initialize()
     {
-        questView = new QuestUIView(
-            textQuestName,
-            textQuestNumber,
-            objQuestProgressSliderRoot,
-            sliderQuestProgress,
-            imageQuestReward,
-            textQuestRewardCount,
-            btnRewardTouch,
-            textRewardTouch
-        );
-
         CacheOpenedPosition();
         CacheTogglePosition();
         CacheArrowScale();
@@ -107,13 +91,13 @@ public class QuestUIController : UIControllerBase
     protected override void Subscribe()
     {
         GameEventManager.OnQuestProgressChanged += RefreshView;
-        questView.BindRewardButton(OnClickRewardTouch);
+        BindRewardButton();
     }
 
     protected override void Unsubscribe()
     {
         GameEventManager.OnQuestProgressChanged -= RefreshView;
-        questView.UnbindRewardButton(OnClickRewardTouch);
+        UnbindRewardButton();
     }
 
     protected override void RefreshView()
@@ -130,12 +114,11 @@ public class QuestUIController : UIControllerBase
         if (questData == null)
         {
             isQuestCompleted = false;
-            questView.SetQuestInfo("-", allClearTitle);
-            questView.SetProgress(1f);
-            questView.SetRewardSprite(spriteRewardInProgress);
-            questView.SetRewardCountText(string.Empty);
-            questView.SetRewardCountVisible(false);
-            questView.SetRewardButtonInteractable(false);
+            SetQuestInfo("-", allClearTitle);
+            SetProgress(1f);
+            SetRewardSprite(spriteRewardInProgress);
+            SetRewardCount(string.Empty);
+            SetRewardButtonInteractable(false);
             ApplyFoldState();
             return;
         }
@@ -146,22 +129,21 @@ public class QuestUIController : UIControllerBase
         float progress01 = (float)clampedCurrent / requiredCount;
 
         isQuestCompleted = currentProgress >= questData.reqCount;
-        questView.SetQuestInfo($"no. {questData.questNum}", questData.questTitle);
-        questView.SetProgress(progress01);
-        questView.SetRewardSprite(ResolveRewardSprite(rewardData) ?? GetRewardFallbackSprite());
+        SetQuestInfo($"no. {questData.questNum}", questData.questTitle);
+        SetProgress(progress01);
+        SetRewardSprite(ResolveRewardSprite(rewardData) ?? GetRewardFallbackSprite());
 
         string rewardCountText = FormatRewardCount(rewardData);
-        questView.SetRewardCountText(rewardCountText);
-        questView.SetRewardCountVisible(!string.IsNullOrEmpty(rewardCountText));
+        SetRewardCount(rewardCountText);
 
         if (isQuestCompleted)
         {
-            questView.SetRewardButtonInteractable(true);
-            questView.SetRewardTouchText(rewardTouchText);
+            SetRewardButtonInteractable(true);
+            SetRewardTouchText(rewardTouchText);
         }
         else
         {
-            questView.SetRewardButtonInteractable(false);
+            SetRewardButtonInteractable(false);
         }
 
         ApplyFoldState();
@@ -317,10 +299,10 @@ public class QuestUIController : UIControllerBase
     private void ApplyFoldState(bool instant = false)
     {
         bool showRewardTouch = isQuestCompleted;
-        questView.SetProgressVisible(!showRewardTouch);
-        questView.SetRewardButtonVisible(showRewardTouch);
+        SetProgressVisible(!showRewardTouch);
+        SetRewardButtonVisible(showRewardTouch);
         if (showRewardTouch)
-            questView.SetRewardTouchText(rewardTouchText);
+            SetRewardTouchText(rewardTouchText);
 
         Vector2 targetPosition = isOpened ? openedAnchoredPosition : GetFoldedPosition();
         Vector2 targetTogglePosition = GetTogglePositionByState();
@@ -352,60 +334,17 @@ public class QuestUIController : UIControllerBase
         if (rewardData == null)
             return null;
 
-        Sprite sprite = LoadRewardSprite(rewardData.rewardItemIcon);
+        Sprite sprite = IconManager.GetResourceSprite(rewardData.rewardItemIcon);
         if (sprite != null)
             return sprite;
 
         if (DataManager.Instance?.ItemInfoDict != null &&
             DataManager.Instance.ItemInfoDict.TryGetValue(rewardData.ItemID, out ItemInfoTable itemInfo))
         {
-            return LoadRewardSprite(itemInfo.itemIcon);
+            return IconManager.GetItemIcon(itemInfo);
         }
 
         return null;
-    }
-
-    private Sprite LoadRewardSprite(string key)
-    {
-        if (string.IsNullOrWhiteSpace(key))
-            return null;
-
-        string trimmedKey = key.Trim();
-        if (rewardIconCache.TryGetValue(trimmedKey, out Sprite cachedSprite))
-            return cachedSprite;
-
-        Sprite resolvedSprite = LoadSpriteInternal(trimmedKey);
-        rewardIconCache[trimmedKey] = resolvedSprite;
-        return resolvedSprite;
-    }
-
-    private static Sprite LoadSpriteInternal(string path)
-    {
-        path = path.Replace('\\', '/');
-
-        Sprite sprite = Resources.Load<Sprite>(path);
-        if (sprite != null)
-            return sprite;
-
-        int extensionIndex = path.LastIndexOf(".", StringComparison.Ordinal);
-        if (extensionIndex > 0)
-        {
-            sprite = Resources.Load<Sprite>(path.Substring(0, extensionIndex));
-            if (sprite != null)
-                return sprite;
-        }
-
-        const string resourcesToken = "Resources/";
-        int resourcesIndex = path.IndexOf(resourcesToken, StringComparison.OrdinalIgnoreCase);
-        if (resourcesIndex < 0)
-            return null;
-
-        string relativePath = path.Substring(resourcesIndex + resourcesToken.Length);
-        int relativeExtensionIndex = relativePath.LastIndexOf(".", StringComparison.Ordinal);
-        if (relativeExtensionIndex > 0)
-            relativePath = relativePath.Substring(0, relativeExtensionIndex);
-
-        return Resources.Load<Sprite>(relativePath);
     }
 
     private Sprite GetRewardFallbackSprite()
@@ -419,5 +358,76 @@ public class QuestUIController : UIControllerBase
             return string.Empty;
 
         return rewardData.rewardItemCount.ToString("N0");
+    }
+
+    private void BindRewardButton()
+    {
+        if (btnRewardTouch == null)
+            return;
+
+        btnRewardTouch.onClick.RemoveListener(OnClickRewardTouch);
+        btnRewardTouch.onClick.AddListener(OnClickRewardTouch);
+    }
+
+    private void UnbindRewardButton()
+    {
+        if (btnRewardTouch != null)
+            btnRewardTouch.onClick.RemoveListener(OnClickRewardTouch);
+    }
+
+    private void SetQuestInfo(string numberText, string titleText)
+    {
+        if (textQuestNumber != null)
+            textQuestNumber.text = numberText;
+
+        if (textQuestName != null)
+            textQuestName.text = titleText;
+    }
+
+    private void SetProgress(float progress01)
+    {
+        if (sliderQuestProgress != null)
+            sliderQuestProgress.SetValueWithoutNotify(progress01);
+    }
+
+    private void SetProgressVisible(bool visible)
+    {
+        if (objQuestProgressSliderRoot != null)
+            objQuestProgressSliderRoot.SetActive(visible);
+    }
+
+    private void SetRewardSprite(Sprite sprite)
+    {
+        if (imageQuestReward != null)
+            imageQuestReward.sprite = sprite;
+    }
+
+    private void SetRewardCount(string text)
+    {
+        bool visible = !string.IsNullOrEmpty(text);
+
+        if (textQuestRewardCount != null)
+        {
+            textQuestRewardCount.text = text ?? string.Empty;
+            textQuestRewardCount.gameObject.SetActive(visible);
+        }
+    }
+
+    private void SetRewardButtonVisible(bool visible)
+    {
+        if (btnRewardTouch != null)
+            btnRewardTouch.gameObject.SetActive(visible);
+    }
+
+    private void SetRewardButtonInteractable(bool interactable)
+    {
+        if (btnRewardTouch != null)
+            btnRewardTouch.interactable = interactable;
+    }
+
+    private void SetRewardTouchText(string text)
+    {
+        if (textRewardTouch != null)
+            textRewardTouch.text = text;
     }
 }

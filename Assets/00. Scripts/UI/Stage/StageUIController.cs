@@ -37,30 +37,9 @@ public class StageUIController : UIControllerBase
     [SerializeField] private Color colorSummonBossEnabled = new Color(1f, 1f, 1f, 1f);
     [SerializeField] private Color colorSummonBossDisabled = new Color(0.49411765f, 0.49411765f, 0.49411765f, 1f);
 
-    private StageUIView stageView;
-
     protected override void Initialize()
     {
-        ResolveStageTextReferences();
-
-        stageView = new StageUIView(
-            textPopupStageLevel,
-            textMapInfoStageName,
-            textMapInfoStageLevel,
-            textMapInfoFloor,
-            textProgress,
-            sliderStageProgressBar,
-            bossPanel,
-            bossTimeText,
-            bossHpText,
-            bossHpSlider,
-            btnSummonBoss,
-            imageSummonBossButton,
-            imageSummonBossIcon,
-            colorSummonBossEnabled,
-            colorSummonBossDisabled
-        );
-
+        SetSummonInteractable(false);
         WarnBossUi();
     }
 
@@ -68,25 +47,23 @@ public class StageUIController : UIControllerBase
     {
         GameEventManager.OnStageChanged += OnStageChanged;
         GameEventManager.OnStageProgressChanged += OnStageProgressChanged;
-        stageView.BindSummonButton(OnClickSummonBoss);
+        BindSummonButton();
     }
 
     protected override void Unsubscribe()
     {
         GameEventManager.OnStageChanged -= OnStageChanged;
         GameEventManager.OnStageProgressChanged -= OnStageProgressChanged;
-        stageView.UnbindSummonButton(OnClickSummonBoss);
+        UnbindSummonButton();
     }
 
     protected override void RefreshView()
     {
-        ResolveStageTextReferences();
-
         if (StageManager.Instance == null)
         {
-            stageView.Render("-", string.Empty, "-", true, "-", false, 0, 0);
-            stageView.SetSummonInteractable(false);
-            stageView.SetBossMode(false);
+            RenderStageInfo("-", string.Empty, "-", true, "-", false, 0, 0);
+            SetSummonInteractable(false);
+            SetBossMode(false);
             return;
         }
 
@@ -98,7 +75,7 @@ public class StageUIController : UIControllerBase
         int currentKill = StageManager.Instance.curMonsterKillCount;
         int maxKill = StageManager.Instance.maxMonsterKillCount;
 
-        stageView.Render(
+        RenderStageInfo(
             stageLevelText,
             stageName,
             stageLevelText,
@@ -107,7 +84,7 @@ public class StageUIController : UIControllerBase
             isDungeonScene,
             currentKill,
             maxKill);
-        stageView.SetSummonInteractable(CalculateSummonInteractable(currentKill, maxKill));
+        SetSummonInteractable(CalculateSummonInteractable(currentKill, maxKill));
         RefreshBossUi();
     }
 
@@ -123,8 +100,8 @@ public class StageUIController : UIControllerBase
 
     private void OnStageProgressChanged(int currentKill, int maxKill)
     {
-        stageView.SetStageProgress(currentKill, maxKill);
-        stageView.SetSummonInteractable(CalculateSummonInteractable(currentKill, maxKill));
+        SetStageProgress(currentKill, maxKill);
+        SetSummonInteractable(CalculateSummonInteractable(currentKill, maxKill));
         RefreshBossUi();
     }
 
@@ -184,11 +161,11 @@ public class StageUIController : UIControllerBase
     {
         if (StageManager.Instance == null)
         {
-            stageView.SetSummonInteractable(false);
+            SetSummonInteractable(false);
             return;
         }
 
-        stageView.SetSummonInteractable(
+        SetSummonInteractable(
             CalculateSummonInteractable(
                 StageManager.Instance.curMonsterKillCount,
                 StageManager.Instance.maxMonsterKillCount));
@@ -196,22 +173,19 @@ public class StageUIController : UIControllerBase
 
     private void RefreshBossUi()
     {
-        if (stageView == null)
-            return;
-
         if (StageManager.Instance == null)
         {
-            stageView.SetBossMode(false);
+            SetBossMode(false);
             return;
         }
 
         bool isBossStage = StageManager.Instance.IsBossStage;
-        stageView.SetBossMode(isBossStage);
+        SetBossMode(isBossStage);
 
         if (!isBossStage)
             return;
 
-        stageView.SetBoss(
+        SetBoss(
             StageManager.Instance.BossHp,
             StageManager.Instance.BossMaxHp,
             StageManager.Instance.BossTime);
@@ -226,92 +200,6 @@ public class StageUIController : UIControllerBase
             return;
 
         Debug.LogWarning("[StageUIController] Boss HP UI references are missing. Assign (Panel)BossHp and its children in the inspector.");
-    }
-
-    private void ResolveStageTextReferences()
-    {
-        Transform mapInfoRoot = ResolveMapInfoRoot();
-        textMapInfoStageLevel = ResolveTextReference(textMapInfoStageLevel, mapInfoRoot, "(Text)Level");
-        textMapInfoFloor = ResolveTextReference(textMapInfoFloor, mapInfoRoot, "(Text)Floor");
-
-        if (stageView != null)
-            stageView.UpdateStageTextTargets(textPopupStageLevel, textMapInfoStageName, textMapInfoStageLevel, textMapInfoFloor);
-    }
-
-    private Transform ResolveMapInfoRoot()
-    {
-        if (IsMatchingText(textMapInfoStageLevel, "(Text)Level") && textMapInfoStageLevel.transform.parent != null)
-            return textMapInfoStageLevel.transform.parent;
-
-        if (IsMatchingText(textMapInfoFloor, "(Text)Floor") && textMapInfoFloor.transform.parent != null)
-            return textMapInfoFloor.transform.parent;
-
-        if (textMapInfoStageName != null && textMapInfoStageName.transform.parent != null)
-            return textMapInfoStageName.transform.parent;
-
-        Transform topPanel = FindTransformByName(transform.root, "TopPanel");
-        if (topPanel == null)
-            return null;
-
-        TextMeshProUGUI stageNameText = FindTextByName(topPanel, "(Text)Name");
-        if (stageNameText != null && stageNameText.transform.parent != null)
-            return stageNameText.transform.parent;
-
-        return topPanel;
-    }
-
-    private static TextMeshProUGUI ResolveTextReference(TextMeshProUGUI current, Transform searchRoot, string objectName)
-    {
-        if (IsMatchingText(current, objectName))
-            return current;
-
-        TextMeshProUGUI resolved = FindTextByName(searchRoot, objectName);
-        if (resolved != null)
-            return resolved;
-
-        TextMeshProUGUI[] texts = Object.FindObjectsByType<TextMeshProUGUI>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        for (int i = 0; i < texts.Length; i++)
-        {
-            if (IsMatchingText(texts[i], objectName))
-                return texts[i];
-        }
-
-        return current;
-    }
-
-    private static bool IsMatchingText(TextMeshProUGUI target, string objectName)
-    {
-        return target != null && target.gameObject.name == objectName;
-    }
-
-    private static TextMeshProUGUI FindTextByName(Transform root, string objectName)
-    {
-        if (root == null)
-            return null;
-
-        TextMeshProUGUI[] texts = root.GetComponentsInChildren<TextMeshProUGUI>(true);
-        for (int i = 0; i < texts.Length; i++)
-        {
-            if (IsMatchingText(texts[i], objectName))
-                return texts[i];
-        }
-
-        return null;
-    }
-
-    private static Transform FindTransformByName(Transform root, string objectName)
-    {
-        if (root == null)
-            return null;
-
-        Transform[] transforms = root.GetComponentsInChildren<Transform>(true);
-        for (int i = 0; i < transforms.Length; i++)
-        {
-            if (transforms[i].name == objectName)
-                return transforms[i];
-        }
-
-        return null;
     }
 
     private static bool IsDungeonScene()
@@ -330,5 +218,124 @@ public class StageUIController : UIControllerBase
     private static string FormatDungeonLevel(int dungeonLevel)
     {
         return dungeonLevel > 0 ? $"{dungeonLevel}\uB2E8\uACC4" : "-";
+    }
+
+    private void BindSummonButton()
+    {
+        if (btnSummonBoss == null)
+            return;
+
+        btnSummonBoss.onClick.RemoveListener(OnClickSummonBoss);
+        btnSummonBoss.onClick.AddListener(OnClickSummonBoss);
+    }
+
+    private void UnbindSummonButton()
+    {
+        if (btnSummonBoss != null)
+            btnSummonBoss.onClick.RemoveListener(OnClickSummonBoss);
+    }
+
+    private void RenderStageInfo(
+        string popupStageLevel,
+        string stageName,
+        string mapInfoLevel,
+        bool showMapInfoLevel,
+        string mapInfoFloor,
+        bool showMapInfoFloor,
+        int currentKill,
+        int maxKill)
+    {
+        SetText(textPopupStageLevel, popupStageLevel);
+        SetText(textMapInfoStageName, stageName);
+        SetText(textMapInfoStageLevel, mapInfoLevel);
+        SetText(textMapInfoFloor, mapInfoFloor);
+        SetTextVisible(textMapInfoStageLevel, showMapInfoLevel);
+        SetTextVisible(textMapInfoFloor, showMapInfoFloor);
+        SetStageProgress(currentKill, maxKill);
+    }
+
+    private void SetStageProgress(int currentKill, int maxKill)
+    {
+        int clampedMax = Mathf.Max(0, maxKill);
+        int clampedCurrent = Mathf.Clamp(currentKill, 0, clampedMax);
+        int progressPercent = clampedMax > 0
+            ? Mathf.RoundToInt((clampedCurrent / (float)clampedMax) * 100f)
+            : 0;
+
+        if (textProgress != null)
+            textProgress.text = $"{progressPercent}%";
+
+        if (sliderStageProgressBar != null)
+        {
+            sliderStageProgressBar.minValue = 0f;
+            sliderStageProgressBar.maxValue = clampedMax > 0 ? clampedMax : 1f;
+            sliderStageProgressBar.SetValueWithoutNotify(clampedCurrent);
+        }
+    }
+
+    private void SetBossMode(bool active)
+    {
+        bool showBoss = active && bossPanel != null;
+
+        if (textProgress != null)
+            textProgress.gameObject.SetActive(!showBoss);
+
+        if (sliderStageProgressBar != null)
+            sliderStageProgressBar.gameObject.SetActive(!showBoss);
+
+        if (bossPanel != null)
+            bossPanel.SetActive(showBoss);
+    }
+
+    private void SetBoss(float currentHp, float maxHp, float time)
+    {
+        if (bossTimeText != null)
+            bossTimeText.text = time <= 0f ? "0.000" : time.ToString("0.000");
+
+        if (bossHpText != null)
+            bossHpText.text = FormatBossHp(currentHp, maxHp);
+
+        if (bossHpSlider != null)
+        {
+            float clampedMax = Mathf.Max(1f, maxHp);
+            bossHpSlider.minValue = 0f;
+            bossHpSlider.maxValue = clampedMax;
+            bossHpSlider.SetValueWithoutNotify(Mathf.Clamp(currentHp, 0f, clampedMax));
+        }
+    }
+
+    private void SetSummonInteractable(bool interactable)
+    {
+        if (btnSummonBoss != null)
+            btnSummonBoss.interactable = interactable;
+
+        Color color = interactable ? colorSummonBossEnabled : colorSummonBossDisabled;
+
+        if (imageSummonBossButton != null)
+            imageSummonBossButton.color = color;
+
+        if (imageSummonBossIcon != null)
+            imageSummonBossIcon.color = color;
+    }
+
+    private static string FormatBossHp(float currentHp, float maxHp)
+    {
+        if (maxHp <= 0f)
+            return "0%";
+
+        float percent = Mathf.Clamp01(currentHp / maxHp) * 100f;
+        return $"{Mathf.RoundToInt(percent)}%";
+    }
+
+    private static void SetText(TextMeshProUGUI target, string value)
+    {
+        if (target != null)
+            target.text = string.IsNullOrEmpty(value) ? "-" : value;
+    }
+
+    private static void SetTextVisible(TextMeshProUGUI target, bool visible)
+    {
+        if (target != null)
+            target.gameObject.SetActive(visible);
     }
 }

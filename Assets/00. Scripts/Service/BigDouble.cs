@@ -112,14 +112,19 @@ public struct BigDouble : IComparable<BigDouble>, IEquatable<BigDouble>
 
     public string ToString(string format)
     {
+        string resolvedFormat = string.IsNullOrWhiteSpace(format) ? "F2" : format;
+
         // 1000 미만은 접미사 없이 일반 숫자로 출력한다.
         if (exponent < 3)
-            return (mantissa * Math.Pow(10, exponent)).ToString(format, CultureInfo.InvariantCulture);
+        {
+            string plainText = (mantissa * Math.Pow(10, exponent)).ToString(resolvedFormat, CultureInfo.InvariantCulture);
+            return TrimFractionalDigits(plainText);
+        }
 
         long unitIndex = exponent / 3;
         double showValue = mantissa * Math.Pow(10, exponent % 3);
         // 1000 이상은 a,b,c... 접미사 체계를 사용한다.
-        return $"{showValue.ToString(format, CultureInfo.InvariantCulture)}{GetSuffix(unitIndex)}";
+        return $"{showValue.ToString(resolvedFormat, CultureInfo.InvariantCulture)}{GetSuffix(unitIndex)}";
     }
 
     public double ToDouble()
@@ -230,5 +235,24 @@ public struct BigDouble : IComparable<BigDouble>, IEquatable<BigDouble>
         int scale = digits - 1 - (int)Math.Floor(Math.Log10(abs));
         // MidpointRounding.AwayFromZero를 사용해 경계값(예: x.5) 처리 방향을 고정한다.
         return Math.Round(value, scale, MidpointRounding.AwayFromZero);
+    }
+
+    private static string TrimFractionalDigits(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text;
+
+        int separatorIndex = text.IndexOf('.');
+        if (separatorIndex < 0)
+            return text;
+
+        int endIndex = text.Length - 1;
+        while (endIndex > separatorIndex && text[endIndex] == '0')
+            endIndex--;
+
+        if (endIndex == separatorIndex)
+            endIndex--;
+
+        return text.Substring(0, endIndex + 1);
     }
 }
