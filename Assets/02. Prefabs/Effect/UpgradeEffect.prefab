@@ -4886,7 +4886,6 @@ GameObject:
   - component: {fileID: 3184321863651424647}
   - component: {fileID: 46533203894421674}
   - component: {fileID: 8873972981170953802}
-  - component: {fileID: 5987852445977740482}
   m_Layer: 5
   m_Name: FX_Direction_Arrows_01
   m_TagString: Untagged
@@ -9751,19 +9750,6 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
---- !u!210 &5987852445977740482
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8668497973269634818}
-  m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_SortAtRoot: 0
-  m_Sort3DAs2D: 0
 --- !u!1 &9218390879667371689
 GameObject:
   m_ObjectHideFlags: 0
@@ -9775,6 +9761,7 @@ GameObject:
   - component: {fileID: 833684736522113273}
   - component: {fileID: 4764333105423811115}
   - component: {fileID: 90532004090559913}
+  - component: {fileID: -7681580061057975691}
   m_Layer: 5
   m_Name: UpgradeEffect
   m_TagString: Untagged
@@ -14641,3 +14628,16 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!210 &-7681580061057975691
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9218390879667371689}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0

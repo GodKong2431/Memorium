@@ -129,8 +129,20 @@ public static class ItemDropLogic
         if (RollChance(settings.skillGemChance, isBoss))
         {
             //int id = PickRandom(settings.skillGemIds);
-            int id = PickRandom(settings.ReturnItemTableToType(ItemType.ElementGem));
-            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.SkillGem }); }
+
+            var elementGems = settings.ReturnItemTableToType(ItemType.ElementGem);
+            var uniqueGems = settings.ReturnItemTableToType(ItemType.UniqueGem);
+
+            int c1 = elementGems != null ? elementGems.Count : 0;
+            int c2 = uniqueGems != null ? uniqueGems.Count : 0;
+            int total = c1 + c2;
+
+            if (total > 0)
+            {
+                int roll = Random.Range(0, total);
+                int id = roll < c1 ? elementGems[roll] : uniqueGems[roll - c1];
+                results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.SkillGem });
+            }
         }
         if (RollChance(settings.dungeonTicketChance, isBoss))
         {

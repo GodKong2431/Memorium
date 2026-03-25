@@ -57,8 +57,18 @@ public class ActiveSkillUIController : UIControllerBase
     [Header("Events")]
     // 스킬 아이콘 클릭 시 상세보기로 넘길 이벤트입니다.
     [SerializeField] private SkillDetailRequestedEvent onSkillDetailRequested = new SkillDetailRequestedEvent();
-    
-    
+
+    [Header("Equip Selection")]
+    //오버레이 캔버스
+    [SerializeField] private Canvas equipOverlayCanvas;
+    //포인터 이미지 0,1 일반스킬 2 궁극
+    [SerializeField] private GameObject[] equipPointerObjects;
+    //스킬 이미지
+    [SerializeField] private Image equipSkillIconImage;
+    //스킬 이름
+    [SerializeField] private TMP_Text equipSkillNameText;
+
+
     // 생성된 스킬 아이템 뷰를 스킬 ID 기준으로 캐시합니다.
     private readonly Dictionary<int, ActiveSkillItemView> itemViews = new Dictionary<int, ActiveSkillItemView>();
     // 로드한 아이콘을 재사용하기 위한 캐시입니다.
@@ -397,6 +407,13 @@ public class ActiveSkillUIController : UIControllerBase
 
         pendingEquipSkillId = skillId;
         pendingEquipSkillType = table.skillType;
+
+        if (equipSkillIconImage != null)
+            equipSkillIconImage.sprite = GetSkillIcon(skillId, table.skillIcon);
+
+        if (equipSkillNameText != null)
+            equipSkillNameText?.SetText(table.skillName);
+
         UpdateEquipSelectionState();
     }
 
@@ -446,6 +463,26 @@ public class ActiveSkillUIController : UIControllerBase
         if (equipSkillPanelRoot != null)
             equipSkillPanelRoot.SetActive(isSelecting);
 
+        // 캔버스 오버레이
+        if (equipOverlayCanvas != null)
+        {
+            equipOverlayCanvas.overrideSorting = isSelecting;
+            if (isSelecting)
+                equipOverlayCanvas.sortingOrder = 100;
+        }
+
+        // 포인터 이미지
+        if (equipPointerObjects != null)
+        {
+            for (int i = 0; i < equipPointerObjects.Length; i++)
+            {
+                if (equipPointerObjects[i] == null)
+                    continue;
+
+                bool show = isSelecting && CanEquipToSlot(i, pendingEquipSkillType);
+                equipPointerObjects[i].SetActive(show);
+            }
+        }
         if (equippedSkillSlots == null)
             return;
 

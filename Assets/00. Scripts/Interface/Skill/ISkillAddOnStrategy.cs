@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 스킬 추가 효과 전략 인터페이스
@@ -8,7 +8,7 @@ public interface ISkillAddonStrategy { }
 //시전 시 발동하는 애드온 (분신)
 public interface ISkillCastAddon : ISkillAddonStrategy
 {
-    void OnCast(ISkillHitHandler handler,ISkillCasterMovement caster, ISkillStatProvider stat, ISkillTargetProvider target, SkillDataContext dataContext, GameObject prefab =null);
+    void OnCast(ISkillHitHandler handler,ISkillCasterMovement caster, ISkillStatProvider stat, ISkillTargetProvider target, SkillDataContext dataContext);
 }
 
 //타격 시 발동하는 애드온 (넉백, 스플래시)

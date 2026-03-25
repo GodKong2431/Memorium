@@ -129,7 +129,7 @@ public class QuestUIController : UIControllerBase
         float progress01 = (float)clampedCurrent / requiredCount;
 
         isQuestCompleted = currentProgress >= questData.reqCount;
-        SetQuestInfo($"no. {questData.questNum}", questData.questTitle);
+        SetQuestInfo($"no. {QuestManager.Instance.CurrentDisplayQuestNumber}", questData.questTitle);
         SetProgress(progress01);
         SetRewardSprite(ResolveRewardSprite(rewardData) ?? GetRewardFallbackSprite());
 

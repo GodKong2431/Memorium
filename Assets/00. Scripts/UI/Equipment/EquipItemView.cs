@@ -114,9 +114,17 @@ public sealed class EquipItemView
     {
         //여기서 UI 아이콘 위치 찾고 거기서 이펙트를 옮기고 실행시켜라
         //ui.Icon.transform.
-        if (ui.Icon == null || EquipParticleManager.Instance == null)
+        if (ui.Icon == null)
+        {
+            Debug.Log("[EquipItemView] 합성 이펙트 출력 실패 : uI.Icon 없음");
             return;
-
+        }
+        if (EquipParticleManager.Instance == null)
+        {
+            Debug.Log("[EquipItemView] 합성 이펙트 출력 실패 : 파티클 매니저 없음");
+            return;
+        }
+        Debug.Log("[EquipItemView] 합성 이펙트 출력");
         EquipParticleManager.Instance.PlayMergeEffect(ui.Icon.transform);
     }
 

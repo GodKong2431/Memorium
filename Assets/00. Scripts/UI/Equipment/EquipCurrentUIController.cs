@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class EquipCurrentUIController : UIControllerBase
@@ -13,7 +12,6 @@ public class EquipCurrentUIController : UIControllerBase
     [SerializeField] private RectTransform root;
     [SerializeField] private GameObject itemPrefab;
     [SerializeField] private RectTransform mergeResultPanelRoot;
-    [SerializeField] private RectTransform mergeResultPopupContentRoot;
     [SerializeField] private TextMeshProUGUI mergeResultTitle;
     [SerializeField] private ScrollRect mergeResultScrollView;
     [SerializeField] private RectTransform mergeResultContentRoot;
@@ -43,12 +41,15 @@ public class EquipCurrentUIController : UIControllerBase
     private int ignoreMergeResultCloseUntilFrame = -1;
     private Button boundMergeButton;
     private Button boundEquipButton;
+    private Button boundMergeResultBackgroundButton;
+    private Button mergeResultBackgroundButton;
     private RectTransform builtRoot;
     private RectTransform builtMergeResultContentRoot;
 
     protected override void Initialize()
     {
         EnsureUiBindings();
+        BindMergeResultBackgroundButton();
         SetMergeResultVisible(false);
     }
 
@@ -74,19 +75,18 @@ public class EquipCurrentUIController : UIControllerBase
         mergeResultTitle = sourceMergeResultTitle;
         mergeResultScrollView = sourceMergeResultScrollView;
         mergeResultItemPrefab = sourceMergeResultItemPrefab;
-        mergeResultPopupContentRoot = sourceMergeResultPanelRoot;
         mergeResultContentRoot = sourceMergeResultScrollView != null
             ? sourceMergeResultScrollView.content
             : null;
 
+        ResetMergeResultViews();
         builtRoot = null;
-        builtMergeResultContentRoot = null;
         isBuilt = false;
         views.Clear();
-        mergeResultViews.Clear();
 
         EnsureUiBindings();
         BindActionButtons();
+        BindMergeResultBackgroundButton();
 
         if (isActiveAndEnabled)
             RefreshView();
@@ -94,12 +94,6 @@ public class EquipCurrentUIController : UIControllerBase
 
     private void Update()
     {
-        if (isMergeResultVisible && ShouldCloseMergeResultPopup())
-        {
-            HideMergeResultPopup();
-            return;
-        }
-
         if (!isBuilt || NeedsRebuild())
             RefreshView();
     }
@@ -109,6 +103,7 @@ public class EquipCurrentUIController : UIControllerBase
         EquipmentHandler.EquipmentUiRefreshRequested += RefreshView;
         PlayerEquipment.EquippedItemChanged += HandleEquippedChanged;
         BindActionButtons();
+        BindMergeResultBackgroundButton();
         BindInventory();
     }
 
@@ -117,6 +112,7 @@ public class EquipCurrentUIController : UIControllerBase
         EquipmentHandler.EquipmentUiRefreshRequested -= RefreshView;
         PlayerEquipment.EquippedItemChanged -= HandleEquippedChanged;
         UnbindActionButtons();
+        UnbindMergeResultBackgroundButton();
         UnbindInventory();
     }
 
@@ -159,9 +155,6 @@ public class EquipCurrentUIController : UIControllerBase
     {
         if (mergeResultContentRoot == null && mergeResultScrollView != null)
             mergeResultContentRoot = mergeResultScrollView.content;
-
-        if (mergeResultPopupContentRoot == null)
-            mergeResultPopupContentRoot = mergeResultPanelRoot;
 
         return root != null && itemPrefab != null;
     }
@@ -314,10 +307,7 @@ public class EquipCurrentUIController : UIControllerBase
             return;
 
         if (builtMergeResultContentRoot != mergeResultContentRoot || HasInvalidMergeResultViews())
-        {
-            mergeResultViews.Clear();
-            builtMergeResultContentRoot = mergeResultContentRoot;
-        }
+            ResetMergeResultViews();
 
         while (mergeResultViews.Count < requiredCount)
         {
@@ -551,70 +541,149 @@ public class EquipCurrentUIController : UIControllerBase
 
     private void SetMergeResultVisible(bool visible)
     {
+        if (visible)
+            RefreshMergeResultOverlayOrder();
+
+        if (mergeResultBackgroundButton != null && mergeResultBackgroundButton.gameObject.activeSelf != visible)
+            mergeResultBackgroundButton.gameObject.SetActive(visible);
+
         if (mergeResultPanelRoot != null && mergeResultPanelRoot.gameObject.activeSelf != visible)
             mergeResultPanelRoot.gameObject.SetActive(visible);
     }
 
-    private bool ShouldCloseMergeResultPopup()
+    private void ResetMergeResultViews()
     {
+        ClearMergeResultChildren(builtMergeResultContentRoot);
+
+        if (mergeResultContentRoot != builtMergeResultContentRoot)
+            ClearMergeResultChildren(mergeResultContentRoot);
+
+        mergeResultViews.Clear();
+        builtMergeResultContentRoot = mergeResultContentRoot;
+    }
+
+    private static void ClearMergeResultChildren(RectTransform targetRoot)
+    {
+        if (targetRoot == null)
+            return;
+
+        for (int i = targetRoot.childCount - 1; i >= 0; i--)
+        {
+            GameObject child = targetRoot.GetChild(i).gameObject;
+            child.SetActive(false);
+            Destroy(child);
+        }
+    }
+
+    private void BindMergeResultBackgroundButton()
+    {
+        Button current = EnsureMergeResultBackgroundButton();
+        if (current == boundMergeResultBackgroundButton)
+            return;
+
+        if (boundMergeResultBackgroundButton != null)
+            boundMergeResultBackgroundButton.onClick.RemoveListener(HandleMergeResultBackgroundClick);
+
+        boundMergeResultBackgroundButton = current;
+
+        if (boundMergeResultBackgroundButton == null)
+            return;
+
+        boundMergeResultBackgroundButton.onClick.RemoveListener(HandleMergeResultBackgroundClick);
+        boundMergeResultBackgroundButton.onClick.AddListener(HandleMergeResultBackgroundClick);
+    }
+
+    private void UnbindMergeResultBackgroundButton()
+    {
+        if (boundMergeResultBackgroundButton != null)
+            boundMergeResultBackgroundButton.onClick.RemoveListener(HandleMergeResultBackgroundClick);
+
+        boundMergeResultBackgroundButton = null;
+    }
+
+    private void HandleMergeResultBackgroundClick()
+    {
+        if (!isMergeResultVisible)
+            return;
+
         if (Time.frameCount <= ignoreMergeResultCloseUntilFrame)
-            return false;
+            return;
 
-        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
-            return !IsInsideMergeResultPopup(Touchscreen.current.primaryTouch.position.ReadValue());
-
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-            return !IsInsideMergeResultPopup(Mouse.current.position.ReadValue());
-
-        return false;
+        HideMergeResultPopup();
     }
 
-    private bool IsInsideMergeResultPopup(Vector2 screenPosition)
+    private void RefreshMergeResultOverlayOrder()
     {
-        RectTransform hitRoot = ResolveMergeResultPopupHitRoot();
-        if (hitRoot == null)
-            return false;
+        if (mergeResultPanelRoot == null)
+            return;
 
-        Canvas parentCanvas = hitRoot.GetComponentInParent<Canvas>();
-        Camera eventCamera = null;
-        if (parentCanvas != null && parentCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
-            eventCamera = parentCanvas.worldCamera;
+        Transform parent = mergeResultPanelRoot.parent;
+        if (parent == null)
+            return;
 
-        return RectTransformUtility.RectangleContainsScreenPoint(hitRoot, screenPosition, eventCamera);
+        mergeResultPanelRoot.SetAsLastSibling();
+
+        if (mergeResultBackgroundButton == null)
+            return;
+
+        if (mergeResultBackgroundButton.transform.parent != parent)
+            return;
+
+        int panelIndex = mergeResultPanelRoot.GetSiblingIndex();
+        mergeResultBackgroundButton.transform.SetSiblingIndex(Mathf.Max(0, panelIndex - 1));
     }
 
-    private RectTransform ResolveMergeResultPopupHitRoot()
+    private Button EnsureMergeResultBackgroundButton()
     {
-        if (mergeResultPopupContentRoot != null)
-            return mergeResultPopupContentRoot;
+        if (mergeResultPanelRoot == null)
+            return null;
 
-        if (mergeResultScrollView != null)
+        if (mergeResultBackgroundButton != null)
         {
-            RectTransform scrollRect = mergeResultScrollView.transform as RectTransform;
-            if (scrollRect != null)
+            RectTransform currentRoot = mergeResultBackgroundButton.transform as RectTransform;
+            if (currentRoot != null && currentRoot.parent == mergeResultPanelRoot.parent)
             {
-                RectTransform parentRect = scrollRect.parent as RectTransform;
-                if (parentRect != null && parentRect != mergeResultPanelRoot)
-                    return parentRect;
-
-                return scrollRect;
+                RefreshMergeResultOverlayOrder();
+                return mergeResultBackgroundButton;
             }
+
+            Destroy(mergeResultBackgroundButton.gameObject);
+            mergeResultBackgroundButton = null;
         }
 
-        if (mergeResultTitle != null)
-        {
-            RectTransform titleRect = mergeResultTitle.transform as RectTransform;
-            if (titleRect != null)
-            {
-                RectTransform parentRect = titleRect.parent as RectTransform;
-                if (parentRect != null && parentRect != mergeResultPanelRoot)
-                    return parentRect;
+        Transform parent = mergeResultPanelRoot.parent;
+        if (parent == null)
+            return mergeResultBackgroundButton;
 
-                return titleRect;
-            }
-        }
+        GameObject blocker = new GameObject(
+            "EquipMergeResultDismissBlocker",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image),
+            typeof(Button));
+        blocker.layer = mergeResultPanelRoot.gameObject.layer;
+        blocker.transform.SetParent(parent, false);
 
-        return mergeResultContentRoot != null ? mergeResultContentRoot : mergeResultPanelRoot;
+        RectTransform blockerRoot = blocker.GetComponent<RectTransform>();
+        blockerRoot.anchorMin = Vector2.zero;
+        blockerRoot.anchorMax = Vector2.one;
+        blockerRoot.offsetMin = Vector2.zero;
+        blockerRoot.offsetMax = Vector2.zero;
+        blockerRoot.SetSiblingIndex(mergeResultPanelRoot.GetSiblingIndex());
+
+        Image image = blocker.GetComponent<Image>();
+        image.color = new Color(0f, 0f, 0f, 0f);
+        image.raycastTarget = true;
+
+        mergeResultBackgroundButton = blocker.GetComponent<Button>();
+        mergeResultBackgroundButton.targetGraphic = image;
+        mergeResultBackgroundButton.gameObject.SetActive(false);
+        mergeResultBackgroundButton.transition = Selectable.Transition.None;
+        mergeResultBackgroundButton.navigation = new Navigation { mode = Navigation.Mode.None };
+
+        RefreshMergeResultOverlayOrder();
+
+        return mergeResultBackgroundButton;
     }
 
     private static int GetStarCount(int tier)

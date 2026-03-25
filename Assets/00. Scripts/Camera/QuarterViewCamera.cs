@@ -10,12 +10,16 @@ public class QuarterViewCamera : MonoBehaviour
     [SerializeField] private string targetTag = "Player";
     [SerializeField] private bool findOnStart = true;
 
-    [Header("Follow")]
+    [Header("View")]
     [SerializeField] private float distance = 14f;
-    [SerializeField] private float height = 10f;
-    [SerializeField] private float yaw = 45f;
-    [SerializeField] private float pitch = 35f;
-    [SerializeField] private Vector3 targetOffset = new Vector3(0f, 1.2f, 0f);
+    [SerializeField] private Vector2 angle = new Vector2(57f, 45f);
+    [SerializeField] private Vector3 offset = new Vector3(0f, 1.2f, 0f);
+
+    [Header("Bottom Sheet")]
+    [SerializeField] private BottomPanelController bottomPanelController;
+    [SerializeField] private Vector3 sheetOpenLocalPositionOffset = new Vector3(0f, -2f, 0f);
+
+    [Header("Smoothing")]
     [SerializeField] private float moveSmooth = 10f;
     [SerializeField] private float turnSmooth = 12f;
 
@@ -109,18 +113,18 @@ public class QuarterViewCamera : MonoBehaviour
         if (target == null && !FindTarget())
             return;
 
-        Vector3 targetPos = GetTargetPos();
-        Quaternion targetRot = GetLookRot(targetPos);
-        Vector3 camPos = GetCamPos(targetPos, targetRot);
+        Vector3 pivotPos = GetPivotPos();
+        Quaternion targetRot = GetViewRot();
+        Vector3 camPos = GetCamPos(pivotPos, targetRot);
 
         transform.SetPositionAndRotation(camPos, targetRot);
     }
 
     private void UpdateCamera(float deltaTime)
     {
-        Vector3 targetPos = GetTargetPos();
-        Quaternion targetRot = GetLookRot(targetPos);
-        Vector3 camPos = GetCamPos(targetPos, targetRot);
+        Vector3 pivotPos = GetPivotPos();
+        Quaternion targetRot = GetViewRot();
+        Vector3 camPos = GetCamPos(pivotPos, targetRot);
 
         float moveT = 1f - Mathf.Exp(-Mathf.Max(0f, moveSmooth) * deltaTime);
         float turnT = 1f - Mathf.Exp(-Mathf.Max(0f, turnSmooth) * deltaTime);
@@ -129,22 +133,31 @@ public class QuarterViewCamera : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, turnT);
     }
 
-    private Vector3 GetTargetPos()
+    private Vector3 GetPivotPos()
     {
-        return target.position + targetOffset;
+        return target.position + offset;
     }
 
-    private Quaternion GetLookRot(Vector3 targetPos)
+    private Quaternion GetViewRot()
     {
-        Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
-        Vector3 dir = (targetPos - GetCamPos(targetPos, rot)).normalized;
-        return Quaternion.LookRotation(dir, Vector3.up);
+        return Quaternion.Euler(angle.x, angle.y, 0f);
     }
 
-    private Vector3 GetCamPos(Vector3 targetPos, Quaternion rot)
+    private Vector3 GetCamPos(Vector3 pivotPos, Quaternion rot)
     {
-        Vector3 offset = rot * new Vector3(0f, 0f, -distance);
-        return targetPos + offset + Vector3.up * height;
+        Vector3 basePosition = pivotPos + rot * (Vector3.back * Mathf.Max(0f, distance));
+        if (!IsBottomSheetOpen())
+            return basePosition;
+
+        return basePosition + (rot * sheetOpenLocalPositionOffset);
+    }
+
+    private bool IsBottomSheetOpen()
+    {
+        if (bottomPanelController == null)
+            bottomPanelController = Object.FindFirstObjectByType<BottomPanelController>();
+
+        return bottomPanelController != null && bottomPanelController.IsSheetOpen;
     }
 
     private void OnPlayerSpawned(Transform playerTransform)
@@ -160,6 +173,7 @@ public class QuarterViewCamera : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         target = null;
+        bottomPanelController = null;
         shouldSnapToResolvedTarget = true;
     }
 }

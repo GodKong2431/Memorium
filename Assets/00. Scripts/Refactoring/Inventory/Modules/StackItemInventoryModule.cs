@@ -12,7 +12,7 @@ public sealed class StackItemInventoryModule : IInventoryModule
             return false;
         if (InventoryTypeMapper.TryToEquipmentType(itemType, out _))
             return false;
-
+        
         return true;
     }
 

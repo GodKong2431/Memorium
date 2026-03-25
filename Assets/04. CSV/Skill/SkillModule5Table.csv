@@ -1,0 +1,33 @@
+잼 ID,아이템 키 참조여부,스킬ID 참조여부,"상태이상 타입(fire=0, poison=1, bleed=2)",데미지 주기(1=1초),"발동 방식(assignTarget=0, strikeLocation=1)",상태 지속시간(1=1초),최대 중첩 횟수,데미지 계수,레벨당 증가량,방어력 감소량 (0.01=1%),아이콘 경로,시전 VFX 경로,추가 VFX 경로,주석
+m5ID,m5ItemID,skillID,m5Type,tickInterval,applyType,duration,maxStack,damageValue,plusValue,defDown,m5Icon,m5VFX,m5VFX2,desc
+int,int,int,enum,float,enum,float,int,float,float,float,string,string,string,string
+4050001,3220001,4000001,0,0.3,1,2.1,0,1,1,0.1,Assets/Resources/Sprite/gemicon_4050001.png,Assets/02. Prefabs/Skill/gemvfx_4050001.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050001.prefab,잔영 베기
+4050002,3220002,4000001,1,0.5,0,5,0,0.5,0.5,0,Assets/Resources/Sprite/gemicon_4050002.png,Assets/02. Prefabs/Skill/gemvfx_4050002.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050002.prefab,잔영 베기
+4050003,3220003,4000001,2,1,0,8,5,0.4,0.4,0,Assets/Resources/Sprite/gemicon_4050003.png,Assets/02. Prefabs/Skill/gemvfx_4050003.prefab,0,잔영 베기
+4050004,3220004,4000002,0,0.3,1,2.1,0,1,1,0.1,Assets/Resources/Sprite/gemicon_4050001.png,Assets/02. Prefabs/Skill/gemvfx_4050001.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050001.prefab,환상 비수
+4050005,3220005,4000002,1,0.5,0,5,0,0.5,0.5,0,Assets/Resources/Sprite/gemicon_4050002.png,Assets/02. Prefabs/Skill/gemvfx_4050002.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050002.prefab,환상 비수
+4050006,3220006,4000002,2,1,0,8,5,0.4,0.4,0,Assets/Resources/Sprite/gemicon_4050003.png,Assets/02. Prefabs/Skill/gemvfx_4050003.prefab,0,환상 비수
+4050007,3220007,4000003,0,0.3,1,2.1,0,1,1,0.1,Assets/Resources/Sprite/gemicon_4050001.png,Assets/02. Prefabs/Skill/gemvfx_4050001.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050001.prefab,칼날 폭풍
+4050008,3220008,4000003,1,0.5,0,5,0,0.5,0.5,0,Assets/Resources/Sprite/gemicon_4050002.png,Assets/02. Prefabs/Skill/gemvfx_4050002.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050002.prefab,칼날 폭풍
+4050009,3220009,4000003,2,1,0,8,5,0.4,0.4,0,Assets/Resources/Sprite/gemicon_4050003.png,Assets/02. Prefabs/Skill/gemvfx_4050003.prefab,0,칼날 폭풍
+4050010,3220010,4000004,0,0.3,1,2.1,0,1,1,0.1,Assets/Resources/Sprite/gemicon_4050001.png,Assets/02. Prefabs/Skill/gemvfx_4050001.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050001.prefab,공중 낙하
+4050011,3220011,4000004,1,0.5,0,5,0,0.5,0.5,0,Assets/Resources/Sprite/gemicon_4050002.png,Assets/02. Prefabs/Skill/gemvfx_4050002.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050002.prefab,공중 낙하
+4050012,3220012,4000004,2,1,0,8,5,0.4,0.4,0,Assets/Resources/Sprite/gemicon_4050003.png,Assets/02. Prefabs/Skill/gemvfx_4050003.prefab,0,공중 낙하
+4050013,3220013,4000005,0,0.3,1,2.1,0,1,1,0.1,Assets/Resources/Sprite/gemicon_4050001.png,Assets/02. Prefabs/Skill/gemvfx_4050001.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050001.prefab,후방 기습
+4050014,3220014,4000005,1,0.5,0,5,0,0.5,0.5,0,Assets/Resources/Sprite/gemicon_4050002.png,Assets/02. Prefabs/Skill/gemvfx_4050002.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050002.prefab,후방 기습
+4050015,3220015,4000005,2,1,0,8,5,0.4,0.4,0,Assets/Resources/Sprite/gemicon_4050003.png,Assets/02. Prefabs/Skill/gemvfx_4050003.prefab,0,후방 기습
+4050016,3220016,4000006,0,0.3,1,2.1,0,1,1,0.1,Assets/Resources/Sprite/gemicon_4050001.png,Assets/02. Prefabs/Skill/gemvfx_4050001.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050001.prefab,칼날 결계
+4050017,3220017,4000006,1,0.5,0,5,0,0.5,0.5,0,Assets/Resources/Sprite/gemicon_4050002.png,Assets/02. Prefabs/Skill/gemvfx_4050002.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050002.prefab,칼날 결계
+4050018,3220018,4000006,2,1,0,8,5,0.4,0.4,0,Assets/Resources/Sprite/gemicon_4050003.png,Assets/02. Prefabs/Skill/gemvfx_4050003.prefab,0,칼날 결계
+4050019,3220019,4000007,0,0.3,1,2.1,0,1,1,0.1,Assets/Resources/Sprite/gemicon_4050001.png,Assets/02. Prefabs/Skill/gemvfx_4050001.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050001.prefab,십자 절단
+4050020,3220020,4000007,1,0.5,0,5,0,0.5,0.5,0,Assets/Resources/Sprite/gemicon_4050002.png,Assets/02. Prefabs/Skill/gemvfx_4050002.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050002.prefab,십자 절단
+4050021,3220021,4000007,2,1,0,8,5,0.4,0.4,0,Assets/Resources/Sprite/gemicon_4050003.png,Assets/02. Prefabs/Skill/gemvfx_4050003.prefab,0,십자 절단
+4050022,3220022,4000008,0,0.3,1,2.1,0,1,1,0.1,Assets/Resources/Sprite/gemicon_4050001.png,Assets/02. Prefabs/Skill/gemvfx_4050001.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050001.prefab,잔상 찌르기
+4050023,3220023,4000008,1,0.5,0,5,0,0.5,0.5,0,Assets/Resources/Sprite/gemicon_4050002.png,Assets/02. Prefabs/Skill/gemvfx_4050002.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050002.prefab,잔상 찌르기
+4050024,3220024,4000008,2,1,0,8,5,0.4,0.4,0,Assets/Resources/Sprite/gemicon_4050003.png,Assets/02. Prefabs/Skill/gemvfx_4050003.prefab,0,잔상 찌르기
+4050025,3220025,4000009,0,0.3,1,2.1,0,1,1,0.1,Assets/Resources/Sprite/gemicon_4050001.png,Assets/02. Prefabs/Skill/gemvfx_4050001.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050001.prefab,멸살의 영역
+4050026,3220026,4000009,1,0.5,0,5,0,0.5,0.5,0,Assets/Resources/Sprite/gemicon_4050002.png,Assets/02. Prefabs/Skill/gemvfx_4050002.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050002.prefab,멸살의 영역
+4050027,3220027,4000009,2,1,0,8,5,0.4,0.4,0,Assets/Resources/Sprite/gemicon_4050003.png,Assets/02. Prefabs/Skill/gemvfx_4050003.prefab,0,멸살의 영역
+4050028,3220028,4000010,0,0.3,1,2.1,0,1,1,0.1,Assets/Resources/Sprite/gemicon_4050001.png,Assets/02. Prefabs/Skill/gemvfx_4050001.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050001.prefab,환영 난무
+4050029,3220029,4000010,1,0.5,0,5,0,0.5,0.5,0,Assets/Resources/Sprite/gemicon_4050002.png,Assets/02. Prefabs/Skill/gemvfx_4050002.prefab,Assets/02. Prefabs/Skill/gemvfx2_4050002.prefab,환영 난무
+4050030,3220030,4000010,2,1,0,8,5,0.4,0.4,0,Assets/Resources/Sprite/gemicon_4050003.png,Assets/02. Prefabs/Skill/gemvfx_4050003.prefab,0,환영 난무

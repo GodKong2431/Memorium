@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(SkillCaster))]
@@ -19,8 +20,9 @@ public class Shadow : MonoBehaviour
         caster.OnSkillEnd -= SelfDestroy;
     }
 
-    public void Cast(SkillDataContext originalContext, float delay)
+    public void Cast(SkillDataContext originalContext, float delay, Vector3 originTargetPos, Vector3 originDir)
     {
+        caster.SetShadowData(originTargetPos, originDir);
         int skillID = originalContext.skillData.skillTable.ID;
         int m5ID = originalContext.m5DataA != null ? originalContext.m5DataA.ID : -1;
         caster.CastSkill(caster.ResetContext(skillID, -1, m5ID), delay, false);
@@ -28,6 +30,7 @@ public class Shadow : MonoBehaviour
 
     private void SelfDestroy()
     {
-        Destroy(gameObject);
+        ObjectPoolManager.Return(gameObject);
     }
+
 }

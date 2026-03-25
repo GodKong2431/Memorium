@@ -163,7 +163,10 @@ public class TraitContentsUIController : UIControllerBase
             iconByStat[entry.statType] = entry.icon;
         }
         
-        foreach(var icon in IconManager.StatIconSO.StatIconDict)
+        if (IconManager.StatIconSO == null || IconManager.StatIconSO.StatIconDict == null)
+            return;
+
+        foreach (var icon in IconManager.StatIconSO.StatIconDict)
         {
             iconByStat[icon.Key] = icon.Value;
         }
@@ -206,7 +209,7 @@ public class TraitContentsUIController : UIControllerBase
             return false;
         }
 
-        if (statManager == null || !statManager.TableLoad || statManager.Traits == null)
+        if (!TryResolveStatManager())
             return false;
 
         InventoryManager inventoryManager = InventoryManager.Instance;
@@ -224,6 +227,16 @@ public class TraitContentsUIController : UIControllerBase
         }
 
         return true;
+    }
+
+    private bool TryResolveStatManager()
+    {
+        if (statManager == null)
+            statManager = CharacterStatManager.Instance;
+
+        return statManager != null &&
+               statManager.TableLoad &&
+               statManager.Traits != null;
     }
 
     private void UnsubscribeTraitEvents()
@@ -367,8 +380,8 @@ public class TraitContentsUIController : UIControllerBase
 
         itemUI.EnsureBindings();
 
-        if (itemUI.StatIconImage != null && iconByStat.TryGetValue(trait.statType, out Sprite icon) && icon != null)
-            itemUI.StatIconImage.sprite = icon;
+        if (itemUI.StatIconImage != null)
+            itemUI.StatIconImage.sprite = ResolveTraitIcon(trait);
 
         if (itemUI.Button != null)
         {
@@ -483,8 +496,7 @@ public class TraitContentsUIController : UIControllerBase
 
         if (itemUI.StatIconImage != null)
         {
-            if (iconByStat.TryGetValue(trait.statType, out Sprite icon) && icon != null)
-                itemUI.StatIconImage.sprite = icon;
+            itemUI.StatIconImage.sprite = ResolveTraitIcon(trait);
 
             itemUI.StatIconImage.color = isLocked ? DisabledTextColor : Color.white;
         }
@@ -536,11 +548,6 @@ public class TraitContentsUIController : UIControllerBase
         HideTraitPopup();
     }
 
-    public void ResetForSceneChange()
-    {
-        CloseTraitPopup();
-    }
-
     private void RefreshTraitPopup(BigDouble points)
     {
         // 현재 선택된 특성 기준으로 팝업 내용을 다시 그립니다.
@@ -563,10 +570,10 @@ public class TraitContentsUIController : UIControllerBase
         float afterStat = selectedTrait.CurrentStat + (isMaxed ? 0f : selectedTrait.StatUP);
 
         Sprite icon = ResolveTraitIcon(selectedTrait);
-        if (icon != null)
+        if (popupStatIconImage != null)
         {
-            if (popupStatIconImage != null)
-                popupStatIconImage.sprite = icon;
+            popupStatIconImage.sprite = icon;
+            popupStatIconImage.enabled = icon != null;
         }
 
         if (popupStatText != null)
@@ -679,30 +686,7 @@ public class TraitContentsUIController : UIControllerBase
         if (iconByStat.TryGetValue(trait.statType, out Sprite mappedIcon) && mappedIcon != null)
             return mappedIcon;
 
-        TraitRuntime runtime = FindTraitRuntime(trait);
-        if (runtime != null && runtime.ItemUI != null && runtime.ItemUI.StatIconImage != null)
-            return runtime.ItemUI.StatIconImage.sprite;
-
-        return null;
-    }
-
-    private TraitRuntime FindTraitRuntime(PlayerTrait trait)
-    {
-        if (trait == null)
-            return null;
-
-        for (int i = 0; i < tierRuntimes.Count; i++)
-        {
-            List<TraitRuntime> items = tierRuntimes[i].Items;
-            for (int itemIndex = 0; itemIndex < items.Count; itemIndex++)
-            {
-                TraitRuntime runtime = items[itemIndex];
-                if (runtime != null && ReferenceEquals(runtime.Trait, trait))
-                    return runtime;
-            }
-        }
-
-        return null;
+        return IconManager.GetStatIcon(trait.statType);
     }
 
     private void OnCurrencyChanged(CurrencyType type, BigDouble amount)

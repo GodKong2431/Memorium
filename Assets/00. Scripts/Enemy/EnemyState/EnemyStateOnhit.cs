@@ -12,10 +12,16 @@ public class EnemyStateOnhit : IEnemyState
     private KnockbackInfo knockbackInfo;
     private float knockbackSpeed;
     private float elapsedTime;
+    private bool _isKnockbackActive;
     public EnemyStateType Type => EnemyStateType.Onhit;
 
     public void OnEnter(EnemyStateContext ctx)
     {
+        _isKnockbackActive = false;
+        elapsedTime = 0f;
+        knockbackSpeed = 0f;
+        knockbackInfo = default;
+
         _endTime = Time.time + OnhitDuration;
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Onhit);
         // 피격 이펙트 추가 예정
@@ -37,8 +43,10 @@ public class EnemyStateOnhit : IEnemyState
         }
         ProcessKnockback(ctx);
 
-        if (Time.time >= _endTime)
+        if (Time.time >= _endTime && (!_isKnockbackActive || elapsedTime >= knockbackInfo.duration))
+        {
             ctx.RequestState(EnemyStateType.Chase);
+        }
     }
 
     public void OnExit(EnemyStateContext ctx)
@@ -52,23 +60,33 @@ public class EnemyStateOnhit : IEnemyState
     {
         if (ctx.PendingKnockback.HasValue)
         {
+            _isKnockbackActive = true;
             knockbackInfo = ctx.PendingKnockback.Value;
+            ctx.PendingKnockback = null;
 
             knockbackSpeed = knockbackInfo.distance / knockbackInfo.duration;
             elapsedTime = 0f;
 
-            _endTime = Time.time + knockbackInfo.duration;
 
+            float knockbackEndTime = Time.time + knockbackInfo.duration;
+            if (knockbackEndTime > _endTime)
+            {
+                _endTime = knockbackEndTime;
+            }
             if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
             {
                 ctx.Agent.enabled = false;
             }
         }
+        else
+        {
+            _isKnockbackActive = false;
+        }
     }
 
     private void ProcessKnockback(EnemyStateContext ctx)
     {
-        if (ctx.PendingKnockback.HasValue) return;
+        if (!_isKnockbackActive) return;
 
         if (elapsedTime < knockbackInfo.duration)
         {
@@ -94,7 +112,9 @@ public class EnemyStateOnhit : IEnemyState
     private void ExitKnockback(EnemyStateContext ctx)
     {
 
-        if (!ctx.PendingKnockback.HasValue)  return; 
+        if (!_isKnockbackActive) return;
+        _isKnockbackActive = false;
+
         if (ctx.Agent ==null) return;
 
         ctx.Agent.enabled = true;
