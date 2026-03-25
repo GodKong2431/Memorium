@@ -837,7 +837,7 @@ public sealed partial class StoneUI : UIControllerBase
         {
             var LockButton = stoneView.LockObject.GetComponent<Button>();
             LockButton.onClick.RemoveAllListeners();
-            LockButton.onClick.AddListener(()=>InstanceMessageManager.TryShow("아직 해금되지 않은 스톤입니다"));
+            LockButton.onClick.AddListener(()=>InstanceMessageManager.TryShow("해금되지 않은 어빌리티입니다"));
         }
     }
 }
