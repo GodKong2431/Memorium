@@ -117,6 +117,13 @@ public class BottomPanelController : MonoBehaviour
     private bool suppressNextPointerUpTap;
 #endregion
 
+#region Public State
+    public bool IsSheetOpen =>
+        sheetPanel != null &&
+        sheetPanel.activeSelf &&
+        HasActiveSheetPage();
+#endregion
+
 #region Unity Lifecycle
     // 초기 참조와 이벤트를 한 번에 준비한다.
     private void Awake()

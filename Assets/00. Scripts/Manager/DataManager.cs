@@ -1,4 +1,4 @@
-using AYellowpaper.SerializedCollections;
+﻿using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -542,7 +542,7 @@ public class DataManager : Singleton<DataManager>
 
         if (tableType == null)
         {
-            Debug.LogWarning($"[DataManager] 留ㅽ븨???뚯씠釉??대옒?ㅻ? 李얠? 紐삵뻽?듬땲?? {className}.cs (?뚯씪紐??대옒?ㅻ챸 ?쇱튂 ?щ? ?뺤씤)");
+            Debug.LogWarning($"[DataManager] 매핑할 테이블 클래스를 찾지 못했습니다: {className}.cs (파일명/클래스명 일치 여부 확인)");
             return false;
         }
 
@@ -578,7 +578,7 @@ public class DataManager : Singleton<DataManager>
         }
         catch (DecoderFallbackException)
         {
-            Debug.LogError($"[?몄퐫??踰붿씤 諛쒓껄] ?꾨꼍??UTF-8???꾨땶 ?뚯씪: {textAsset.name}");
+            Debug.LogError($"[인코딩 범인 발견] 완벽한 UTF-8이 아닌 파일: {textAsset.name}");
             return Encoding.GetEncoding(949).GetString(bytes).TrimStart('\uFEFF');
         }
     }
@@ -598,7 +598,7 @@ public class DataManager : Singleton<DataManager>
             if (!dict.ContainsKey(data.ID))
                 dict.Add(data.ID, data);
             else
-                Debug.LogWarning($"[DataManager] {keyName} 以묐났 ID: {data.ID}");
+                Debug.LogWarning($"[DataManager] {keyName} 중복 ID: {data.ID}");
         }
 
         BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
@@ -634,7 +634,7 @@ public class DataManager : Singleton<DataManager>
 
         if (!injected)
         {
-            Debug.LogError($"[DataManager] 二쇱엯 ?ㅽ뙣: {keyName} (Dictionary<int, {typeof(T).Name}> ???硫ㅻ쾭 ?꾩슂)");
+            Debug.LogError($"[DataManager] 주입 실패: {keyName} (Dictionary<int, {typeof(T).Name}> 타입 멤버 필요)");
             return false;
         }
 

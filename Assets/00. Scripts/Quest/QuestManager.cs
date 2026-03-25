@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -14,6 +16,7 @@ public class QuestManager : Singleton<QuestManager>
     [Header("Current Progress")]
     public int currentQuestID = 7010001;
     public int currentProgress = 0;
+    public int completedQuestCount = 0;
 
     public SaveQuestData saveQuestData;
 
@@ -41,28 +44,28 @@ public class QuestManager : Singleton<QuestManager>
         }
     }
 
+    public int CurrentDisplayQuestNumber => Mathf.Max(1, completedQuestCount + 1);
+
     private IEnumerator Start()
     {
         GameEventManager.OnQuestActionUpdated += HandleQuestAction;
+        GameEventManager.OnQuestProgressChanged += HandleQuestProgressChanged;
 
         //JSON Data Load
         saveQuestData = JSONService.Load<SaveQuestData>();
-        (currentQuestID, currentProgress) = saveQuestData.InitQuestData();
+        (currentQuestID, currentProgress, completedQuestCount) = saveQuestData.InitQuestData();
 
         // Delay first UI broadcast until quest table is loaded.
         yield return new WaitUntil(() => IsQuestDataReady);
+        NormalizeCurrentQuestState();
         GameEventManager.OnQuestProgressChanged?.Invoke();
-
-        GameEventManager.OnQuestProgressChanged += ()=>
-        {
-            saveQuestData.SaveProgress(currentProgress);
-        };
         DataLoad = true;
     }
 
     protected override void OnDestroy()
     {
         GameEventManager.OnQuestActionUpdated -= HandleQuestAction;
+        GameEventManager.OnQuestProgressChanged -= HandleQuestProgressChanged;
         base.OnDestroy();
     }
 
@@ -121,19 +124,83 @@ public class QuestManager : Singleton<QuestManager>
         if (!IsQuestDataReady)
             return;
 
-        int nextID = currentQuestID + 1;
-        if (!DataManager.Instance.LineQuestDict.ContainsKey(nextID))
+        List<int> orderedQuestIds = GetOrderedQuestIds();
+        if (orderedQuestIds.Count == 0)
         {
-
             currentQuestID = 0;
+            currentProgress = 0;
+            completedQuestCount = 0;
+            GameEventManager.OnQuestProgressChanged?.Invoke();
             return;
         }
 
-        currentQuestID = nextID;
+        completedQuestCount++;
+
+        int currentIndex = orderedQuestIds.IndexOf(currentQuestID);
+        if (currentIndex < 0)
+        {
+            currentQuestID = orderedQuestIds[0];
+        }
+        else
+        {
+            int nextIndex = (currentIndex + 1) % orderedQuestIds.Count;
+            currentQuestID = orderedQuestIds[nextIndex];
+        }
+
         currentProgress = 0;
         GameEventManager.OnQuestProgressChanged?.Invoke();
+    }
 
-        saveQuestData.SaveID(currentQuestID);
+    private void HandleQuestProgressChanged()
+    {
+        saveQuestData?.Save(currentQuestID, currentProgress, completedQuestCount);
+    }
+
+    private void NormalizeCurrentQuestState()
+    {
+        List<int> orderedQuestIds = GetOrderedQuestIds();
+        if (orderedQuestIds.Count == 0)
+        {
+            currentQuestID = 0;
+            currentProgress = 0;
+            completedQuestCount = 0;
+            return;
+        }
+
+        completedQuestCount = Mathf.Max(0, completedQuestCount);
+
+        if (!orderedQuestIds.Contains(currentQuestID))
+        {
+            currentQuestID = orderedQuestIds[0];
+            currentProgress = 0;
+        }
+
+        LineQuestTable currentQuestData = CurrentQuestData;
+        if (currentQuestData == null)
+        {
+            currentQuestID = orderedQuestIds[0];
+            currentProgress = 0;
+            return;
+        }
+
+        int currentQuestIndex = orderedQuestIds.IndexOf(currentQuestID);
+        if (currentQuestIndex >= 0)
+            completedQuestCount = Mathf.Max(completedQuestCount, currentQuestIndex);
+
+        currentProgress = Mathf.Clamp(currentProgress, 0, Mathf.Max(0, currentQuestData.reqCount));
+    }
+
+    private List<int> GetOrderedQuestIds()
+    {
+        if (!IsQuestDataReady)
+            return new List<int>();
+
+        return DataManager.Instance.LineQuestDict
+            .Where(pair => pair.Value != null)
+            .OrderBy(pair => pair.Value.questNum)
+            .ThenBy(pair => pair.Key)
+            .Select(pair => pair.Key)
+            .ToList();
     }
 
     private static bool IsQuestDataReady =>
