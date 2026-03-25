@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class SoundManager : Singleton<SoundManager>
 {
+    #region Types
     public enum SoundCategory
     {
         Unknown = 0,
@@ -15,28 +16,31 @@ public class SoundManager : Singleton<SoundManager>
 
     private sealed class SoundEntry
     {
-        public int id;
         public SoundCategory category;
-        public string sourcePath;
         public string resourcePath;
         public float clipVolume;
         public AudioClip clip;
     }
+    #endregion
 
+    #region Constants
     private const string MasterVolumeKey = "sound.master";
     private const string BgmVolumeKey = "sound.bgm";
     private const string CombatSfxVolumeKey = "sound.combat";
     private const string UiSfxVolumeKey = "sound.ui";
+    #endregion
 
+    #region Inspector
     [SerializeField] private int uiSourceCount = 4;
     [SerializeField] private int combatSourceCount = 8;
     [Range(0f, 1f)] [SerializeField] private float defaultMasterVolume = 1f;
     [Range(0f, 1f)] [SerializeField] private float defaultBgmVolume = 1f;
     [Range(0f, 1f)] [SerializeField] private float defaultCombatSfxVolume = 1f;
     [Range(0f, 1f)] [SerializeField] private float defaultUiSfxVolume = 1f;
+    #endregion
 
+    #region Runtime Fields
     private readonly Dictionary<int, SoundEntry> soundById = new Dictionary<int, SoundEntry>();
-    private readonly Dictionary<string, SoundEntry> soundByPath = new Dictionary<string, SoundEntry>(StringComparer.OrdinalIgnoreCase);
     private readonly List<AudioSource> uiSources = new List<AudioSource>();
     private readonly List<AudioSource> combatSources = new List<AudioSource>();
 
@@ -49,14 +53,18 @@ public class SoundManager : Singleton<SoundManager>
     private float bgmVolume;
     private float combatSfxVolume;
     private float uiSfxVolume;
+    #endregion
 
+    #region Properties & Events
     public float MasterVolume => masterVolume;
     public float BgmVolume => bgmVolume;
     public float CombatSfxVolume => combatSfxVolume;
     public float UiSfxVolume => uiSfxVolume;
 
     public event Action OnVolumeChanged;
+    #endregion
 
+    #region Unity Lifecycle
     protected override void Awake()
     {
         base.Awake();
@@ -83,11 +91,12 @@ public class SoundManager : Singleton<SoundManager>
         UnsubscribeDataManager();
         base.OnDestroy();
     }
+    #endregion
 
+    #region Public API
     public void RebuildLibrary()
     {
         soundById.Clear();
-        soundByPath.Clear();
 
         var soundDict = DataManager.Instance?.SoundDict;
         if (soundDict == null || soundDict.Count == 0)
@@ -103,29 +112,18 @@ public class SoundManager : Singleton<SoundManager>
             if (string.IsNullOrWhiteSpace(resourcePath))
                 continue;
 
-            SoundEntry entry = new SoundEntry
+            soundById[pair.Key] = new SoundEntry
             {
-                id = table.ID,
                 category = ResolveCategory(table.typeId),
-                sourcePath = table.soundPath,
                 resourcePath = resourcePath,
                 clipVolume = Mathf.Clamp01(table.soundVolume)
             };
-
-            soundById[entry.id] = entry;
-            RegisterPath(entry.sourcePath, entry);
-            RegisterPath(entry.resourcePath, entry);
         }
     }
 
     public bool PlayBgm(int soundId)
     {
-        return TryResolve(soundId, SoundCategory.Bgm, out SoundEntry entry) && PlayBgm(entry);
-    }
-
-    public bool PlayBgm(string soundKey)
-    {
-        return TryResolve(soundKey, SoundCategory.Bgm, out SoundEntry entry) && PlayBgm(entry);
+        return TryResolve(soundId, out SoundEntry entry) && PlayBgm(entry);
     }
 
     public void StopBgm()
@@ -140,52 +138,17 @@ public class SoundManager : Singleton<SoundManager>
 
     public bool PlayUiSfx(int soundId)
     {
-        return TryResolve(soundId, SoundCategory.Ui, out SoundEntry entry) && PlayUi(entry);
-    }
-
-    public bool PlayUiSfx(string soundKey)
-    {
-        return TryResolve(soundKey, SoundCategory.Ui, out SoundEntry entry) && PlayUi(entry);
+        return TryResolve(soundId, out SoundEntry entry) && PlayUi(entry);
     }
 
     public bool PlayCombatSfx(int soundId)
     {
-        return TryResolve(soundId, SoundCategory.Combat, out SoundEntry entry) && PlayCombat(entry);
-    }
-
-    public bool PlayCombatSfx(string soundKey)
-    {
-        return TryResolve(soundKey, SoundCategory.Combat, out SoundEntry entry) && PlayCombat(entry);
+        return TryResolve(soundId, out SoundEntry entry) && PlayCombat(entry);
     }
 
     public bool PlayCombatSfxAt(int soundId, Vector3 worldPos)
     {
-        return TryResolve(soundId, SoundCategory.Combat, out SoundEntry entry) && PlayCombatAt(entry, worldPos);
-    }
-
-    public bool PlayCombatSfxAt(string soundKey, Vector3 worldPos)
-    {
-        return TryResolve(soundKey, SoundCategory.Combat, out SoundEntry entry) && PlayCombatAt(entry, worldPos);
-    }
-
-    public bool PlaySfx(string soundKey)
-    {
-        return TryResolve(soundKey, SoundCategory.Ui, out SoundEntry entry) && PlayCategorized(entry);
-    }
-
-    public bool PlaySfx(int soundId)
-    {
-        return TryResolve(soundId, SoundCategory.Ui, out SoundEntry entry) && PlayCategorized(entry);
-    }
-
-    public bool PlaySfxAt(string soundKey, Vector3 worldPos)
-    {
-        return TryResolve(soundKey, SoundCategory.Combat, out SoundEntry entry) && PlayCombatAt(entry, worldPos);
-    }
-
-    public bool PlaySfxAt(int soundId, Vector3 worldPos)
-    {
-        return TryResolve(soundId, SoundCategory.Combat, out SoundEntry entry) && PlayCombatAt(entry, worldPos);
+        return TryResolve(soundId, out SoundEntry entry) && PlayCombatAt(entry, worldPos);
     }
 
     public void SetMasterVolume(float volume)
@@ -217,7 +180,9 @@ public class SoundManager : Singleton<SoundManager>
         SaveVolumeSettings();
         RaiseVolumeChanged();
     }
+    #endregion
 
+    #region Data Binding
     private void SubscribeDataManager()
     {
         DataManager dataManager = DataManager.Instance;
@@ -245,7 +210,9 @@ public class SoundManager : Singleton<SoundManager>
     {
         RebuildLibrary();
     }
+    #endregion
 
+    #region Source Setup
     private void EnsureSources()
     {
         if (uiSourceCount < 1)
@@ -298,7 +265,9 @@ public class SoundManager : Singleton<SoundManager>
         source.volume = 1f;
         return source;
     }
+    #endregion
 
+    #region Playback
     private bool PlayBgm(SoundEntry entry)
     {
         if (!TryLoadClip(entry, out AudioClip clip))
@@ -347,21 +316,9 @@ public class SoundManager : Singleton<SoundManager>
         return true;
     }
 
-    private bool PlayCategorized(SoundEntry entry)
-    {
-        switch (entry.category)
-        {
-            case SoundCategory.Bgm:
-                return PlayBgm(entry);
-            case SoundCategory.Combat:
-                return PlayCombat(entry);
-            case SoundCategory.Ui:
-            case SoundCategory.Unknown:
-            default:
-                return PlayUi(entry);
-        }
-    }
+    #endregion
 
+    #region Lookup
     private AudioSource GetNextSource(List<AudioSource> sources, ref int index)
     {
         if (sources == null || sources.Count == 0)
@@ -375,57 +332,16 @@ public class SoundManager : Singleton<SoundManager>
         return source;
     }
 
-    private bool TryResolve(int soundId, SoundCategory fallbackCategory, out SoundEntry entry)
+    private bool TryResolve(int soundId, out SoundEntry entry)
     {
+        entry = null;
         if (soundId <= 0)
-        {
-            entry = null;
             return false;
-        }
 
         if (soundById.Count == 0)
             RebuildLibrary();
 
-        if (soundById.TryGetValue(soundId, out entry))
-            return true;
-
-        entry = new SoundEntry
-        {
-            id = soundId,
-            category = fallbackCategory,
-            clipVolume = 1f
-        };
-        return false;
-    }
-
-    private bool TryResolve(string soundKey, SoundCategory fallbackCategory, out SoundEntry entry)
-    {
-        entry = null;
-        if (string.IsNullOrWhiteSpace(soundKey))
-            return false;
-
-        if (int.TryParse(soundKey, out int soundId))
-            return TryResolve(soundId, fallbackCategory, out entry);
-
-        if (soundByPath.Count == 0)
-            RebuildLibrary();
-
-        string lookupKey = NormalizeLookupKey(soundKey);
-        if (!string.IsNullOrWhiteSpace(lookupKey) && soundByPath.TryGetValue(lookupKey, out entry))
-            return true;
-
-        string resourcePath = NormalizeToResourcePath(soundKey);
-        if (string.IsNullOrWhiteSpace(resourcePath))
-            return false;
-
-        entry = new SoundEntry
-        {
-            category = fallbackCategory,
-            sourcePath = soundKey,
-            resourcePath = resourcePath,
-            clipVolume = 1f
-        };
-        return true;
+        return soundById.TryGetValue(soundId, out entry);
     }
 
     private bool TryLoadClip(SoundEntry entry, out AudioClip clip)
@@ -447,16 +363,9 @@ public class SoundManager : Singleton<SoundManager>
         clip = entry.clip;
         return clip != null;
     }
+    #endregion
 
-    private void RegisterPath(string rawPath, SoundEntry entry)
-    {
-        string key = NormalizeLookupKey(rawPath);
-        if (string.IsNullOrWhiteSpace(key))
-            return;
-
-        soundByPath[key] = entry;
-    }
-
+    #region Helpers
     private static SoundCategory ResolveCategory(int typeId)
     {
         return typeId switch
@@ -468,7 +377,7 @@ public class SoundManager : Singleton<SoundManager>
         };
     }
 
-    private static string NormalizeLookupKey(string rawPath)
+    private static string NormalizeToResourcePath(string rawPath)
     {
         if (string.IsNullOrWhiteSpace(rawPath))
             return string.Empty;
@@ -491,16 +400,13 @@ public class SoundManager : Singleton<SoundManager>
         return normalized.Trim('/');
     }
 
-    private static string NormalizeToResourcePath(string rawPath)
-    {
-        return NormalizeLookupKey(rawPath);
-    }
-
     private float GetEffectiveVolume(float clipVolume, float categoryVolume)
     {
         return Mathf.Clamp01(clipVolume) * masterVolume * categoryVolume;
     }
+    #endregion
 
+    #region Volume
     private void LoadVolumeSettings()
     {
         masterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MasterVolumeKey, defaultMasterVolume));
@@ -530,4 +436,5 @@ public class SoundManager : Singleton<SoundManager>
     {
         OnVolumeChanged?.Invoke();
     }
+    #endregion
 }
