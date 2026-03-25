@@ -238,7 +238,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
         };
 
         if (!IsAlive) return;
-        if (_currentType != EnemyStateType.Onhit && _currentType != EnemyStateType.Dead)
+        if (_currentType != EnemyStateType.Dead)
         {
             ChangeState(EnemyStateType.Onhit);
         }
