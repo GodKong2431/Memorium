@@ -70,6 +70,7 @@ public class EnemyStateContext
     /// 공격 시 생성할 이펙트 프리팹. EnemyStateMachine에서 설정
     /// </summary>
     public GameObject AttackEffectPrefab { get; set; }
+    public float AttackEffectScaleMultiplier { get; set; } = 1f;
 
     public GameObject OnHitEffectPrefab { get; set; }
     public AudioClip OnHitSfx { get; set; }

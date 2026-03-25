@@ -234,6 +234,9 @@ public class EnemyStateAttack : IEnemyState
             Quaternion.identity,
             parent
         );
+
+        float scaleMultiplier = Mathf.Max(0.1f, ctx.AttackEffectScaleMultiplier);
+        _currentAttackEffect.transform.localScale *= scaleMultiplier;
     }
 
     private void UpdateSkill2AnimationSequence(EnemyStateContext ctx)

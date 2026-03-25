@@ -33,6 +33,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
 
     [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
     private GameObject attackEffectPrefab;
+
+    [SerializeField, Min(0.1f)]
+    [Tooltip("몬스터 공격 이펙트 크기 배율. 1=기본, 0.8=20% 축소")]
+    private float attackEffectScaleMultiplier = 0.5f;
     
     [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
     private GameObject onHitEffectPrefab;
@@ -74,6 +78,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             AnimationConfig = animationConfig,
             IsBoss = statPresenter != null && statPresenter.IsBoss,
             AttackEffectPrefab = attackEffectPrefab,
+            AttackEffectScaleMultiplier = attackEffectScaleMultiplier,
             OnHitEffectPrefab = onHitEffectPrefab,
             OnHitSfx = onHitSfx,
             SkillHandler = skillHandler,
