@@ -26,6 +26,7 @@ public class EquipTierGroupUI : MonoBehaviour
         {
             headerButton.onClick.RemoveAllListeners();
             headerButton.onClick.AddListener(ToggleGroup);
+            UiButtonSoundPlayer.Ensure(headerButton, UiSoundIds.DefaultButton);
         }
     }
 

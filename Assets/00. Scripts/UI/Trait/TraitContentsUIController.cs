@@ -182,12 +182,14 @@ public class TraitContentsUIController : UIControllerBase
         {
             popupCloseButton.onClick.RemoveListener(CloseTraitPopup);
             popupCloseButton.onClick.AddListener(CloseTraitPopup);
+            UiButtonSoundPlayer.Ensure(popupCloseButton, UiSoundIds.DefaultButton);
         }
 
         if (popupUpgradeButton != null)
         {
             popupUpgradeButton.onClick.RemoveListener(OnPopupUpgradeClicked);
             popupUpgradeButton.onClick.AddListener(OnPopupUpgradeClicked);
+            UiButtonSoundPlayer.Ensure(popupUpgradeButton, UiSoundIds.Trait);
         }
 
         popupEventsConfigured = true;
@@ -388,6 +390,7 @@ public class TraitContentsUIController : UIControllerBase
             PlayerTrait cachedTrait = trait;
             itemUI.Button.onClick.RemoveAllListeners();
             itemUI.Button.onClick.AddListener(delegate { OpenTraitPopup(cachedTrait); });
+            UiButtonSoundPlayer.Ensure(itemUI.Button, UiSoundIds.DefaultButton);
         }
 
         return new TraitRuntime

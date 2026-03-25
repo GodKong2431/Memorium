@@ -67,6 +67,7 @@ public class GlobalPopupManager : MonoBehaviour
         {
             btnCommonClose.onClick.RemoveAllListeners();
             btnCommonClose.onClick.AddListener(ClosePopup);
+            UiButtonSoundPlayer.Ensure(btnCommonClose, UiSoundIds.DefaultButton);
         }
     }
 

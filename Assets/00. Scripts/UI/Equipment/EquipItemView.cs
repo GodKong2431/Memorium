@@ -30,6 +30,7 @@ public sealed class EquipItemView
 
         ui.Button.onClick.RemoveAllListeners();
         ui.Button.onClick.AddListener(onClick);
+        UiButtonSoundPlayer.Ensure(ui.Button, UiSoundIds.DefaultButton);
     }
 
     public void Render(Sprite icon, string levelText, int starCount, Color tierColor)

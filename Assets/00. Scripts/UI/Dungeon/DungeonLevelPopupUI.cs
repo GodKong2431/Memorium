@@ -77,12 +77,15 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     private RectTransform rootCanvasRect;
     private RectTransformState originalRectState;
     private int originalSiblingIndex;
-    private int ignoreOutsideCloseUntilFrame = -1;
+    private OverlayPopupPanelUI overlayPanel;
+    private OverlayPopupPanelUI boundOverlayPanel;
+    private int ignoreCloseUntilFrame = -1;
 
     public void Hide()
     {
         EnsureRuntimeReferences();
         currentStageType = StageType.None;
+        SetOverlayVisible(false);
         RestoreOriginalPresentation();
 
         if (gameObject.activeSelf)
@@ -97,6 +100,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     private void Awake()
     {
         EnsureRuntimeReferences();
+        BindOverlayPanel();
     }
 
     private void EnsureRuntimeReferences()
@@ -120,12 +124,14 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     private void OnEnable()
     {
         GameEventManager.OnCurrencyChanged += OnCurrencyChanged;
+        BindOverlayPanel();
         RefreshState();
     }
 
     private void OnDisable()
     {
         GameEventManager.OnCurrencyChanged -= OnCurrencyChanged;
+        SetOverlayVisible(false);
     }
 
     private void Update()
@@ -133,7 +139,10 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         if (!gameObject.activeInHierarchy || currentStageType == StageType.None)
             return;
 
-        if (ShouldHideFromOutsideClick())
+        if (Time.frameCount <= ignoreCloseUntilFrame)
+            return;
+
+        if (WasOutsidePointerPressedThisFrame())
             Hide();
     }
 
@@ -171,7 +180,9 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
 
         PresentAsOverlay();
         gameObject.SetActive(true);
-        ignoreOutsideCloseUntilFrame = Time.frameCount + 1;
+        BindOverlayPanel();
+        SetOverlayVisible(true);
+        ignoreCloseUntilFrame = Time.frameCount + 1;
         RefreshState();
     }
 
@@ -420,6 +431,8 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             popupRect.SetParent(overlayRoot, false);
 
         StretchToParent(popupRect);
+        BindOverlayPanel();
+        RefreshOverlayOrder();
         popupRect.SetAsLastSibling();
     }
 
@@ -452,11 +465,34 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         return rootCanvasRect != null ? rootCanvasRect : originalParent;
     }
 
-    private bool ShouldHideFromOutsideClick()
+    private void BindOverlayPanel()
     {
-        if (Time.frameCount <= ignoreOutsideCloseUntilFrame)
-            return false;
+        OverlayPopupPanelUI current = EnsureOverlayPanel();
+        if (current == boundOverlayPanel)
+            return;
 
+        if (boundOverlayPanel != null)
+            boundOverlayPanel.OutsideClicked -= HandleOutsideClick;
+
+        boundOverlayPanel = current;
+
+        if (boundOverlayPanel != null)
+            boundOverlayPanel.OutsideClicked += HandleOutsideClick;
+    }
+
+    private void HandleOutsideClick()
+    {
+        if (!gameObject.activeInHierarchy || currentStageType == StageType.None)
+            return;
+
+        if (Time.frameCount <= ignoreCloseUntilFrame)
+            return;
+
+        Hide();
+    }
+
+    private bool WasOutsidePointerPressedThisFrame()
+    {
         if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
             return !IsInsidePopup(Touchscreen.current.primaryTouch.position.ReadValue());
 
@@ -509,6 +545,74 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         }
 
         return popupRect;
+    }
+
+    private void SetOverlayVisible(bool visible)
+    {
+        OverlayPopupPanelUI currentOverlay = EnsureOverlayPanel();
+        if (currentOverlay == null)
+            return;
+
+        if (currentOverlay.gameObject.activeSelf != visible)
+            currentOverlay.gameObject.SetActive(visible);
+
+        if (visible)
+            currentOverlay.SuppressClickForCurrentFrame();
+    }
+
+    private void RefreshOverlayOrder()
+    {
+        if (popupRect == null)
+            return;
+
+        OverlayPopupPanelUI currentOverlay = EnsureOverlayPanel();
+        if (currentOverlay == null)
+            return;
+
+        currentOverlay.BringToFront();
+        popupRect.SetAsLastSibling();
+    }
+
+    private OverlayPopupPanelUI EnsureOverlayPanel()
+    {
+        RectTransform overlayRoot = ResolveOverlayRoot();
+        RectTransform sheetRoot = ResolvePopupHitRoot();
+        if (overlayRoot == null || sheetRoot == null)
+            return null;
+
+        if (overlayPanel != null)
+        {
+            if (overlayPanel.transform.parent != overlayRoot)
+                overlayPanel.transform.SetParent(overlayRoot, false);
+
+            overlayPanel.SetSheetRoot(sheetRoot);
+            return overlayPanel;
+        }
+
+        GameObject overlayObject = new GameObject(
+            "DungeonLevelPopupOverlay",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image),
+            typeof(OverlayPopupPanelUI));
+        overlayObject.layer = overlayRoot.gameObject.layer;
+        overlayObject.transform.SetParent(overlayRoot, false);
+
+        RectTransform overlayRect = overlayObject.GetComponent<RectTransform>();
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.offsetMin = Vector2.zero;
+        overlayRect.offsetMax = Vector2.zero;
+
+        Image image = overlayObject.GetComponent<Image>();
+        image.color = new Color(0f, 0f, 0f, 0f);
+        image.raycastTarget = true;
+
+        overlayPanel = overlayObject.GetComponent<OverlayPopupPanelUI>();
+        overlayPanel.SetSheetRoot(sheetRoot);
+        overlayObject.SetActive(gameObject.activeInHierarchy && currentStageType != StageType.None);
+
+        return overlayPanel;
     }
 
     private static void StretchToParent(RectTransform target)

@@ -296,6 +296,8 @@ public sealed class PixieContentsUIController : UIControllerBase
 
         growthButton.onClick.AddListener(HandleGrowthClicked);
         summonButton.onClick.AddListener(HandleSummonClicked);
+        UiButtonSoundPlayer.Ensure(growthButton, UiSoundIds.PixieGrowth);
+        UiButtonSoundPlayer.Ensure(summonButton, UiSoundIds.PixieSummon);
         buttonsSubscribed = true;
     }
 
@@ -443,6 +445,7 @@ public sealed class PixieContentsUIController : UIControllerBase
 
             int capturedPixieId = pixieId;
             view.Button.onClick.AddListener(() => HandlePixieClicked(capturedPixieId));
+            UiButtonSoundPlayer.Ensure(view.Button, UiSoundIds.PixieChange);
 
             runtimeItemByPixieId[pixieId] = view;
             runtimePixieIds.Add(pixieId);

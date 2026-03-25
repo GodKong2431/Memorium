@@ -362,12 +362,19 @@ public sealed partial class StoneUI : UIControllerBase
 
     private static void SetButtonAction(Button button, Action action)
     {
+        SetButtonAction(button, action, UiSoundIds.DefaultButton);
+    }
+
+    private static void SetButtonAction(Button button, Action action, int soundId)
+    {
         if (button == null)
             return;
 
         button.onClick = new Button.ButtonClickedEvent();
         if (action != null)
             button.onClick.AddListener(() => action());
+
+        UiButtonSoundPlayer.Ensure(button, soundId);
     }
 
     private void UnregisterPanelEvents()
@@ -668,6 +675,7 @@ public sealed partial class StoneUI : UIControllerBase
         if (stoneRoot != null)
         {
             LockButton();
+            EnsureLockButtonSounds();
             LayoutRebuilder.ForceRebuildLayoutImmediate(stoneRoot);
         }
     }
@@ -831,6 +839,22 @@ public sealed partial class StoneUI : UIControllerBase
         RefreshReconfigurePopup(stoneData, unlocked, CurrencyType.Gold);
         RefreshResetPopup(stoneData, unlocked, totalAttemptCount, CurrencyType.Crystal);
     }
+
+    private void EnsureLockButtonSounds()
+    {
+        foreach (var stoneView in runtimeStoneItems)
+        {
+            if (stoneView == null || stoneView.LockObject == null)
+                continue;
+
+            Button lockButton = stoneView.LockObject.GetComponent<Button>();
+            if (lockButton == null)
+                continue;
+
+            UiButtonSoundPlayer.Ensure(lockButton, UiSoundIds.DefaultButton);
+        }
+    }
+
     public void LockButton()
     {
         foreach(var stoneView in runtimeStoneItems)

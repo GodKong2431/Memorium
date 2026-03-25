@@ -67,9 +67,10 @@ public class EquipReinforceUIController : UIControllerBase
     private bool isVisible;
     private Vector2 statRowTemplatePosition;
     private Vector3 statRowTemplateScale;
-    private Button backgroundButton;
-    private Button boundBackgroundButton;
+    private RectTransform cachedStatRowTemplateRoot;
     private Button boundReinforceButton;
+    private OverlayPopupPanelUI overlayPanel;
+    private OverlayPopupPanelUI boundOverlayPanel;
     private int ignoreCloseUntilFrame = -1;
 
     protected override void Initialize()
@@ -77,7 +78,7 @@ public class EquipReinforceUIController : UIControllerBase
         CacheStatRows();
         SetVisible(false);
         RefreshPreviewButtonState();
-        BindBackgroundButton();
+        BindOverlayPanel();
         BindReinforceButton();
     }
 
@@ -113,17 +114,12 @@ public class EquipReinforceUIController : UIControllerBase
         previewTierStarTemplate = sourcePreviewTierStarTemplate;
         previewFrames = sourcePreviewFrames;
         statRowTemplate = sourceStatRowTemplate;
-        if (backgroundButton != null)
-        {
-            Transform currentParent = backgroundButton.transform.parent;
-            Transform nextParent = sourcePanelRoot != null ? sourcePanelRoot.parent : null;
-            if (currentParent != nextParent)
-                backgroundButton = null;
-        }
+        if (overlayPanel != null && overlayPanel.SheetRoot != sourcePanelRoot)
+            overlayPanel = null;
 
         previewStars.Clear();
         CacheStatRows();
-        BindBackgroundButton();
+        BindOverlayPanel();
         BindReinforceButton();
         RefreshPreviewButtonState();
         SetVisible(isVisible);
@@ -136,7 +132,7 @@ public class EquipReinforceUIController : UIControllerBase
     {
         EquipmentHandler.EquipmentUiRefreshRequested += RefreshView;
         PlayerEquipment.EquippedItemChanged += HandleEquippedItemChanged;
-        BindBackgroundButton();
+        BindOverlayPanel();
         BindReinforceButton();
         BindInventory();
     }
@@ -145,7 +141,7 @@ public class EquipReinforceUIController : UIControllerBase
     {
         EquipmentHandler.EquipmentUiRefreshRequested -= RefreshView;
         PlayerEquipment.EquippedItemChanged -= HandleEquippedItemChanged;
-        UnbindBackgroundButton();
+        UnbindOverlayPanel();
         UnbindReinforceButton();
         UnbindInventory();
     }
@@ -175,7 +171,7 @@ public class EquipReinforceUIController : UIControllerBase
         if (!isVisible || Time.frameCount <= ignoreCloseUntilFrame)
             return;
 
-        if (ShouldCloseFromOutsidePointer())
+        if (WasOutsidePointerPressedThisFrame())
             Hide();
     }
 
@@ -218,7 +214,7 @@ public class EquipReinforceUIController : UIControllerBase
         if (previewLevelText == null && previewLevelRoot != null)
             previewLevelText = previewLevelRoot.GetComponentInChildren<TextMeshProUGUI>(true);
 
-        EnsureBackgroundButton();
+        EnsureOverlayPanel();
 
         return panelRoot != null &&
                popupRoot != null &&
@@ -489,22 +485,19 @@ public class EquipReinforceUIController : UIControllerBase
         }
     }
 
-    private void BindBackgroundButton()
+    private void BindOverlayPanel()
     {
-        Button current = EnsureBackgroundButton();
-        if (current == boundBackgroundButton)
+        OverlayPopupPanelUI current = EnsureOverlayPanel();
+        if (current == boundOverlayPanel)
             return;
 
-        if (boundBackgroundButton != null)
-            boundBackgroundButton.onClick.RemoveListener(HandleBackgroundClick);
+        if (boundOverlayPanel != null)
+            boundOverlayPanel.OutsideClicked -= HandleOutsideClick;
 
-        boundBackgroundButton = current;
+        boundOverlayPanel = current;
 
-        if (boundBackgroundButton != null)
-        {
-            boundBackgroundButton.onClick.RemoveListener(HandleBackgroundClick);
-            boundBackgroundButton.onClick.AddListener(HandleBackgroundClick);
-        }
+        if (boundOverlayPanel != null)
+            boundOverlayPanel.OutsideClicked += HandleOutsideClick;
     }
 
     private void UnbindReinforceButton()
@@ -515,12 +508,12 @@ public class EquipReinforceUIController : UIControllerBase
         boundReinforceButton = null;
     }
 
-    private void UnbindBackgroundButton()
+    private void UnbindOverlayPanel()
     {
-        if (boundBackgroundButton != null)
-            boundBackgroundButton.onClick.RemoveListener(HandleBackgroundClick);
+        if (boundOverlayPanel != null)
+            boundOverlayPanel.OutsideClicked -= HandleOutsideClick;
 
-        boundBackgroundButton = null;
+        boundOverlayPanel = null;
     }
 
     private void RefreshPreviewButtonState()
@@ -587,11 +580,15 @@ public class EquipReinforceUIController : UIControllerBase
         if (visible)
             RefreshOverlayOrder();
 
-        if (backgroundButton != null && backgroundButton.gameObject.activeSelf != visible)
-            backgroundButton.gameObject.SetActive(visible);
+        OverlayPopupPanelUI currentOverlay = EnsureOverlayPanel();
+        if (currentOverlay != null && currentOverlay.gameObject.activeSelf != visible)
+            currentOverlay.gameObject.SetActive(visible);
 
         if (panelRoot != null && panelRoot.gameObject.activeSelf != visible)
             panelRoot.gameObject.SetActive(visible);
+
+        if (visible && currentOverlay != null)
+            currentOverlay.SuppressClickForCurrentFrame();
     }
 
     private void ShowSelectedItem()
@@ -605,15 +602,18 @@ public class EquipReinforceUIController : UIControllerBase
         RefreshView();
     }
 
-    private void HandleBackgroundClick()
+    private void HandleOutsideClick()
     {
         if (!isVisible)
+            return;
+
+        if (Time.frameCount <= ignoreCloseUntilFrame)
             return;
 
         Hide();
     }
 
-    private bool ShouldCloseFromOutsidePointer()
+    private bool WasOutsidePointerPressedThisFrame()
     {
         if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
             return !IsInsidePopup(Touchscreen.current.primaryTouch.position.ReadValue());
@@ -626,33 +626,7 @@ public class EquipReinforceUIController : UIControllerBase
 
     private bool IsInsidePopup(Vector2 screenPosition)
     {
-        if (popupRoot != null)
-        {
-            bool hasVisibleChild = false;
-
-            for (int i = 0; i < popupRoot.childCount; i++)
-            {
-                RectTransform child = popupRoot.GetChild(i) as RectTransform;
-                if (child == null || !child.gameObject.activeInHierarchy)
-                    continue;
-
-                hasVisibleChild = true;
-                if (ContainsScreenPoint(child, screenPosition))
-                    return true;
-            }
-
-            if (hasVisibleChild)
-                return false;
-        }
-
-        if (popupRoot != null)
-            return ContainsScreenPoint(popupRoot, screenPosition);
-
-        return panelRoot != null && ContainsScreenPoint(panelRoot, screenPosition);
-    }
-
-    private static bool ContainsScreenPoint(RectTransform target, Vector2 screenPosition)
-    {
+        RectTransform target = popupRoot != null ? popupRoot : panelRoot;
         if (target == null)
             return false;
 
@@ -669,71 +643,58 @@ public class EquipReinforceUIController : UIControllerBase
         if (panelRoot == null)
             return;
 
-        Transform parent = panelRoot.parent;
-        if (parent == null)
+        OverlayPopupPanelUI currentOverlay = EnsureOverlayPanel();
+        if (currentOverlay == null)
             return;
 
+        currentOverlay.BringToFront();
         panelRoot.SetAsLastSibling();
-
-        if (backgroundButton == null)
-            return;
-
-        if (backgroundButton.transform.parent != parent)
-            return;
-
-        int panelIndex = panelRoot.GetSiblingIndex();
-        backgroundButton.transform.SetSiblingIndex(Mathf.Max(0, panelIndex - 1));
     }
 
-    private Button EnsureBackgroundButton()
+    private OverlayPopupPanelUI EnsureOverlayPanel()
     {
         if (panelRoot == null)
             return null;
 
-        if (backgroundButton != null)
+        if (overlayPanel != null && overlayPanel.SheetRoot == panelRoot)
         {
-            RectTransform currentRoot = backgroundButton.transform as RectTransform;
-            if (currentRoot != null && currentRoot.parent == panelRoot.parent)
-            {
-                RefreshOverlayOrder();
-                return backgroundButton;
-            }
+            Transform overlayParent = overlayPanel.transform.parent;
+            if (overlayParent != null && panelRoot.parent == overlayPanel.transform)
+                panelRoot.SetParent(overlayParent, false);
+
+            if (panelRoot.parent == overlayParent)
+                return overlayPanel;
         }
 
         Transform parent = panelRoot.parent;
         if (parent == null)
-            return backgroundButton;
+            return overlayPanel;
 
-        GameObject blocker = new GameObject(
-            "EquipReinforceDismissBlocker",
+        GameObject overlayObject = new GameObject(
+            "EquipReinforceOverlay",
             typeof(RectTransform),
             typeof(CanvasRenderer),
             typeof(Image),
-            typeof(Button));
-        blocker.layer = panelRoot.gameObject.layer;
-        blocker.transform.SetParent(parent, false);
+            typeof(OverlayPopupPanelUI));
+        overlayObject.layer = panelRoot.gameObject.layer;
+        overlayObject.transform.SetParent(parent, false);
 
-        RectTransform blockerRoot = blocker.GetComponent<RectTransform>();
-        blockerRoot.anchorMin = Vector2.zero;
-        blockerRoot.anchorMax = Vector2.one;
-        blockerRoot.offsetMin = Vector2.zero;
-        blockerRoot.offsetMax = Vector2.zero;
-        blockerRoot.SetSiblingIndex(panelRoot.GetSiblingIndex());
+        RectTransform overlayRoot = overlayObject.GetComponent<RectTransform>();
+        overlayRoot.anchorMin = Vector2.zero;
+        overlayRoot.anchorMax = Vector2.one;
+        overlayRoot.offsetMin = Vector2.zero;
+        overlayRoot.offsetMax = Vector2.zero;
 
-        Image image = blocker.GetComponent<Image>();
+        Image image = overlayObject.GetComponent<Image>();
         image.color = new Color(0f, 0f, 0f, 0f);
         image.raycastTarget = true;
 
-        backgroundButton = blocker.GetComponent<Button>();
-        backgroundButton.targetGraphic = image;
-        backgroundButton.gameObject.SetActive(false);
-
-        backgroundButton.transition = Selectable.Transition.None;
-        backgroundButton.navigation = new Navigation { mode = Navigation.Mode.None };
-
+        overlayPanel = overlayObject.GetComponent<OverlayPopupPanelUI>();
+        overlayPanel.SetSheetRoot(panelRoot);
         RefreshOverlayOrder();
+        overlayObject.SetActive(isVisible);
 
-        return backgroundButton;
+        return overlayPanel;
     }
 
     private static string GetStatDisplayName(StatType statType)
@@ -823,8 +784,12 @@ public class EquipReinforceUIController : UIControllerBase
         if (!statRows.Contains(statRowTemplate))
             statRows.Insert(0, statRowTemplate);
 
-        statRowTemplatePosition = statRowTemplate.Root.anchoredPosition;
-        statRowTemplateScale = statRowTemplate.Root.localScale;
+        if (cachedStatRowTemplateRoot != statRowTemplate.Root)
+        {
+            cachedStatRowTemplateRoot = statRowTemplate.Root;
+            statRowTemplatePosition = statRowTemplate.Root.anchoredPosition;
+            statRowTemplateScale = statRowTemplate.Root.localScale;
+        }
 
         for (int i = 0; i < statRows.Count; i++)
             ApplyStatRowLayout(statRows[i], i, 1);
@@ -839,6 +804,8 @@ public class EquipReinforceUIController : UIControllerBase
         {
             EquipReinforceStatRowUI clone = Instantiate(statRowTemplate, statRowTemplate.Root.parent);
             clone.name = $"(Panel)Stat_{statRows.Count + 1}";
+            clone.Root.localScale = statRowTemplateScale;
+            clone.Root.anchoredPosition = statRowTemplatePosition;
             statRows.Add(clone);
         }
 

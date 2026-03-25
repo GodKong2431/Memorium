@@ -302,6 +302,7 @@ GameObject:
   - component: {fileID: 5051733712153760975}
   - component: {fileID: 1189960429074333570}
   - component: {fileID: 238931002429967090}
+  - component: {fileID: 9100999999999999701}
   m_Layer: 5
   m_Name: (Btn)Summon(1)
   m_TagString: Untagged
@@ -1474,6 +1475,7 @@ GameObject:
   - component: {fileID: 2591203159808023203}
   - component: {fileID: 6602183208725893886}
   - component: {fileID: 1131492728799310579}
+  - component: {fileID: 9100999999999999702}
   m_Layer: 5
   m_Name: (Btn)Summon(10)
   m_TagString: Untagged
@@ -2601,6 +2603,7 @@ GameObject:
   - component: {fileID: 956792604911861607}
   - component: {fileID: 5168481263361172199}
   - component: {fileID: 8519128450808170839}
+  - component: {fileID: 9100999999999999703}
   m_Layer: 5
   m_Name: (Btn)Summon(30)
   m_TagString: Untagged
@@ -2811,6 +2814,45 @@ MonoBehaviour:
   summonExpRoot: {fileID: 3374403867150903229}
   textSummonLevel: {fileID: 6459205209294110485}
   textTicketAmount: {fileID: 4808727515767573649}
+--- !u!114 &9100999999999999701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629045626810002117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 511b08cfe29847d5ac54cc0b1deef6ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiButtonSoundPlayer
+  soundId: 9100006
+--- !u!114 &9100999999999999702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4707169006729471600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 511b08cfe29847d5ac54cc0b1deef6ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiButtonSoundPlayer
+  soundId: 9100006
+--- !u!114 &9100999999999999703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8509411162625099766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 511b08cfe29847d5ac54cc0b1deef6ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiButtonSoundPlayer
+  soundId: 9100006
 --- !u!1 &8744331098066233656
 GameObject:
   m_ObjectHideFlags: 0

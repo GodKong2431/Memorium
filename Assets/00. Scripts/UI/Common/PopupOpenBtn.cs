@@ -13,6 +13,7 @@ public class PopupOpenBtn : MonoBehaviour
         btnOpen = GetComponent<Button>();
         btnOpen.onClick.RemoveAllListeners();
         btnOpen.onClick.AddListener(OnClickOpenPopup);
+        UiButtonSoundPlayer.Ensure(btnOpen, UiSoundIds.DefaultButton);
     }
 
     private void OnClickOpenPopup()

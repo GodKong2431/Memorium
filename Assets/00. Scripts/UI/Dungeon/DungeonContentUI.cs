@@ -32,6 +32,7 @@ public class DungeonContentUI : MonoBehaviour
     {
         enterButton.onClick.RemoveAllListeners();
         enterButton.onClick.AddListener(onClick);
+        UiButtonSoundPlayer.Ensure(enterButton, UiSoundIds.DefaultButton);
     }
 
     public void RebuildRewards(IReadOnlyList<int> rewardItemIds, Func<int, Sprite> iconResolver)

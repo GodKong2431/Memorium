@@ -15,17 +15,49 @@ public sealed class UiButtonSoundPlayer : MonoBehaviour
 
     private void OnEnable()
     {
-        CachedButton.onClick.AddListener(HandleClick);
+        Rebind();
     }
 
     private void OnDisable()
     {
-        CachedButton.onClick.RemoveListener(HandleClick);
+        Unbind();
+    }
+
+    public static UiButtonSoundPlayer Ensure(Button button, int targetSoundId)
+    {
+        if (button == null)
+            return null;
+
+        UiButtonSoundPlayer player = button.GetComponent<UiButtonSoundPlayer>();
+        if (player == null)
+            player = button.gameObject.AddComponent<UiButtonSoundPlayer>();
+
+        player.SetSoundId(targetSoundId);
+        player.Rebind();
+        return player;
     }
 
     public void SetSoundId(int value)
     {
         soundId = value;
+    }
+
+    public void Rebind()
+    {
+        Button button = CachedButton;
+        if (button == null)
+            return;
+
+        button.onClick.RemoveListener(HandleClick);
+        button.onClick.AddListener(HandleClick);
+    }
+
+    private void Unbind()
+    {
+        if (cachedButton == null)
+            return;
+
+        cachedButton.onClick.RemoveListener(HandleClick);
     }
 
     private void HandleClick()
