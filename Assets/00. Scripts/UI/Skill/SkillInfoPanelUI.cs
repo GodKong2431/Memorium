@@ -71,6 +71,8 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     [SerializeField] private GameObject[] gemLockObjects; 
     [SerializeField] private RectTransform gemListRoot;   
     [SerializeField] private GameObject gemItemPrefab;
+    [SerializeField] private Canvas gemOverlayCanvas;
+    [SerializeField] private RectTransform gemSelectAnchor;
     int selectedGemSlotIndex;
 
 
@@ -333,12 +335,45 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
             return;
 
         selectedGemSlotIndex = gemSlotIndex;
+        PositionGemSelect(gemSlotIndex);
         ShowGemSelect();
+    }
+    private void PositionGemSelect(int gemSlotIndex)
+    {
+
+        if (gemSelectAnchor == null || gemButtons == null)
+            return;
+
+        if (gemSlotIndex < 0 || gemSlotIndex >= gemButtons.Length || gemButtons[gemSlotIndex] == null)
+            return;
+
+        RectTransform buttonRect = gemButtons[gemSlotIndex].GetComponent<RectTransform>();
+        if (buttonRect == null)
+            return;
+
+        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, buttonRect.position);
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            gemSelectAnchor.parent as RectTransform,
+            screenPos,
+            null,
+            out Vector2 localPos
+        );
+
+        Vector2 pos = gemSelectAnchor.anchoredPosition;
+        pos.x = localPos.x;
+        gemSelectAnchor.anchoredPosition = pos;
     }
     private void ShowGemSelect()
     {
         if (gemSelectRoot == null)
             return;
+
+        if (gemOverlayCanvas != null)
+        {
+            gemOverlayCanvas.overrideSorting = true;
+            gemOverlayCanvas.sortingOrder = 100; 
+        }
 
         gemSelectRoot.gameObject.SetActive(true);
         PopulateGemList();
@@ -455,6 +490,10 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     {
         if (gemSelectRoot != null)
             gemSelectRoot.gameObject.SetActive(false);
+
+        if (gemOverlayCanvas != null)
+            gemOverlayCanvas.overrideSorting = false;
+
     }
 
     // 스킬 테이블과 보유 데이터를 함께 가져옵니다.
@@ -607,15 +646,15 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         switch (grade)
         {
             case SkillGrade.Common:
-                return $"{prefix}일반 등급부터 장착할 수 있습니다.";
+                return $"{prefix} 장착 가능";
             case SkillGrade.Rare:
-                return $"{prefix}희귀 등급 최대 레벨은 50입니다.";
+                return $"{prefix} 젬 슬롯 1 해금";
             case SkillGrade.Epic:
-                return $"{prefix}영웅 등급 최대 레벨은 150입니다.";
+                return $"{prefix} 젬 슬롯 2 해금";
             case SkillGrade.Legendary:
-                return $"{prefix}전설 등급 최대 레벨은 300입니다.";
+                return $"{prefix} 젬 슬롯 3 해금";
             case SkillGrade.Mythic:
-                return $"{prefix}신화 등급 최대 레벨은 500입니다.";
+                return $"{prefix} 대미지 50% 증가";
             default:
                 return string.Empty;
         }
