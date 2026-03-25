@@ -6,10 +6,11 @@ using UnityEngine;
 /// </summary>
 public class EnemyStatPresenter : MonoBehaviour
 {
+    private bool _subscribedToDataManager;
     [SerializeField] [Tooltip("DataManager에서 스탯을 로드할 몬스터 ID입니다. 0이면 기본값(내장 스탯) 사용.")]
     public int monsterIdFromDataManager;
 
-    private EnemyStatData _data;
+    [SerializeField] private EnemyStatData _data;
     private int _loadedMonsterId;
 
     public EnemyStatData Data => _data ??= ResolveData();
@@ -36,7 +37,36 @@ public class EnemyStatPresenter : MonoBehaviour
 
     private void OnEnable()
     {
+        SubscribeToDataManager();
         RefreshFromDataManager();
+    }
+
+    private void OnDisable()
+    {
+        UnsubscribeFromDataManager();
+    }
+
+    private void SubscribeToDataManager()
+    {
+        if (_subscribedToDataManager)
+            return;
+
+        if (DataManager.Instance == null)
+            return;
+
+        DataManager.Instance.OnComplete += RefreshFromDataManager;
+        _subscribedToDataManager = true;
+    }
+
+    private void UnsubscribeFromDataManager()
+    {
+        if (!_subscribedToDataManager)
+            return;
+
+        if (DataManager.Instance != null)
+            DataManager.Instance.OnComplete -= RefreshFromDataManager;
+
+        _subscribedToDataManager = false;
     }
     public void SetData(EnemyStatData data)
     {

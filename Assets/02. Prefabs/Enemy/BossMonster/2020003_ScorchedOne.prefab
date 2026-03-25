@@ -1741,7 +1741,7 @@ Transform:
   m_GameObject: {fileID: 6499504835944854902}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.7684296, z: -0, w: 0.63993436}
-  m_LocalPosition: {x: -18.707867, y: 25.9, z: -15.112701}
+  m_LocalPosition: {x: -11.58, y: 25.9, z: -16.11}
   m_LocalScale: {x: 7, y: 7, z: 7}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1785,6 +1785,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStatPresenter
   monsterIdFromDataManager: 2020003
+  _data:
+    monsterID: 
+    monsterName: 
+    monsterType: 
+    monsterHealth: 0
+    monsterAttackpoint: 0
+    monsterAttackspeed: 0
+    monsterSpeed: 0
+    attackRange: 0
+    monsterDefense: 0
 --- !u!195 &-5786363486856718616
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1916,8 +1926,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 2.1357775
-  m_Center: {x: -5.6655813e-10, y: 1.786738, z: 0.19813634}
+  m_Radius: 0.63384664
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6552680631955701667
 GameObject:
   m_ObjectHideFlags: 0
