@@ -1500,9 +1500,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestManager
   currentQuestID: 7010001
   currentProgress: 0
+  completedQuestCount: 0
   saveQuestData:
     currentQuestId: -1
     currentProgress: 0
+    completedQuestCount: 0
   DataLoad: 0
 --- !u!4 &930009148
 Transform:
@@ -1717,11 +1719,11 @@ MonoBehaviour:
   target: {fileID: 421248754}
   targetTag: Player
   findOnStart: 1
-  distance: 30
-  height: 20
-  yaw: 45
-  pitch: 30
-  targetOffset: {x: -10, y: 10, z: -10}
+  distance: 50
+  angle: {x: 50, y: 45}
+  offset: {x: 0, y: 1.2, z: 0}
+  bottomPanelController: {fileID: 0}
+  sheetOpenLocalPositionOffset: {x: 0, y: -13, z: 0}
   moveSmooth: 10
   turnSmooth: 12
 --- !u!1 &1044715719
@@ -3981,6 +3983,10 @@ PrefabInstance:
     - target: {fileID: 5573727616911897285, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870374254241878517, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 6187821076074418960, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: m_AnchorMax.y
