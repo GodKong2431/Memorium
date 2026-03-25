@@ -104,6 +104,8 @@ public class DataManager : Singleton<DataManager>
     public SerializedDictionary<int, SynergyTable> SynergyDict;
 
     public SerializedDictionary<int, ConfigTable> ConfigDict;
+
+    public SerializedDictionary<int, SoundTable> SoundDict;
     #endregion
 
     public event Action<int, int, string> OnProgress;

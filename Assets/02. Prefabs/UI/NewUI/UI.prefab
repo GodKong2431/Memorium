@@ -6238,8 +6238,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC2A4\uD1A4\uB4E4\uC758 \uAC15\uD654 \uC218\uCE58\uB97C \uC804\uBD80
-    \uD569\uD574 \uC77C\uC815 \uC218\uCE58 \uC774\uC0C1 \uB2EC\uC131 \uC2DC \uC2A4\uD0EF\uC744
+  m_text: "\uC2A4\uD1A4\uB4E4\uC758 \uAC15\uD654 \uC218\uCE58\uB97C \uC804\uBD80 \uD569\uD574
+    \uC77C\uC815 \uC218\uCE58 \uC774\uC0C1 \uB2EC\uC131 \uC2DC \uC2A4\uD0EF\uC744
     \uCD94\uAC00\uB85C \uBD80\uC5EC\uD569\uB2C8\uB2E4."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 0}
@@ -13315,9 +13315,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC774 \uC544\uC774\uD15C\uC740 \uBB34\uC5C7\uC774\uBA70 \uC554\uD2BC
-    \uC88B\uC740\uAC70\uC784.\n\n\uD68D\uB4DD\uCC98: \uD560\uBA38\uB2C8\uC758 \uC0AC\uD0D5
-    \uCF00\uC774\uC2A4\n\uC0AC\uC6A9\uCC98: \uB8E8\uB514\uBE0C\uB9AC\uC5C4"
+  m_text: "\uC774 \uC544\uC774\uD15C\uC740 \uBB34\uC5C7\uC774\uBA70 \uC554\uD2BC \uC88B\uC740\uAC70\uC784.\n\n\uD68D\uB4DD\uCC98:
+    \uD560\uBA38\uB2C8\uC758 \uC0AC\uD0D5 \uCF00\uC774\uC2A4\n\uC0AC\uC6A9\uCC98:
+    \uB8E8\uB514\uBE0C\uB9AC\uC5C4"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 0}
   m_sharedMaterial: {fileID: 5253690800066008590, guid: 4a0f5389a1232d042907b34df1a70b9e, type: 2}
@@ -71702,6 +71702,7 @@ GameObject:
   - component: {fileID: 5941844996741945088}
   - component: {fileID: 5568198604197428985}
   - component: {fileID: 9074080099105396524}
+  - component: {fileID: 1900301001}
   m_Layer: 5
   m_Name: (Btn)Option
   m_TagString: Untagged
@@ -71815,6 +71816,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 0
+--- !u!114 &1900301001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6589684905372233530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 633dc6da8d52493eb532d07a4d699db9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OptionButtonUI
 --- !u!1 &6597318856873920571
 GameObject:
   m_ObjectHideFlags: 0
@@ -101554,19 +101567,19 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 832395065718319827, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
-      propertyPath: 'equipPointerObjects.Array.data[0]'
+      propertyPath: equipPointerObjects.Array.data[0]
       value: 
       objectReference: {fileID: 2290054928549316452}
     - target: {fileID: 832395065718319827, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
-      propertyPath: 'equipPointerObjects.Array.data[1]'
+      propertyPath: equipPointerObjects.Array.data[1]
       value: 
       objectReference: {fileID: 2032872717641925200}
     - target: {fileID: 832395065718319827, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
-      propertyPath: 'equipPointerObjects.Array.data[2]'
+      propertyPath: equipPointerObjects.Array.data[2]
       value: 
       objectReference: {fileID: 6096139421987995858}
     - target: {fileID: 832395065718319827, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
-      propertyPath: 'equipPointerObjects.Array.data[3]'
+      propertyPath: equipPointerObjects.Array.data[3]
       value: 
       objectReference: {fileID: 6096139421987995858}
     - target: {fileID: 1851977140704691566, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
@@ -101725,18 +101738,12 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -50
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 1179915390230046937, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
+    m_RemovedComponents: [{fileID: 1179915390230046937, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}]
     m_RemovedGameObjects:
     - {fileID: 214584202526784689, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1826778903844511383, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3567596183138878523}
-    - targetCorrespondingSourceObject: {fileID: 8083945774303006656, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4892131074549758170}
+    m_AddedComponents: [{targetCorrespondingSourceObject: {fileID: 1826778903844511383, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}, insertIndex: -1, addedObject: {fileID: 3567596183138878523}},
+      {targetCorrespondingSourceObject: {fileID: 8083945774303006656, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}, insertIndex: -1, addedObject: {fileID: 4892131074549758170}}]
   m_SourcePrefab: {fileID: 100100000, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
 --- !u!1 &2032872717641925200 stripped
 GameObject:
