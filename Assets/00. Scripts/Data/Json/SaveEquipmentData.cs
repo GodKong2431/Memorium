@@ -34,6 +34,7 @@ public class SaveEquipmentData : ISaveData
     //만약 데이터를 받아오지 않았다면 무기 id가 -1이므로 초기 세팅 진행
     public void InitPlayerEquipmentData()
     {
+
         if (weaponId <= 0)
         {
             //Debug.Log("$[TestSavePlayerEquipmentData] 테이블이 비었다");

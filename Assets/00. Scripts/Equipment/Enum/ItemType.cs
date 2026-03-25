@@ -9,7 +9,11 @@ public enum ItemType
     ElementGem = 22,
     UniqueGem = 23,
     PixiePiece = 31,
-    Pixie,
+    Pixie = 32,
+    BingoLink = 41,
+    BingoItem_A =42,
+    BingoSynergy = 43,
+    BingoItem_B =46,
     FreeCurrency = 81,
     PaidCurrency = 82,
     Key = 83

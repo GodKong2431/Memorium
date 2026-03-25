@@ -151,9 +151,49 @@ public class EnemyStateContext
             Animator.SetTrigger(trigger);
     }
 
+    public void SetAnimatorFloat(string paramName, float value)
+    {
+        if (Animator == null || string.IsNullOrEmpty(paramName)) return;
+        Animator.SetFloat(paramName, value);
+    }
+
+    public void SetLocomotion(float value)
+    {
+        if (AnimationConfig == null)
+        {
+            // 기본값은 "Locomotion"으로 가정
+            SetAnimatorFloat("Locomotion", value);
+            return;
+        }
+        SetAnimatorFloat(AnimationConfig.LocomotionParam, value);
+    }
+
     public float GetModifiedStat(StatType type, float baseValue)
     {
         if (EnemyEffectController == null) return baseValue;
         return EnemyEffectController.GetModifiedStat(type, baseValue);
+    }
+
+    private Collider _enemyCollider;
+    private Collider _playerCollider;
+
+    public float GetBoundsDistanceToPlayer()
+    {
+        if (EnemyTransform == null || PlayerTransform == null)
+            return float.PositiveInfinity;
+
+        if (_enemyCollider == null)
+            _enemyCollider = EnemyTransform.GetComponentInChildren<Collider>();
+        if (_playerCollider == null)
+            _playerCollider = PlayerTransform.GetComponentInChildren<Collider>();
+
+        if (_enemyCollider == null || _playerCollider == null)
+            return Vector3.Distance(EnemyTransform.position, PlayerTransform.position);
+
+        // 각 콜라이더에서 서로를 향한 가장 가까운 점
+        Vector3 enemyPoint  = _enemyCollider.ClosestPoint(PlayerTransform.position);
+        Vector3 playerPoint = _playerCollider.ClosestPoint(EnemyTransform.position);
+
+        return Vector3.Distance(enemyPoint, playerPoint);
     }
 }

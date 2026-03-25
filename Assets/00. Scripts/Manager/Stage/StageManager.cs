@@ -40,6 +40,8 @@ public class StageManager : Singleton<StageManager>
     [SerializeField] private StageType manualBossSummonRequiredStageType = StageType.None;
     [SerializeField] private int manualBossSummonRequiredStageLevel = 0;
 
+    public MonsterStatusByStage monsterStatusByStage;
+
     // 현재 보스 스테이지 흐름 안에 있는지 여부
     public bool onBossStage = false;
     private EnemyStateMachine boss;
@@ -207,6 +209,8 @@ public class StageManager : Singleton<StageManager>
         if (!TryGetCurrentStageData(out StageManageTable stageData))
             return;
 
+        monsterStatusByStage = new MonsterStatusByStage(stageData.monsterGrowthid);
+
         curFloor = stageData.floorNumber;
         MapManager.Instance.MapSetting(curStageType, curFloor);
 
@@ -273,11 +277,11 @@ public class StageManager : Singleton<StageManager>
     {
         ResetBoss();
         yield return new WaitUntil(() => CheckPlayerStateToStageChanged());
-        yield return CoroutineManager.waitForSeconds(waitNextStageTime);
-
 
         if (curStageType == StageType.NormalStage)
         {
+            yield return CoroutineManager.waitForSeconds(waitNextStageTime);
+
             player.GetComponent<NavMeshAgent>().enabled = false;
             onFailedStage = false;
             if (stageKeyList != null && curStage < stageKeyList.Count)
@@ -294,8 +298,11 @@ public class StageManager : Singleton<StageManager>
                 saveStageData.SetMaxStage(curStageType, curStage - 1);
             }
 
+            AutoDataSaveManager.Instance.SaveData();
+
             OnStageClearOrFailed.Invoke();
             player.GetComponent<NavMeshAgent>().enabled = true;
+            Debug.Log("[StageManager] 스테이지 클리어");
         }
         else
         {
@@ -304,6 +311,7 @@ public class StageManager : Singleton<StageManager>
                 maxStage[(int)curStageType - (int)StageType.NormalStage] = curStage;
                 saveStageData.SetMaxStage(curStageType, curStage);
             }
+            AutoDataSaveManager.Instance.SaveData();
 
             player.GetComponent<NavMeshAgent>().isStopped = true;
 
@@ -321,7 +329,6 @@ public class StageManager : Singleton<StageManager>
 
             yield return new WaitUntil(() => dungeonClear);
             dungeonClear = false;
-            player.GetComponent<NavMeshAgent>().isStopped = false;
 
             if (continueDungeonAfterClear && continuedDungeonStageType != StageType.None)
             {
@@ -373,14 +380,20 @@ public class StageManager : Singleton<StageManager>
         ResetBoss();
 
         yield return new WaitUntil(() => CheckPlayerStateToStageChanged());
-        yield return CoroutineManager.waitForSeconds(waitNextStageTime);
 
         if (curStageType == StageType.NormalStage)
         {
+            yield return CoroutineManager.waitForSeconds(waitNextStageTime);
+
             onFailedStage = true;
+            saveStageData.SetOnFailedStage();
 
             if (curStage - 2 >= 0 && !failedDuringBossStage)
                 curStage--;
+            saveStageData.SetCurStage(curStage);
+
+            AutoDataSaveManager.Instance.SaveData();
+
 
             normalStage = curStage;
             SetReward();
@@ -391,6 +404,14 @@ public class StageManager : Singleton<StageManager>
                 MarkManualBossSummonRequiredForCurrentStage();
 
             OnStageClearOrFailed.Invoke();
+
+            if (player != null)
+            {
+                player._ctx.Heal(player._ctx.MaxHealth);
+                player._ctx.Animator.SetTrigger("Alive");
+                //player._ctx.RequestState(PlayerStateType.Idle);
+                player._ctx.RequestIdle();
+            }
         }
         else
         {
@@ -409,7 +430,6 @@ public class StageManager : Singleton<StageManager>
 
             yield return new WaitUntil(() => dungeonClear);
             dungeonClear = false;
-            player.GetComponent<NavMeshAgent>().isStopped = false;
 
             if (continueDungeonAfterClear && continuedDungeonStageType != StageType.None)
             {
@@ -427,7 +447,9 @@ public class StageManager : Singleton<StageManager>
                 SceneController.Instance.LoadScene(SceneType.StageScene);
             }
         }
+
         stageMoveCoroutine = null;
+
     }
     // 스테이지 타입/레벨 변경 요청을 큐에 저장하고 즉시 상태에 반영한다.
     public void SetStageType(StageType dungeonType, int level)

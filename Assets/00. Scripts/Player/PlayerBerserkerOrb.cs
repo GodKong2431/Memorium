@@ -16,11 +16,15 @@ public class PlayerBerserkerOrb : MonoBehaviour
     public static int BossBerserkerOrb{get; private set;}
 
 
-    private int _berserkerOrb;
+    private int _currentBerserkerOrb;
 
-    public int BerserkerOrb => _berserkerOrb;
+    public int CurrentBerserkerOrb => _currentBerserkerOrb;
 
     public event Action OnBerserkerOrbChanged;
+    
+    public event Action OnBerserkerOrbFull;
+    
+    public bool isAuto;
 
     private void Awake()
     {
@@ -30,12 +34,12 @@ public class PlayerBerserkerOrb : MonoBehaviour
             return;
         }
         Instance = this;
-
-        EnemyKillRewardDispatcher.OnBerserkerOrbEarned += AddBerserkerOrb;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void Init(BerserkmodeManageTable table)
     {
+        if (table == null) return;
         MaxBerserkerOrb = table.berserkCounter;
         Debug.Log(MaxBerserkerOrb);
         NormalBerserkerOrb = table.normalDropQty;
@@ -44,11 +48,25 @@ public class PlayerBerserkerOrb : MonoBehaviour
         Debug.Log(BossBerserkerOrb);
     }
 
+    private void OnEnable()
+    {
+        BerserkerOrb.OnBerserkerOrbEarned -= AddBerserkerOrb;
+        BerserkerOrb.OnBerserkerOrbEarned += AddBerserkerOrb;
+        // 씬 왕복/재활성화 시 중복 구독 방지 후 재구독
+        //BerserkerOrb.OnBerserkerOrbEarned -= AddBerserkerOrb;
+        //EnemyKillRewardDispatcher.OnBerserkerOrbEarned += AddBerserkerOrb;
+    }
+
+    private void OnDisable()
+    {
+        //EnemyKillRewardDispatcher.OnBerserkerOrbEarned -= AddBerserkerOrb;
+        BerserkerOrb.OnBerserkerOrbEarned -= AddBerserkerOrb;
+    }
+
     private void OnDestroy()
     {
         if (Instance == this)
         {
-            EnemyKillRewardDispatcher.OnBerserkerOrbEarned -= AddBerserkerOrb;
             Instance = null;
         }
     }
@@ -56,16 +74,20 @@ public class PlayerBerserkerOrb : MonoBehaviour
     public void AddBerserkerOrb(int amount)
     {
         if (amount <= 0) return;
-        _berserkerOrb = Mathf.Min(MaxBerserkerOrb, _berserkerOrb + amount);
+        _currentBerserkerOrb = Mathf.Min(MaxBerserkerOrb, _currentBerserkerOrb + amount);
         OnBerserkerOrbChanged?.Invoke();
         BerserkerGageUI.RefreshAll();
+        if (isAuto && MaxBerserkerOrb == _currentBerserkerOrb)
+        {
+            OnBerserkerOrbFull?.Invoke();
+        }
     }
 
     /// <summary>버서커 모드 발동 시 오브 소모. 보유량이 부족하면 false.</summary>
     public bool TryConsumeBerserkerOrbs(int amount)
     {
-        if (amount <= 0 || _berserkerOrb < amount) return false;
-        _berserkerOrb -= amount;
+        if (amount <= 0 || _currentBerserkerOrb < amount) return false;
+        _currentBerserkerOrb -= amount;
         OnBerserkerOrbChanged?.Invoke();
         BerserkerGageUI.RefreshAll();
         return true;

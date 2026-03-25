@@ -1,0 +1,193 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
+
+public sealed class EquipItemView
+{
+    private static readonly Color Transparent = new Color(1f, 1f, 1f, 0f);
+    private const float DimAlpha = 0.35f;
+
+    private readonly EquipItemUI ui;
+    private readonly List<Image> stars = new List<Image>();
+    private CanvasGroup canvasGroup;
+
+    public EquipItemView(EquipItemUI ui)
+    {
+        this.ui = ui;
+        this.ui.EnsureBindings();
+        CacheExistingStars();
+    }
+
+    public GameObject GameObject => ui != null ? ui.gameObject : null;
+    public Button Button => ui != null ? ui.Button : null;
+
+    public void Bind(UnityAction onClick)
+    {
+        if (ui.Button == null)
+            return;
+
+        ui.Button.onClick.RemoveAllListeners();
+        ui.Button.onClick.AddListener(onClick);
+    }
+
+    public void Render(Sprite icon, string levelText, int starCount, Color tierColor)
+    {
+        if (ui.Icon != null)
+            ui.Icon.sprite = icon;
+
+        SetLevelText(levelText);
+
+        if (ui.TierPanel != null)
+            ui.TierPanel.color = Transparent;
+
+        SyncStars(Mathf.Max(1, starCount), tierColor);
+    }
+
+    public void RenderLevel(string levelText)
+    {
+        SetLevelText(levelText);
+    }
+
+    public void RenderCount(int count, int mergeCount)
+    {
+        int required = Mathf.Max(1, mergeCount);
+        int owned = Mathf.Max(0, count);
+
+        if (ui.MergeSlider != null)
+        {
+            ui.MergeSlider.gameObject.SetActive(true);
+            ui.MergeSlider.minValue = 0f;
+            ui.MergeSlider.maxValue = required;
+            ui.MergeSlider.SetValueWithoutNotify(Mathf.Clamp(owned, 0, required));
+        }
+
+        if (ui.CurrentCountText != null)
+            ui.CurrentCountText.text = owned >= 100 ? "99+" : owned.ToString();
+
+        if (ui.NeedCountText != null)
+            ui.NeedCountText.text = required.ToString();
+    }
+
+    public void SetFrameColor(Color color)
+    {
+        Image[] frameImages = ui.Frames;
+        if (frameImages == null)
+            return;
+
+        for (int i = 0; i < frameImages.Length; i++)
+        {
+            if (frameImages[i] != null)
+                frameImages[i].color = color;
+        }
+    }
+
+    public void SetDimmed(bool dimmed)
+    {
+        if (ui.Button != null)
+            ui.Button.interactable = !dimmed;
+
+        if (canvasGroup == null)
+        {
+            canvasGroup = ui.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = ui.gameObject.AddComponent<CanvasGroup>();
+        }
+
+        if (canvasGroup == null)
+            return;
+
+        canvasGroup.alpha = dimmed ? DimAlpha : 1f;
+    }
+
+    public void SetEquipEffect()
+    {
+        //여기서 UI 아이콘 위치 찾고 거기서 이펙트를 옮기고 실행시켜라
+        //ui.Icon.transform.
+        if (ui.Icon == null || EquipParticleManager.Instance == null)
+            return;
+
+        EquipParticleManager.Instance.PlayUpgradeEffect(ui.Icon.transform);
+    }
+    public void SetMergeEffect()
+    {
+        //여기서 UI 아이콘 위치 찾고 거기서 이펙트를 옮기고 실행시켜라
+        //ui.Icon.transform.
+        if (ui.Icon == null)
+        {
+            Debug.Log("[EquipItemView] 합성 이펙트 출력 실패 : uI.Icon 없음");
+            return;
+        }
+        if (EquipParticleManager.Instance == null)
+        {
+            Debug.Log("[EquipItemView] 합성 이펙트 출력 실패 : 파티클 매니저 없음");
+            return;
+        }
+        Debug.Log("[EquipItemView] 합성 이펙트 출력");
+        EquipParticleManager.Instance.PlayMergeEffect(ui.Icon.transform);
+    }
+
+    private void SetLevelText(string levelText)
+    {
+        bool hasLevelText = !string.IsNullOrWhiteSpace(levelText);
+
+        if (ui.LevelDisplayRoot != null)
+            ui.LevelDisplayRoot.gameObject.SetActive(hasLevelText);
+
+        if (ui.LevelText != null)
+            ui.LevelText.text = hasLevelText ? levelText : string.Empty;
+    }
+
+    private void SyncStars(int required, Color color)
+    {
+        CacheExistingStars();
+
+        if (stars.Count == 0 || ui.TierRoot == null)
+            return;
+
+        while (stars.Count < required)
+        {
+            Image clone = Object.Instantiate(stars[0], ui.TierRoot);
+            clone.name = $"(Img)TierStar_{stars.Count + 1}";
+            stars.Add(clone);
+        }
+
+        for (int i = 0; i < stars.Count; i++)
+        {
+            bool active = i < required;
+            stars[i].gameObject.SetActive(active);
+            if (active)
+                stars[i].color = color;
+        }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(ui.TierRoot);
+    }
+
+    private void CacheExistingStars()
+    {
+        stars.Clear();
+
+        if (ui.TierRoot == null)
+        {
+            if (ui.TierStar != null)
+                stars.Add(ui.TierStar);
+
+            return;
+        }
+
+        for (int i = 0; i < ui.TierRoot.childCount; i++)
+        {
+            Transform child = ui.TierRoot.GetChild(i);
+            if (child == null)
+                continue;
+
+            Image starImage = child.GetComponent<Image>();
+            if (starImage != null)
+                stars.Add(starImage);
+        }
+
+        if (stars.Count == 0 && ui.TierStar != null)
+            stars.Add(ui.TierStar);
+    }
+}

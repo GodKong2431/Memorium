@@ -15,14 +15,19 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
     SaveQuestData  questData;
     SaveSkillData skillData;
     SaveStageData stageData;
+    SaveAbilityStoneData abilityStoneData;
+    SavePixieData pixieData;
+
+    private bool onSave=false;
 
     private IEnumerator Start()
     {
-        //CurrencyData, SkillData
+        //CurrencyData, SkillData, PixieData
         yield return new WaitUntil(() => InventoryManager.Instance != null);
         yield return new WaitUntil(() => InventoryManager.Instance.DataLoad);
         currencyData = InventoryManager.Instance.saveCurrencyData;
         skillData = InventoryManager.Instance.saveSkillData;
+        pixieData = InventoryManager.Instance.savePixieData;
 
         //PlayerData, equipmentData
         yield return new WaitUntil(() => CharacterStatManager.Instance != null);
@@ -45,7 +50,10 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         yield return new WaitUntil(() => GachaManager.Instance.DataLoad);
         gachaData = GachaManager.Instance.saveGachaData;
 
-        //스킬 데이터
+        //어빌리티 스톤 데이터
+        yield return new WaitUntil(() => AbilityStoneManager.Instance != null);
+        yield return new WaitUntil(() => AbilityStoneManager.Instance.LoadStone);
+        abilityStoneData = AbilityStoneManager.Instance.saveAbilityStoneData;
 
         StartCoroutine(AutoSaveCoroutine());
     }
@@ -58,15 +66,15 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         }
     }
 
-    private async Task AutoSaveTask()
+    public async Task AutoSaveTask()
     {
+
+        if(onSave)
+            return;
+        onSave = true;
+
         List<Task> saveTask = new List<Task>();
         //스테이지 매니저 데이터 저장 여부 체크
-        //if (StageManager.Instance.saveStageData.IsDirty && StageManager.Instance.DataLoad) saveTask.Add(StageManager.Instance.AutoSaveTask());
-        //if (InventoryManager.Instance.saveCurrencyData.IsDirty && InventoryManager.Instance.DataLoad) saveTask.Add(InventoryManager.Instance.AutoSaveTask());
-        //if (CharacterStatManager.Instance.saveEquipmentData.IsDirty && CharacterStatManager.Instance.TableLoad) saveTask.Add(CharacterStatManager.Instance.AutoSaveTaskOnEquipmentData());
-        //if (CharacterStatManager.Instance.savePlayerData.IsDirty && CharacterStatManager.Instance.TableLoad) saveTask.Add(CharacterStatManager.Instance.AutoSaveTaskOnPlayerData());
-        //if (QuestManager.Instance.saveQuestData.IsDirty && QuestManager.Instance.DataLoad) saveTask.Add(QuestManager.Instance.AutoSaveTask());
         if (stageData.IsDirty && stageData!=null) saveTask.Add(AutoSaveTaskStart(stageData));
         if (currencyData.IsDirty && currencyData!=null) saveTask.Add(AutoSaveTaskStart(currencyData));
         if (equipmentData.IsDirty && equipmentData != null) saveTask.Add(AutoSaveTaskStart(equipmentData));
@@ -74,32 +82,57 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         if (questData.IsDirty && questData!=null) saveTask.Add(AutoSaveTaskStart(questData));
         if(gachaData.IsDirty && gachaData!=null) saveTask.Add(AutoSaveTaskStart(gachaData));
         if(skillData.IsDirty && skillData!=null) saveTask.Add(AutoSaveTaskStart(skillData));
+        if(abilityStoneData.IsDirty && abilityStoneData != null) saveTask.Add(AutoSaveTaskStart(abilityStoneData));
+        if (pixieData.IsDirty && pixieData != null) saveTask.Add(AutoSaveTaskStart(pixieData));
 
         if (saveTask.Count > 0)
         {
             Debug.Log($"[AutoDataSaveManager] {saveTask.Count}개 데이터 변경사항 저장 완료.");
             await Task.WhenAll(saveTask);
         }
+            onSave = false;
+    }
+
+    public void SaveData()
+    {
+        if (stageData != null&&stageData.IsDirty) SaveData(stageData);
+        if (currencyData != null && currencyData.IsDirty ) SaveData(currencyData);
+        if (equipmentData != null&& equipmentData.IsDirty) SaveData(equipmentData);
+        if (playerData != null&& playerData.IsDirty) SaveData(playerData);
+        if (questData != null&& questData.IsDirty) SaveData(questData);
+        if (gachaData != null&& gachaData.IsDirty) SaveData(gachaData);
+        if (skillData != null&&skillData.IsDirty) SaveData(skillData);
+        if (abilityStoneData != null&&abilityStoneData.IsDirty) SaveData(abilityStoneData);
+        if (pixieData != null && pixieData.IsDirty) SaveData(pixieData);
     }
 
     private void OnApplicationPause(bool pause)
     {
         if (pause)
         {
-            _ = AutoSaveTask();
+            //_ = AutoSaveTask();
+            SaveData();
         }
     }
 
     protected override void OnApplicationQuit()
     {
         base.OnApplicationQuit();
-        _ = AutoSaveTask();
+        //_ = AutoSaveTask();
+        SaveData();
     }
 
     public async Task AutoSaveTaskStart<T>(T data) where T : ISaveData
     {
         Debug.Log($"[StageManager] {typeof(T).Name} 확인 및 데이터 저장");
         await JSONService.SaveFileOnAsync(data);
+        data.ClearDirty();
+    }
+
+    public void SaveData<T>(T data) where T : ISaveData
+    {
+        //Debug.Log($"[StageManager] {typeof(T).Name} 확인 및 데이터 저장");
+        JSONService.Save(data);
         data.ClearDirty();
     }
 }

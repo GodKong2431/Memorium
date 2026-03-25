@@ -81,7 +81,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             { EnemyStateType.Chase, new EnemyStateChase() },
             { EnemyStateType.Attack, new EnemyStateAttack() },
             { EnemyStateType.Onhit, new EnemyStateOnhit() },
-            { EnemyStateType.Dead, new EnemyStateDead() }
+            { EnemyStateType.Dead, new EnemyStateDead() },
+            { EnemyStateType.Spawn, new EnemyStateSpawn() }
         };
     }
 
@@ -101,6 +102,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             {
                 if (animationConfig == null && entry.animationConfig != null)
                     animationConfig = entry.animationConfig;
+
+                // 몬스터별 OverrideController 자동 적용 (공통 Controller + 클립 교체 방식)
+                if (animator != null && entry.animatorOverrideController != null)
+                    animator.runtimeAnimatorController = entry.animatorOverrideController;
 
                 if (attackEffectPrefab == null && entry.attackEffectPrefab != null)
                     attackEffectPrefab = entry.attackEffectPrefab;
@@ -140,8 +145,11 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             _ctx.Agent.stoppingDistance = data.attackRange;
         }
 
-        // 스폰되면 바로 chase 상태로 전환
-        ChangeState(EnemyStateType.Chase);
+        // 보스: 스폰 연출 후 Chase. 일반몹: 바로 Chase
+        if (_ctx.IsBoss)
+            ChangeState(EnemyStateType.Spawn);
+        else
+            ChangeState(EnemyStateType.Chase);
     }
 
     /// <summary>
@@ -202,6 +210,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
 
         if (_ctx.CurrentHealth <= 0f)
         {
+            _ctx.EnemyEffectController.OnDeath();
             ChangeState(EnemyStateType.Dead);
             return;
         }
@@ -220,7 +229,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     /// <param name="duration"></param>
     public void ApplyKnockback(Vector3 direction, float distance, float duration)
     {
-        if (!IsAlive) return;
 
         _ctx.PendingKnockback = new KnockbackInfo
         {
@@ -229,6 +237,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             duration = duration
         };
 
+        if (!IsAlive) return;
         if (_currentType != EnemyStateType.Onhit && _currentType != EnemyStateType.Dead)
         {
             ChangeState(EnemyStateType.Onhit);
@@ -265,6 +274,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             _ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Idle);
         }
 
-        ChangeState(EnemyStateType.Chase);
+        // 보스는 풀 재스폰에서도 Spawn 연출 후 Chase로 가야 일관적임
+        if (_ctx.IsBoss)
+            ChangeState(EnemyStateType.Spawn);
+        else
+            ChangeState(EnemyStateType.Chase);
     }
 }

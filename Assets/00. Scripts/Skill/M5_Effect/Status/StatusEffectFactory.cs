@@ -15,15 +15,11 @@ public static class StatusEffectFactory
         };
     }
 
-    //테스트용 하드코딩
-    //테스트용 하드코딩
     public static StatusEffectBase CreateFusion(SkillModule5Table dataA, SkillModule5Table dataB)
     {
         var typeA = dataA.m5Type;
         var typeB = dataB.m5Type;
 
-        // [로그 1단계] 어떤 속성 두 개가 섞이려고 들어왔는지 확인!
-        Debug.Log($"[퓨전 1단계] 진입 성공 -> typeA: {typeA}, typeB: {typeB}");
 
         int fusionID = (typeA, typeB) switch
         {
@@ -33,23 +29,13 @@ public static class StatusEffectFactory
             _ => 0
         };
 
-        // [로그 2단계] 조합식 자체가 없는 경우 (예: 출혈+출혈 등)
-        if (fusionID == 0)
-        {
-            Debug.LogWarning($"[퓨전 실패] 매칭되는 퓨전 조합이 없습니다! (입력된 타입: {typeA} + {typeB})");
-            return null;
-        }
 
-        Debug.Log($"[퓨전 2단계] 조합 매칭 성공 -> 할당된 퓨전 ID: {fusionID}");
-
-        // [로그 3단계] 딕셔너리(CSV)에 해당 ID 데이터가 없는 경우
         if (!DataManager.Instance.M5FusionDict.TryGetValue(fusionID, out var fusionData))
         {
-            Debug.LogError($"[퓨전 치명적 실패] M5FusionDict 안에 ID {fusionID} 데이터가 없습니다! (데이터가 로드되지 않았거나 인젝터 주입이 누락됨)");
+           
             return null;
         }
 
-        Debug.Log($"[퓨전 3단계] 딕셔너리에서 데이터 찾기 성공 -> 퓨전 이름: {fusionData.fusionName}");
 
         StatusEffectBase effect = fusionID switch
         {
@@ -59,15 +45,6 @@ public static class StatusEffectFactory
             _ => null
         };
 
-        // [로그 4단계] 최종 객체 생성 확인
-        if (effect == null)
-        {
-            Debug.LogError("[퓨전 실패] 객체 생성 switch문에서 알 수 없는 이유로 null이 반환되었습니다.");
-        }
-        else
-        {
-            Debug.Log($"[퓨전 최종 성공!] 생성된 이펙트 객체: {effect.GetType().Name}");
-        }
 
         return effect;
     }

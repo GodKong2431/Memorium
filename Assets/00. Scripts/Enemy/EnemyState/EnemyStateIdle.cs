@@ -16,6 +16,7 @@ public class EnemyStateIdle : IEnemyState
             ctx.Agent.isStopped = true;
             ctx.Agent.ResetPath();
         }
+        ctx.SetLocomotion(0f);
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Idle);
     }
 

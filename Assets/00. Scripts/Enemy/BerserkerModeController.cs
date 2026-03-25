@@ -14,19 +14,22 @@ public class BerserkerModeController : MonoBehaviour
     
     [SerializeField] public BerserkModeSo _berserkModeSo;
     
+    [Header("오브 오브젝트")]
+    [SerializeField] private string OrbKey = "Assets/02. Prefabs/Design/BerserkEffect/HCFX_ElementOrb_04.prefab";
+    
     [Header("시작 이펙트")]
     [SerializeField] private string StartEffectKey1 = "Assets/02. Prefabs/Design/BerserkEffect/HCFX_Explosion_02_Air.prefab";
     [SerializeField] private string StartEffectKey2 = "Assets/02. Prefabs/Design/BerserkEffect/HCFX_Energy_04.prefab";
     [Header("시전중 이펙트")]
     [SerializeField] private string EffectKet1 = "Assets/02. Prefabs/Design/BerserkEffect/Poison aura.prefab";
     [SerializeField] private string EffectKet2 = "Assets/02. Prefabs/Design/BerserkEffect/Star aura.prefab";
-
+    
     [Header("설정")]
     [SerializeField] private float durationSeconds = 60f;
     [SerializeField] private float startDelay = 0.3f;
     
     [Tooltip("비워두면 이 컴포넌트의 transform 사용. VFX 위치용 (플레이어 루트 등).")]
-    [SerializeField] private Transform vfxParent;
+    [SerializeField] public Transform vfxParent;
     
     BerserkmodeManageTable berserkmodeManageTable;
     
@@ -75,6 +78,7 @@ public class BerserkerModeController : MonoBehaviour
         
         durationSeconds = berserkmodeManageTable.durationTime;
         PlayerBerserkerOrb.Instance.Init(berserkmodeManageTable);
+        EnemyKillRewardDispatcher.OnBerserkerOrb += (pos, count) => SpawnOrb(OrbKey, pos, false, count);
         
     }
 
@@ -91,20 +95,8 @@ public class BerserkerModeController : MonoBehaviour
         {
             switch (key)
             {
-                case StatType.HP:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseHPStatMultiplier;
-                    break;
                 case StatType.ATK:
                     _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseAttackStatMultiplier;
-                    break;
-                case StatType.HP_REGEN:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseHPRegenStatMultiplier;
-                    break;
-                case StatType.MP:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseMPStatMultiplier;
-                    break;
-                case StatType.MP_REGEN:
-                    _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseMPRegenStatMultiplier;
                     break;
                 case StatType.CRIT_MULT:
                     _berserkModeSo.BserserkMultStatSo[key] = berserkmodeManageTable.baseCriticalStatMultiplier;
@@ -151,18 +143,29 @@ public class BerserkerModeController : MonoBehaviour
         StartCoroutine(DelayVfx());
     }
     
+    private void SpawnOrb(string key, Vector3 transform,bool follow, int count)
+    {
+        
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(OrbKey, follow : follow, autoReturn : false, targetPosition : transform,
+        onSpawned : particle =>{if (particle != null && particle.TryGetComponent<BerserkerOrb>(out var orb))
+        {
+                orb.Init(count);
+            }
+        }));
+    }
+    
     private void SpawnEffect(string key, bool follow)
     {
         if (string.IsNullOrEmpty(key)) return;
         
-        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(key, vfxParent,follow,true));
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(key, VfxParent,follow,true));
     }
     
     private void SpawnLoopEffect(string key, bool follow)
     {
         if (string.IsNullOrEmpty(key)) return;
         
-        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(key, vfxParent,follow,false,onSpawned: OnGradeEffectSpawned));
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(key, VfxParent,follow,false,onSpawned: OnGradeEffectSpawned));
     }
     
     private IEnumerator DelayVfx()
@@ -178,6 +181,17 @@ public class BerserkerModeController : MonoBehaviour
     {
         SpawnLoopEffect(EffectKet1, true);
         SpawnLoopEffect(EffectKet2, true);
+    }
+    
+    public void RebindFollow (Transform transform)
+    {
+        if (gradeEffects != null)
+        {
+            foreach(var effect in gradeEffects)
+            {
+                effect.SetFollow(transform);
+            }
+        }
     }
     
     private void RemoveVfx(bool notifyEvent = true)

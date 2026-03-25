@@ -13,6 +13,7 @@ public abstract class StatusEffectBase
     protected float tickTimer;
     protected float tickInterval;
     protected float damage;
+    private PoolableParticle effect;
 
     private static readonly Collider[] hitBuffer = new Collider[20];
 
@@ -42,11 +43,13 @@ public abstract class StatusEffectBase
     protected abstract void OnTick();
     public virtual void OnExpire() 
     { 
-        elapsedTime = 0f; 
+        elapsedTime = 0f;
+        effect?.StopAndReturnManual();
     }
     public virtual void OnTargetDeath() 
     { 
-        elapsedTime = 0f; 
+        elapsedTime = 0f;
+        effect?.StopAndReturnManual();
     }
     protected int DetectInRadius(Vector3 center, float radius, int layerMask)
     {
@@ -58,5 +61,10 @@ public abstract class StatusEffectBase
     public void Refresh()
     {
         elapsedTime = 0f;
+    }
+
+    public void OnParticleSpawned(PoolableParticle particle)
+    {
+        effect = particle;
     }
 }

@@ -26,12 +26,13 @@ public class BleedEffect : StatusEffectBase
             return;
         }
         base.OnApply(target, buffApplicable);
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(tableData.m5VFX, target.transform, true, false, onSpawned: OnParticleSpawned));
     }
 
     public void AddStack()
     {
         stackCount = Mathf.Min(stackCount + 1, maxStack);
-        elapsedTime = 0f; 
+        Refresh();
     }
 
     protected override void OnTick()
@@ -40,6 +41,6 @@ public class BleedEffect : StatusEffectBase
         bool isMoving = target.isMoving;
         if (isMoving) dmg *= 2f;
 
-        target.TakeDamage(dmg);
+        target.TakeDamage(dmg, DamageType.FixedPercentageDamage);
     }
 }

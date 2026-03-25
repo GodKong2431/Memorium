@@ -2041,7 +2041,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7536013162264804635}
   - component: {fileID: 4828417384829689835}
-  - component: {fileID: 5201639667621403980}
   - component: {fileID: -3547470403559946655}
   - component: {fileID: -505767358899349474}
   - component: {fileID: -2170637809098698444}
@@ -2066,7 +2065,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.41245183, z: -0, w: 0.91097945}
   m_LocalPosition: {x: -18.695965, y: 23.4, z: -9.586136}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 7, y: 7, z: 7}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8053015930934735387}
@@ -2083,7 +2082,7 @@ Animator:
   m_GameObject: {fileID: 6279837177258545959}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: a512f6ed7b0b84b678b866d4bff6a6e0, type: 3}
-  m_Controller: {fileID: 9100000, guid: 9cbffd62650f52a4ebb99556042ce88c, type: 2}
+  m_Controller: {fileID: 22100000, guid: 1f622c5724431a5469b742241e1dbfe8, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -2095,27 +2094,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5201639667621403980
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6279837177258545959}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6ea9475a05c8468d92a6e41ae21bc4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 4828417384829689835}
-  renderer:
-  - {fileID: 3299011354211821772}
-  randomObjects:
-  - {fileID: 8120101007870948152}
-  - {fileID: 92831713272475259}
-  - {fileID: 3654054421141662614}
-  - {fileID: 273604132774558829}
-  - {fileID: 9167059958824474855}
 --- !u!114 &-3547470403559946655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2162,7 +2140,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 0
 --- !u!114 &-1321372848074524620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2216,7 +2194,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
@@ -2240,8 +2218,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.9810257
-  m_Center: {x: 0, y: 0.4810257, z: 0}
+  m_Radius: 1.1028045
+  m_Center: {x: 0.0000000072785356, y: 0.4810264, z: 0.12177835}
 --- !u!1 &6344245725210520688
 GameObject:
   m_ObjectHideFlags: 0

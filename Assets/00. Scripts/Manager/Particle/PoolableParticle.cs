@@ -51,6 +51,9 @@ public class PoolableParticle : MonoBehaviour, IPoolableRespawnable
     public void StopAndReturnManual()
     {
         autoReturnToPool = true;
-        particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        if(particle != null)
+        {
+            particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
     }
 }

@@ -16,27 +16,30 @@ public static class EquipmentGachaLogic
     {
         public int ItemId;
         public bool IsRare;
+        public bool IsHighestTier;
     }
 
     /// <summary>무기 1회 뽑기.</summary>
-    public static DrawResult DrawWeapon(int stage)
+    public static DrawResult DrawWeapon(int stage, bool forceHighestTier = false)
     {
-        int offsetIndex = RollOffsetIndex();
+        int offsetIndex = forceHighestTier ? GachaConfig.Offsets.Length - 1 : RollOffsetIndex();
         int combatPower = GachaConfig.GetBaseCombatPower(stage) + GachaConfig.Offsets[offsetIndex];
         int tier = GachaConfig.CombatPowerToTier(combatPower);
         int itemId = GetEquipmentId(EquipmentType.Weapon, tier);
-        return new DrawResult { ItemId = itemId, IsRare = offsetIndex >= RareOffsetIndexStart };
+        bool isHighestTier = tier >= GachaConfig.GetMaxTierForStage(stage);
+        return new DrawResult { ItemId = itemId, IsRare = offsetIndex >= RareOffsetIndexStart, IsHighestTier = isHighestTier };
     }
 
     /// <summary>방어구 1회 뽑기. 4종류 25% 확정 후 무기 뽑기와 동일 로직.</summary>
-    public static DrawResult DrawArmor(int stage)
+    public static DrawResult DrawArmor(int stage, bool forceHighestTier = false)
     {
         EquipmentType armorType = ArmorTypes[Random.Range(0, ArmorTypes.Length)];
-        int offsetIndex = RollOffsetIndex();
+        int offsetIndex = forceHighestTier ? GachaConfig.Offsets.Length - 1 : RollOffsetIndex();
         int combatPower = GachaConfig.GetBaseCombatPower(stage) + GachaConfig.Offsets[offsetIndex];
         int tier = GachaConfig.CombatPowerToTier(combatPower);
         int itemId = GetEquipmentId(armorType, tier);
-        return new DrawResult { ItemId = itemId, IsRare = offsetIndex >= RareOffsetIndexStart };
+        bool isHighestTier = tier >= GachaConfig.GetMaxTierForStage(stage);
+        return new DrawResult { ItemId = itemId, IsRare = offsetIndex >= RareOffsetIndexStart, IsHighestTier = isHighestTier };
     }
 
     /// <summary>오프셋 인덱스 확률 롤 (60/25/10/4/1). 낮은 인덱스=일반, 높은 인덱스=대박!</summary>

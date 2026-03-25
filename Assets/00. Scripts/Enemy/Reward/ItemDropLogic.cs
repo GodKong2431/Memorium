@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -129,14 +129,71 @@ public static class ItemDropLogic
         if (RollChance(settings.skillGemChance, isBoss))
         {
             //int id = PickRandom(settings.skillGemIds);
-            int id = PickRandom(settings.ReturnItemTableToType(ItemType.ElementGem));
-            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.SkillGem }); }
+
+            var elementGems = settings.ReturnItemTableToType(ItemType.ElementGem);
+            var uniqueGems = settings.ReturnItemTableToType(ItemType.UniqueGem);
+
+            int c1 = elementGems != null ? elementGems.Count : 0;
+            int c2 = uniqueGems != null ? uniqueGems.Count : 0;
+            int total = c1 + c2;
+
+            if (total > 0)
+            {
+                int roll = Random.Range(0, total);
+                int id = roll < c1 ? elementGems[roll] : uniqueGems[roll - c1];
+                results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.SkillGem });
+            }
         }
         if (RollChance(settings.dungeonTicketChance, isBoss))
         {
             //int id = PickRandom(settings.dungeonTicketIds);
             int id = PickRandom(settings.ReturnItemTableToType(ItemType.Key));
             if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.DungeonTicket }); }
+        }
+
+        for (int i = 0; i < settings.bingoLinks.Count; i++)
+        {
+            if (RollChance(settings.bingoLinks[i], isBoss))
+            {
+                //Debug.Log($"[ItemDropLogic] 빙고 링크 등급 {i} 확률 {settings.bingoLinks[i]}");
+                int id = settings.ReturnItemTableToType(ItemType.BingoLink)[i];
+                if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.BingoLink }); }
+                Debug.Log($"[ItemDropLogic] 빙고 링크 등급 {i} 확률 {settings.bingoLinks[i]} 아이디 {id} 이름 {DataManager.Instance.ItemInfoDict[id].itemName} 드랍");
+            }
+        }
+
+        if (RollChance(settings.bingoItem_A, isBoss))
+        {
+            int id = PickRandom(settings.ReturnItemTableToType(ItemType.BingoItem_A));
+            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.BingoItem_A }); }
+            Debug.Log($"[ItemDropLogic] 빙고 아이템 A 아이디 {id} 이름 {DataManager.Instance.ItemInfoDict[id].itemName}드랍");
+        }
+
+        if (RollChance(settings.bingoItem_B, isBoss))
+        {
+            int id = PickRandom(settings.ReturnItemTableToType(ItemType.BingoItem_B));
+            if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.BingoItem_B }); }
+            Debug.Log($"[ItemDropLogic] 빙고 아이템 B 아이디 {id} 이름 {DataManager.Instance.ItemInfoDict[id].itemName}드랍");
+        }
+
+        for (int i = 0; i < settings.bingoSynergy.Count; i++)
+        {
+            if (RollChance(settings.bingoSynergy[i], isBoss))
+            {
+                List<int> typeToIds = settings.ReturnItemTableToType(ItemType.BingoSynergy);
+                List<int> resultIds = new List<int>();
+                foreach (int itemId in typeToIds)
+                {
+                    int grade = itemId / 1000 % 10;
+                    if (grade == i + 1)
+                    {
+                        resultIds.Add(itemId);
+                    }
+                }
+                int id = PickRandom(resultIds);
+                Debug.Log($"[ItemDropLogic] 빙고 시너지 등급 {i} 확률 {settings.bingoSynergy[i]} 아이디 {id} 이름 {DataManager.Instance.ItemInfoDict[id].itemName} 드랍");
+                if (id > 0) { results.Add(new ItemDropResult { itemId = id, count = 1, category = ItemCategory.BingoSynergy }); }
+            }
         }
     }
 
@@ -153,6 +210,10 @@ public static class ItemDropLogic
         PixieFragment,
         SkillScroll,
         SkillGem,
-        DungeonTicket
+        DungeonTicket,
+        BingoLink,
+        BingoItem_A, 
+        BingoItem_B,
+        BingoSynergy
     }
 }

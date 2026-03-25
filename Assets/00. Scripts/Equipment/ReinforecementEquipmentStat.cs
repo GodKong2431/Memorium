@@ -171,8 +171,10 @@ public static class ReinforecementEquipmentStat
         }
     }
 
-    public static void SetBonusStat(int equipmentId, int equipmentReinforcement)
+    public static bool SetBonusStat(int equipmentId, int equipmentReinforcement)
     {
+        bool checkGetCurrecyStat=false;
+
         EquipListTable equipment = DataManager.Instance.EquipListDict[equipmentId];
         int statId_01 = equipment.statType1;
         int statId_02 = equipment.statType2;
@@ -185,19 +187,26 @@ public static class ReinforecementEquipmentStat
         if (statId_02 <= 0)
         {
             if (stat_01.bonusStatPerLevel > equipmentReinforcement)
-                return;
+                return false;
+
+            if(equipmentReinforcement % (int)stat_01.bonusStatPerLevel==0)
+                checkGetCurrecyStat=true;
         }
         else
         {
             stat_02 = DataManager.Instance.EquipStatsDict[statId_02];
             if (stat_01.bonusStatPerLevel > equipmentReinforcement
                 && stat_02.bonusStatPerLevel > equipmentReinforcement)
-                return;
+                return false;
+
+            if (equipmentReinforcement % (int)stat_01.bonusStatPerLevel == 0
+                || equipmentReinforcement % stat_02.bonusStatPerLevel==0)
+                checkGetCurrecyStat = true;
         }
 
         EquipmentType type;
         if (!ReturnItemIdToEquipmentType(equipmentId, out type))
-            return;
+            return false;
 
         //보너스 스탯 단계
         int bonusStatStep_01 = equipmentReinforcement / (int)stat_01.bonusStatPerLevel;
@@ -286,6 +295,8 @@ public static class ReinforecementEquipmentStat
                 bootsReinforcement[equipmentId] = boots;
                 break;
         }
+
+        return checkGetCurrecyStat;
     }
     public static float ReturnBonusStat(StatType type)
     {

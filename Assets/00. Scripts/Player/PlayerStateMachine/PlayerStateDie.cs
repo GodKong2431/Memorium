@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,7 +10,8 @@ public class PlayerStateDie : IPlayerState
     {
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
             ctx.Agent.isStopped = true;
-        SetAnimatorTrigger(ctx, "Die");
+        SetAnimatorTrigger(ctx, "Dead");
+        StageManager.Instance.StageFailed();
     }
 
     public void OnExit(PlayerStateContext ctx)

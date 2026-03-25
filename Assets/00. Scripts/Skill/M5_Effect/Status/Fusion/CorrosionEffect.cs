@@ -22,7 +22,7 @@ public class CorrosionEffect : StatusEffectBase
         base.OnApply(target, buffApplicable);
         float count = poisonData.duration / poisonData.tickInterval;
         float totalDamage = burstDamage * count;
-        target.TakeDamage(totalDamage);
+        target.TakeDamage(totalDamage, DamageType.FixedPercentageDamage);
     }
 
     protected override void OnTick() { }
@@ -32,7 +32,7 @@ public class CorrosionEffect : StatusEffectBase
         base.OnTargetDeath();
         int count = DetectInRadius(target.transform.position, 3f, layerMask);
         var buffer = GetHitBuffer();
-
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(poisonData.m5VFX2, target.transform, true, false, onSpawned: OnParticleSpawned));
         for (int i = 0; i < count; i++)
         {
             if (buffer[i].TryGetComponent<EffectController>(out var ec)

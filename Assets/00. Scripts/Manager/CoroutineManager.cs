@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -30,7 +30,7 @@ public static class CoroutineManager
 
     /// <summary>
     /// yield return new waitforSecondsRealtime 캐싱
-    /// n초 동안 대기시킬 때 사용
+    /// n초 동안 대기시킬 때 사용 
     /// </summary>
     /// <param name="seconds"> 지연시킬 시간(초) </param>
     /// <returns></returns>

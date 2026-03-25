@@ -3,12 +3,11 @@ public class FireEffect : StatusEffectBase
 {
     private float defReduction;
     private SkillModule5Table tableData;
-    private PoolableParticle effect;
 
     public FireEffect(SkillModule5Table data)
     {
         tableData = data;
-        duration = 0.15f;
+        duration = data.duration;
         tickInterval = data.tickInterval;        
         damage = 1;
         defReduction = data.defDown;
@@ -16,17 +15,18 @@ public class FireEffect : StatusEffectBase
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
-        // 재적용 시 — Refresh + 디버프 갱신만
         if (elapsedTime > 0f)
         {
             Refresh();
             ApplyDefDebuff();
+            
             return;
         }
-        // 첫 적용
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(tableData.m5VFX, target.transform, true, false, onSpawned: OnParticleSpawned));
+       
         base.OnApply(target, buffApplicable);
         ApplyDefDebuff();
-        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(tableData.m5VFX, target.transform, true, false, onSpawned: OnParticleSpawned));
+       
     }
 
     private void ApplyDefDebuff()
@@ -42,16 +42,11 @@ public class FireEffect : StatusEffectBase
 
     protected override void OnTick()
     {
-        target.TakeDamage(damage);
+        target.TakeDamage(damage,DamageType.FixedPercentageDamage);
     }
     public override void OnExpire()
     {
         base.OnExpire();
-        effect?.StopAndReturnManual();
 
-    }
-    public void OnParticleSpawned(PoolableParticle particle)
-    {
-        effect = particle;
     }
 }

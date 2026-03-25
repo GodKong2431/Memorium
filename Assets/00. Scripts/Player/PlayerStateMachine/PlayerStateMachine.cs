@@ -23,6 +23,7 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
     [SerializeField] private float stopAngle;
     
     [SerializeField] private float attackRange = 3f;
+    [SerializeField] private Transform effectTransform;
     private float _prevValue;
     public PlayerStateContext _ctx { get; private set; }
     private Dictionary<PlayerStateType, IPlayerState> _states;
@@ -74,9 +75,8 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         };
 
         playerStateMachine = new StateMachine<PlayerStateContext, IPlayerState, PlayerStateType>(_ctx, _states);
-
-
     }
+    
     private void OnDisable()
     {
         if (_ctx != null)
@@ -89,6 +89,11 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
 
         init();
+        
+        CharacterStatManager.playerTransform = transform;
+        BerserkerModeController.Instance.vfxParent = effectTransform;
+        BerserkerModeController.Instance.RebindFollow(effectTransform);
+        
         CharacterStatManager playerStat = _ctx.StatPresenter?.PlayerStat;
 
         PlayerStatView statView = FindAnyObjectByType<PlayerStatView>();
@@ -105,9 +110,6 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         if (DataManager.Instance.DataLoad)
         {
             _ctx.playerSkillHandler.InitFromPreset();
-
-
-            PixieSpawnTest();//TO DO: UI 연동시 삭제 할것
         }
         else
         {
@@ -120,24 +122,6 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
         NotifyPlayerSpawned();
     }
 
-    [ContextMenu("픽시소환")]
-    public void PixieSpawnTest()//TO DO:UI 연동시 삭제
-    {
-        InventoryManager.Instance.AddItem(3310001, 100);
-
-        var pixieModule = InventoryManager.Instance.GetModule<PixieInventoryModule>();
-        if (pixieModule != null)
-        {
-            int targetFairyID = 5000001;
-            bool isUnlocked = pixieModule.TryUnlockPixie(targetFairyID);
-
-            if (isUnlocked)
-            {
-                pixieModule.EquipPixie(targetFairyID);
-                Debug.Log("픽시");
-            }
-        }
-    }
     private void OnDataLoaded()
     {
         DataManager.Instance.OnComplete -= OnDataLoaded;

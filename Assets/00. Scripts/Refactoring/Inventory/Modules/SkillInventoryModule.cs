@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 public sealed class SkillInventoryModule : IInventoryModule
 {
+    public int goldId = 0;
     private const int PresetCount = 3; // 프리셋 슬롯 그룹 개수.
 
     private readonly Dictionary<int, OwnedSkillData> skillDataById = new Dictionary<int, OwnedSkillData>(); // 스킬 ID별 보유 정보.
     private readonly Dictionary<int, List<int>> skillIdsByScrollId = new Dictionary<int, List<int>>(); // 스크롤 ID별 스킬 후보 목록.
 
     private readonly SkillPreset[] presets = new SkillPreset[PresetCount]; // 장착 프리셋 배열.
-    private readonly SkillMergeHandler mergeHandler; // 스킬 합성 로직 전담 객체.
     private readonly SkillPresetHandler presetHandler; // 프리셋 조작 로직 전담 객체.
 
     private bool isScrollMapReady; // 스크롤 매핑 초기화 여부.
@@ -23,18 +23,28 @@ public sealed class SkillInventoryModule : IInventoryModule
     public int CurrentPresetIndex => presetHandler.CurrentPresetIndex; // 현재 선택된 프리셋 인덱스.
 
 
-    
+    private Dictionary<int, BigDouble> skillUpCostByLevel;
+
+    private const int UNLOCK_COST = 3;
+
     public SkillInventoryModule()
     {
         InventoryManager.Instance.saveSkillData = JSONService.Load<SaveSkillData>();
         InventoryManager.Instance.saveSkillData.InitSkillData();
 
-        //for (int i = 0; i < PresetCount; i++)
-        //    presets[i] = new SkillPreset();
+        List<OwnedSkillData> ownedSkillDatas = InventoryManager.Instance.saveSkillData.LoadSkillData();
+        if (ownedSkillDatas.Count > 0)
+        {
+            foreach (OwnedSkillData data in ownedSkillDatas)
+            {
+                if (data.level < 1)
+                    data.level = 1;
+                skillDataById[data.skillID] = data;
+            }
+        }
         for (int i = 0; i < PresetCount; i++)
-            presets[i] = InventoryManager.Instance.saveSkillData.LoadSkillPreset(i);
+            presets[i] = NormalizeLoadedPreset(InventoryManager.Instance.saveSkillData.LoadSkillPreset(i));
 
-        mergeHandler = new SkillMergeHandler(skillDataById);
         presetHandler = new SkillPresetHandler(skillDataById, presets);
 
         //프리셋 데이터 혹은 프리셋 변경 시 이벤트
@@ -43,25 +53,6 @@ public sealed class SkillInventoryModule : IInventoryModule
         };
 
         //프리셋에 저장된 데이터 불러오기
-        for (int i = 0; i < PresetCount; i++)
-        {
-            SwitchPreset(i);
-            for (int j = 0; i < InventoryManager.Instance.saveSkillData.SkillCountByPreset; i++)
-            {
-                SetPresetSlot(j, presets[i].slots[j].skillID);
-            }
-        }
-
-
-        List<OwnedSkillData> ownedSkillDatas = InventoryManager.Instance.saveSkillData.LoadSkillData();
-        if (ownedSkillDatas.Count > 0)
-        {
-            foreach (OwnedSkillData data in ownedSkillDatas)
-            {
-                skillDataById[data.skillID] = data;
-            }
-        }
-
         OnPresetChanged += InventoryManager.Instance.saveSkillData.SavePresetNum;
         //저장된 프리셋 번호 불러오기
         SwitchPreset(InventoryManager.Instance.saveSkillData.SavedPresetNum);
@@ -74,30 +65,13 @@ public sealed class SkillInventoryModule : IInventoryModule
     // 스킬 모듈은 스킬 주문서 타입만 허브 라우팅 대상으로 처리한다.
     public bool CanHandle(ItemType itemType)
     {
-        return itemType == ItemType.SkillScroll;
+        return false;
     }
 
     // 스킬 주문서 추가 요청을 랜덤 스킬 지급으로 변환한다.
     public bool TryAdd(InventoryItemContext item, BigDouble amount)
     {
-        if (item.ItemType != ItemType.SkillScroll)
-            return false;
-
-        if (!TryConvertAmountToInt(amount, out int count))
-            return false;
-
-        int skillIdData = 0;
-        for (int i = 0; i < count; i++)
-        {
-            if (!TryGetRandomSkillIdByScroll(item.ItemId, out int skillId))
-                return false;
-
-            AddSkill(skillId, SkillGrade.Scroll, 1, notify: false);
-            skillIdData = skillId;
-        }
-
-        OnInventoryChanged?.Invoke();
-        return true;
+        return false;
     }
 
     // 스킬 주문서 차감은 별도 요구사항이 없어 기본적으로 지원하지 않는다.
@@ -109,17 +83,21 @@ public sealed class SkillInventoryModule : IInventoryModule
     // 스킬 주문서 보유량은 별도 저장하지 않으므로 0을 반환한다.
     public BigDouble GetAmount(InventoryItemContext item)
     {
-        if (!TryGetRandomSkillIdByScroll(item.ItemId, out int skillId))
-            return BigDouble.Zero;
-
-        if (!skillDataById.TryGetValue(skillId, out OwnedSkillData skillData))
-        {
-            return BigDouble.Zero;
-        }
-        BigDouble count = skillData.GetCount(SkillGrade.Scroll);
-        return count;
+        return BigDouble.Zero;
     }
     #endregion
+    private void BuildSkillUpCostMapping()
+    {
+        if (skillUpCostByLevel != null) return;
+        skillUpCostByLevel = new Dictionary<int, BigDouble>();
+
+        foreach (var pair in DataManager.Instance.SkillUpDict)
+        {
+            skillUpCostByLevel[pair.Value.skillLevel] = pair.Value.reqScroll;
+        }
+    }
+
+    #region UI 표시용
 
     // 특정 스킬의 보유 데이터를 반환한다.
     public OwnedSkillData GetSkillData(int skillId)
@@ -127,28 +105,37 @@ public sealed class SkillInventoryModule : IInventoryModule
         skillDataById.TryGetValue(skillId, out var data);
         return data;
     }
-
-    // 스킬 보유량/등급 수량을 증가시킨다.
-    public void AddSkill(int skillId, SkillGrade grade = SkillGrade.Scroll, int amount = 1, bool notify = true)
+    /// <summary>
+    /// 해당 스킬 해금 가능 여부 반환
+    /// </summary>
+    public bool CanUnlockSkill(int skillId)
     {
-        if (!skillDataById.TryGetValue(skillId, out var data))
+        if (skillDataById.ContainsKey(skillId)) return false;
+
+        int scrollItemId = GetScrollItemId(skillId);
+        if (scrollItemId <= 0) return false;
+
+        return InventoryManager.Instance.HasEnoughItem(scrollItemId, new BigDouble(UNLOCK_COST));
+    }
+    /// <summary>
+    /// 해당 스킬이 현재 프리셋에 장착되어있는지 반환
+    /// </summary>
+    public bool IsEquippedInCurrentPreset(int skillId)
+    {
+        var preset = presetHandler.GetCurrentPreset();
+        if (preset == null || preset.slots == null) return false;
+
+        for (int i = 0; i < preset.slots.Length; i++)
         {
-            data = new OwnedSkillData
-            {
-                skillID = skillId,
-                level = 0
-            };
-            skillDataById[skillId] = data;
+            if (preset.slots[i] != null && !preset.slots[i].IsEmpty && preset.slots[i].skillID == skillId)
+                return true;
         }
-
-        data.AddCount(grade, amount);
-        if (notify)
-            OnInventoryChanged?.Invoke();
-        OnInventoryChagedByData?.Invoke(skillDataById[skillId]);
-
+        return false;
     }
 
-    // 스킬 레벨업에 필요한 골드 비용을 계산한다.
+    /// <summary>
+    /// 레벨업 코스트 반환
+    /// </summary>
     public bool TryGetLevelUpCost(int skillId, out BigDouble cost)
     {
         cost = BigDouble.Zero;
@@ -159,47 +146,129 @@ public sealed class SkillInventoryModule : IInventoryModule
         if (!data.CanLevelUp)
             return false;
 
-        cost = new BigDouble(data.level * 100);
-        return true;
+        BuildSkillUpCostMapping();
+        return skillUpCostByLevel.TryGetValue(data.level, out cost);
     }
 
-    // 재화 차감 성공 이후 실제 레벨업 상태를 반영한다.
-    public bool ApplyLevelUp(int skillId, bool notify = true)
+    /// <summary>
+    /// 해당 스킬 스크롤 보유 갯수 반환
+    /// </summary>
+    public BigDouble GetOwnedScrollCount(int skillId)
+    {
+        if (!skillDataById.TryGetValue(skillId, out var data))
+            return BigDouble.Zero;
+        return data.GetOwnedScrollCount();
+    }
+
+    /// <summary>
+    /// 해당 스킬 스크롤 레벨업 요구 갯수 반환
+    /// </summary>
+    public BigDouble GetLevelUpCost(int skillId)
+    {
+        if (!skillDataById.TryGetValue(skillId, out var data))
+            return BigDouble.Zero;
+        return data.GetLevelUpCost();
+    }
+
+    /// <summary>
+    /// 해당 스킬 등급 반환
+    /// </summary>
+    public SkillGrade GetGrade(int skillId)
+    {
+        if (!skillDataById.TryGetValue(skillId, out var data))
+            return SkillGrade.Common;
+        return data.GetGrade();
+    }
+
+
+    /// <summary>
+    /// 해당 스킬 장착 가능한지 반환
+    /// </summary>
+    public bool IsEquippable(int skillId)
     {
         if (!skillDataById.TryGetValue(skillId, out var data))
             return false;
+        return data.IsEquippable;
+    }
 
-        if (!data.CanLevelUp)
+    /// <summary>
+    /// 해당 스킬 레벨업 가능 여부 반환(스크롤 충분히 있는지)
+    /// </summary>
+    public bool CanLevelUpSkill(int skillId)
+    {
+        if (!TryGetLevelUpCost(skillId, out BigDouble cost))
             return false;
 
-        data.level++;
-        if (notify)
-        { 
-            OnInventoryChanged?.Invoke();
-            OnInventoryChagedByData?.Invoke(skillDataById[skillId]);
-        }
+        int scrollItemId = GetScrollItemId(skillId);
+        if (scrollItemId <= 0) return false;
+
+        return InventoryManager.Instance.HasEnoughItem(scrollItemId, cost);
+    }
+
+
+    /// <summary>
+    /// 해당 스킬 레벨반환
+    /// </summary>
+    public int GetLevel(int skillId)
+    {
+        if (!skillDataById.TryGetValue(skillId, out var data))
+            return 0;
+        return data.level;
+    }
+    #endregion
+
+    #region UI 버튼용
+
+    // <summary>
+    /// 해당 스킬 해금 실행 및 성공 여부 반환
+    /// </summary>
+    public bool TryUnlockSkill(int skillId)
+    {
+        if (!CanUnlockSkill(skillId)) return false;
+
+        int scrollItemId = GetScrollItemId(skillId);
+        InventoryManager.Instance.RemoveItem(scrollItemId, new BigDouble(UNLOCK_COST));
+
+        skillDataById[skillId] = new OwnedSkillData
+        {
+            skillID = skillId,
+            level = 1
+        };
+
+        OnInventoryChanged?.Invoke();
+        OnInventoryChagedByData?.Invoke(skillDataById[skillId]);
         return true;
     }
-
-    // 지정 스킬 체인을 가능한 만큼 합성한다.
-    public int MergeChain(int skillId, bool notify = true)
+    /// <summary>
+    /// 해당 스킬 레벨업 실행 및 성공 여부 반환
+    /// </summary>
+    public bool TryLevelUpSkill(int skillId)
     {
-        int total = mergeHandler.MergeChain(skillId, (id, grade, amount) => AddSkill(id, grade, amount, notify: false));
-        if (total > 0 && notify)
-            OnInventoryChanged?.Invoke();
+        if (!CanLevelUpSkill(skillId))
+            return false;
 
-        return total;
+        TryGetLevelUpCost(skillId, out BigDouble cost);
+
+        int scrollItemId = GetScrollItemId(skillId);
+        if (scrollItemId <= 0) return false;
+
+        InventoryManager.Instance.RemoveItem(scrollItemId, cost);
+        skillDataById[skillId].AddLevel();
+
+        OnInventoryChanged?.Invoke();
+        OnInventoryChagedByData?.Invoke(skillDataById[skillId]);
+        return true;
+    }
+    #endregion
+
+    private int GetScrollItemId(int skillId)
+    {
+        if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillId, out var table))
+            return 0;
+        return table.skillScrollID;
     }
 
-    // 전체 스킬을 일괄 합성한다.
-    public int MergeAllSkills()
-    {
-        int total = mergeHandler.MergeAllSkills((id, grade, amount) => AddSkill(id, grade, amount, notify: false));
-        if (total > 0)
-            OnInventoryChanged?.Invoke();
 
-        return total;
-    }
 
     // 현재 선택된 프리셋을 반환한다.
     public SkillPreset GetCurrentPreset()
@@ -207,10 +276,22 @@ public sealed class SkillInventoryModule : IInventoryModule
         return presetHandler.GetCurrentPreset();
     }
 
+    public SkillPreset GetCurrentPresetSnapshot()
+    {
+        SkillPreset preset = presetHandler.GetCurrentPreset();
+        return preset != null ? preset.Clone() : new SkillPreset();
+    }
+
     // 지정 인덱스의 프리셋을 반환한다.
     public SkillPreset GetPreset(int index)
     {
         return presetHandler.GetPreset(index);
+    }
+
+    public SkillPreset GetPresetSnapshot(int index)
+    {
+        SkillPreset preset = presetHandler.GetPreset(index);
+        return preset != null ? preset.Clone() : new SkillPreset();
     }
 
     // 프리셋 탭을 전환한다.
@@ -317,14 +398,14 @@ public sealed class SkillInventoryModule : IInventoryModule
             if (scrollItemId == 0)
                 continue;
 
-            int scrollCount = skillData.GetCount(SkillGrade.Scroll);
-            if (scrollCount <= 0)
-                continue;
+            //int scrollCount = skillData.GetCount(SkillGrade.Scroll);
+            //if (scrollCount <= 0)
+            //    continue;
 
-            if (countsByScrollId.ContainsKey(scrollItemId))
-                countsByScrollId[scrollItemId] += scrollCount;
-            else
-                countsByScrollId[scrollItemId] = scrollCount;
+            //if (countsByScrollId.ContainsKey(scrollItemId))
+            //    countsByScrollId[scrollItemId] += scrollCount;
+            //else
+            //    countsByScrollId[scrollItemId] = scrollCount;
         }
 
         return countsByScrollId;
@@ -350,5 +431,54 @@ public sealed class SkillInventoryModule : IInventoryModule
     public void NotifyPresetChanged()
     {
         OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
+    }
+
+    private SkillPreset NormalizeLoadedPreset(SkillPreset preset)
+    {
+        int slotCount = InventoryManager.Instance.saveSkillData.SkillCountByPreset;
+        SkillPresetSlot[] normalizedSlots = new SkillPresetSlot[slotCount];
+
+        for (int i = 0; i < slotCount; i++)
+        {
+            SkillPresetSlot slot = preset != null && preset.slots != null && i < preset.slots.Length && preset.slots[i] != null
+                ? preset.slots[i]
+                : new SkillPresetSlot();
+
+            slot.Normalize();
+            if (!slot.IsEmpty && !IsValidEquippedSkill(slot.skillID))
+                slot.Clear();
+
+            normalizedSlots[i] = slot;
+        }
+
+        return new SkillPreset(normalizedSlots);
+    }
+
+    private bool IsValidEquippedSkill(int skillId)
+    {
+        if (skillId <= 0)
+            return false;
+
+        if (!skillDataById.TryGetValue(skillId, out OwnedSkillData skillData))
+            return false;
+
+        return skillData.IsEquippable;
+    }
+    public void SetGoldID()
+    {
+
+        if (goldId != 0)
+            return;
+        else
+        {
+            foreach (var item in DataManager.Instance.ItemInfoDict)
+            {
+                if (item.Value.itemType == ItemType.FreeCurrency)
+                {
+                    goldId = item.Key;
+                    break;
+                }
+            }
+        }
     }
 }

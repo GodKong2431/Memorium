@@ -14,24 +14,9 @@ public struct SkillInfoData
     {
         this.skillId = skillId;
         this.skillLevel = skillLevel;
-        gradeData = new List<SkillGradeData>();
-        foreach (SkillGrade grade in Enum.GetValues(typeof(SkillGrade)))
-        {
-            gradeData.Add(new SkillGradeData(grade));
-        }
+        gradeData = null;
     }
 
-    public int FindGradeIndex(int grade)
-    {
-        int index = gradeData.FindIndex
-            (x => x.grade == grade);
-        if (index == -1)
-        {
-            gradeData.Add(new SkillGradeData((SkillGrade) grade));
-            index = gradeData.Count - 1;
-        }
-        return index;
-    }
 }
 
 [Serializable]
@@ -54,17 +39,29 @@ public struct SkillGradeData
 }
 
 [Serializable]
-public struct SkillPresetData
+public class SkillPresetData
 {
     public List<SkillPresetSlotData> skillPresetSlotData;
+
+    public SkillPresetData()
+    {
+        skillPresetSlotData = new List<SkillPresetSlotData>();
+    }
 }
 
 [Serializable]
-public struct SkillPresetSlotData
+public class SkillPresetSlotData
 {
     public int skillId;
     public List<int> m5JemIDs;
     public int m4JemID;
+
+    public SkillPresetSlotData()
+    {
+        skillId = -1;
+        m5JemIDs = new List<int>();
+        m4JemID = -1;
+    }
 
     public SkillPresetSlotData(int m5JemIdCount)
     {

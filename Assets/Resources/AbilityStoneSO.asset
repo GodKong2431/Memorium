@@ -20,149 +20,320 @@ MonoBehaviour:
     _serializedList:
     - Key: 0
       Value:
-        id: 1050001
-        stoneGrade: 0
-        upCost: 1000
-        unlockLevel: 50
-        needUp: 0
-        statRerollCost: 1000
-        UpResetCost: 100
-        upStartProbability: 0.75
-        maxProbability: 0.75
-        minProbability: 0.25
-        firstUpOpportunity: 10
-        secondUpOpportunity: 10
-        thirdUpOpportunity: 10
-        Slots:
-        - SlotType: 14
-          successCounter: 
-          increaseStat: 0.03
-        - SlotType: 2
-          successCounter: 
-          increaseStat: 20
-        - SlotType: 15
-          successCounter: 
-          increaseStat: 0.01
-        currentProbability: 0.75
-        totalUpCount: 0
-        isUnlock: 1
-        currentProbabilityCount: 0
+        _serializedList:
+        - Key: 0
+          Value:
+            id: 1050001
+            stoneGrade: 0
+            upCost: 1000
+            unlockLevel: 5
+            needUp: 0
+            statRerollCost: 1000
+            UpResetCost: 100
+            upStartProbability: 0.75
+            maxProbability: 0.75
+            minProbability: 0.25
+            firstUpOpportunity: 10
+            secondUpOpportunity: 10
+            thirdUpOpportunity: 10
+            Slots:
+            - SlotType: 4
+              successCounter: 
+              increaseStat: 20
+            - SlotType: 2
+              successCounter: 
+              increaseStat: 20
+            - SlotType: 16
+              successCounter: 
+              increaseStat: 0.01
+            currentProbability: 0.75
+            totalUpCount: 0
+            isUnlock: 1
+            currentProbabilityCount: 0
+            stoneMult: 0
+            tier: 0
+        - Key: 1
+          Value:
+            id: 1050002
+            stoneGrade: 1
+            upCost: 1500
+            unlockLevel: 6
+            needUp: 12
+            statRerollCost: 1500
+            UpResetCost: 150
+            upStartProbability: 0.75
+            maxProbability: 0.75
+            minProbability: 0.25
+            firstUpOpportunity: 10
+            secondUpOpportunity: 10
+            thirdUpOpportunity: 10
+            Slots:
+            - SlotType: 4
+              successCounter: 01010101010000010101
+              increaseStat: 30
+            - SlotType: 2
+              successCounter: 01010101010000010001
+              increaseStat: 30
+            - SlotType: 9
+              successCounter: 010001000000
+              increaseStat: 0.015
+            currentProbability: 0.75
+            totalUpCount: 15
+            isUnlock: 1
+            currentProbabilityCount: 0
+            stoneMult: 0
+            tier: 0
+        - Key: 2
+          Value:
+            id: 1050003
+            stoneGrade: 2
+            upCost: 2000
+            unlockLevel: 7
+            needUp: 13
+            statRerollCost: 2000
+            UpResetCost: 200
+            upStartProbability: 0.75
+            maxProbability: 0.75
+            minProbability: 0.25
+            firstUpOpportunity: 10
+            secondUpOpportunity: 10
+            thirdUpOpportunity: 10
+            Slots:
+            - SlotType: 13
+              successCounter: 01010101010101010101
+              increaseStat: 0.05
+            - SlotType: 7
+              successCounter: 01010001000101010101
+              increaseStat: 0.015
+            - SlotType: 4
+              successCounter: 
+              increaseStat: 40
+            currentProbability: 0.75
+            totalUpCount: 18
+            isUnlock: 1
+            currentProbabilityCount: 0
+            stoneMult: 0
+            tier: 0
+        - Key: 3
+          Value:
+            id: 1050004
+            stoneGrade: 3
+            upCost: 2500
+            unlockLevel: 8
+            needUp: 14
+            statRerollCost: 2500
+            UpResetCost: 250
+            upStartProbability: 0.75
+            maxProbability: 0.75
+            minProbability: 0.25
+            firstUpOpportunity: 10
+            secondUpOpportunity: 10
+            thirdUpOpportunity: 10
+            Slots:
+            - SlotType: 7
+              successCounter: 01010101010101010101
+              increaseStat: 0.02
+            - SlotType: 5
+              successCounter: 01010101010101010101
+              increaseStat: 50
+            - SlotType: 4
+              successCounter: 
+              increaseStat: 50
+            currentProbability: 0.75
+            totalUpCount: 20
+            isUnlock: 1
+            currentProbabilityCount: 0
+            stoneMult: 0
+            tier: 0
+        - Key: 4
+          Value:
+            id: 1050005
+            stoneGrade: 4
+            upCost: 3000
+            unlockLevel: 9
+            needUp: 15
+            statRerollCost: 3000
+            UpResetCost: 300
+            upStartProbability: 0.75
+            maxProbability: 0.75
+            minProbability: 0.25
+            firstUpOpportunity: 10
+            secondUpOpportunity: 10
+            thirdUpOpportunity: 10
+            Slots:
+            - SlotType: 10
+              successCounter: 
+              increaseStat: 0.03
+            - SlotType: 13
+              successCounter: 0100010001
+              increaseStat: 0.07
+            - SlotType: 7
+              successCounter: 
+              increaseStat: 0.025
+            currentProbability: 0.75
+            totalUpCount: 3
+            isUnlock: 1
+            currentProbabilityCount: 0
+            stoneMult: 0
+            tier: 0
     - Key: 1
       Value:
-        id: 1050002
-        stoneGrade: 1
-        upCost: 1500
-        unlockLevel: 60
-        needUp: 12
-        statRerollCost: 1500
-        UpResetCost: 150
-        upStartProbability: 0.75
-        maxProbability: 0.75
-        minProbability: 0.25
-        firstUpOpportunity: 10
-        secondUpOpportunity: 10
-        thirdUpOpportunity: 10
-        Slots:
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 0.05
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 0.015
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 50
-        currentProbability: 0.75
-        totalUpCount: 0
-        isUnlock: 1
-        currentProbabilityCount: 0
-    - Key: 2
-      Value:
-        id: 1050003
-        stoneGrade: 2
-        upCost: 2000
-        unlockLevel: 70
-        needUp: 13
-        statRerollCost: 2000
-        UpResetCost: 200
-        upStartProbability: 0.75
-        maxProbability: 0.75
-        minProbability: 0.25
-        firstUpOpportunity: 10
-        secondUpOpportunity: 10
-        thirdUpOpportunity: 10
-        Slots:
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 0.015
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 40
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 50
-        currentProbability: 0.75
-        totalUpCount: 0
-        isUnlock: 0
-        currentProbabilityCount: 0
-    - Key: 3
-      Value:
-        id: 1050004
-        stoneGrade: 3
-        upCost: 2500
-        unlockLevel: 80
-        needUp: 14
-        statRerollCost: 2500
-        UpResetCost: 250
-        upStartProbability: 0.75
-        maxProbability: 0.75
-        minProbability: 0.25
-        firstUpOpportunity: 10
-        secondUpOpportunity: 10
-        thirdUpOpportunity: 10
-        Slots:
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 50
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 60
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 60
-        currentProbability: 0.75
-        totalUpCount: 0
-        isUnlock: 0
-        currentProbabilityCount: 0
-    - Key: 4
-      Value:
-        id: 1050005
-        stoneGrade: 4
-        upCost: 3000
-        unlockLevel: 90
-        needUp: 15
-        statRerollCost: 3000
-        UpResetCost: 300
-        upStartProbability: 0.75
-        maxProbability: 0.75
-        minProbability: 0.25
-        firstUpOpportunity: 10
-        secondUpOpportunity: 10
-        thirdUpOpportunity: 10
-        Slots:
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 0
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 0
-        - SlotType: 0
-          successCounter: 
-          increaseStat: 0
-        currentProbability: 0.75
-        totalUpCount: 0
-        isUnlock: 0
-        currentProbabilityCount: 0
+        _serializedList:
+        - Key: 0
+          Value:
+            id: 1050006
+            stoneGrade: 0
+            upCost: 1
+            unlockLevel: 10
+            needUp: 15
+            statRerollCost: 3500
+            UpResetCost: 350
+            upStartProbability: 0.75
+            maxProbability: 0.75
+            minProbability: 0.25
+            firstUpOpportunity: 10
+            secondUpOpportunity: 10
+            thirdUpOpportunity: 10
+            Slots:
+            - SlotType: 1
+              successCounter: 01000000010101010000
+              increaseStat: 0.01
+            - SlotType: 7
+              successCounter: 00010001010000010101
+              increaseStat: 0.03
+            - SlotType: 3
+              successCounter: 000101000001000100
+              increaseStat: 0.01
+            currentProbability: 0.45
+            totalUpCount: 11
+            isUnlock: 1
+            currentProbabilityCount: 0
+            stoneMult: 1
+            tier: 1
+        - Key: 1
+          Value:
+            id: 1050007
+            stoneGrade: 1
+            upCost: 1
+            unlockLevel: 11
+            needUp: 15
+            statRerollCost: 400000000
+            UpResetCost: 400
+            upStartProbability: 0.75
+            maxProbability: 0.75
+            minProbability: 0.25
+            firstUpOpportunity: 10
+            secondUpOpportunity: 10
+            thirdUpOpportunity: 10
+            Slots:
+            - SlotType: 2
+              successCounter: 00000001010001010001
+              increaseStat: 0.02
+            - SlotType: 10
+              successCounter: 01010100010101010101
+              increaseStat: 0.055
+            - SlotType: 3
+              successCounter: 
+              increaseStat: 0.02
+            currentProbability: 0.75
+            totalUpCount: 14
+            isUnlock: 1
+            currentProbabilityCount: 0
+            stoneMult: 1
+            tier: 1
+        - Key: 2
+          Value:
+            id: 1050008
+            stoneGrade: 2
+            upCost: 1
+            unlockLevel: 12
+            needUp: 16
+            statRerollCost: 4500
+            UpResetCost: 450
+            upStartProbability: 0.75
+            maxProbability: 0.75
+            minProbability: 0.25
+            firstUpOpportunity: 10
+            secondUpOpportunity: 10
+            thirdUpOpportunity: 10
+            Slots:
+            - SlotType: 0
+              successCounter: 
+              increaseStat: 0
+            - SlotType: 0
+              successCounter: 
+              increaseStat: 0
+            - SlotType: 0
+              successCounter: 
+              increaseStat: 0
+            currentProbability: 0.75
+            totalUpCount: 0
+            isUnlock: 0
+            currentProbabilityCount: 0
+            stoneMult: 1
+            tier: 1
+        - Key: 3
+          Value:
+            id: 1050009
+            stoneGrade: 3
+            upCost: 1
+            unlockLevel: 13
+            needUp: 16
+            statRerollCost: 5000
+            UpResetCost: 500
+            upStartProbability: 0.75
+            maxProbability: 0.75
+            minProbability: 0.25
+            firstUpOpportunity: 10
+            secondUpOpportunity: 10
+            thirdUpOpportunity: 10
+            Slots:
+            - SlotType: 0
+              successCounter: 
+              increaseStat: 0
+            - SlotType: 0
+              successCounter: 
+              increaseStat: 0
+            - SlotType: 0
+              successCounter: 
+              increaseStat: 0
+            currentProbability: 0.75
+            totalUpCount: 0
+            isUnlock: 0
+            currentProbabilityCount: 0
+            stoneMult: 1
+            tier: 1
+        - Key: 4
+          Value:
+            id: 1050010
+            stoneGrade: 4
+            upCost: 1
+            unlockLevel: 14
+            needUp: 16
+            statRerollCost: 5500
+            UpResetCost: 550
+            upStartProbability: 0.75
+            maxProbability: 0.75
+            minProbability: 0.25
+            firstUpOpportunity: 10
+            secondUpOpportunity: 10
+            thirdUpOpportunity: 10
+            Slots:
+            - SlotType: 0
+              successCounter: 
+              increaseStat: 0
+            - SlotType: 0
+              successCounter: 
+              increaseStat: 0
+            - SlotType: 0
+              successCounter: 
+              increaseStat: 0
+            currentProbability: 0.75
+            totalUpCount: 0
+            isUnlock: 0
+            currentProbabilityCount: 0
+            stoneMult: 1
+            tier: 1
   StoneStatProbabilityDict:
     _serializedList:
     - Key: 5
@@ -285,35 +456,35 @@ MonoBehaviour:
         totalUpCount: 30
         statName: Hp
         increaseStat: 0.1
-        isUnlock: 0
+        isUnlock: 1
     - Key: 2
       Value:
         statType: 2
         totalUpCount: 30
         statName: "Hp \uC7AC\uC0DD"
         increaseStat: 0.1
-        isUnlock: 0
+        isUnlock: 1
     - Key: 3
       Value:
         statType: 3
         totalUpCount: 40
         statName: Mp
         increaseStat: 0.1
-        isUnlock: 0
+        isUnlock: 1
     - Key: 4
       Value:
         statType: 4
         totalUpCount: 40
         statName: "Mp \uD68C\uBCF5"
         increaseStat: 0.1
-        isUnlock: 0
+        isUnlock: 1
     - Key: 5
       Value:
         statType: 5
         totalUpCount: 50
         statName: "\uACF5\uACA9\uB825"
         increaseStat: 0.1
-        isUnlock: 0
+        isUnlock: 1
     - Key: 12
       Value:
         statType: 12
@@ -330,59 +501,133 @@ MonoBehaviour:
         isUnlock: 0
   StoneGradeStatUpDict:
     _serializedList:
-    - Key: 5
+    - Key: 0
       Value:
-        statName: "\uACF5\uACA9\uB825"
-        statType: 5
-    - Key: 3
-      Value:
-        statName: MP
-        statType: 3
-    - Key: 4
-      Value:
-        statName: "MP\uD68C\uBCF5"
-        statType: 4
-    - Key: 9
-      Value:
-        statName: "\uCE58\uBA85\uD0C0 \uD655\uB960"
-        statType: 9
-    - Key: 10
-      Value:
-        statName: "\uCE58\uBA85\uD0C0 \uBC30\uC728"
-        statType: 10
-    - Key: 15
-      Value:
-        statName: "\uBCF4\uC2A4 \uBAAC\uC2A4\uD130 \uD53C\uD574\uB7C9"
-        statType: 15
-    - Key: 16
-      Value:
-        statName: "\uC77C\uBC18 \uBAAC\uC2A4\uD130 \uD53C\uD574\uB7C9"
-        statType: 16
-    - Key: 17
-      Value:
-        statName: "\uB300\uBBF8\uC9C0 \uBC30\uC728"
-        statType: 17
+        _serializedList:
+        - Key: 5
+          Value:
+            statName: "\uACF5\uACA9\uB825"
+            statType: 5
+        - Key: 3
+          Value:
+            statName: MP
+            statType: 3
+        - Key: 4
+          Value:
+            statName: "MP\uD68C\uBCF5"
+            statType: 4
+        - Key: 9
+          Value:
+            statName: "\uCE58\uBA85\uD0C0 \uD655\uB960"
+            statType: 9
+        - Key: 10
+          Value:
+            statName: "\uCE58\uBA85\uD0C0 \uBC30\uC728"
+            statType: 10
+        - Key: 15
+          Value:
+            statName: "\uBCF4\uC2A4 \uBAAC\uC2A4\uD130 \uD53C\uD574\uB7C9"
+            statType: 15
+        - Key: 16
+          Value:
+            statName: "\uC77C\uBC18 \uBAAC\uC2A4\uD130 \uD53C\uD574\uB7C9"
+            statType: 16
+        - Key: 17
+          Value:
+            statName: "\uB300\uBBF8\uC9C0 \uBC30\uC728"
+            statType: 17
+        - Key: 1
+          Value:
+            statName: "\uCCB4\uB825"
+            statType: 1
+        - Key: 2
+          Value:
+            statName: "\uCCB4\uB825 \uC7AC\uC0DD"
+            statType: 2
+        - Key: 7
+          Value:
+            statName: "\uBB3C\uB9AC \uC800\uD56D"
+            statType: 7
+        - Key: 8
+          Value:
+            statName: "\uB9C8\uBC95 \uC800\uD56D"
+            statType: 8
+        - Key: 13
+          Value:
+            statName: "\uC7AC\uD654 \uD68D\uB4DD\uB7C9"
+            statType: 13
+        - Key: 14
+          Value:
+            statName: "\uACBD\uD5D8\uCE58 \uD68D\uB4DD\uB7C9"
+            statType: 14
     - Key: 1
       Value:
-        statName: "\uCCB4\uB825"
-        statType: 1
+        _serializedList:
+        - Key: 5
+          Value:
+            statName: "\uACF5\uACA9\uB825"
+            statType: 5
+        - Key: 3
+          Value:
+            statName: MP
+            statType: 3
+        - Key: 4
+          Value:
+            statName: "MP\uD68C\uBCF5"
+            statType: 4
+        - Key: 9
+          Value:
+            statName: "\uCE58\uBA85\uD0C0 \uD655\uB960"
+            statType: 9
+        - Key: 10
+          Value:
+            statName: "\uCE58\uBA85\uD0C0 \uBC30\uC728"
+            statType: 10
+        - Key: 15
+          Value:
+            statName: "\uBCF4\uC2A4 \uBAAC\uC2A4\uD130 \uD53C\uD574\uB7C9"
+            statType: 15
+        - Key: 16
+          Value:
+            statName: "\uC77C\uBC18 \uBAAC\uC2A4\uD130 \uD53C\uD574\uB7C9"
+            statType: 16
+        - Key: 17
+          Value:
+            statName: "\uB300\uBBF8\uC9C0 \uBC30\uC728"
+            statType: 17
+        - Key: 1
+          Value:
+            statName: "\uCCB4\uB825"
+            statType: 1
+        - Key: 2
+          Value:
+            statName: "\uCCB4\uB825 \uC7AC\uC0DD"
+            statType: 2
+        - Key: 7
+          Value:
+            statName: "\uBB3C\uB9AC \uC800\uD56D"
+            statType: 7
+        - Key: 8
+          Value:
+            statName: "\uB9C8\uBC95 \uC800\uD56D"
+            statType: 8
+        - Key: 13
+          Value:
+            statName: "\uC7AC\uD654 \uD68D\uB4DD\uB7C9"
+            statType: 13
+        - Key: 14
+          Value:
+            statName: "\uACBD\uD5D8\uCE58 \uD68D\uB4DD\uB7C9"
+            statType: 14
+  StoneGradeColorDict:
+    _serializedList:
+    - Key: 0
+      Value: {r: 1, g: 1, b: 1, a: 1}
+    - Key: 1
+      Value: {r: 0, g: 1, b: 0.18871331, a: 1}
     - Key: 2
-      Value:
-        statName: "\uCCB4\uB825 \uC7AC\uC0DD"
-        statType: 2
-    - Key: 7
-      Value:
-        statName: "\uBB3C\uB9AC \uC800\uD56D"
-        statType: 7
-    - Key: 8
-      Value:
-        statName: "\uB9C8\uBC95 \uC800\uD56D"
-        statType: 8
-    - Key: 13
-      Value:
-        statName: "\uC7AC\uD654 \uD68D\uB4DD\uB7C9"
-        statType: 13
-    - Key: 14
-      Value:
-        statName: "\uACBD\uD5D8\uCE58 \uD68D\uB4DD\uB7C9"
-        statType: 14
+      Value: {r: 0.43921572, g: 0.18823531, b: 0.627451, a: 1}
+    - Key: 3
+      Value: {r: 1, g: 0.75294125, b: 0, a: 1}
+    - Key: 4
+      Value: {r: 0.9294118, g: 0.48627454, b: 0.19215688, a: 1}

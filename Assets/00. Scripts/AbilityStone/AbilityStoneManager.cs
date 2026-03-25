@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 using UnityEngine.UI;
 
 public class AbilityStoneManager : Singleton<AbilityStoneManager>
 {
-    [SerializeField] public AblityStoneSO so;
+    [SerializeField] public AbilityStoneSO so;
     
     [SerializeField] private int stoneStatProbabilityID;
     [SerializeField] private int stoneID;
@@ -17,18 +17,21 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
     [SerializeField] private int totalCount;
     
     [SerializeField] private StoneGrade grade;
+    [SerializeField] private int tier;
 
     public event Action<StoneGrade> OnReset;
     
     public bool LoadStone = false;
-    
+
+    public SaveAbilityStoneData saveAbilityStoneData;
+
     IEnumerator Start()
     {
         yield return new WaitUntil(() => CharacterStatManager.Instance != null);
         yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
         
-        so = Resources.Load<AblityStoneSO>("AbilityStoneSO");
-        
+        so = Resources.Load<AbilityStoneSO>("AbilityStoneSO");
+
         stoneStatProbabilityID = so.stoneStatProbabilityID;
         stoneID = so.stoneID;
         stoneStatUpID = so.stoneStatUpID;
@@ -42,11 +45,14 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         
         ID = stoneID;
         
-        foreach (var item in so.AbilityStoneDict)
+        foreach (var index in so.AbilityStoneDict)
         {
-            item.Value.LoadStone();
+            foreach (var item in index.Value)
+            {
+                item.Value.LoadStone();
+            }
         }
-        
+
         ID = stoneTotalBonusID;
         
         foreach (var item in so.StoneTotalUpBonusDict)
@@ -56,10 +62,14 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         
         ID = stoneStatUpID;
         
-        foreach (var item in so.StoneGradeStatUpDict)
+        foreach (var tier in so.StoneGradeStatUpDict)
         {
-            item.Value.LoadStone(item.Key);
+            foreach (var item in tier.Value)
+            {
+                item.Value.LoadStone(item.Key);
+            }
         }
+        
         
         if (resetBnt != null)
         {
@@ -67,16 +77,25 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         }
         
         totalCount = 0;
-        
+
+        saveAbilityStoneData = JSONService.Load<SaveAbilityStoneData>();
+        saveAbilityStoneData.InitAblityStoneData();
+        saveAbilityStoneData.LoadAbilityStoneData(so);
+
         LoadStone = true;
+        CharacterStatManager.Instance.AllStatUpdate();
     }
 
     private void OnDisable()
     {
-        foreach (var item in so.AbilityStoneDict)
+        foreach (var index in so.AbilityStoneDict)
+        {
+            foreach (var item in index.Value)
         {
             item.Value.DisableEvent();
         }
+        }
+        
     }
     public void ResetStone(StoneGrade grade)
     {
@@ -144,18 +163,18 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
     
     public void UpStone(int slotIndex)
     {
-        so.AbilityStoneDict[grade].UpStone(slotIndex);
+        so.AbilityStoneDict[tier][grade].UpStone(slotIndex);
     }
     
     public void ResetUp()
     {
-        so.AbilityStoneDict[grade].ResetUp();
+        so.AbilityStoneDict[tier][grade].ResetUp();
     }
     
-    public float GetStat(StatType statType)
+    public float GetStat(StatType statType, int tier)
     {
         float totalStat = 0;
-        foreach (var item in so.AbilityStoneDict)
+        foreach (var item in so.AbilityStoneDict[tier])
         {
             for (int i = 0; i < item.Value.Slots.Count; i++)
             {
@@ -173,7 +192,7 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
     {
         totalCount = 0;
         
-        foreach(var item in so.AbilityStoneDict)
+        foreach(var item in so.AbilityStoneDict[tier])
         {
             totalCount += item.Value.GetUpCount();
         }
@@ -205,5 +224,11 @@ public class AbilityStoneManager : Singleton<AbilityStoneManager>
         }
         
         return 0f;
+    }
+
+
+    public void SaveAbilityStoneInfo()
+    {
+        saveAbilityStoneData.SaveAbilityStoneDataBySO(so);
     }
 }

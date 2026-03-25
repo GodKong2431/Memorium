@@ -34,6 +34,7 @@ public class InfinityMap : MonoBehaviour
     public List<GameObject> mapGroups;
     public List<GameObject> maps;
     public bool firstMapSetting = false;
+    public bool InitialPlacementComplete { get; private set; }
 
     [SerializeField] MonsterSpawner monsterSpawner;
 
@@ -70,6 +71,7 @@ public class InfinityMap : MonoBehaviour
 
     public void MapInit()
     {
+        InitialPlacementComplete = false;
         mapsRenderer.Clear();
         originMapPos.Clear();
         curMapIndex = 1;
@@ -141,15 +143,20 @@ public class InfinityMap : MonoBehaviour
 
         if (monsterSpawner != null)
             monsterSpawner.ChangeMonsterSpawnPos();
+
+        Debug.Log("[InfinityMap] 맵 이동");
     }
 
     public void MapReset()
     {
+        InitialPlacementComplete = false;
         for (int i = 0; i < maps.Count; i++)
             maps[i].transform.position = originMapPos[i];
 
         mapMoveTrigger.transform.position = originTriggerPos;
         curMapIndex = 1;
+
+        Physics.SyncTransforms();
 
         ResetGoalPos();
         PlayerPosInit();
@@ -182,6 +189,8 @@ public class InfinityMap : MonoBehaviour
         }
         MapManager.Instance.readyToMonsterSpawnerMove = true;
 
+        Debug.Log("[InfinityMap] Goal 이동");
+
         goal.ResetTrigger();
     }
 
@@ -194,25 +203,35 @@ public class InfinityMap : MonoBehaviour
 
     public void PlayerPosInit()
     {
+        InitialPlacementComplete = false;
+
         bool hadPlayerBinding = HasPlayerBinding();
         if (!TryBindScenePlayer())
             return;
-        
-        //위치 이동 전에 미리 꺼둔다
-        if(agent !=null) 
-            agent.enabled = false;
 
-        if (!hadPlayerBinding)
+
+
+        //위치 이동 전에 미리 꺼둔다
+        if (agent != null)
         {
-            MovePlayer(ResolveNavMeshPosition(player.position));
-            originPlayerPos = player.position;
-            return;
+            agent.enabled = false;
+            agent.velocity = Vector3.zero;
+        }
+
+
+        if (originPlayerPos == Vector3.zero)
+        {
+            // 현재 위치를 NavMesh 유효 좌표로 보정하여 저장
+            originPlayerPos = ResolveNavMeshPosition(player.position);
         }
 
         MovePlayer(originPlayerPos);
         MovePixieToPlayer();
 
-        if (agent != null) agent.enabled = true;
+        if (agent != null) 
+            agent.enabled = true;
+
+        Debug.Log($"[InfinityMap] 플레이어 위치이동 완료 {player.position}");
     }
 
     private void OnPlayerSpawned(Transform spawnedPlayer)
@@ -254,17 +273,36 @@ public class InfinityMap : MonoBehaviour
 
     private void MovePlayer(Vector3 targetPosition)
     {
-        if (!HasPlayerBinding())
-            return;
+        // 코루틴으로 실행하여 엔진이 맵 이동을 인지할 시간 적용
+        StartCoroutine(PlayerPosResetCoroutine(targetPosition));
+    }
+    IEnumerator PlayerPosResetCoroutine(Vector3 targetPosition)
+    {
+        //플레이어 위치 이동
+        player.position = new Vector3(targetPosition.x, targetPosition.y + 1.5f, targetPosition.z);
 
-        //agent.enabled = false;
-        player.position = targetPosition;
-        //agent.Warp(targetPosition);
+        Physics.SyncTransforms();
+        yield return null;
+        yield return new WaitForFixedUpdate();
+
+        //밀려남 방지를 위해 다시 이동
+        player.position = new Vector3(targetPosition.x, targetPosition.y + 1.5f, targetPosition.z);
+        Physics.SyncTransforms();
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(player.position, out hit, 5.0f, NavMesh.AllAreas))
+        {
+            player.position = hit.position;
+        }
+
+        agent.enabled = true;
         agent.Warp(player.position);
-        //agent.enabled = true;
+        agent.ResetPath();
+        agent.velocity = Vector3.zero;
+        InitialPlacementComplete = true;
 
-        Debug.Log($"플레이어 위치 변환 : {player.position}");
 
+        Debug.Log("[InfinityMap] 플레이어 위치 초기화");
     }
 
     private Vector3 ResolveNavMeshPosition(Vector3 targetPosition)

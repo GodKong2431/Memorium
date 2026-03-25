@@ -13,6 +13,8 @@ public class GachaLevelState
     public int Level = 1;
     /// <summary>현재 레벨에서 뽑은 횟수. 100 도달 시 레벨업.</summary>
     public int DrawCountInCurrentLevel;
+    /// <summary>장비 뽑기 천장 카운트. 최고 티어 등장 시 0으로 초기화.</summary>
+    public int PityCount;
 
     /// <summary>현재 단계 (1~21). 단계별 장비 전투력 범위 결정.</summary>
     public int Stage => GachaConfig.LevelToStage(Level);
@@ -40,10 +42,27 @@ public class GachaLevelState
             DrawCountInCurrentLevel = 0;
     }
 
-    public GachaLevelState(GachaType type, int level, int drawCountInCurrentLevel)
+    public bool ShouldForcePityThisDraw()
+    {
+        return PityCount + 1 >= GachaConfig.PityDrawCount;
+    }
+
+    public void UpdatePityAfterEquipmentDraw(bool drewHighestTier)
+    {
+        if (drewHighestTier)
+        {
+            PityCount = 0;
+            return;
+        }
+
+        PityCount++;
+    }
+
+    public GachaLevelState(GachaType type, int level, int drawCountInCurrentLevel, int pityCount = 0)
     {
         GachaType = type;
         Level = level;
         DrawCountInCurrentLevel= drawCountInCurrentLevel;
+        PityCount = Mathf.Max(0, pityCount);
     }
 }

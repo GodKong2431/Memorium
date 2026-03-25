@@ -20,16 +20,10 @@ public class BuffDebuffHandler
                 tmpMod.elapsedTime = 0f;
                 modifiers[i] = tmpMod;
 
-#if UNITY_EDITOR
-                Debug.Log($"스텟 버프: {tmpMod.statType} : {tmpMod.GetValue()}갱신");
-#endif
                 return;
             }
         }
         modifiers.Add(modifier);
-#if UNITY_EDITOR
-        Debug.Log($"스텟 버프: {modifier.statType} : {modifier.GetValue()}적용");
-#endif
     }
 
     public void Tick(float deltaTime)
@@ -40,9 +34,6 @@ public class BuffDebuffHandler
             tmpMod.elapsedTime += deltaTime;
             if (tmpMod.IsExpired)
             {
-#if UNITY_EDITOR
-                Debug.Log($"스텟 버프: {tmpMod.statType} : {tmpMod.GetValue()} 종료");
-#endif
                 modifiers[i] = modifiers[modifiers.Count - 1];
                 modifiers.RemoveAt(modifiers.Count - 1);
             }

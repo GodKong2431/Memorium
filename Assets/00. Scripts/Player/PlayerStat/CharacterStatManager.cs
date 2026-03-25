@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class CharacterStatManager : Singleton<CharacterStatManager>
 {
+    public static Transform playerTransform;
+    
     [SerializeField] CharacterStatSO characterStatSO;
     // 키들
     [Tooltip("1000001 ~ 1000003")]
@@ -244,7 +246,10 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         float equipStatValue = PlayerSlot != null ? PlayerSlot.GetStat(statType) : 0f;
 
         float abilityStoneStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
-            ? AbilityStoneManager.Instance.GetStat(statType)
+            ? AbilityStoneManager.Instance.GetStat(statType, 0)
+            : 0f;
+        float abilityStoneMultStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
+            ? AbilityStoneManager.Instance.GetStat(statType, 1)
             : 0f;
         float abilityStoneBonusStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
             ? AbilityStoneManager.Instance.GetBonusStat(statType)
@@ -255,7 +260,7 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
 
         float previewValue =
             (baseStatValue + upgradeStatValue + levelBonusValue + traitStatValue + additionalTraitValue + equipStatValue + abilityStoneStat) *
-            (1 + abilityStoneBonusStat + bingoSynergyStat);
+            (1 + abilityStoneBonusStat + bingoSynergyStat + abilityStoneMultStat);
 
         if (isBerserker && BerserkerModeController.Instance != null)
         {

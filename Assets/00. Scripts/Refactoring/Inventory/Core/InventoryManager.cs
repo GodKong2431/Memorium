@@ -19,6 +19,8 @@ public class InventoryManager : Singleton<InventoryManager>
 
     //스킬 데이터를 저장할 객체
     public SaveSkillData saveSkillData;
+    //픽시 데이터를 저장할 객체
+    public SavePixieData savePixieData;
 
     protected override void Awake()
     {
@@ -237,10 +239,12 @@ public class InventoryManager : Singleton<InventoryManager>
 
         RegisterModule(new CurrencyInventoryModule());
         RegisterModule(new SkillInventoryModule());
+        RegisterModule(new GemInventoryModule());
+        RegisterModule(new PassiveSkillModule());
         RegisterModule(new StackItemInventoryModule());
         RegisterModule(new EquipmentInventoryModule());
-        RegisterModule(new PixieInventoryModule());
-        RegisterModule(new GemInventoryModule());
+
+        
 
         StartCoroutine(LoadData());
     }
@@ -249,6 +253,7 @@ public class InventoryManager : Singleton<InventoryManager>
     {
         yield return new WaitUntil(() => DataManager.Instance != null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        RegisterModule(new PixieInventoryModule());
         saveCurrencyData = JSONService.Load<SaveCurrencyData>();
         saveCurrencyData.InitCurrencyData();
         saveCurrencyData.SetData();
