@@ -4,7 +4,7 @@ using UnityEngine;
 public class PluckItem : ItemBase
 {
     [SerializeField] public Direction dir;
-
+    [SerializeField] public BingoItemManager bingoItemManager;
 
     public override void Start()
     {

@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 [System.Serializable]
@@ -13,6 +14,7 @@ public class BingoSynergy : MonoBehaviour
     [SerializeField] public int index;
     [SerializeField] public SynergyDirection bingoSynergyLine;
     [SerializeField] private SynergyData synergyData;
+    [SerializeField] private Image statIcon;
     
     public bool isBingo;
     

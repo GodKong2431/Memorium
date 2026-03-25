@@ -38,15 +38,13 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
         if (particle == null)
             return;
 
-        particle.transform.SetParent(poolRoot, false);
-        ApplyLocalTransform(particle.transform, template.transform);
-        particle.transform.position = target.position;
-        particle.transform.rotation = template.transform.rotation;
+        particle.transform.SetParent(target, false);
+        ApplyMergeTransform(particle.transform, template.transform, target);
 
         if (particle.gameObject.layer != 5)
             particle.gameObject.layer = 5;
 
-        StartCoroutine(PlayTwiceAndReturnToQueue(particle, template, upgradeParticleQueue));
+        StartCoroutine(PlayAndReturnToQueue(particle, template, upgradeParticleQueue, true, 2));
     }
 
     public void PlayMergeEffect(Transform target)
@@ -64,7 +62,7 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
         if (particle.gameObject.layer != 5)
             particle.gameObject.layer = 5;
 
-        StartCoroutine(PlayOnceAndReturnToQueue(particle, template, mergeParticleQueue));
+        StartCoroutine(PlayAndReturnToQueue(particle, template, mergeParticleQueue));
     }
 
     public void PlayGachaEffect(Transform target)
@@ -82,10 +80,10 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
         if (particle.gameObject.layer != 5)
             particle.gameObject.layer = 5;
 
-        StartCoroutine(PlayOnceAndReturnToQueue(particle, template, gachaParticleQueue, false));
+        StartCoroutine(PlayAndReturnToQueue(particle, template, gachaParticleQueue, false));
     }
 
-    private IEnumerator PlayTwiceAndReturnToQueue(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue)
+    private IEnumerator PlayAndReturnToQueue(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue, bool checkReturn = true, int count =1)
     {
         if (particle == null)
             yield break;
@@ -94,7 +92,7 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
         float duration = particle.main.duration;
         particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
-        while (playCount < 2)
+        while (playCount < count)
         {
             if (particle == null)
                 yield break;
@@ -109,23 +107,51 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
             particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
-        ReturnToPool(particle, template, queue);
-    }
-
-    private IEnumerator PlayOnceAndReturnToQueue(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue, bool checkReturn=true)
-    {
-        if (particle == null)
-            yield break;
-
-        float duration = particle.main.duration;
-        particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        particle.Play(true);
-
-        yield return new WaitForSeconds(duration);
-
-        if(checkReturn)
+        if (checkReturn)
             ReturnToPool(particle, template, queue);
     }
+
+    //private IEnumerator PlayTwiceAndReturnToQueue(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue)
+    //{
+    //    if (particle == null)
+    //        yield break;
+
+    //    int playCount = 0;
+    //    float duration = particle.main.duration;
+    //    particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+    //    while (playCount < 2)
+    //    {
+    //        if (particle == null)
+    //            yield break;
+
+    //        particle.Play(true);
+    //        playCount++;
+    //        yield return new WaitForSeconds(duration);
+
+    //        if (particle == null)
+    //            yield break;
+
+    //        particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+    //    }
+
+    //    ReturnToPool(particle, template, queue);
+    //}
+
+    //private IEnumerator PlayOnceAndReturnToQueue(ParticleSystem particle, ParticleSystem template, Queue<ParticleSystem> queue, bool checkReturn=true)
+    //{
+    //    if (particle == null)
+    //        yield break;
+
+    //    float duration = particle.main.duration;
+    //    particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+    //    particle.Play(true);
+
+    //    yield return new WaitForSeconds(duration);
+
+    //    if(checkReturn)
+    //        ReturnToPool(particle, template, queue);
+    //}
 
     private ParticleSystem GetParticle(Queue<ParticleSystem> queue, ParticleSystem template)
     {
