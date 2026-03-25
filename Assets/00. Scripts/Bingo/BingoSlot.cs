@@ -18,7 +18,6 @@ public class BingoSlot : MonoBehaviour
     [SerializeField] private int row;
     [SerializeField] private int col;
     
-    [SerializeField] public TextMeshProUGUI count;
     [SerializeField] public int countnum = 0;
     
     [SerializeField] public Button button;
@@ -84,7 +83,7 @@ public class BingoSlot : MonoBehaviour
         }
     }
     
-    [SerializeField] public CellRarity bingoGrade;
+    [SerializeField] public RarityType bingoGrade;
     
     private BingoBoard mgr;
     
@@ -152,4 +151,13 @@ public class BingoSlot : MonoBehaviour
         currentitem = currentitem == bingoItem ? null : bingoItem;
     }
     
+    public int ReturnCount()
+    {
+        return countnum;
+    }
+    
+    public void ResetCount()
+    {
+        countnum = 0;
+    }
 }

@@ -1,23 +1,19 @@
 using AYellowpaper.SerializedCollections;
-using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UI;   
 
 public class BingoBoard : Singleton<BingoBoard>
 {
     [SerializeField] public SerializedDictionary<BingoColumnSlot, List<BingoSlot>> SlotList = new SerializedDictionary<BingoColumnSlot, List<BingoSlot>>();
-    [SerializeField] List<BingoColumnSlot> SlotColumns = new List<BingoColumnSlot>();
+    [SerializeField] private BingoContext ctx;
     [SerializeField] BingoBoardSO bingoBoardSO;
             
-    [SerializeField] SerializedDictionary<CellRarity, List<BingoSlot>> SlotGradeList = new SerializedDictionary<CellRarity, List<BingoSlot>>();
+    [SerializeField] SerializedDictionary<RarityType, List<BingoSlot>> SlotGradeList = new SerializedDictionary<RarityType, List<BingoSlot>>();
     
     [SerializeField] SerializedDictionary<int, BingoSynergy> RowSynergy = new SerializedDictionary<int, BingoSynergy>();
     [SerializeField] SerializedDictionary<int, BingoSynergy> ColSynergy = new SerializedDictionary<int, BingoSynergy>();
@@ -34,7 +30,6 @@ public class BingoBoard : Singleton<BingoBoard>
     [SerializeField] private Transform transform2;
     [SerializeField] private TMP_Dropdown dropdown;
     [SerializeField] public BingoItemManager bingoItemManager;
-    
     [SerializeField] public TMP_Dropdown RarityDropDown;
     [SerializeField] public TMP_Dropdown StatDropDown;
     
@@ -57,23 +52,106 @@ public class BingoBoard : Singleton<BingoBoard>
 
     void Start()
     {
+        bingoItemManager = FindAnyObjectByType<BingoItemManager>();
+    }
+
+    public void Init(BingoContext _ctx)
+    {
+        ctx = _ctx;
+
+        if (ctx == null)
+        {
+            return;
+        }
+
+        if (ctx.Columns == null || ctx.Columns.Count == 0)
+        {
+            return;
+        }
         
-        // DropdownSet<CellRarity>(ref dropdown, value => test1 = value);
-        // DropdownSet<RarityType>(ref RarityDropDown, value => synergyMgr.rarity = value);
-        // DropdownSet<SynergyStat>(ref StatDropDown, value => synergyMgr.stat = value);
+        bingoButton.onClick.AddListener(() => OnClick(bingoItemManager.itemBase));
         
-        // bingoButton.onClick.AddListener(() => OnClick(bingoItemManager.itemBase));
         // slotTest.onClick.RemoveAllListeners();
         // slotTest.onClick.AddListener(()=> Testpe());
         
-        foreach (var slotColumn in SlotColumns)
+        SlotList.Clear();
+        SlotGradeList.Clear();
+        
+        foreach (var slotColumn in ctx.Columns)
         {
+            if (slotColumn == null)
+            {
+                continue;
+            }
+
             SlotList.Add(slotColumn, new List<BingoSlot>());
         }
         
-        foreach(CellRarity grade in Enum.GetValues(typeof(CellRarity)))
+        foreach(RarityType grade in Enum.GetValues(typeof(RarityType)))
         {
             SlotGradeList.Add(grade, new List<BingoSlot>());
+        }
+
+        if (bingoBoardSO == null)
+        {
+            return;
+        }
+
+        for (int col = 0; col < bingoBoardSO.bingoSlots.Count; col++)
+        {
+            if (!bingoBoardSO.bingoSlots.TryGetValue(col, out var soColumn) || soColumn == null)
+            {
+                continue;
+            }
+
+            if (col < 0 || col >= ctx.Columns.Count)
+            {
+                continue;
+            }
+
+            var slotColumn = ctx.Columns[col];
+
+            if (slotColumn == null)
+            {
+                continue;
+            }
+
+            for (int row = 0; row < soColumn.Count; row++)
+            {
+                if (!soColumn.TryGetValue(row, out var rarity))
+                {
+                    continue;
+                }
+
+                if (!bingoBoardSO.RaritySolts.TryGetValue(rarity, out var slotPrefab) || slotPrefab == null)
+                {
+                    continue;
+                }
+
+                BingoSlot slotItem = Instantiate(slotPrefab, slotColumn.transform);
+
+                slotItem.bingoGrade = rarity;
+                slotItem.Init(col, row);
+
+                if (RowSynergy.TryGetValue(row, out var rowSynergy))
+                {
+                    slotItem.UpdateUnlock += rowSynergy.Check;
+                }
+
+                if (ColSynergy.TryGetValue(col, out var colSynergy))
+                {
+                    slotItem.UpdateUnlock += colSynergy.Check;
+                }
+
+                if (col == row && DiagSynergy != null)
+                {
+                    slotItem.UpdateUnlock += DiagSynergy.Check;
+                }
+
+                slotColumn.bingoSlotDatas.Add(slotItem);
+                SlotList[slotColumn].Add(slotItem);
+                SlotGradeList[rarity].Add(slotItem);
+            }
         }
         
         if (transform1 == null && transform2 == null)
@@ -81,56 +159,67 @@ public class BingoBoard : Singleton<BingoBoard>
             return;
         }
         
-        foreach (var synergy in bingoBoardSO.bingoSynergy)
-        {
-            foreach (var item in synergy.Value)
-            {
-                switch (synergy.Key)
-                {
-                    case SynergyDirection.Row:
-                        item.Value.Init(synergy.Key,item.Key);
-                        var synergyRowItem = Instantiate(item.Value , transform1);
-                        RowSynergy.Add(item.Key,synergyRowItem);
-                        Synergies.Add(synergyRowItem);
-                        break;
-                    case SynergyDirection.Column:
-                        item.Value.Init(synergy.Key,item.Key);
-                        var synergyColItem = Instantiate(item.Value , transform2);
-                        ColSynergy.Add(item.Key,synergyColItem);
-                        Synergies.Add(synergyColItem);
-                        break;
-                    case SynergyDirection.Diagonal:
-                        item.Value.Init(synergy.Key,item.Key);
-                        DiagSynergy = Instantiate(item.Value , transform2);
-                        Synergies.Add(DiagSynergy);
-                        break;
-                }
-            }
-        }
+        // foreach (var synergy in bingoBoardSO.bingoSynergy)
+        // {
+        //     foreach (var item in synergy.Value)
+        //     {
+        //         switch (synergy.Key)
+        //         {
+        //             case SynergyDirection.Row:
+        //                 item.Value.Init(synergy.Key,item.Key);
+        //                 var synergyRowItem = Instantiate(item.Value , transform1);
+        //                 RowSynergy.Add(item.Key,synergyRowItem);
+        //                 Synergies.Add(synergyRowItem);
+        //                 break;
+        //             case SynergyDirection.Column:
+        //                 item.Value.Init(synergy.Key,item.Key);
+        //                 var synergyColItem = Instantiate(item.Value , transform2);
+        //                 ColSynergy.Add(item.Key,synergyColItem);
+        //                 Synergies.Add(synergyColItem);
+        //                 break;
+        //             case SynergyDirection.Diagonal:
+        //                 item.Value.Init(synergy.Key,item.Key);
+        //                 DiagSynergy = Instantiate(item.Value , transform2);
+        //                 Synergies.Add(DiagSynergy);
+        //                 break;
+        //         }
+        //     }
+        // }
         
-        for (int col = 0; col < bingoBoardSO.bingoSlots.Count; col++)
-        {
-            var slotColumn = bingoBoardSO.bingoSlots[col];
+        // for (int col = 0; col < bingoBoardSO.bingoSlots.Count; col++)
+        // {
+        //     var slotColumn = bingoBoardSO.bingoSlots[col];
             
-            for (int row = 0; row < slotColumn.Count; row++)
-            {
-                BingoSlot slotItem = Instantiate(slotColumn[row] , SlotColumns[col].transform);
+        //     for (int row = 0; row < slotColumn.Count; row++)
+        //     {
+        //         BingoSlot slotItem = Instantiate(slotColumn[row] , SlotColumns[col].transform);
                 
-                slotItem.Init(col,row);
-                slotItem.UpdateUnlock += RowSynergy[row].Check;
-                slotItem.UpdateUnlock += ColSynergy[col].Check;
+        //         slotItem.Init(col,row);
+        //         slotItem.UpdateUnlock += RowSynergy[row].Check;
+        //         slotItem.UpdateUnlock += ColSynergy[col].Check;
                 
-                if (col == row)
-                {
-                    slotItem.UpdateUnlock += DiagSynergy.Check;
-                }
+        //         if (col == row)
+        //         {
+        //             slotItem.UpdateUnlock += DiagSynergy.Check;
+        //         }
                 
-                SlotList[SlotColumns[col]].Add(slotItem);
-                SlotGradeList[slotColumn[row].bingoGrade].Add(slotItem);
-            }
-        }
+        //         SlotList[SlotColumns[col]].Add(slotItem);
+        //         SlotGradeList[slotColumn[row].bingoGrade].Add(slotItem);
+        //     }
+        // }
+    }
+
+    void OnEnable()
+    {
+        BingoUI.OnClickBingoGachaButton += BingoGacha;
     }
     
+    void OnDisable()
+    {
+
+        BingoUI.OnClickBingoGachaButton -= BingoGacha;
+    }
+
     public void DropdownSet<T>(ref TMP_Dropdown dropdown, Action<T> setValue) where T : Enum
     {
         dropdown.ClearOptions();
@@ -149,22 +238,24 @@ public class BingoBoard : Singleton<BingoBoard>
         return (T)Enum.ToObject(typeof(T), index);
     }
     
-    public void Testpe()
+    public void BingoGacha(int enumIndex)
     {
+        RarityType cellRarity = (RarityType)enumIndex;
+        
         if (againItem != null)
         {
             againItem.UseItem();
             againItem = null;
         }
         
-        StartCoroutine(Testpp());
+        StartCoroutine(GachaStart(cellRarity));
     }
-    public IEnumerator Testpp()
+    public IEnumerator GachaStart(RarityType cellRarity)
     {
         eventTriggered = false;
         isAgain = false;
         
-        var slot = Gacha(test1);
+        var slot = Gacha(cellRarity);
         
         Debug.Log($"{slot.Col}, {slot.Row}");
         
@@ -181,14 +272,12 @@ public class BingoBoard : Singleton<BingoBoard>
         if (isAgain)
         {
             
-            StartCoroutine(Testpp());
+            StartCoroutine(GachaStart(cellRarity));
             yield break;
         }
         
         ResetItem();
         slot.CountUP();
-        
-        slot.count.text = slot.countnum.ToString();
     }
     
     void OnEvent()
@@ -231,7 +320,7 @@ public class BingoBoard : Singleton<BingoBoard>
         }
     }
     
-    public BingoSlot Gacha(CellRarity CellRarity)
+    public BingoSlot Gacha(RarityType CellRarity)
     {
         int total = 0;
         
@@ -292,7 +381,12 @@ public class BingoBoard : Singleton<BingoBoard>
         {
             case SynergyDirection.Column:
                 {
-                    foreach (var slot in SlotList[SlotColumns[lineIndex]])
+                    if (ctx == null || ctx.Columns == null || lineIndex < 0 || lineIndex >= ctx.Columns.Count)
+                    {
+                        return false;
+                    }
+
+                    foreach (var slot in SlotList[ctx.Columns[lineIndex]])
                     {
                         if (!slot.isUnlock)
                         {
@@ -333,7 +427,12 @@ public class BingoBoard : Singleton<BingoBoard>
     }
     public BingoSlot GetSlot(int col, int row)
     {
-        return SlotList[SlotColumns[col]][row];
+        if (ctx == null || ctx.Columns == null || col < 0 || col >= ctx.Columns.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(col), "Invalid bingo column index.");
+        }
+
+        return SlotList[ctx.Columns[col]][row];
     }
     
     public float GetSynergyStat(StatType statType)

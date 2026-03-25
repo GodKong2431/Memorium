@@ -11,8 +11,13 @@ public class BingoItemManager : MonoBehaviour
     public List<PluckItem> pluckItems = new List<PluckItem>();
     
     [SerializeField] private CanvasGroup bingobuttons;
-    
-    public void Test(bool use)
+
+    void Start()
+    {
+        BingoBoard.Instance.bingoItemManager = this;
+    }
+
+    public void BingoBoardClick(bool use)
     {
         bingobuttons.blocksRaycasts = !use;
     }
