@@ -223,7 +223,6 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     public float GetFinalStat(StatType statType)
     {
         float baseValue = FinalStats.TryGetValue(statType, out var finalStat) ? finalStat.finalStat : 0f;
-        baseValue = ApplyBerserkerMultiplier(statType, baseValue);
         // PlayerStateMachine에서 EffectController를 등록하기 전에도 전투력 계산이 먼저 호출될 수 있다.
         if (_playerEffectController != null)
             baseValue = _playerEffectController.GetModifiedStat(statType, baseValue);
