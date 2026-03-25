@@ -71,6 +71,10 @@ public class EnemyStateContext
     /// </summary>
     public GameObject AttackEffectPrefab { get; set; }
     public float AttackEffectScaleMultiplier { get; set; } = 1f;
+    public float ChaseTurnSpeed { get; set; } = 6f;
+    public float AttackTurnSpeed { get; set; } = 10f;
+    public bool FaceTargetWhileAttacking { get; set; } = true;
+    public float MaxAttackAngle { get; set; } = 60f;
 
     public GameObject OnHitEffectPrefab { get; set; }
     public AudioClip OnHitSfx { get; set; }

@@ -16,7 +16,10 @@ public class EnemyStateChase : IEnemyState
     public void OnEnter(EnemyStateContext ctx)
     {
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
+        {
             ctx.Agent.isStopped = false;
+            ctx.Agent.updateRotation = false;
+        }
         _lastDestinationTime = -DestinationRefreshInterval;
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Chase);
         // 이동/발소리 효과음 추가 예정 (선택)
@@ -37,31 +40,50 @@ public class EnemyStateChase : IEnemyState
             return;
         }
 
-        // 이 부분에 버프/디버프 적용된 이동속도 반영하도록 추가했습니다.
-        ctx.Agent.speed = ctx.MoveSpeed;
-
-        // 블렌드 트리(Locomotion)용 파라미터 갱신: 0=Idle, 1=Run 기준
-        // Animator Controller에서 Locomotion Blend Tree를 구성해두면, 몬스터별 클립만 Override해도 자연스럽게 동작함.
-        if (ctx.Agent != null)
+        NavMeshAgent agent = ctx.Agent;
+        if (agent != null)
         {
+            // 이 부분에 버프/디버프 적용된 이동속도 반영하도록 추가했습니다.
+            agent.speed = ctx.MoveSpeed;
+
+            // 블렌드 트리(Locomotion)용 파라미터 갱신: 0=Idle, 1=Run 기준
+            // Animator Controller에서 Locomotion Blend Tree를 구성해두면, 몬스터별 클립만 Override해도 자연스럽게 동작함.
             float speed01 = 0f;
             float denom = Mathf.Max(0.01f, ctx.MoveSpeed);
-            speed01 = Mathf.Clamp01(ctx.Agent.velocity.magnitude / denom);
+            speed01 = Mathf.Clamp01(agent.velocity.magnitude / denom);
             ctx.SetLocomotion(speed01);
-        }
 
-        NavMeshAgent agent = ctx.Agent;
-        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh && !agent.isStopped)
-        {
-            if (Time.time - _lastDestinationTime >= DestinationRefreshInterval)
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh && !agent.isStopped)
             {
-                _lastDestinationTime = Time.time;
-                agent.SetDestination(player.position);
+                if (Time.time - _lastDestinationTime >= DestinationRefreshInterval)
+                {
+                    _lastDestinationTime = Time.time;
+                    agent.SetDestination(player.position);
+                }
             }
         }
+
+        RotateTowardsTarget(ctx.EnemyTransform, player.position, ctx.ChaseTurnSpeed);
     }
 
     public void OnExit(EnemyStateContext ctx)
     {
+        if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
+            ctx.Agent.updateRotation = true;
+    }
+
+    private static void RotateTowardsTarget(Transform self, Vector3 targetPos, float turnSpeed)
+    {
+        if (self == null || turnSpeed <= 0f)
+            return;
+
+        Vector3 toTarget = targetPos - self.position;
+        toTarget.y = 0f;
+        if (toTarget.sqrMagnitude <= 0.0001f)
+            return;
+
+        Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized);
+        float t = Mathf.Clamp01(turnSpeed * Time.deltaTime);
+        self.rotation = Quaternion.Slerp(self.rotation, targetRot, t);
     }
 }

@@ -37,6 +37,22 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     [SerializeField, Min(0.1f)]
     [Tooltip("몬스터 공격 이펙트 크기 배율. 1=기본, 0.8=20% 축소")]
     private float attackEffectScaleMultiplier = 0.5f;
+
+    [Header("타겟 바라보기")]
+    [SerializeField, Min(0f)]
+    [Tooltip("추적 중 플레이어를 바라보는 회전 속도")]
+    private float chaseTurnSpeed = 6f;
+
+    [SerializeField, Min(0f)]
+    [Tooltip("공격 중 플레이어를 바라보는 회전 속도")]
+    private float attackTurnSpeed = 10f;
+
+    [SerializeField, Tooltip("공격 상태에서 플레이어를 바라보도록 회전을 보정합니다.")]
+    private bool faceTargetWhileAttacking = true;
+
+    [SerializeField, Range(1f, 180f)]
+    [Tooltip("타격 판정 시 허용되는 정면 각도(도)")]
+    private float maxAttackAngle = 60f;
     
     [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
     private GameObject onHitEffectPrefab;
@@ -79,6 +95,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             IsBoss = statPresenter != null && statPresenter.IsBoss,
             AttackEffectPrefab = attackEffectPrefab,
             AttackEffectScaleMultiplier = attackEffectScaleMultiplier,
+            ChaseTurnSpeed = chaseTurnSpeed,
+            AttackTurnSpeed = attackTurnSpeed,
+            FaceTargetWhileAttacking = faceTargetWhileAttacking,
+            MaxAttackAngle = maxAttackAngle,
             OnHitEffectPrefab = onHitEffectPrefab,
             OnHitSfx = onHitSfx,
             SkillHandler = skillHandler,

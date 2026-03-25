@@ -39,7 +39,10 @@ public class EnemyStateAttack : IEnemyState
         // Debug.Log($"[EnemyStateAttack] OnEnter - effect={(ctx.AttackEffectPrefab == null ? "NULL" : ctx.AttackEffectPrefab.name)}");
         
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
+        {
             ctx.Agent.isStopped = true;
+            ctx.Agent.updateRotation = false;
+        }
 
         _isSkillAttack = ctx.IsSkillAttackType;
 
@@ -128,6 +131,9 @@ public class EnemyStateAttack : IEnemyState
 
         if (_isSkillAttack)
         {
+            if (ctx.FaceTargetWhileAttacking && ctx.PlayerTransform != null)
+                RotateTowardsTarget(ctx.EnemyTransform, ctx.PlayerTransform.position, ctx.AttackTurnSpeed);
+
             UpdateSkill2AnimationSequence(ctx);
 
             if (_attackInProgress && Time.time >= _attackEndTime)
@@ -139,7 +145,7 @@ public class EnemyStateAttack : IEnemyState
                     if (dist <= ctx.AttackRange)
                     {
                         var damageable = ctx.PlayerTransform.GetComponent<IDamageable>();
-                        if (damageable != null)
+                        if (damageable != null && IsTargetWithinAttackAngle(ctx))
                         {
                             float baseDamage = ctx.AttackPoint;
                             float rate = 1f;
@@ -167,8 +173,14 @@ public class EnemyStateAttack : IEnemyState
                 ctx.RequestState(EnemyStateType.Chase);
             }
         }
-        else if (_attackInProgress && Time.time >= _attackEndTime)
+        else
         {
+            if (ctx.FaceTargetWhileAttacking && ctx.PlayerTransform != null)
+                RotateTowardsTarget(ctx.EnemyTransform, ctx.PlayerTransform.position, ctx.AttackTurnSpeed);
+
+            if (!_attackInProgress || Time.time < _attackEndTime)
+                return;
+
             // 공격 타이밍에 플레이어가 사거리 내에 있으면 TakeDamage 호출
             if (!_damageApplied && ctx.PlayerTransform != null)
             {
@@ -176,7 +188,7 @@ public class EnemyStateAttack : IEnemyState
                 if (dist <= ctx.AttackRange)
                 {
                     var damageable = ctx.PlayerTransform.GetComponent<IDamageable>();
-                    if (damageable != null)
+                    if (damageable != null && IsTargetWithinAttackAngle(ctx))
                     {
                         // 이 부분 버프 계산된 공격력 가져오는걸로 수정했습니다.
                         float damage = ctx.AttackPoint;
@@ -197,6 +209,9 @@ public class EnemyStateAttack : IEnemyState
 
     public void OnExit(EnemyStateContext ctx)
     {
+        if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
+            ctx.Agent.updateRotation = true;
+
         ClearAttackEffect();
         _currentBossAttack = null;
         _skill2AnimPhase = Skill2AnimPhase.None;
@@ -263,5 +278,34 @@ public class EnemyStateAttack : IEnemyState
 
             _skill2AnimPhase = Skill2AnimPhase.Done;
         }
+    }
+
+    private static bool IsTargetWithinAttackAngle(EnemyStateContext ctx)
+    {
+        if (ctx?.EnemyTransform == null || ctx.PlayerTransform == null)
+            return false;
+
+        Vector3 toPlayer = ctx.PlayerTransform.position - ctx.EnemyTransform.position;
+        toPlayer.y = 0f;
+        if (toPlayer.sqrMagnitude <= 0.0001f)
+            return true;
+
+        float angle = Vector3.Angle(ctx.EnemyTransform.forward, toPlayer.normalized);
+        return angle <= Mathf.Clamp(ctx.MaxAttackAngle, 1f, 180f);
+    }
+
+    private static void RotateTowardsTarget(Transform self, Vector3 targetPos, float turnSpeed)
+    {
+        if (self == null || turnSpeed <= 0f)
+            return;
+
+        Vector3 toTarget = targetPos - self.position;
+        toTarget.y = 0f;
+        if (toTarget.sqrMagnitude <= 0.0001f)
+            return;
+
+        Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized);
+        float t = Mathf.Clamp01(turnSpeed * Time.deltaTime);
+        self.rotation = Quaternion.Slerp(self.rotation, targetRot, t);
     }
 }
