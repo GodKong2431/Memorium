@@ -10495,7 +10495,15 @@ MonoBehaviour:
   attackEffectPrefab: {fileID: 0}
   attackEffectScaleMultiplier: 0.2
   onHitEffectPrefab: {fileID: 0}
-  onHitSfx: {fileID: 0}
+  attackSoundId: 0
+  onHitSoundId: 0
+  dieSoundId: 0
+  footstepSoundId: 0
+  skillPrepareSoundId: 0
+  skillCastSoundId: 0
+  bossSpawnSoundId: 0
+  bossAreaAttackPrepareSoundId: 0
+  bossAreaAttackCastSoundId: 0
   assetDatabaseOverride: {fileID: 11400000, guid: 71fdfc997ae904943a84ed37cbcfbea7, type: 2}
 --- !u!135 &2419254218947479086
 SphereCollider:

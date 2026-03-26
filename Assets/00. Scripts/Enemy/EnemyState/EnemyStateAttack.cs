@@ -22,6 +22,7 @@ public class EnemyStateAttack : IEnemyState
     private const string Skill2AttackTrigger = "Animation_Boss_Attack_Normal";
     private const float Skill2IdleToTauntDelay = 0.12f;
     private const float Skill2TauntToAttackDelay = 0.22f;
+    private const float SkillAttackEffectLifeTime = 1.5f;
 
     private float _attackEndTime;
     private bool _attackInProgress;
@@ -31,7 +32,6 @@ public class EnemyStateAttack : IEnemyState
     private BossManageTable _currentBossAttack;
     private Skill2AnimPhase _skill2AnimPhase;
     private float _skill2NextAnimTime;
-
     public EnemyStateType Type => EnemyStateType.Attack;
 
     public void OnEnter(EnemyStateContext ctx)
@@ -46,21 +46,24 @@ public class EnemyStateAttack : IEnemyState
 
         _isSkillAttack = ctx.IsSkillAttackType;
 
-        // 일반 몬스터(근접/원거리 포함): 기존 로직 그대로 사용
+        // 일반 몬스터(근접/원거리 포함)
         if (!_isSkillAttack)
         {
             _damageApplied = false;
 
             float attackSpeed = ctx.AttackSpeed;
             // float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
-            float delay = 0.5f; // [TODO] 나중에 인스펙터에서 수정 가능하도록 설정
+            float delay = 0.5f;
             _attackEndTime = Time.time + delay;
             _attackInProgress = true;
 
-           
             ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
 
-            SpawnAttackEffect(ctx, spawnOnPlayer: true);
+            // DB에 skillAttackEffectPrefab이 설정된 몹만 플레이어 머리 위에 스킬 연출 VFX를 출력.
+            if (ctx.SkillAttackEffectPrefab != null)
+                SpawnSkillAttackEffectAtPlayerHead(ctx);
+            else
+                SpawnAttackEffect(ctx, spawnOnPlayer: true);
             return;
         }
 
@@ -85,6 +88,9 @@ public class EnemyStateAttack : IEnemyState
         _attackEndTime = Time.time + _currentBossAttack.castingDelay + _currentBossAttack.castingTime;
         // Debug.Log($"[EnemyStateAttack] 보스 공격 시작 - enemy={ctx.EnemyTransform.name}, attackId={_currentBossAttack.ID}, type={_currentBossAttack.attackType}, delay={_currentBossAttack.castingDelay}, cast={_currentBossAttack.castingTime}");
 
+        if (_currentBossAttack.attackType != AttackType.normalAttack)
+            PlayBossAreaPrepareSound(ctx);
+
         if (_currentBossAttack.attackType == AttackType.skillAttack2)
         {
             _skill2AnimPhase = Skill2AnimPhase.WaitTaunt;
@@ -103,9 +109,10 @@ public class EnemyStateAttack : IEnemyState
             ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
         }
 
-        // 스킬 이펙트는 플레이어 쪽에 표시
-        SpawnAttackEffect(ctx, spawnOnPlayer: true);
-        // BossManageTable.effect 컬럼과 실제 파티클 매핑은 별도 세팅에서 처리
+        if (HasValidBossParticleEffectKey(_currentBossAttack))
+            SpawnBossTableParticleEffect(ctx, _currentBossAttack);
+        else
+            SpawnAttackEffect(ctx, spawnOnPlayer: true);
     }
 
     public void OnUpdate(EnemyStateContext ctx)
@@ -164,6 +171,10 @@ public class EnemyStateAttack : IEnemyState
                             // Debug.Log($"[EnemyStateAttack] 보스 공격 히트 - enemy={ctx.EnemyTransform.name}, base={baseDamage}, rate={rate}, final={damage}, type={damageType}");
                             damageable.TakeDamage(damage, damageType);
                             _damageApplied = true;
+                            if (_currentBossAttack != null && _currentBossAttack.attackType != AttackType.normalAttack)
+                                PlayBossAreaCastSound(ctx);
+                            else
+                                PlayAttackHitSound(ctx);
                         }
                     }
                 }
@@ -192,12 +203,10 @@ public class EnemyStateAttack : IEnemyState
                     {
                         // 이 부분 버프 계산된 공격력 가져오는걸로 수정했습니다.
                         float damage = ctx.AttackPoint;
-                        if (ctx.SkillHandler != null)
-                            damage = ctx.SkillHandler.GetAttack();
 
                         damageable.TakeDamage(damage, DamageType.Physical);
                         _damageApplied = true;
-                        // 공격 타격 효과음 추가 예정
+                        PlayAttackHitSound(ctx);
                     }
                 }
             }
@@ -227,6 +236,30 @@ public class EnemyStateAttack : IEnemyState
         }
     }
 
+    private static bool HasValidBossParticleEffectKey(BossManageTable atk)
+    {
+        if (atk == null || string.IsNullOrWhiteSpace(atk.effect))
+            return false;
+        if (string.Equals(atk.effect, "None", System.StringComparison.OrdinalIgnoreCase))
+            return false;
+        return atk.effect != "0";
+    }
+
+    /// <summary>BossManageTable.effect → Addressable 파티클 키 (PoolableParticleManager)</summary>
+    private static void SpawnBossTableParticleEffect(EnemyStateContext ctx, BossManageTable atk)
+    {
+        if (!HasValidBossParticleEffectKey(atk) || ctx.EnemyTransform == null)
+            return;
+        var pm = PoolableParticleManager.Instance;
+        if (pm == null)
+            return;
+
+        pm.Preload(atk.effect);
+        bool onPlayer = atk.attackType != AttackType.normalAttack;
+        Transform follow = onPlayer && ctx.PlayerTransform != null ? ctx.PlayerTransform : ctx.EnemyTransform;
+        pm.SpawnParticle(new ParticleSpawnContext(atk.effect, follow, follow: true));
+    }
+
     private void SpawnAttackEffect(EnemyStateContext ctx, bool spawnOnPlayer)
     {
         if (ctx.AttackEffectPrefab == null) return;
@@ -254,6 +287,17 @@ public class EnemyStateAttack : IEnemyState
         _currentAttackEffect.transform.localScale *= scaleMultiplier;
     }
 
+    private static void SpawnSkillAttackEffectAtPlayerHead(EnemyStateContext ctx)
+    {
+        if (ctx.SkillAttackEffectPrefab == null || ctx.PlayerTransform == null)
+            return;
+
+        Vector3 spawnPos = ctx.PlayerTransform.position + ctx.SkillAttackEffectOffset;
+        GameObject effect = Object.Instantiate(ctx.SkillAttackEffectPrefab, spawnPos, Quaternion.identity);
+        if (SkillAttackEffectLifeTime > 0f)
+            Object.Destroy(effect, SkillAttackEffectLifeTime);
+    }
+
     private void UpdateSkill2AnimationSequence(EnemyStateContext ctx)
     {
         if (_currentBossAttack == null || _currentBossAttack.attackType != AttackType.skillAttack2)
@@ -278,6 +322,27 @@ public class EnemyStateAttack : IEnemyState
 
             _skill2AnimPhase = Skill2AnimPhase.Done;
         }
+    }
+
+    private static void PlayAttackHitSound(EnemyStateContext ctx)
+    {
+        if (ctx.AttackSoundId <= 0 || SoundManager.Instance == null || ctx.EnemyTransform == null)
+            return;
+        SoundManager.Instance.PlayCombatSfxAt(ctx.AttackSoundId, ctx.EnemyTransform.position);
+    }
+
+    private static void PlayBossAreaPrepareSound(EnemyStateContext ctx)
+    {
+        if (ctx.BossAreaAttackPrepareSoundId <= 0 || SoundManager.Instance == null || ctx.EnemyTransform == null)
+            return;
+        SoundManager.Instance.PlayCombatSfxAt(ctx.BossAreaAttackPrepareSoundId, ctx.EnemyTransform.position);
+    }
+
+    private static void PlayBossAreaCastSound(EnemyStateContext ctx)
+    {
+        if (ctx.BossAreaAttackCastSoundId <= 0 || SoundManager.Instance == null || ctx.EnemyTransform == null)
+            return;
+        SoundManager.Instance.PlayCombatSfxAt(ctx.BossAreaAttackCastSoundId, ctx.EnemyTransform.position);
     }
 
     private static bool IsTargetWithinAttackAngle(EnemyStateContext ctx)

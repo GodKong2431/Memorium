@@ -18,8 +18,10 @@ public class EnemyStateDead : IEnemyState
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.isStopped = true;
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Die);
-        // 사망 이펙트 추가 예정
-        // 사망 효과음 추가 예정
+
+        if (ctx.DieSoundId > 0 && SoundManager.Instance != null)
+            SoundManager.Instance.PlayCombatSfxAt(ctx.DieSoundId, ctx.EnemyTransform.position);
+
         _destroyTime = Time.time + DestroyDelay;
         _destroyScheduled = false;
 

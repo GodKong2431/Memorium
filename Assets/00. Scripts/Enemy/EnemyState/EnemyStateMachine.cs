@@ -33,6 +33,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
 
     [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
     private GameObject attackEffectPrefab;
+    [SerializeField][Tooltip("스킬 공격형 일반 몬스터 공격 시 출력할 연출 VFX. 비워두면 DB에서 monsterId로 조회.")]
+    private GameObject skillAttackEffectPrefab;
+    [SerializeField][Tooltip("스킬 공격형 이펙트 위치 오프셋(플레이어 기준). DB 값 우선")]
+    private Vector3 skillAttackEffectOffset;
 
     [SerializeField, Min(0.1f)]
     [Tooltip("몬스터 공격 이펙트 크기 배율. 1=기본, 0.8=20% 축소")]
@@ -57,8 +61,16 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
     private GameObject onHitEffectPrefab;
     
-    [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
-    private AudioClip onHitSfx;
+    [Header("SFX 오버라이드 (SoundTable ID, 0이면 MonsterAssetDatabase 값 사용)")]
+    [SerializeField] private int attackSoundId;
+    [SerializeField] private int onHitSoundId;
+    [SerializeField] private int dieSoundId;
+    [SerializeField] private int footstepSoundId;
+    [SerializeField] private int skillPrepareSoundId;
+    [SerializeField] private int skillCastSoundId;
+    [SerializeField] private int bossSpawnSoundId;
+    [SerializeField] private int bossAreaAttackPrepareSoundId;
+    [SerializeField] private int bossAreaAttackCastSoundId;
 
     [SerializeField][Tooltip("비워두면 Resources 또는 전역 DB 사용.")]
     private MonsterAssetDatabase assetDatabaseOverride;
@@ -78,7 +90,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     {
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<EnemyStatPresenter>();
-        var skillHandler = GetComponent<EnemySkillHandler>();
         var effectController = GetComponent<EffectController>();
 
         ResolveAssets(statPresenter);
@@ -94,14 +105,23 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             AnimationConfig = animationConfig,
             IsBoss = statPresenter != null && statPresenter.IsBoss,
             AttackEffectPrefab = attackEffectPrefab,
+            SkillAttackEffectPrefab = skillAttackEffectPrefab,
+            SkillAttackEffectOffset = skillAttackEffectOffset,
             AttackEffectScaleMultiplier = attackEffectScaleMultiplier,
             ChaseTurnSpeed = chaseTurnSpeed,
             AttackTurnSpeed = attackTurnSpeed,
             FaceTargetWhileAttacking = faceTargetWhileAttacking,
             MaxAttackAngle = maxAttackAngle,
             OnHitEffectPrefab = onHitEffectPrefab,
-            OnHitSfx = onHitSfx,
-            SkillHandler = skillHandler,
+            AttackSoundId = attackSoundId,
+            OnHitSoundId = onHitSoundId,
+            DieSoundId = dieSoundId,
+            FootstepSoundId = footstepSoundId,
+            SkillPrepareSoundId = skillPrepareSoundId,
+            SkillCastSoundId = skillCastSoundId,
+            BossSpawnSoundId = bossSpawnSoundId,
+            BossAreaAttackPrepareSoundId = bossAreaAttackPrepareSoundId,
+            BossAreaAttackCastSoundId = bossAreaAttackCastSoundId,
             EnemyEffectController = effectController
         };
         _ctx.Initialize();
@@ -141,11 +161,31 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
 
                 if (attackEffectPrefab == null && entry.attackEffectPrefab != null)
                     attackEffectPrefab = entry.attackEffectPrefab;
+                if (skillAttackEffectPrefab == null && entry.skillAttackEffectPrefab != null)
+                    skillAttackEffectPrefab = entry.skillAttackEffectPrefab;
+                skillAttackEffectOffset = entry.skillAttackEffectOffset;
 
                 if (onHitEffectPrefab == null && entry.onHitEffectPrefab != null)
                     onHitEffectPrefab = entry.onHitEffectPrefab;
-                if (onHitSfx == null && entry.onHitSfx != null)
-                    onHitSfx = entry.onHitSfx;
+
+                if (attackSoundId == 0 && entry.attackSoundId != 0)
+                    attackSoundId = entry.attackSoundId;
+                if (onHitSoundId == 0 && entry.onHitSoundId != 0)
+                    onHitSoundId = entry.onHitSoundId;
+                if (dieSoundId == 0 && entry.dieSoundId != 0)
+                    dieSoundId = entry.dieSoundId;
+                if (footstepSoundId == 0 && entry.footstepSoundId != 0)
+                    footstepSoundId = entry.footstepSoundId;
+                if (skillPrepareSoundId == 0 && entry.skillPrepareSoundId != 0)
+                    skillPrepareSoundId = entry.skillPrepareSoundId;
+                if (skillCastSoundId == 0 && entry.skillCastSoundId != 0)
+                    skillCastSoundId = entry.skillCastSoundId;
+                if (bossSpawnSoundId == 0 && entry.bossSpawnSoundId != 0)
+                    bossSpawnSoundId = entry.bossSpawnSoundId;
+                if (bossAreaAttackPrepareSoundId == 0 && entry.bossAreaAttackPrepareSoundId != 0)
+                    bossAreaAttackPrepareSoundId = entry.bossAreaAttackPrepareSoundId;
+                if (bossAreaAttackCastSoundId == 0 && entry.bossAreaAttackCastSoundId != 0)
+                    bossAreaAttackCastSoundId = entry.bossAreaAttackCastSoundId;
             }
         }
     }
@@ -163,11 +203,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
                 _ctx.BossAttackManager = new BossAttackManager(DataManager.Instance.BossManageDict.Values);
             }
 
-            if (_ctx.SkillHandler != null && _ctx.PlayerTransform != null)
-            {
-                _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
-                _ctx.SkillHandler.Init();
-            }
         }
 
         EnemyStatData data = _ctx.StatPresenter?.Data;
@@ -298,8 +333,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
         _ctx.SpawnPosition = transform.position;
         _ctx.Initialize();
         RefreshPlayerTransform();
-        if (_ctx.SkillHandler != null && _ctx.PlayerTransform != null)
-            _ctx.SkillHandler.SetPlayerTransform(_ctx.PlayerTransform);
         if (_ctx.Agent != null && _ctx.Agent.isOnNavMesh)
         {
             _ctx.Agent.isStopped = false;
@@ -325,5 +358,15 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             ChangeState(EnemyStateType.Spawn);
         else
             ChangeState(EnemyStateType.Chase);
+    }
+
+    /// <summary>
+    /// 애니메이션 이벤트에서 호출: 발걸음 등 (SoundManager / Combat SFX).
+    /// </summary>
+    public void Anim_PlayFootstep()
+    {
+        if (_ctx == null || _ctx.FootstepSoundId <= 0 || SoundManager.Instance == null)
+            return;
+        SoundManager.Instance.PlayCombatSfxAt(_ctx.FootstepSoundId, transform.position);
     }
 }

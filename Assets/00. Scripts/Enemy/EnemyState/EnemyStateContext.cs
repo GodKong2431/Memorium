@@ -70,6 +70,8 @@ public class EnemyStateContext
     /// 공격 시 생성할 이펙트 프리팹. EnemyStateMachine에서 설정
     /// </summary>
     public GameObject AttackEffectPrefab { get; set; }
+    public GameObject SkillAttackEffectPrefab { get; set; }
+    public Vector3 SkillAttackEffectOffset { get; set; }
     public float AttackEffectScaleMultiplier { get; set; } = 1f;
     public float ChaseTurnSpeed { get; set; } = 6f;
     public float AttackTurnSpeed { get; set; } = 10f;
@@ -77,12 +79,23 @@ public class EnemyStateContext
     public float MaxAttackAngle { get; set; } = 60f;
 
     public GameObject OnHitEffectPrefab { get; set; }
-    public AudioClip OnHitSfx { get; set; }
 
-    /// <summary>
-    /// 스킬 공격형일 때 스킬 시전 핸들러. (보스 전용/특수 케이스에서 사용)
-    /// </summary>
-    public EnemySkillHandler SkillHandler { get; set; }
+    /// <summary>SoundTable·SoundManager 전투 SFX ID (0 = 없음)</summary>
+    public int AttackSoundId { get; set; }
+    public int OnHitSoundId { get; set; }
+    public int DieSoundId { get; set; }
+    public int FootstepSoundId { get; set; }
+
+    /// <summary>스킬 시전 준비(SkillCaster TryCastSkill 등). 0 = 없음</summary>
+    public int SkillPrepareSoundId { get; set; }
+    /// <summary>스킬 발동(M3 실행 직전). 0 = 없음</summary>
+    public int SkillCastSoundId { get; set; }
+    /// <summary>보스 스폰 연출(Spawn 상태). 0 = 없음</summary>
+    public int BossSpawnSoundId { get; set; }
+    /// <summary>보스 skillAttack1/2 등 시전 준비. 0 = 없음</summary>
+    public int BossAreaAttackPrepareSoundId { get; set; }
+    /// <summary>보스 범위 공격 히트 타이밍. 0 = 없음</summary>
+    public int BossAreaAttackCastSoundId { get; set; }
 
     /// <summary>보스 공격 패턴 관리(일반/스킬1/스킬2).</summary>
     public BossAttackManager BossAttackManager { get; set; }

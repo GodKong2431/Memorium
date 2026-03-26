@@ -39,13 +39,35 @@ public class MonsterAssetDatabase : ScriptableObject
         public AnimatorOverrideController animatorOverrideController;
         [Header("VFX")]
         public GameObject attackEffectPrefab;
+        [Tooltip("스킬 공격형 일반 몬스터의 공격 시 출력할 연출 이펙트")]
+        public GameObject skillAttackEffectPrefab;
+        [Tooltip("스킬 공격형 이펙트 위치 오프셋(플레이어 기준). 몬스터별 미세 조정용")]
+        public Vector3 skillAttackEffectOffset;
         public GameObject onHitEffectPrefab;
         public GameObject dieEffectPrefab;
-        [Header("SFX")]
-        public AudioClip attackSfx;
-        public AudioClip onHitSfx;
-        public AudioClip dieSfx;
-        public AudioClip footstepSfx;
+        [Header("SFX (SoundTable ID, SoundManager)")]
+        [Tooltip("공격 타격 시(히트 판정 시). 0이면 재생 안 함")]
+        public int attackSoundId;
+        [Tooltip("피격(Onhit) 진입 시. 0이면 재생 안 함")]
+        public int onHitSoundId;
+        [Tooltip("사망(Dead) 진입 시. 0이면 재생 안 함")]
+        public int dieSoundId;
+        [Tooltip("애니 이벤트 Anim_PlayFootstep 연결용. 0이면 재생 안 함")]
+        public int footstepSoundId;
+
+        [Header("SFX — 스킬 (일반몹 SkillCaster 등)")]
+        [Tooltip("스킬 시전 준비. SoundTable 예: 9100041")]
+        public int skillPrepareSoundId;
+        [Tooltip("스킬 발동(M3 실행 직전). 몬스터별 SoundTable 예: 9100042~9100045")]
+        public int skillCastSoundId;
+
+        [Header("SFX — 보스")]
+        [Tooltip("보스 스폰 연출 진입 시. SoundTable 예: 9100046~9100050")]
+        public int bossSpawnSoundId;
+        [Tooltip("보스 범위/스킬 공격 시전 준비. SoundTable 예: 9100053(데몬), 9100054(기타)")]
+        public int bossAreaAttackPrepareSoundId;
+        [Tooltip("보스 범위/스킬 공격 발동(히트 타이밍). SoundTable 예: 9100055(드래곤), 9100056, 9100057")]
+        public int bossAreaAttackCastSoundId;
     }
 
     [SerializeField] private List<Entry> entries = new List<Entry>();

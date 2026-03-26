@@ -26,6 +26,10 @@ public class EnemyStateSpawn : IEnemyState
             ctx.Agent.isStopped = true;
 
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Spawn);
+
+        if (ctx.IsBoss && ctx.BossSpawnSoundId > 0 && SoundManager.Instance != null && ctx.EnemyTransform != null)
+            SoundManager.Instance.PlayCombatSfxAt(ctx.BossSpawnSoundId, ctx.EnemyTransform.position);
+
         _endTime = Time.time + SpawnDuration;
     }
 
