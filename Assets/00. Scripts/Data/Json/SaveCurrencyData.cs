@@ -100,8 +100,10 @@ public class SaveCurrencyData : ISaveData
         if (!Enum.IsDefined(typeof(CurrencyType), (int)type))
             return;
 
-        if(amount<=0)
-            return;
+
+        ////크리스탈이 0개가 되는 경우 예측 못함
+        //if(amount<=0)
+        //    return;
 
         //Debug.Log($"[SaveCurrencyData] 타입 : {context.ItemType} 이름 : {context.ItemId} 증가량 {amount}");
 
@@ -147,7 +149,13 @@ public class SaveCurrencyData : ISaveData
         for (int i = 0; i < itemId.Count; i++)
         {
             //InventoryManager.Instance.AddItem(itemId[i], itemValue[i]);
-            if (itemValue[i]<=0)
+            //if (itemValue[i]<=0)
+            //    continue;
+
+            int type = (int)DataManager.Instance.ItemInfoDict[itemId[i]].itemType;
+
+            //재화가 아닌 장비같은거 들어오면 반환시킨다
+            if (!Enum.IsDefined(typeof(CurrencyType), (int)type))
                 continue;
             InventoryManager.Instance.SetItem(itemId[i], itemValue[i]);
         }
