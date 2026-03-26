@@ -1,6 +1,8 @@
 public static class UiSoundIds
 {
     public const int PixieChange = 9100001;
+    public const int PixieFirstGet = 9100002;
+    public const int PixieGradeUp = 9100003;
     public const int PixieGrowth = 9100004;
     public const int PixieSummon = 9100005;
     public const int DefaultButton = 9100006;

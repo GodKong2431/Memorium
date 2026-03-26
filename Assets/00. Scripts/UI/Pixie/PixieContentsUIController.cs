@@ -296,8 +296,6 @@ public sealed class PixieContentsUIController : UIControllerBase
 
         growthButton.onClick.AddListener(HandleGrowthClicked);
         summonButton.onClick.AddListener(HandleSummonClicked);
-        UiButtonSoundPlayer.Ensure(growthButton, UiSoundIds.PixieGrowth);
-        UiButtonSoundPlayer.Ensure(summonButton, UiSoundIds.PixieSummon);
         buttonsSubscribed = true;
     }
 
@@ -445,7 +443,7 @@ public sealed class PixieContentsUIController : UIControllerBase
 
             int capturedPixieId = pixieId;
             view.Button.onClick.AddListener(() => HandlePixieClicked(capturedPixieId));
-            UiButtonSoundPlayer.Ensure(view.Button, UiSoundIds.PixieChange);
+            UiButtonSoundPlayer.Ensure(view.Button, UiSoundIds.DefaultButton);
 
             runtimeItemByPixieId[pixieId] = view;
             runtimePixieIds.Add(pixieId);
@@ -1015,10 +1013,20 @@ public sealed class PixieContentsUIController : UIControllerBase
         if (pixieModule == null || !DataManager.Instance.FairyInfoDict.TryGetValue(selectedPixieId, out FairyInfoTable fairyInfo))
             return;
 
+        OwnedPixieData ownedPixie = pixieModule.GetOwnedPixieData(selectedPixieId);
+        int actionSoundId = UiSoundIds.PixieGrowth;
+        if (ownedPixie == null)
+            actionSoundId = UiSoundIds.PixieFirstGet;
+        else if (ownedPixie.CanEvolve() && fairyInfo.nextID != 0)
+            actionSoundId = UiSoundIds.PixieGradeUp;
+
         int selectedRootPixieId = ResolveRootPixieId(selectedPixieId);
 
         if (!pixieModule.TryUpgradePixie(selectedPixieId))
             return;
+
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayUiSfx(actionSoundId);
 
         int displayedPixieId = ResolveDisplayedPixieId(selectedRootPixieId);
         if (displayedPixieId != 0)
@@ -1038,7 +1046,13 @@ public sealed class PixieContentsUIController : UIControllerBase
         if (ownedPixie == null || pixieModule.EquippedPixiedID() == selectedPixieId)
             return;
 
+        int soundId = pixieModule.EquippedPixiedID() == 0
+            ? UiSoundIds.PixieSummon
+            : UiSoundIds.PixieChange;
+
         pixieModule.EquipPixie(selectedPixieId);
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayUiSfx(soundId);
         RequestRefresh();
     }
 
