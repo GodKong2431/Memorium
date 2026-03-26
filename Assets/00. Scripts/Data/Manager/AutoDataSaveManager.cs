@@ -17,6 +17,7 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
     SaveStageData stageData;
     SaveAbilityStoneData abilityStoneData;
     SavePixieData pixieData;
+    SaveGemData gemData;
 
     private bool onSave=false;
 
@@ -28,6 +29,7 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         currencyData = InventoryManager.Instance.saveCurrencyData;
         skillData = InventoryManager.Instance.saveSkillData;
         pixieData = InventoryManager.Instance.savePixieData;
+        gemData = InventoryManager.Instance.saveGemData;
 
         //PlayerData, equipmentData
         yield return new WaitUntil(() => CharacterStatManager.Instance != null);
@@ -75,15 +77,16 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
 
         List<Task> saveTask = new List<Task>();
         //스테이지 매니저 데이터 저장 여부 체크
-        if (stageData.IsDirty && stageData!=null) saveTask.Add(AutoSaveTaskStart(stageData));
-        if (currencyData.IsDirty && currencyData!=null) saveTask.Add(AutoSaveTaskStart(currencyData));
-        if (equipmentData.IsDirty && equipmentData != null) saveTask.Add(AutoSaveTaskStart(equipmentData));
-        if (playerData.IsDirty && playerData!=null) saveTask.Add(AutoSaveTaskStart(playerData));
-        if (questData.IsDirty && questData!=null) saveTask.Add(AutoSaveTaskStart(questData));
-        if(gachaData.IsDirty && gachaData!=null) saveTask.Add(AutoSaveTaskStart(gachaData));
-        if(skillData.IsDirty && skillData!=null) saveTask.Add(AutoSaveTaskStart(skillData));
-        if(abilityStoneData.IsDirty && abilityStoneData != null) saveTask.Add(AutoSaveTaskStart(abilityStoneData));
-        if (pixieData.IsDirty && pixieData != null) saveTask.Add(AutoSaveTaskStart(pixieData));
+        if (stageData!= null&&stageData.IsDirty) saveTask.Add(AutoSaveTaskStart(stageData));
+        if (currencyData != null&&currencyData.IsDirty) saveTask.Add(AutoSaveTaskStart(currencyData));
+        if (equipmentData != null&& equipmentData.IsDirty ) saveTask.Add(AutoSaveTaskStart(equipmentData));
+        if (playerData != null&&playerData.IsDirty) saveTask.Add(AutoSaveTaskStart(playerData));
+        if (questData != null&&questData.IsDirty ) saveTask.Add(AutoSaveTaskStart(questData));
+        if(gachaData != null&&gachaData.IsDirty) saveTask.Add(AutoSaveTaskStart(gachaData));
+        if(skillData != null&&skillData.IsDirty) saveTask.Add(AutoSaveTaskStart(skillData));
+        if(abilityStoneData != null&&abilityStoneData.IsDirty ) saveTask.Add(AutoSaveTaskStart(abilityStoneData));
+        if (pixieData != null&&pixieData.IsDirty) saveTask.Add(AutoSaveTaskStart(pixieData));
+        if(gemData != null&&gemData.IsDirty) saveTask.Add(AutoSaveTaskStart(gemData));
 
         if (saveTask.Count > 0)
         {
@@ -104,6 +107,7 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         if (skillData != null&&skillData.IsDirty) SaveData(skillData);
         if (abilityStoneData != null&&abilityStoneData.IsDirty) SaveData(abilityStoneData);
         if (pixieData != null && pixieData.IsDirty) SaveData(pixieData);
+        if (gemData != null&& gemData.IsDirty) SaveData(gemData);
     }
 
     private void OnApplicationPause(bool pause)

@@ -78,6 +78,21 @@ public sealed class GemInventoryModule : IInventoryModule
     /// <summary>
     /// 가지고 있는 모든 젬의 id와 등급/ 갯수를 담은 구조체 리스트 반환, UI랑 저장에 쓰시면 될?듯
     /// </summary>
+    /// 
+    public GemInventoryModule()
+    {
+        InventoryManager.Instance.saveGemData = JSONService.Load<SaveGemData>();
+
+        //비어있는거 아니면 불러와라
+        if (InventoryManager.Instance.saveGemData.InitGemData())
+        {
+            LoadFromList(InventoryManager.Instance.saveGemData.LoadGemInfoData());
+        }
+
+        //데이터 저장
+        OnGemInventoryChanged += () => { InventoryManager.Instance.saveGemData.SaveGemInfoData(GetSaveList()); };
+    }
+
     public List<GemSaveData> GetSaveList()
     {
         saveList.Clear();

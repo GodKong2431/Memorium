@@ -21,6 +21,8 @@ public class InventoryManager : Singleton<InventoryManager>
     public SaveSkillData saveSkillData;
     //픽시 데이터를 저장할 객체
     public SavePixieData savePixieData;
+    //젬 데이터(아이디와 등급)를 저장할 객체
+    public SaveGemData saveGemData;
 
     protected override void Awake()
     {

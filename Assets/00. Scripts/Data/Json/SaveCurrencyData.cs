@@ -100,6 +100,9 @@ public class SaveCurrencyData : ISaveData
         if (!Enum.IsDefined(typeof(CurrencyType), (int)type))
             return;
 
+        if(amount<=0)
+            return;
+
         //Debug.Log($"[SaveCurrencyData] 타입 : {context.ItemType} 이름 : {context.ItemId} 증가량 {amount}");
 
         int contextItemId = context.ItemId;
@@ -144,6 +147,8 @@ public class SaveCurrencyData : ISaveData
         for (int i = 0; i < itemId.Count; i++)
         {
             //InventoryManager.Instance.AddItem(itemId[i], itemValue[i]);
+            if (itemValue[i]<=0)
+                continue;
             InventoryManager.Instance.SetItem(itemId[i], itemValue[i]);
         }
     }
