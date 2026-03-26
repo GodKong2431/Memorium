@@ -109,6 +109,8 @@ public class StageManager : Singleton<StageManager>
         yield return new WaitUntil(() => DataManager.Instance != null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
 
+        CheckDungeon.InvalidateCache();
+
         // 저장 데이터 복원
         saveStageData = JSONService.Load<SaveStageData>();
         var (savedCurStage, savedMaxStage, savedOnFailedStage) = saveStageData.InitStageData();
@@ -311,6 +313,8 @@ public class StageManager : Singleton<StageManager>
                 maxStage[(int)curStageType - (int)StageType.NormalStage] = curStage;
                 saveStageData.SetMaxStage(curStageType, curStage);
             }
+
+            RewardManager.Instance?.GrantDungeonClearReward(curStageType, curStage);
             AutoDataSaveManager.Instance.SaveData();
 
             player.GetComponent<NavMeshAgent>().isStopped = true;

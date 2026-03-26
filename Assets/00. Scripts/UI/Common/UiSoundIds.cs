@@ -18,4 +18,6 @@ public static class UiSoundIds
     public const int EquipEquip = 9100076;
     public const int EquipReinforce = 9100077;
     public const int RareDrop = 9100078;
+    public const int AbilityStoneFail = 9100079;
+    public const int AbilityStoneSuccess = 9100080;
 }

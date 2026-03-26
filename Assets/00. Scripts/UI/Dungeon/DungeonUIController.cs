@@ -25,6 +25,7 @@ public class DungeonUIController : UIControllerBase
 
     private readonly List<DungeonViewData> dungeonViews = new List<DungeonViewData>();
     private readonly Dictionary<StageType, DungeonContentUI> itemsByType = new Dictionary<StageType, DungeonContentUI>();
+    private readonly List<RewardManager.DungeonRewardEntry> rewardPreviewBuffer = new List<RewardManager.DungeonRewardEntry>();
 
     private bool isBuilt;
     private StageType selectedStageType = StageType.None;
@@ -34,7 +35,6 @@ public class DungeonUIController : UIControllerBase
     {
         public StageType stageType;
         public string dungeonName;
-        public IReadOnlyList<int> rewardItemIds;
     }
 
     public StageType SelectedStageType => selectedStageType;
@@ -99,29 +99,10 @@ public class DungeonUIController : UIControllerBase
             DungeonViewData data = new DungeonViewData
             {
                 stageType = OrderedDungeonTypes[i],
-                dungeonName = GetDungeonName(OrderedDungeonTypes[i]),
-                rewardItemIds = CollectRewardItemIds(OrderedDungeonTypes[i])
+                dungeonName = GetDungeonName(OrderedDungeonTypes[i], 1)
             };
             dungeonViews.Add(data);
         }
-    }
-
-    private List<int> CollectRewardItemIds(StageType stageType)
-    {
-        HashSet<int> rewardSet = new HashSet<int>();
-        foreach (KeyValuePair<int, DungeonReqTable> pair in DataManager.Instance.DungeonReqDict)
-        {
-            DungeonReqTable table = pair.Value;
-            if (table.stageType != stageType)
-                continue;
-
-            if (table.ItemID > 0)
-                rewardSet.Add(table.ItemID);
-        }
-
-        List<int> rewards = new List<int>(rewardSet);
-        rewards.Sort();
-        return rewards;
     }
 
     private void BuildDungeonItems()
@@ -137,7 +118,6 @@ public class DungeonUIController : UIControllerBase
 
             itemObject.name = $"(Img)DungeonBackground_{viewData.stageType}";
             item.SetDungeonName(viewData.dungeonName);
-            item.RebuildRewards(viewData.rewardItemIds, LoadRewardIcon);
 
             StageType cachedType = viewData.stageType;
             item.BindEnter(() => OnClickEnter(cachedType));
@@ -171,10 +151,13 @@ public class DungeonUIController : UIControllerBase
 
             bool firstStageUnlocked = IsFirstStageUnlocked(viewData.stageType);
             BigDouble currentKeyAmount = CheckDungeon.GetTicketAmount(viewData.stageType, 1);
-            bool hasEnoughKey = currentKeyAmount >= new BigDouble(requiredCount);
             item.SetLocked(!firstStageUnlocked);
             item.SetNeededKeyState(currentKeyAmount, requiredCount, enoughKeyColor, notEnoughKeyColor);
-            item.SetEnterInteractable(firstStageUnlocked && hasEnoughKey);
+            item.SetEnterInteractable(CheckDungeon.CanEnter(viewData.stageType, 1, requiredCount));
+
+            rewardPreviewBuffer.Clear();
+            RewardManager.Instance.TryGetDungeonRewardSummary(viewData.stageType, rewardPreviewBuffer);
+            item.RebuildRewards(rewardPreviewBuffer, LoadRewardIcon, false);
         }
     }
 
@@ -186,10 +169,7 @@ public class DungeonUIController : UIControllerBase
             return;
         }
 
-        if (!IsFirstStageUnlocked(stageType))
-            return;
-
-        if (!CheckDungeon.HasEnoughTicket(stageType, 1, RequiredKeyCount))
+        if (!CheckDungeon.CanEnter(stageType, 1, RequiredKeyCount))
             return;
 
         selectedStageType = stageType;
@@ -199,8 +179,7 @@ public class DungeonUIController : UIControllerBase
         {
             enterPopup.Show(
                 stageType,
-                GetDungeonName(stageType),
-                CollectRewardItemIds(stageType),
+                GetDungeonName(stageType, 1),
                 RequiredKeyCount);
             return;
         }
@@ -259,8 +238,12 @@ public class DungeonUIController : UIControllerBase
         HideEnterPopup();
     }
 
-    internal static string GetDungeonName(StageType stageType)
+    internal static string GetDungeonName(StageType stageType, int dungeonLevel = 1)
     {
+        string tableName = GetDungeonNameFromTable(stageType, dungeonLevel);
+        if (!string.IsNullOrWhiteSpace(tableName))
+            return tableName;
+
         switch (stageType)
         {
             case StageType.GuardianTaxVault:
@@ -276,18 +259,33 @@ public class DungeonUIController : UIControllerBase
         }
     }
 
-    internal static Sprite LoadRewardIcon(int itemId)
+    private static string GetDungeonNameFromTable(StageType stageType, int dungeonLevel)
     {
-        if (DataManager.Instance == null || DataManager.Instance.ItemInfoDict == null)
+        if (DataManager.Instance == null ||
+            !DataManager.Instance.DataLoad ||
+            DataManager.Instance.StageManageDict == null)
+        {
+            return null;
+        }
+
+        if (!CheckDungeon.TryGetDungeonReq(stageType, dungeonLevel, out int dungeonId, out _))
             return null;
 
-        if (!DataManager.Instance.ItemInfoDict.TryGetValue(itemId, out ItemInfoTable itemInfo))
+        if (!DataManager.Instance.StageManageDict.TryGetValue(dungeonId, out StageManageTable stageData) ||
+            stageData == null ||
+            string.IsNullOrWhiteSpace(stageData.stageName))
+        {
             return null;
+        }
 
-        if (string.IsNullOrEmpty(itemInfo.itemIcon))
-            return null;
+        return stageData.stageName.Trim();
+    }
 
-        return Resources.Load<Sprite>(itemInfo.itemIcon);
+    internal static Sprite LoadRewardIcon(RewardManager.DungeonRewardEntry reward)
+    {
+        return RewardManager.Instance != null
+            ? RewardManager.Instance.ResolveDungeonRewardIcon(reward)
+            : null;
     }
 
     private static bool IsFirstStageUnlocked(StageType stageType)
