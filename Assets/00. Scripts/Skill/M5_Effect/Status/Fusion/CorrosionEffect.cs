@@ -7,22 +7,27 @@ public class CorrosionEffect : StatusEffectBase
     private float burstDamage;
     private SkillModule5Table poisonData;
     private LayerMask layerMask = LayerMask.GetMask("Enemy");//일단 하드코딩, 생성자에서 설정할수있게하면될듯? 플레이어말고 쓸일이 있을지는 모르겠
+    M5FusionTable fusion;
 
 
     public CorrosionEffect(M5FusionTable fusion, SkillModule5Table poisonSource)
     {
+        this.fusion = fusion;
         duration = fusion.duration;
-        tickInterval = 1f;
+        tickInterval = fusion.tickInterval;
         burstDamage = 1;
         poisonData = poisonSource;
     }
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
+        SoundManager.Instance.PlayCombatSfx(fusion.fusionSound);
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(fusion.fusionVFX, target.transform, true, true, onSpawned: OnParticleSpawned));
         base.OnApply(target, buffApplicable);
         float count = poisonData.duration / poisonData.tickInterval;
         float totalDamage = burstDamage * count;
         target.TakeDamage(totalDamage, DamageType.FixedPercentageDamage);
+        effect?.StopAndReturnManual();
     }
 
     protected override void OnTick() { }
@@ -30,6 +35,7 @@ public class CorrosionEffect : StatusEffectBase
     public override void OnTargetDeath()
     {
         base.OnTargetDeath();
+
         int count = DetectInRadius(target.transform.position, 3f, layerMask);
         var buffer = GetHitBuffer();
         PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(poisonData.m5VFX2, target.transform, true, false, onSpawned: OnParticleSpawned));

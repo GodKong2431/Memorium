@@ -17,7 +17,7 @@ public class SkillInfoTable : TableBase
     public float skillCooldown;
     public SkillType skillType;
     public string skillVFX;
-    public string skillSound;
+    public int skillSound;
     public string skillIcon;
     public string desc;
 }

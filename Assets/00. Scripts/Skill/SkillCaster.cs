@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEngine.GraphicsBuffer;
 
 /// <summary>
 /// 스킬 실행하는 컴포넌트, 플레이어/몬스터/분신 어디든 붙여도 나가도록
@@ -182,9 +181,9 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         {
             yield return CoroutineManager.waitForSeconds(extraDelay);
         }
+        SoundManager.Instance.PlayCombatSfx(data.skillTable.skillSound);
         PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.skillTable.skillVFX, transform, true,rotation: transform.rotation));
         yield return SkillSequenceMove(data);
-
         ResetAgentWarp();
 
         debugLastCastPos = transform.position + debugLastCastDir * dataContext.skillData.m3Data.m3Distance;
@@ -284,6 +283,10 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         return hitBuffer;
     }
 
+    public Collider[] GetAddonBuffer()
+    {
+        return cachedTargets;
+    }
     public SkillDataContext GetSkillDataContext()
     {
         return skillDataContext;
@@ -301,6 +304,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     private void ProcessHit(int hitCount, SkillDataContext data, Collider[] hitBuffer, bool applyAddon)
     {
         if (hitCount == 0) return;
+        var m4VFx2path = data?.m4Data?.m4VFX2;
         ISkillAddonStrategy m4Strategy = null;
         if (applyAddon && data.m4Data != null)
         {
@@ -317,26 +321,31 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         {
             if (hitBuffer[i].TryGetComponent<IDamageable>(out var target))
             {
-                var module = InventoryManager.Instance.GetModule<SkillInventoryModule>();
+                if (applyAddon && m4Strategy is ISkillHitAddon hitAddon)
                 {
-                    var OwnedSKill = module.GetSkillData(data.skillData.skillTable.ID);
-                    var skillGrade = OwnedSKill.GetGrade();
-                    float level = OwnedSKill.level;
+                    hitAddon.OnHit(this, target.transform, data, targetLayer);
+                }
+                if (!applyAddon && m4Strategy is ISkillHitAddon)
+                {
+                    PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(m4VFx2path, target?.transform, true));
+                }
+                else
+                {
+                    PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(effectPath, target?.transform, true));
+                }
+
+                var module = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
+                {
+                    var ownedSkill = module?.GetSkillData(data.skillData.skillTable.ID);
+                    if (ownedSkill == null || statProvider == null) continue;
+                    var skillGrade = ownedSkill.GetGrade();
+                    float level = ownedSkill.level;
                     float damage = data.skillData.skillTable.skillDamage + statProvider.GetAttack() * (1 + data.skillData.skillTable.skillDamageValue) * (1 + (0.1f * level));
                     if (skillGrade == SkillGrade.Mythic)
                         damage *= 1.5f;
                     target.TakeDamage(damage);
                 }
 
-                if(applyAddon)
-                    PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(effectPath, target.transform, true));
-                else
-                    PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.m4Data.m4VFX2, target.transform, true));
-
-                if (applyAddon && m4Strategy is ISkillHitAddon hitAddon)
-                {
-                    hitAddon.OnHit(this, target.transform, data, targetLayer);
-                }
 
                 if (hitBuffer[i].TryGetComponent<EffectController>(out var controller))
                 {
@@ -364,6 +373,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
                 controller.ApplyStatusEffect(effect);
             return;
         }
+
         if (activeData.applyType == ApplyType.strikeLocation)
         {
             var obj = PoolAddressableManager.Instance.GetPooledObject(fireZonePath,hitPos,Quaternion.identity);

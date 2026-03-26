@@ -23,7 +23,8 @@ public class FireEffect : StatusEffectBase
             return;
         }
         PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(tableData.m5VFX, target.transform, true, false, onSpawned: OnParticleSpawned));
-       
+
+        SoundManager.Instance.PlayCombatSfx(tableData.m5SFX);
         base.OnApply(target, buffApplicable);
         ApplyDefDebuff();
        

@@ -27,6 +27,7 @@ public class BleedEffect : StatusEffectBase
         }
         base.OnApply(target, buffApplicable);
         PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(tableData.m5VFX, target.transform, true, false, onSpawned: OnParticleSpawned));
+        SoundManager.Instance.PlayCombatSfx(tableData.m5SFX);
     }
 
     public void AddStack()

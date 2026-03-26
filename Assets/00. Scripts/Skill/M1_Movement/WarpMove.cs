@@ -12,10 +12,7 @@ public class WarpMove : ISkillMovementStrategy
             yield return CoroutineManager.waitForSeconds(data.m1Duration);
         }
 
-
         Vector3 finalTarget = subject.GetTargetPosition();
-        if (NavMesh.SamplePosition(finalTarget, out var hit, SkillConstants.NAV_SEARCH_RADIUS, NavMesh.AllAreas))
-            finalTarget = hit.position;
         finalTarget.y = subject.Position.y;
 
         subject.SetPosition(finalTarget);

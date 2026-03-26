@@ -1099,6 +1099,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5225911515828481708}
   - component: {fileID: 6335729210314222470}
+  - component: {fileID: 9100999999999999701}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -1125,10 +1126,10 @@ RectTransform:
   m_Father: {fileID: 5043091053184800259}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: -0.000030517578, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &6335729210314222470
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1152,7 +1153,21 @@ MonoBehaviour:
   m_CellSize: {x: 125, y: 125}
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 1
-  m_ConstraintCount: 99999
+  m_ConstraintCount: 5
+--- !u!114 &9100999999999999701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4859266512132628059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
 --- !u!1 &5163095554214699518
 GameObject:
   m_ObjectHideFlags: 0
@@ -1352,9 +1367,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c0be0484e6e4eec8bb12d1dc2b2bfc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dungeonBackground: {fileID: 3291400391684772004}
   dungeonNameText: {fileID: 5844565706222231083}
   rewardContentRoot: {fileID: 5225911515828481708}
+  equipmentRewardItemPrefab: {fileID: 8470297352295664229, guid: d206eece595ede74a8330c2d733765f4, type: 3}
   contentLockPanel: {fileID: 6500002511766504596}
   enterButton: {fileID: 3656598552984395106}
   neededKeyText: {fileID: 7960249006782964992}

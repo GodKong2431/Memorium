@@ -54,14 +54,18 @@ public class SaveStageData :ISaveData
     }
     public int GetMaxStage(StageType type)
     {
-        if (!maxStage.Contains((int)type - (int)StageType.NormalStage))
+        List<int> stages = GetAllMaxStage();
+        int index = (int)type - (int)StageType.NormalStage;
+        if (index < 0 || index >= stages.Count)
             return 0;
-        return maxStage[(int)type - (int)StageType.NormalStage];
+
+        return stages[index];
     }
 
     public void SetMaxStage(StageType type, int stage)
     {
         isDirty = true;
+        GetAllMaxStage();
         if (GetMaxStage(type) < stage)
             maxStage[(int)type - (int)StageType.NormalStage] = stage;
         else

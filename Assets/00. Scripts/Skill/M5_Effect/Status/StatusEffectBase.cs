@@ -14,7 +14,7 @@ public abstract class StatusEffectBase
     protected float tickTimer;
     protected float tickInterval;
     protected float damage;
-    private PoolableParticle effect;
+    protected PoolableParticle effect;
 
     private static readonly Collider[] hitBuffer = new Collider[20];
 

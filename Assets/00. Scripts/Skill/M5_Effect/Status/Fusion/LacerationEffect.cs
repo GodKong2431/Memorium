@@ -19,6 +19,8 @@ public class LacerationEffect : StatusEffectBase
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
+        SoundManager.Instance.PlayCombatSfx(fusion.fusionSound);
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(fusion.fusionVFX, target.transform, true, false, onSpawned: OnParticleSpawned));
         base.OnApply(target, buffApplicable);
 
         buffApplicable.ApplyBuff(new StatModifier
@@ -38,5 +40,6 @@ public class LacerationEffect : StatusEffectBase
     public override void OnExpire()
     {
         base.OnExpire();
+        effect?.StopAndReturnManual();
     }
 }

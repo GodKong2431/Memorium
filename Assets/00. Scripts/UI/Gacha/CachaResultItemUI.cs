@@ -65,6 +65,65 @@ public sealed class CachaResultItemUI : MonoBehaviour
         ApplyUnknownItem(count);
     }
 
+    public void PrepareForCustomDisplay()
+    {
+        IsRareResult = false;
+        transform.localScale = defaultScale;
+
+        if (buttonItem != null)
+        {
+            buttonItem.onClick.RemoveAllListeners();
+            buttonItem.interactable = false;
+        }
+
+        SetIcon(null);
+        HideCountOrLevelDisplay();
+        SetGemVisible(false);
+        SetTierVisible(false);
+        ResetFrameColor();
+    }
+
+    public void SetIcon(Sprite icon)
+    {
+        if (imageIcon == null)
+            return;
+
+        imageIcon.sprite = icon;
+        imageIcon.enabled = icon != null;
+        imageIcon.preserveAspect = true;
+    }
+
+    public void SetCountDisplay(string valueText, bool visible)
+    {
+        if (panelItemCountOrLevelRoot != null)
+            panelItemCountOrLevelRoot.gameObject.SetActive(visible);
+
+        if (textCountOrLevel != null)
+            textCountOrLevel.text = visible ? valueText : string.Empty;
+    }
+
+    public void SetTierDisplay(bool visible, int grade, Color starColor)
+    {
+        SetTierVisible(visible);
+        if (visible)
+            SetTierStarCount(Mathf.Max(1, grade), starColor);
+    }
+
+    public void SetFrameTint(Color color)
+    {
+        SetFrameColor(color);
+    }
+
+    public void SetGemDisplay(bool visible)
+    {
+        SetGemVisible(visible);
+    }
+
+    public void ResetFrameTint()
+    {
+        ResetFrameColor();
+    }
+
     public void SetCountDisplay(int count)
     {
         if (panelItemCountOrLevelRoot != null)

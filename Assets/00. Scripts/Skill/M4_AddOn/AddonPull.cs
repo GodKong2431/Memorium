@@ -13,8 +13,14 @@ public class AddonPull : ISkillHitAddon
         float distance = dataContext.m4Data.m4Distance;
         float duration = dataContext.m4Data.m4Duration;
 
+#if UNITY_EDITOR
+        Debug.Log("당기기");
+#endif
         if (target.TryGetComponent<IKnockbackable>(out var damageable))
         {
+#if UNITY_EDITOR
+            Debug.Log("타겟당기기");
+#endif
             damageable.ApplyKnockback(direction, distance, duration);
         }
     }

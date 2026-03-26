@@ -17,7 +17,6 @@
             Vector3 spawnPos = transform.position + directions[i] * offset;
             ObjectPoolManager.Get(effectPrefab, spawnPos, Quaternion.LookRotation(directions[i]));
         }
-
-        Destroy(gameObject);
+        ObjectPoolManager.Return(effectPrefab);
     }
 }

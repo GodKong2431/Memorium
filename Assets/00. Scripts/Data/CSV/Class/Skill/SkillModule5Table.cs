@@ -17,5 +17,6 @@ public class SkillModule5Table : TableBase
     public string m5Icon;
     public string m5VFX;
     public string m5VFX2;
+    public int m5SFX;
     public string desc;
 }
