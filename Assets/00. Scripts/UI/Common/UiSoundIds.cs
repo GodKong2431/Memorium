@@ -13,4 +13,5 @@ public static class UiSoundIds
     public const int EquipMerge = 9100075;
     public const int EquipEquip = 9100076;
     public const int EquipReinforce = 9100077;
+    public const int RareDrop = 9100078;
 }
