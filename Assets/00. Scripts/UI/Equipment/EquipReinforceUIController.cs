@@ -57,7 +57,7 @@ public class EquipReinforceUIController : UIControllerBase
     [Header("Stat")]
     [SerializeField] private EquipReinforceStatRowUI statRowTemplate;
 
-    private readonly List<Image> previewStars = new List<Image>();
+    [SerializeField] private List<Image> previewStars = new List<Image>();
     private readonly List<EquipReinforceStatRowUI> statRows = new List<EquipReinforceStatRowUI>();
 
     private InventoryManager inventory;
@@ -117,7 +117,7 @@ public class EquipReinforceUIController : UIControllerBase
         if (overlayPanel != null && overlayPanel.SheetRoot != sourcePanelRoot)
             overlayPanel = null;
 
-        previewStars.Clear();
+        //previewStars.Clear();
         CacheStatRows();
         BindOverlayPanel();
         BindReinforceButton();
@@ -344,6 +344,9 @@ public class EquipReinforceUIController : UIControllerBase
 
         int displayTier = Mathf.Max(1, equipInfo.grade);
         int starCount = GetStarCount(displayTier);
+
+        //Debug.Log($"[EquipmentUIController] 스타 카운트 {starCount}");
+
         Color tierColor = RarityColor.TierColorByTier(displayTier);
         SyncPreviewStars(starCount, tierColor);
         SetPreviewFrameColor(RarityColor.ItemGradeColor(equipInfo.rarityType));
@@ -552,6 +555,8 @@ public class EquipReinforceUIController : UIControllerBase
         if (previewStars.Count == 0)
             return;
 
+        //Debug.Log($"[EquipmentUIController] 현재 스타 카운트 {previewStars.Count} 필요 스타 카운트 {requiredCount}");
+
         while (previewStars.Count < requiredCount)
         {
             RectTransform cloneTransform = Instantiate(previewTierStarTemplate, previewTierRoot);
@@ -562,6 +567,8 @@ public class EquipReinforceUIController : UIControllerBase
                 break;
 
             previewStars.Add(cloneImage);
+
+            //Debug.Log($"[EquipmentUIController] 추가 스타 카운트  현재 {previewStars.Count} 필요 스타 카운트 {requiredCount}");
         }
 
         for (int i = 0; i < previewStars.Count; i++)
