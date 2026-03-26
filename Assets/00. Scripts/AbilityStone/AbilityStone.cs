@@ -254,6 +254,7 @@ public class AbilityStone
         {
             CurrentProbability -= 0.1f;
             Slots[slotIndex].Up(true);
+            SoundManager.Instance.PlayCombatSfx(UiSoundIds.AbilityStoneSuccess);
             return true;
         }
         
@@ -261,6 +262,7 @@ public class AbilityStone
         {
             CurrentProbability += 0.1f;
             Slots[slotIndex].Up(false);
+            SoundManager.Instance.PlayCombatSfx(UiSoundIds.AbilityStoneFail);
             return false;
         }
     }
