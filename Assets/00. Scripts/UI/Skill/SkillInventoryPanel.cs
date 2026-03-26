@@ -126,6 +126,7 @@ public class SkillInventoryPanel : MonoBehaviour
 
                 int idx = i;
                 presetButtons[i].onClick.AddListener(() => OnPresetTabClicked(idx));
+                UiButtonSoundPlayer.Ensure(presetButtons[i], UiSoundIds.DefaultButton);
             }
 
             presetButtonsBound = true;
@@ -146,9 +147,15 @@ public class SkillInventoryPanel : MonoBehaviour
             return;
 
         if (mergeAllButton != null)
+        {
             mergeAllButton.onClick.AddListener(OnMergeAllClicked);
+            UiButtonSoundPlayer.Ensure(mergeAllButton, UiSoundIds.DefaultButton);
+        }
         if (backgroundButton != null)
+        {
             backgroundButton.onClick.AddListener(CancelSelection);
+            UiButtonSoundPlayer.Ensure(backgroundButton, UiSoundIds.DefaultButton);
+        }
 
         utilityButtonsBound = true;
     }

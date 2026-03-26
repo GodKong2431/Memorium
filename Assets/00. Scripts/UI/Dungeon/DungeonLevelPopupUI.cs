@@ -123,14 +123,16 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
 
     private void OnEnable()
     {
-        GameEventManager.OnCurrencyChanged += OnCurrencyChanged;
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnItemAmountChanged += OnItemAmountChanged;
         BindOverlayPanel();
         RefreshState();
     }
 
     private void OnDisable()
     {
-        GameEventManager.OnCurrencyChanged -= OnCurrencyChanged;
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnItemAmountChanged -= OnItemAmountChanged;
         SetOverlayVisible(false);
     }
 
@@ -265,13 +267,6 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             return;
         }
 
-        CurrencyInventoryModule currencyModule = InventoryManager.Instance != null
-            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
-            : null;
-
-        if (currencyModule == null)
-            return;
-
         int ticketCost = currentRequiredKeyCount;
 
         if (IsMaximumUseEnabled())
@@ -280,14 +275,13 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             Debug.LogWarning("[DungeonLevelPopupUI] 열쇠 전부 사용");
         }
 
-        if (!currencyModule.TrySpend(CurrencyType.DungeonTicket, new BigDouble(ticketCost)))
+        if (!CheckDungeon.TrySpendTicket(currentStageType, currentLevel, ticketCost))
         {
             RefreshState();
             return;
         }
 
-        int dungeonId = ResolveDungeonId(currentStageType, currentLevel);
-        if (dungeonId > 0)
+        if (CheckDungeon.TryGetDungeonReq(currentStageType, currentLevel, out int dungeonId, out _))
             DungeonManager.Instance.currentDungeonID = dungeonId;
 
         StageManager.Instance.SetStageType(currentStageType, currentLevel);
@@ -296,9 +290,9 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         SceneController.Instance.LoadScene(SceneType.DungeonScene);
     }
 
-    private void OnCurrencyChanged(CurrencyType type, BigDouble amount)
+    private void OnItemAmountChanged(InventoryItemContext item, BigDouble amount)
     {
-        if (type != CurrencyType.DungeonTicket)
+        if (item.ItemType != ItemType.Key)
             return;
 
         RefreshState();
@@ -372,36 +366,9 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         return Mathf.Clamp(highestUnlockedLevel == 0 ? 1 : highestUnlockedLevel, 1, Mathf.Max(1, maxLevel));
     }
 
-    private static int ResolveDungeonId(StageType stageType, int level)
-    {
-        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.DungeonReqDict == null)
-            return 0;
-
-        List<int> dungeonIds = new List<int>();
-        foreach (KeyValuePair<int, DungeonReqTable> pair in DataManager.Instance.DungeonReqDict)
-        {
-            if (pair.Value.stageType == stageType)
-                dungeonIds.Add(pair.Key);
-        }
-
-        if (dungeonIds.Count == 0)
-            return 0;
-
-        dungeonIds.Sort();
-        int index = Mathf.Clamp(level - 1, 0, dungeonIds.Count - 1);
-        return dungeonIds[index];
-    }
-
     private bool HasEnoughKeys()
     {
-        CurrencyInventoryModule currencyModule = InventoryManager.Instance != null
-            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
-            : null;
-
-        if (currencyModule == null)
-            return false;
-
-        return currencyModule.GetAmount(CurrencyType.DungeonTicket) >= new BigDouble(currentRequiredKeyCount);
+        return CheckDungeon.HasEnoughTicket(currentStageType, currentLevel, currentRequiredKeyCount);
     }
 
     private bool IsMaximumUseEnabled()

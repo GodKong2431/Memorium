@@ -13,7 +13,6 @@ public static class ItemDropLogic
     private static readonly Dictionary<ItemCategory, CurrencyType> CategoryToCurrency = new()
     {
         { ItemCategory.PixieFragment, CurrencyType.PixieFragment },
-        { ItemCategory.DungeonTicket, CurrencyType.DungeonTicket },
         //{ ItemCategory.SkillScroll, CurrencyType.SkillScroll },
     };
 
