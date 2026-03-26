@@ -9,7 +9,8 @@ public static class UiSoundIds
     public const int QuestReward = 9100007;
     public const int StatUpgrade = 9100009;
     public const int Trait = 9100010;
-    public const int GachaSummon = 9100074;
+    public const int GachaJackpot = 9100074;
+    public const int GachaSummon = GachaJackpot;
     public const int EquipMerge = 9100075;
     public const int EquipEquip = 9100076;
     public const int EquipReinforce = 9100077;

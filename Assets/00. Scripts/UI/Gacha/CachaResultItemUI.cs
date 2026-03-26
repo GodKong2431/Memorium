@@ -246,13 +246,17 @@ public sealed class CachaResultItemUI : MonoBehaviour
 
     public void PlayRareEffect()
     {
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlayUiSfx(UiSoundIds.GachaJackpot);
+
         //transform.localScale = defaultScale * 1.08f;
         //CancelInvoke(nameof(RestoreScale));
         //Invoke(nameof(RestoreScale), 0.12f);
 
         //Debug.Log("[ChachaResultItemUI] 가챠 이펙트 출력");
 
-        EquipParticleManager.Instance.PlayGachaEffect(imageIcon.transform);
+        if (EquipParticleManager.Instance != null && imageIcon != null)
+            EquipParticleManager.Instance.PlayGachaEffect(imageIcon.transform);
     }
 
     private void RestoreScale()
