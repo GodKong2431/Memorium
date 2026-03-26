@@ -9,10 +9,18 @@ public class EnemyStateOnhit : IEnemyState
     private const float OnhitDuration = 0.4f;
     private float _endTime;
 
+    private KnockbackInfo knockbackInfo;
+    private float knockbackSpeed;
+    private float elapsedTime;
+    private bool _isKnockbackActive;
     public EnemyStateType Type => EnemyStateType.Onhit;
 
     public void OnEnter(EnemyStateContext ctx)
     {
+        _isKnockbackActive = false;
+        elapsedTime = 0f;
+        knockbackSpeed = 0f;
+        knockbackInfo = default;
 
         _endTime = Time.time + OnhitDuration;
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Onhit);
@@ -35,8 +43,9 @@ public class EnemyStateOnhit : IEnemyState
             ctx.RequestState(EnemyStateType.Dead);
             return;
         }
+        ProcessKnockback(ctx);
 
-        if (Time.time >= _endTime)
+        if (Time.time >= _endTime && (!_isKnockbackActive || elapsedTime >= knockbackInfo.duration))
         {
             ctx.RequestState(EnemyStateType.Chase);
         }
@@ -44,7 +53,76 @@ public class EnemyStateOnhit : IEnemyState
 
     public void OnExit(EnemyStateContext ctx)
     {
-       
+        ExitKnockback(ctx);
     }
 
+    #region 넉백 
+
+    private void InitKnockback(EnemyStateContext ctx)
+    {
+        if (ctx.PendingKnockback.HasValue)
+        {
+            _isKnockbackActive = true;
+            knockbackInfo = ctx.PendingKnockback.Value;
+            ctx.PendingKnockback = null;
+
+            knockbackSpeed = knockbackInfo.distance / knockbackInfo.duration;
+            elapsedTime = 0f;
+
+
+            float knockbackEndTime = Time.time + knockbackInfo.duration;
+            if (knockbackEndTime > _endTime)
+            {
+                _endTime = knockbackEndTime;
+            }
+            if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
+            {
+                ctx.Agent.enabled = false;
+            }
+        }
+        else
+        {
+            _isKnockbackActive = false;
+        }
+    }
+
+    private void ProcessKnockback(EnemyStateContext ctx)
+    {
+        if (!_isKnockbackActive) return;
+
+        if (elapsedTime < knockbackInfo.duration)
+        {
+            elapsedTime += Time.deltaTime;
+
+            Vector3 direction = knockbackInfo.direction;
+            direction.y = 0f;
+            direction = direction.normalized;
+
+            float step = knockbackSpeed * Time.deltaTime;
+            Vector3 nextPos = ctx.EnemyTransform.position + direction * step;
+
+            if (NavMesh.SamplePosition(nextPos, out var hit, 2.0f, NavMesh.AllAreas))
+            {
+                nextPos = hit.position;
+            }
+
+            nextPos.y = ctx.EnemyTransform.position.y;
+            ctx.EnemyTransform.position = nextPos;
+        }
+    }
+
+    private void ExitKnockback(EnemyStateContext ctx)
+    {
+
+        if (!_isKnockbackActive) return;
+        _isKnockbackActive = false;
+
+        if (ctx.Agent ==null) return;
+
+        ctx.Agent.enabled = true;
+        ctx.Agent.Warp(ctx.EnemyTransform.position);
+        ctx.PendingKnockback = null;
+    }
+
+    #endregion
 }
