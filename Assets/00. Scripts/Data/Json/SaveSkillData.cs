@@ -12,6 +12,7 @@ public class SaveSkillData : ISaveData
 
     public List<SkillInfoData> skillInfoData;
     public List<SkillPresetData> skillPresetData;
+    public List<GemPresetSaveData> gemPresetSaveData;
 
     public int presetNum = 0;
     int savedPresetNum = 0;
@@ -54,6 +55,9 @@ public class SaveSkillData : ISaveData
                 skillPresetData.Add(presetData);
             }
         }
+
+        if (gemPresetSaveData == null)
+            gemPresetSaveData = new List<GemPresetSaveData>();
 
         Debug.Log("[SaveSkillData] data init complete");
     }
@@ -178,13 +182,25 @@ public class SaveSkillData : ISaveData
 
         return ownedSkillDatas;
     }
-
+    public List<GemPresetSaveData> LoadGemPresetData()
+    {
+        return gemPresetSaveData;
+    }
     public void SavePresetNum(int presetNum)
     {
         this.presetNum = presetNum;
         isDirty = true;
     }
 
+    public void SaveGemPresetData(List<GemPresetSaveData> data)
+    {
+        gemPresetSaveData.Clear();
+        foreach (var item in data)
+        {
+            gemPresetSaveData.Add(item);
+        }
+        isDirty = true;
+    }
     public void ClearDirty()
     {
         isDirty = false;
@@ -228,4 +244,5 @@ public class SaveSkillData : ISaveData
 
         skillPresetData[index] = presetData;
     }
+
 }

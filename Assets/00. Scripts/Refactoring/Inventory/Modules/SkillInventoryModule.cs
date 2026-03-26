@@ -12,6 +12,9 @@ public sealed class SkillInventoryModule : IInventoryModule
     private readonly SkillPreset[] presets = new SkillPreset[PresetCount]; // 장착 프리셋 배열.
     private readonly SkillPresetHandler presetHandler; // 프리셋 조작 로직 전담 객체.
 
+    //젬 프리셋 관리
+    private readonly SkillGemPresetHandler gemPresetManager = new SkillGemPresetHandler();
+
     private bool isScrollMapReady; // 스크롤 매핑 초기화 여부.
 
     public event Action OnInventoryChanged; // 스킬 인벤토리 변경 이벤트.
@@ -51,9 +54,18 @@ public sealed class SkillInventoryModule : IInventoryModule
         OnPresetChanged += (ctx) => { 
             InventoryManager.Instance.saveSkillData.SaveSkillPreset(ctx, GetPreset(ctx));
         };
+        if (InventoryManager.Instance.saveSkillData.gemPresetSaveData != null
+             && InventoryManager.Instance.saveSkillData.gemPresetSaveData.Count > 0)
+        {
+            gemPresetManager.LoadFromList(InventoryManager.Instance.saveSkillData.LoadGemPresetData());
+        }
 
         //프리셋에 저장된 데이터 불러오기
         OnPresetChanged += InventoryManager.Instance.saveSkillData.SavePresetNum;
+        OnPresetChanged += (ctx) =>
+        {
+            InventoryManager.Instance.saveSkillData.SaveGemPresetData(gemPresetManager.GetSaveList());
+        };
         //저장된 프리셋 번호 불러오기
         SwitchPreset(InventoryManager.Instance.saveSkillData.SavedPresetNum);
 
@@ -297,16 +309,38 @@ public sealed class SkillInventoryModule : IInventoryModule
     // 프리셋 탭을 전환한다.
     public void SwitchPreset(int index)
     {
+        int prevIndex = presetHandler.CurrentPresetIndex;
+        SkillPreset prevPreset = presetHandler.GetCurrentPreset();
+
         presetHandler.SwitchPreset(index);
+
+        SkillPreset nextPreset = presetHandler.GetCurrentPreset();
+        gemPresetManager.OnPresetSwitch(prevIndex, index, prevPreset, nextPreset);
+
         OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
     }
-
+    public SkillGemSlotData GetGemSlotData(int skillId)
+    {
+        return gemPresetManager.GetPreset(presetHandler.CurrentPresetIndex)?.Get(skillId);
+    }
     // 프리셋 슬롯에 스킬을 장착한다.
     public bool SetPresetSlot(int slotIndex, int skillId)
     {
         if (!presetHandler.SetPresetSlot(slotIndex, skillId))
             return false;
 
+        var slot = presetHandler.GetCurrentPreset().slots[slotIndex];
+        slot.m5JemIDs[0] = -1;
+        slot.m5JemIDs[1] = -1;
+        slot.m4JemID = -1;
+
+        var gemData = gemPresetManager.GetPreset(presetHandler.CurrentPresetIndex)?.Get(skillId);
+        if (gemData != null)
+        {
+            slot.m5JemIDs[0] = gemData.m5JemIDs[0];
+            slot.m5JemIDs[1] = gemData.m5JemIDs[1];
+            slot.m4JemID = gemData.m4JemID;
+        }
         OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
         return true;
     }
@@ -317,12 +351,18 @@ public sealed class SkillInventoryModule : IInventoryModule
         presetHandler.ClearPresetSlot(slotIndex);
         OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
     }
-
+    public void SetGemDirect(int skillId, int slotIndex, int gemId, bool isM4)
+    {
+        gemPresetManager.SetGem(presetHandler.CurrentPresetIndex, skillId, slotIndex, gemId, isM4);
+        OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
+    }
     // 지정 프리셋 슬롯의 M4 젬을 설정한다.
     public bool SetM4Jem(int presetSlotIndex, int jemId)
     {
         if (!presetHandler.SetM4Jem(presetSlotIndex, jemId))
             return false;
+        var slot = presetHandler.GetCurrentPreset().slots[presetSlotIndex];
+        gemPresetManager.SetGem(presetHandler.CurrentPresetIndex, slot.skillID, 0, jemId, true);
 
         OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
         return true;
@@ -333,6 +373,9 @@ public sealed class SkillInventoryModule : IInventoryModule
     {
         if (!presetHandler.SetM5Jem(presetSlotIndex, m5SlotIndex, jemId))
             return false;
+
+        var slot = presetHandler.GetCurrentPreset().slots[presetSlotIndex];
+        gemPresetManager.SetGem(presetHandler.CurrentPresetIndex, slot.skillID, m5SlotIndex, jemId, false);
 
         OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
         return true;

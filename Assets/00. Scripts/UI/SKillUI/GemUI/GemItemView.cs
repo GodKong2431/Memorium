@@ -17,7 +17,7 @@ public class GemItemView : MonoBehaviour
         this.gemId = gemId;
         this.onClick = clickHandler;
 
-        if (iconImage != null)
+        if (iconImage != null&&icon!=null)
             iconImage.sprite = icon;
 
         if (countText != null)

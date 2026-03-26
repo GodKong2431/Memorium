@@ -15,12 +15,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     [Header("레이어")]
     [SerializeField] private LayerMask targetLayer; 
 
-    [Header("테스트")]
-    [SerializeField] SkillProjectile projectilePrefab;
-    [SerializeField] SkillDeploy deployPrefab;
-    [SerializeField] GameObject auraPrefab;
-    [SerializeField] GameObject shadowPrepab;
-    [SerializeField] FireZone fireZonePrefab;
+    [Header("이펙트 경로")]
     [SerializeField] string effectPath = "Assets/02. Prefabs/SKill/HCFX_Hit_08.prefab";
 
     [SerializeField] string projectilePath= "Assets/02. Prefabs/SKill/Projectile/bullet.prefab";
@@ -338,16 +333,15 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
                 else
                     PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.m4Data.m4VFX2, target.transform, true));
 
-                Debug.Log($"[ProcessHit] applyAddon={applyAddon}, m4Strategy={m4Strategy?.GetType().Name ?? "NULL"}");
                 if (applyAddon && m4Strategy is ISkillHitAddon hitAddon)
                 {
-                    Debug.Log("[ProcessHit] AddonImpact.OnHit 호출");
                     hitAddon.OnHit(this, target.transform, data, targetLayer);
                 }
 
                 if (hitBuffer[i].TryGetComponent<EffectController>(out var controller))
                 {
-                    ApplyM5Effect(data, controller, target.transform.position);
+                    if (!controller.HasStatusEffect())
+                        ApplyM5Effect(data, controller, target.transform.position);
                 }
             }
         }
@@ -372,7 +366,6 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         }
         if (activeData.applyType == ApplyType.strikeLocation)
         {
-            Debug.Log("화염 소환");
             var obj = PoolAddressableManager.Instance.GetPooledObject(fireZonePath,hitPos,Quaternion.identity);
             if (obj != null)
             {
@@ -382,7 +375,6 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         }
         else
         {
-            Debug.Log("상태이상 적용");
             var effect = StatusEffectFactory.Create(activeData);
             if (effect != null&& !controller.HasStatusEffect()) 
                 controller.ApplyStatusEffect(effect);

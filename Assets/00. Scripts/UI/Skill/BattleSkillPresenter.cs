@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -16,7 +17,7 @@ public class BattleSkillPresenter : MonoBehaviour
     private ISkillCooldownProvider cooldownProvider;
     // 프리셋 변경 이벤트를 듣기 위한 인벤토리 모듈 참조입니다.
     private SkillInventoryModule subscribedSkillModule;
-
+    private readonly Dictionary<int, Sprite> gemIconCache = new Dictionary<int, Sprite>();
     // 플레이어 쿨타임 공급자를 연결하고 즉시 화면을 갱신합니다.
     public void BindCooldownProvider(ISkillCooldownProvider cooldownProvider)
     {
@@ -144,14 +145,110 @@ public class BattleSkillPresenter : MonoBehaviour
                 slotViews[i].SetEmpty();
                 continue;
             }
+            SkillPresetSlot presetSlot = GetCurrentPresetSlot(slot.skillID);
+            Sprite[] gemIcons = BuildEquippedGemIcons(presetSlot);
 
             int level = GetSkillLevel(slot.skillID);
             int gemCount = GetOpenGemCount(slot.skillID);
-            slotViews[i].SetSkillDisplay(slot.skillID, GetSkillIcon(slot.skillID), level, gemCount);
-            slotViews[i].UpdateIcon(GetSkillIcon(slot.skillID));
+
+            slotViews[i].SetSkillDisplay(slot.skillID, GetSkillIcon(slot.skillID), level, gemCount, gemIcons);
         }
     }
+    private Sprite[] BuildEquippedGemIcons(SkillPresetSlot slot)
+    {
+        Sprite[] icons = new Sprite[3];
+        if (slot == null || slot.IsEmpty) return icons;
 
+        for (int i = 0; i < 3; i++)
+        {
+            int gemId = GetEquippedGemId(slot, i);
+            icons[i] = gemId > 0 ? GetGemIcon(gemId) : null;
+        }
+        return icons;
+    }
+
+    private Sprite GetGemIcon(int itemId)
+    {
+        if (itemId <= 0) return null;
+
+        if (gemIconCache.TryGetValue(itemId, out Sprite cached))
+            return cached;
+
+        var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
+        if (gemModule == null) return null;
+
+        Sprite sprite = null;
+
+        int m4Id = gemModule.GetM4IdByItemId(itemId);
+        if (m4Id != 0 && DataManager.Instance.SkillModule4Dict.TryGetValue(m4Id, out var m4Data))
+        {
+            sprite = SkillIconResolver.TryLoad(m4Data.m4Icon);
+        }
+
+        if (sprite == null)
+        {
+            int m5Id = gemModule.GetM5IdByItemId(itemId);
+            if (m5Id != 0 && DataManager.Instance.SkillModule5Dict.TryGetValue(m5Id, out var m5Data))
+            {
+                sprite = SkillIconResolver.TryLoad(m5Data.m5Icon);
+            }
+        }
+
+        if (sprite != null)
+        {
+            gemIconCache[itemId] = sprite;
+        }
+
+        return sprite;
+    }
+
+    private static SkillPresetSlot GetCurrentPresetSlot(int skillId)
+    {
+        SkillInventoryModule skillModule = InventoryManager.Instance != null
+            ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+            : null;
+
+        SkillGemSlotData gemData = skillModule?.GetGemSlotData(skillId);
+
+        if (gemData == null)
+            return null;
+
+        return new SkillPresetSlot(gemData.skillID, gemData.m5JemIDs, gemData.m4JemID);
+    }
+
+    private static int GetEquippedGemId(SkillPresetSlot presetSlot, int gemSlotIndex)
+    {
+        if (presetSlot == null)
+            return SkillPresetSlot.EmptySkillId;
+
+        switch (gemSlotIndex)
+        {
+            case 0:
+            case 1:
+                return presetSlot.m5JemIDs != null && gemSlotIndex < presetSlot.m5JemIDs.Length
+                    ? presetSlot.m5JemIDs[gemSlotIndex]
+                    : SkillPresetSlot.EmptySkillId;
+            case 2:
+                return presetSlot.m4JemID;
+            default:
+                return SkillPresetSlot.EmptySkillId;
+        }
+    }
+    private int[] GetEquippedGemItemIds(int skillId)
+    {
+        var skillModule = InventoryManager.Instance?.GetModule<SkillInventoryModule>();
+        SkillGemSlotData gemData = skillModule?.GetGemSlotData(skillId);
+
+        int[] gemItemIds = new int[3];
+        if (gemData != null)
+        {
+            gemItemIds[0] = gemData.m5JemIDs != null && gemData.m5JemIDs.Length > 0 && gemData.m5JemIDs[0] > 0 ? gemData.m5JemIDs[0] : 0;
+            gemItemIds[1] = gemData.m5JemIDs != null && gemData.m5JemIDs.Length > 1 && gemData.m5JemIDs[1] > 0 ? gemData.m5JemIDs[1] : 0;
+            gemItemIds[2] = gemData.m4JemID > 0 ? gemData.m4JemID : 0;
+        }
+
+        return gemItemIds;
+    }
     private void RefreshCooldowns()
     {
         if (slotViews == null)

@@ -23,6 +23,8 @@ public class BattleSkillSlotView : MonoBehaviour
     // 젬 슬롯 아이콘 묶음의 루트입니다.
     [SerializeField] private RectTransform gemPanelRoot;
 
+    [SerializeField] private Image[] gemSlotImages;
+
     // 외부에서 주입하는 슬롯 클릭 콜백입니다.
     private Action clickListener;
     // 빈 슬롯일 때 되돌릴 기본 아이콘입니다.
@@ -99,14 +101,30 @@ public class BattleSkillSlotView : MonoBehaviour
     }
 
     // 슬롯에 스킬 정보 전체를 한 번에 반영합니다.
-    public void SetSkillDisplay(int skillId, Sprite icon, int level, int openGemCount)
+    public void SetSkillDisplay(int skillId, Sprite icon, int level, int openGemCount, Sprite[] gemIcons = null)
     {
         currentSkillId = skillId;
         UpdateIcon(icon);
         SetLevel(level);
         SetGemSlots(openGemCount);
+        SetGemIcons(gemIcons);
     }
 
+    private void SetGemIcons(Sprite[] gemIcons)
+    {
+        if (gemSlotImages == null) return;
+
+        for (int i = 0; i < gemSlotImages.Length; i++)
+        {
+            if (gemSlotImages[i] == null) continue;
+
+            Sprite icon = gemIcons != null && i < gemIcons.Length ? gemIcons[i] : null;
+            gemSlotImages[i].sprite = icon;
+            gemSlotImages[i].color = Color.white;
+            gemSlotImages[i].preserveAspect = true;
+            gemSlotImages[i].gameObject.SetActive(icon != null);
+        }
+    }
     // 슬롯 아이콘 이미지만 교체합니다.
     public void UpdateIcon(Sprite icon)
     {
@@ -188,4 +206,5 @@ public class BattleSkillSlotView : MonoBehaviour
         for (int i = 0; i < gemPanelRoot.childCount; i++)
             gemPanelRoot.GetChild(i).gameObject.SetActive(i < openGemCount);
     }
+
 }

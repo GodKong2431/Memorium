@@ -32,6 +32,9 @@ public class ActiveSkillItemBinding : MonoBehaviour
     [SerializeField] private Image[] upgradeGemImages = new Image[UpgradeGemSlotCount];
     [SerializeField] private GameObject[] upgradeGemLockObjects = new GameObject[UpgradeGemSlotCount];
 
+    [SerializeField] private Image[] iconGemImages = new Image[UpgradeGemSlotCount];
+
+    public Image[] IconGemImages => iconGemImages;
     [Header("Level Up")]
     [SerializeField] private Button levelUpButton;
     [SerializeField] private TMP_Text levelUpCostText;

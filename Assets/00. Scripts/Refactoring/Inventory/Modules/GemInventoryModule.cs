@@ -290,9 +290,13 @@ public sealed class GemInventoryModule : IInventoryModule
     {
         int presetSlotIndex = GetPresetSlotIndexBySkillId(skillId);
 
-        if (presetSlotIndex == -1) return false;
+        if (presetSlotIndex != -1)
+            return TryEquipM4Gem(presetSlotIndex, gemId);
+        var skillModule = InventoryManager.Instance.GetModule<SkillInventoryModule>();
+        if (skillModule == null) return false;
 
-        return TryEquipM4Gem(presetSlotIndex, gemId);
+        skillModule.SetGemDirect(skillId, 0, gemId, true);
+        return true;
     }
 
     /// <summary>
@@ -302,9 +306,14 @@ public sealed class GemInventoryModule : IInventoryModule
     {
         int presetSlotIndex = GetPresetSlotIndexBySkillId(skillId);
 
-        if (presetSlotIndex == -1) return false;
+        if (presetSlotIndex != -1)
+            return TryEquipM5Gem(presetSlotIndex, m5SlotIndex, gemId);
 
-        return TryEquipM5Gem(presetSlotIndex, m5SlotIndex, gemId);
+        var skillModule = InventoryManager.Instance.GetModule<SkillInventoryModule>();
+        if (skillModule == null) return false;
+
+        skillModule.SetGemDirect(skillId, m5SlotIndex, gemId, false);
+        return true;
     }
     #region Private
     /// <summary>

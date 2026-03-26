@@ -68,12 +68,16 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     // 열린 젬 슬롯 개수만큼 보여줄 버튼 배열입니다.
     [SerializeField] private Button[] gemButtons;
     [SerializeField] private GameObject[] gemAddObjects;
-    [SerializeField] private GameObject[] gemLockObjects; 
+    [SerializeField] private GameObject[] gemLockObjects;
+    [SerializeField] private GameObject[] gemEquipObjects;
     [SerializeField] private RectTransform gemListRoot;   
     [SerializeField] private GameObject gemItemPrefab;
     [SerializeField] private Canvas gemOverlayCanvas;
     [SerializeField] private RectTransform gemSelectAnchor;
     int selectedGemSlotIndex;
+
+    //젬슬롯 이미지 캐싱
+    private Image[] gemButtonImages;
 
 
     [Header("Rarity Info")]
@@ -95,10 +99,21 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         EnsureSetup();
         EnsureOverlayParent();
         BindButtonsOnce();
+        CacheGemButtonImages();
         ApplyTabState(true);
         HideGemSelect();
     }
+    private void CacheGemButtonImages()
+    {
+        if (gemButtons == null) return;
 
+        gemButtonImages = new Image[gemEquipObjects.Length];
+        for (int i = 0; i < gemEquipObjects.Length; i++)
+        {
+            if (gemEquipObjects[i] != null)
+                gemButtonImages[i] = gemEquipObjects[i].GetComponent<Image>();
+        }
+    }
     // 현재 선택한 스킬 정보를 패널에 표시합니다.
     public void Show(int skillId)
     {
@@ -315,12 +330,20 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
                 continue;
 
             bool isOpen = IsGemSlotOpen(ownedData, i);
-            bool hasEquippedGem = GetEquippedGemId(currentSkillId, i) >= 0;
+            int equippedGemId = GetEquippedGemId(currentSkillId, i);
+            bool hasEquippedGem = equippedGemId > 0;
 
             gemButton.gameObject.SetActive(true);
             gemButton.interactable = isOpen;
             SetGemObjectState(gemLockObjects, i, !isOpen);
             SetGemObjectState(gemAddObjects, i, isOpen && !hasEquippedGem);
+            SetGemObjectState(gemEquipObjects, i, hasEquippedGem);
+
+            if (hasEquippedGem && gemButtonImages != null && i < gemButtonImages.Length && gemButtonImages[i] != null)
+            {
+                Sprite icon = GetGemIcon(equippedGemId);
+                gemButtonImages[i].sprite = icon;
+            }
         }
     }
     private void HandleGemButtonClicked(int gemSlotIndex)
@@ -431,11 +454,26 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
 
     private Sprite GetGemIcon(int itemId)
     {
-        if (DataManager.Instance?.ItemInfoDict != null &&
-            DataManager.Instance.ItemInfoDict.TryGetValue(itemId, out ItemInfoTable itemInfo))
+        if (itemId <= 0) return null;
+
+        var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
+        if (gemModule == null) return null;
+
+        int m4Id = gemModule.GetM4IdByItemId(itemId);
+        if (m4Id != 0 && DataManager.Instance.SkillModule4Dict.TryGetValue(m4Id, out var m4Data))
         {
-            return Resources.Load<Sprite>(itemInfo.itemIcon);
+            Sprite sprite = SkillIconResolver.TryLoad(m4Data.m4Icon);
+            if (sprite != null) return sprite;
         }
+
+        int m5Id = gemModule.GetM5IdByItemId(itemId);
+
+        if (m5Id != 0 && DataManager.Instance.SkillModule5Dict.TryGetValue(m5Id, out var m5Data))
+        {
+            Sprite sprite = SkillIconResolver.TryLoad(m5Data.m5Icon);
+            if (sprite != null) return sprite;
+        }
+
         return null;
     }
     // 등급 정보 탭의 설명 문구를 현재 보유 등급 기준으로 채웁니다.
@@ -578,19 +616,14 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     }
     private static SkillPresetSlot GetCurrentPresetSlot(int skillId)
     {
-        SkillInventoryModule skillModule = GetSkillModule();
-        SkillPreset currentPreset = skillModule?.GetCurrentPresetSnapshot();
-        if (currentPreset?.slots == null)
+        SkillInventoryModule skillModule = InventoryManager.Instance != null
+         ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
+         : null;
+        SkillGemSlotData gemData = skillModule?.GetGemSlotData(skillId);
+
+        if (gemData == null)
             return null;
-
-        for (int i = 0; i < currentPreset.slots.Length; i++)
-        {
-            SkillPresetSlot slot = currentPreset.slots[i];
-            if (slot != null && slot.skillID == skillId)
-                return slot;
-        }
-
-        return null;
+        return new SkillPresetSlot(gemData.skillID, gemData.m5JemIDs, gemData.m4JemID);
     }
 
     private static SkillInventoryModule GetSkillModule()

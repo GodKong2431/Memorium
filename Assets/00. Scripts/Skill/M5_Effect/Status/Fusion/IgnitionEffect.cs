@@ -26,9 +26,6 @@ public class IgnitionEffect : StatusEffectBase
             if (buffer[i].TryGetComponent<IDamageable>(out var enemy) && enemy.IsAlive)
             {
 
-#if UNITY_EDITOR
-                Debug.Log($"발화 데미지 : {explosionDamage}");
-#endif
                 enemy.TakeDamage(explosionDamage, DamageType.FixedPercentageDamage);
             }
         }

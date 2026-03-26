@@ -81,6 +81,7 @@ public sealed class ActiveSkillItemView
     private Action<int> onStateActionClick;
     private Action<int> onLevelUpClick;
 
+    Sprite baseIcon;
     public ActiveSkillItemView(ActiveSkillItemBinding binding)
     {
         this.binding = binding;
@@ -221,7 +222,6 @@ public sealed class ActiveSkillItemView
                 : default;
 
             slotRoot.gameObject.SetActive(true);
-
             Image gemImage = gemImages[i];
             if (gemImage != null)
             {
@@ -233,6 +233,21 @@ public sealed class ActiveSkillItemView
             GameObject lockObject = lockObjects[i];
             if (lockObject != null)
                 lockObject.SetActive(!slot.IsUnlocked);
+        }
+        Image[] iconGems = binding.IconGemImages;
+        if (iconGems != null)
+        {
+            for (int i = 0; i < iconGems.Length; i++)
+            {
+                if (iconGems[i] == null) continue;
+
+                ActiveSkillItemGemSlotDisplayData slot = slots != null && i < slots.Length
+                    ? slots[i] : default;
+
+                iconGems[i].sprite = slot.HasEquippedGem ? slot.EquippedGemIcon : null;
+                iconGems[i].preserveAspect = true;
+                iconGems[i].gameObject.SetActive(slot.HasEquippedGem);
+            }
         }
     }
 

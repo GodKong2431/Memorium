@@ -3,6 +3,7 @@ using UnityEngine.Rendering;
 public interface IBuffApplicable
 {
     void ApplyBuff(StatModifier modifier);
+    bool HasStatusEffect();
 }
 public abstract class StatusEffectBase
 {

@@ -186,7 +186,7 @@ public class ActiveSkillUIController : UIControllerBase
     private void RebuildAll()
     {
         RebuildPresetButtons();
-        RebuildSkillItems();    
+        RebuildSkillItems();
         RebuildEquippedSkills();
         UpdateEquipSelectionState();
     }
@@ -295,10 +295,23 @@ public class ActiveSkillUIController : UIControllerBase
             DataManager.Instance.SkillInfoDict.TryGetValue(skillId, out SkillInfoTable table);
             OwnedSkillData ownedData = skillModule.GetSkillData(skillId);
             Sprite icon = table != null ? GetSkillIcon(skillId, table.skillIcon) : null;
-            slotView.SetSkillDisplay(skillId, icon, ownedData != null ? ownedData.level : 0, GetOpenGemCount(ownedData));
+
+            Sprite[] gemIcons = BuildEquippedGemIcons(preset.slots[i]);
+            slotView.SetSkillDisplay(skillId, icon, ownedData != null ? ownedData.level : 0, GetOpenGemCount(ownedData), gemIcons);
         }
     }
+    private Sprite[] BuildEquippedGemIcons(SkillPresetSlot slot)
+    {
+        Sprite[] icons = new Sprite[3];
+        if (slot == null || slot.IsEmpty) return icons;
 
+        for (int i = 0; i < 3; i++)
+        {
+            int gemId = GetEquippedGemId(slot, i);
+            icons[i] = gemId > 0 ? GetGemIcon(gemId) : null;
+        }
+        return icons;
+    }
     // 프리셋 버튼 클릭 이벤트를 연결합니다.
     private void BindPresetButtons()
     {
@@ -675,34 +688,28 @@ public class ActiveSkillUIController : UIControllerBase
         if (gemIconCache.TryGetValue(itemId, out Sprite cached))
             return cached;
 
+        var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
+        if (gemModule == null)
+            return null;
+
         Sprite sprite = null;
-        if (DataManager.Instance?.ItemInfoDict != null &&
-            DataManager.Instance.ItemInfoDict.TryGetValue(itemId, out ItemInfoTable itemInfo) &&
-            itemInfo != null &&
-            !string.IsNullOrWhiteSpace(itemInfo.itemIcon))
+
+        int m4Id = gemModule.GetM4IdByItemId(itemId);
+        if (m4Id != 0 && DataManager.Instance.SkillModule4Dict.TryGetValue(m4Id, out var m4Data))
         {
-            string key = itemInfo.itemIcon.Trim();
-            sprite = Resources.Load<Sprite>(key);
-            if (sprite == null)
-            {
-                int extensionIndex = key.LastIndexOf(".", StringComparison.Ordinal);
-                if (extensionIndex > 0)
-                    sprite = Resources.Load<Sprite>(key.Substring(0, extensionIndex));
-            }
+            sprite = SkillIconResolver.TryLoad(m4Data.m4Icon);
+            Debug.Log($"{m4Data.m4Icon}");
 
-            if (sprite == null)
-            {
-                const string resourcesToken = "Resources/";
-                int resourcesIndex = key.IndexOf(resourcesToken, StringComparison.OrdinalIgnoreCase);
-                if (resourcesIndex >= 0)
-                {
-                    string relativePath = key.Substring(resourcesIndex + resourcesToken.Length);
-                    int extensionIndex = relativePath.LastIndexOf(".", StringComparison.Ordinal);
-                    if (extensionIndex > 0)
-                        relativePath = relativePath.Substring(0, extensionIndex);
+        }
 
-                    sprite = Resources.Load<Sprite>(relativePath);
-                }
+        if (sprite == null)
+        {
+            int m5Id = gemModule.GetM5IdByItemId(itemId);
+            if (m5Id != 0 && DataManager.Instance.SkillModule5Dict.TryGetValue(m5Id, out var m5Data))
+            {
+
+                sprite = SkillIconResolver.TryLoad(m5Data.m5Icon);
+                Debug.Log($"{m5Data.m5Icon}");
             }
         }
 
@@ -786,18 +793,12 @@ public class ActiveSkillUIController : UIControllerBase
         SkillInventoryModule skillModule = InventoryManager.Instance != null
             ? InventoryManager.Instance.GetModule<SkillInventoryModule>()
             : null;
-        SkillPreset currentPreset = skillModule?.GetCurrentPresetSnapshot();
-        if (currentPreset?.slots == null)
+        SkillGemSlotData gemData = skillModule?.GetGemSlotData(skillId);
+
+        if (gemData == null)
             return null;
 
-        for (int i = 0; i < currentPreset.slots.Length; i++)
-        {
-            SkillPresetSlot slot = currentPreset.slots[i];
-            if (slot != null && slot.skillID == skillId)
-                return slot;
-        }
-
-        return null;
+        return new SkillPresetSlot(gemData.skillID, gemData.m5JemIDs, gemData.m4JemID);
     }
 
     private static int GetEquippedGemId(SkillPresetSlot presetSlot, int gemSlotIndex)
@@ -820,7 +821,7 @@ public class ActiveSkillUIController : UIControllerBase
     }
 
     private static bool CanEquipToSlot(int slotIndex, SkillType type)
-    {
+    {   
         if (slotIndex == 2)
             return type == SkillType.ultimateSkil;
 
