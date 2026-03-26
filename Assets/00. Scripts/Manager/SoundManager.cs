@@ -45,10 +45,12 @@ public class SoundManager : Singleton<SoundManager>
     private readonly List<AudioSource> combatSources = new List<AudioSource>();
 
     private AudioSource bgmSource;
+    private AudioSource combatLoopSource;
     private DataManager subscribedDataManager;
     private int nextUiSourceIndex;
     private int nextCombatSourceIndex;
     private float currentBgmClipVolume = 1f;
+    private float currentCombatLoopClipVolume = 1f;
     private float masterVolume;
     private float bgmVolume;
     private float combatSfxVolume;
@@ -151,11 +153,27 @@ public class SoundManager : Singleton<SoundManager>
         return TryResolve(soundId, out SoundEntry entry) && PlayCombatAt(entry, worldPos);
     }
 
+    public bool PlayCombatLoopSfx(int soundId)
+    {
+        return TryResolve(soundId, out SoundEntry entry) && PlayCombatLoop(entry);
+    }
+
+    public void StopCombatLoopSfx()
+    {
+        if (combatLoopSource == null)
+            return;
+
+        combatLoopSource.Stop();
+        combatLoopSource.clip = null;
+        currentCombatLoopClipVolume = 1f;
+    }
+
     public void SetMasterVolume(float volume)
     {
         masterVolume = Mathf.Clamp01(volume);
         SaveVolumeSettings();
         ApplyBgmVolume();
+        ApplyCombatLoopVolume();
         RaiseVolumeChanged();
     }
 
@@ -171,6 +189,7 @@ public class SoundManager : Singleton<SoundManager>
     {
         combatSfxVolume = Mathf.Clamp01(volume);
         SaveVolumeSettings();
+        ApplyCombatLoopVolume();
         RaiseVolumeChanged();
     }
 
@@ -225,6 +244,12 @@ public class SoundManager : Singleton<SoundManager>
         {
             bgmSource = CreateChildSource("BGM_Source");
             bgmSource.loop = true;
+        }
+
+        if (combatLoopSource == null)
+        {
+            combatLoopSource = CreateChildSource("Combat_Loop_Source");
+            combatLoopSource.loop = true;
         }
 
         CleanupSources(uiSources);
@@ -313,6 +338,25 @@ public class SoundManager : Singleton<SoundManager>
             return false;
 
         AudioSource.PlayClipAtPoint(clip, worldPos, GetEffectiveVolume(entry.clipVolume, combatSfxVolume));
+        return true;
+    }
+
+    private bool PlayCombatLoop(SoundEntry entry)
+    {
+        if (combatLoopSource == null)
+            return false;
+
+        if (!TryLoadClip(entry, out AudioClip clip))
+            return false;
+
+        combatLoopSource.clip = clip;
+        combatLoopSource.loop = true;
+        currentCombatLoopClipVolume = entry.clipVolume;
+        ApplyCombatLoopVolume();
+
+        if (!combatLoopSource.isPlaying)
+            combatLoopSource.Play();
+
         return true;
     }
 
@@ -430,6 +474,14 @@ public class SoundManager : Singleton<SoundManager>
             return;
 
         bgmSource.volume = GetEffectiveVolume(currentBgmClipVolume, bgmVolume);
+    }
+
+    private void ApplyCombatLoopVolume()
+    {
+        if (combatLoopSource == null)
+            return;
+
+        combatLoopSource.volume = GetEffectiveVolume(currentCombatLoopClipVolume, combatSfxVolume);
     }
 
     private void RaiseVolumeChanged()

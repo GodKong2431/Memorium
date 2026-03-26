@@ -21,6 +21,8 @@ public class BerserkerGageUI : MonoBehaviour
     private Button _button;
     private Color _resolvedChargingColor;
     private bool _hasResolvedChargingColor;
+    private bool _hasReadyState;
+    private bool _wasReady;
 
     private void Awake()
     {
@@ -41,11 +43,10 @@ public class BerserkerGageUI : MonoBehaviour
         if (berserkerOrb != null)
         {
             berserkerOrb.OnBerserkerOrbChanged += Refresh;
-            berserkerOrb.OnBerserkerOrbFull += OnBerserkerModeClicked;
+            berserkerOrb.OnBerserkerOrbFull += OnBerserkerModeAutoTriggered;
         }
-            
 
-        BerserkerModeController.OnBerserkerModeChanged += _ => Refresh();
+        BerserkerModeController.OnBerserkerModeChanged += OnBerserkerModeChanged;
 
         Refresh();
     }
@@ -57,11 +58,10 @@ public class BerserkerGageUI : MonoBehaviour
         if (berserkerOrb != null)
         {
             berserkerOrb.OnBerserkerOrbChanged -= Refresh;
-            berserkerOrb.OnBerserkerOrbFull -= OnBerserkerModeClicked;
+            berserkerOrb.OnBerserkerOrbFull -= OnBerserkerModeAutoTriggered;
         }
-            
 
-        BerserkerModeController.OnBerserkerModeChanged -= _ => Refresh();
+        BerserkerModeController.OnBerserkerModeChanged -= OnBerserkerModeChanged;
     }
 
     private void OnDestroy()
@@ -91,6 +91,9 @@ public class BerserkerGageUI : MonoBehaviour
 
         int current = berserkerOrb != null ? berserkerOrb.CurrentBerserkerOrb : 0;
         int max = PlayerBerserkerOrb.MaxBerserkerOrb;
+        bool isReady = max > 0 && current >= max && (berserkerModeController == null || !berserkerModeController.IsActive);
+
+        UpdateReadySoundState(isReady);
 
         bool canUseMode =
             berserkerOrb != null &&
@@ -144,7 +147,22 @@ public class BerserkerGageUI : MonoBehaviour
         _hasResolvedChargingColor = true;
     }
 
+    private void OnBerserkerModeChanged(bool _)
+    {
+        Refresh();
+    }
+
     private void OnBerserkerModeClicked()
+    {
+        TryActivate(playClickSound: true);
+    }
+
+    private void OnBerserkerModeAutoTriggered()
+    {
+        TryActivate(playClickSound: false);
+    }
+
+    private void TryActivate(bool playClickSound)
     {
         if (berserkerOrb == null || berserkerModeController == null)
             return;
@@ -154,7 +172,25 @@ public class BerserkerGageUI : MonoBehaviour
 
         if (!berserkerOrb.TryConsumeBerserkerOrbs(PlayerBerserkerOrb.MaxBerserkerOrb))
             return;
-        
+
+        if (playClickSound && SoundManager.Instance != null)
+            SoundManager.Instance.PlayCombatSfx(UiSoundIds.BerserkerActivate);
+
         berserkerModeController.Activate();
+    }
+
+    private void UpdateReadySoundState(bool isReady)
+    {
+        if (!_hasReadyState)
+        {
+            _hasReadyState = true;
+            _wasReady = isReady;
+            return;
+        }
+
+        if (!_wasReady && isReady && SoundManager.Instance != null)
+            SoundManager.Instance.PlayCombatSfx(UiSoundIds.BerserkerGaugeReady);
+
+        _wasReady = isReady;
     }
 }

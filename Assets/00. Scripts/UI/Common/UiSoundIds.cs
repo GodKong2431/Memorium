@@ -9,6 +9,9 @@ public static class UiSoundIds
     public const int QuestReward = 9100007;
     public const int StatUpgrade = 9100009;
     public const int Trait = 9100010;
+    public const int BerserkerGaugeReady = 9100063;
+    public const int BerserkerActivate = 9100064;
+    public const int BerserkerActiveLoop = 9100065;
     public const int GachaJackpot = 9100074;
     public const int GachaSummon = GachaJackpot;
     public const int EquipMerge = 9100075;
