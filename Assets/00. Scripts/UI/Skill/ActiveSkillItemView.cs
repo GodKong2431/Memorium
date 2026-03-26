@@ -140,30 +140,35 @@ public sealed class ActiveSkillItemView
         {
             binding.SkillButton.onClick.RemoveListener(HandleSkillClick);
             binding.SkillButton.onClick.AddListener(HandleSkillClick);
+            UiButtonSoundPlayer.Ensure(binding.SkillButton, UiSoundIds.DefaultButton);
         }
 
         if (binding.EquipButton != null)
         {
             binding.EquipButton.onClick.RemoveListener(HandleEquipClick);
             binding.EquipButton.onClick.AddListener(HandleEquipClick);
+            UiButtonSoundPlayer.Ensure(binding.EquipButton, UiSoundIds.DefaultButton);
         }
 
         if (binding.UnlockButton != null)
         {
             binding.UnlockButton.onClick.RemoveListener(HandleStateActionClick);
             binding.UnlockButton.onClick.AddListener(HandleStateActionClick);
+            UiButtonSoundPlayer.Ensure(binding.UnlockButton, UiSoundIds.DefaultButton);
         }
 
         if (binding.UpgradeButton != null)
         {
             binding.UpgradeButton.onClick.RemoveListener(HandleStateActionClick);
             binding.UpgradeButton.onClick.AddListener(HandleStateActionClick);
+            UiButtonSoundPlayer.Ensure(binding.UpgradeButton, UiSoundIds.DefaultButton);
         }
 
         if (binding.LevelUpButton != null)
         {
             binding.LevelUpButton.onClick.RemoveListener(HandleLevelUpClick);
             binding.LevelUpButton.onClick.AddListener(HandleLevelUpClick);
+            UiButtonSoundPlayer.Ensure(binding.LevelUpButton, UiSoundIds.DefaultButton);
         }
     }
 

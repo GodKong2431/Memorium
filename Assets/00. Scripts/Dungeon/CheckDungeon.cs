@@ -7,6 +7,7 @@ public static class CheckDungeon
     //가장 간단한 건 그냥 리스트로 던전 클리어 여부를 저장하면 되긴 해 <- 채택
     //던전 리콰이어 테이블에 있는 입장 조건 만족 여부
     static Dictionary<StageType, int> checkFirstDungeonToAccess = new Dictionary<StageType, int>();
+
     public static bool HasDungeonAccess(StageType type, int level)
     {
         if (level > 1)
@@ -55,5 +56,61 @@ public static class CheckDungeon
 
             return false;
         }
+    }
+
+    public static bool TryGetDungeonReq(StageType type, int level, out int dungeonId, out DungeonReqTable dungeonReq)
+    {
+        dungeonId = 0;
+        dungeonReq = null;
+
+        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.DungeonReqDict == null)
+            return false;
+
+        List<int> dungeonIds = new List<int>();
+        foreach (var pair in DataManager.Instance.DungeonReqDict)
+        {
+            if (pair.Value.stageType != type)
+                continue;
+
+            dungeonIds.Add(pair.Key);
+        }
+
+        if (dungeonIds.Count == 0)
+            return false;
+
+        dungeonIds.Sort();
+        int index = Mathf.Clamp(Mathf.Max(1, level) - 1, 0, dungeonIds.Count - 1);
+        dungeonId = dungeonIds[index];
+        return DataManager.Instance.DungeonReqDict.TryGetValue(dungeonId, out dungeonReq);
+    }
+
+    public static int GetTicketItemId(StageType type, int level)
+    {
+        return TryGetDungeonReq(type, level, out _, out DungeonReqTable dungeonReq)
+            ? dungeonReq.ItemID
+            : 0;
+    }
+
+    public static BigDouble GetTicketAmount(StageType type, int level)
+    {
+        int ticketItemId = GetTicketItemId(type, level);
+        if (ticketItemId <= 0 || InventoryManager.Instance == null)
+            return BigDouble.Zero;
+
+        return InventoryManager.Instance.GetItemAmount(ticketItemId);
+    }
+
+    public static bool HasEnoughTicket(StageType type, int level, int requiredCount)
+    {
+        return GetTicketAmount(type, level) >= new BigDouble(Mathf.Max(1, requiredCount));
+    }
+
+    public static bool TrySpendTicket(StageType type, int level, int requiredCount)
+    {
+        int ticketItemId = GetTicketItemId(type, level);
+        if (ticketItemId <= 0 || InventoryManager.Instance == null)
+            return false;
+
+        return InventoryManager.Instance.RemoveItem(ticketItemId, new BigDouble(Mathf.Max(1, requiredCount)));
     }
 }

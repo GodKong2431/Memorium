@@ -147,19 +147,10 @@ public sealed class DungeonClearPopupController : MonoBehaviour
         if (!CheckDungeon.HasDungeonAccess(stageType, targetLevel))
             return;
 
-        CurrencyInventoryModule currencyModule = InventoryManager.Instance != null
-            ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
-            : null;
-
-        if (currencyModule == null)
+        if (!CheckDungeon.TrySpendTicket(stageType, targetLevel, requiredKeyCount))
             return;
 
-        BigDouble requiredAmount = new BigDouble(Mathf.Max(1, requiredKeyCount));
-        if (!currencyModule.TrySpend(CurrencyType.DungeonTicket, requiredAmount))
-            return;
-
-        int dungeonId = ResolveDungeonId(stageType, targetLevel);
-        if (dungeonId > 0 && DungeonManager.Instance != null)
+        if (CheckDungeon.TryGetDungeonReq(stageType, targetLevel, out int dungeonId, out _) && DungeonManager.Instance != null)
             DungeonManager.Instance.currentDungeonID = dungeonId;
 
         HidePopup();
@@ -269,23 +260,4 @@ public sealed class DungeonClearPopupController : MonoBehaviour
         return Mathf.Max(1, stageKeys.Count);
     }
 
-    private static int ResolveDungeonId(StageType stageType, int level)
-    {
-        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.DungeonReqDict == null)
-            return 0;
-
-        System.Collections.Generic.List<int> dungeonIds = new System.Collections.Generic.List<int>();
-        foreach (System.Collections.Generic.KeyValuePair<int, DungeonReqTable> pair in DataManager.Instance.DungeonReqDict)
-        {
-            if (pair.Value.stageType == stageType)
-                dungeonIds.Add(pair.Key);
-        }
-
-        if (dungeonIds.Count == 0)
-            return 0;
-
-        dungeonIds.Sort();
-        int index = Mathf.Clamp(level - 1, 0, dungeonIds.Count - 1);
-        return dungeonIds[index];
-    }
 }

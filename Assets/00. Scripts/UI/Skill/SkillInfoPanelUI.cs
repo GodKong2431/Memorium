@@ -179,17 +179,20 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         {
             defaultInfoButton.onClick.RemoveListener(HandleDefaultInfoButtonClicked);
             defaultInfoButton.onClick.AddListener(HandleDefaultInfoButtonClicked);
+            UiButtonSoundPlayer.Ensure(defaultInfoButton, UiSoundIds.DefaultButton);
         }
 
         if (rarityInfoButton != null)
         {
             rarityInfoButton.onClick.RemoveListener(HandleRarityInfoButtonClicked);
             rarityInfoButton.onClick.AddListener(HandleRarityInfoButtonClicked);
+            UiButtonSoundPlayer.Ensure(rarityInfoButton, UiSoundIds.DefaultButton);
         }
         if (levelUpButton != null)
         {
             levelUpButton.onClick.RemoveListener(HandleLevelUpButtonClicked);
             levelUpButton.onClick.AddListener(HandleLevelUpButtonClicked);
+            UiButtonSoundPlayer.Ensure(levelUpButton, UiSoundIds.DefaultButton);
         }
         if (gemButtons != null)
         {
@@ -202,6 +205,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
                 int capturedIndex = i;
                 gemButton.onClick.RemoveAllListeners();
                 gemButton.onClick.AddListener(() => HandleGemButtonClicked(capturedIndex));
+                UiButtonSoundPlayer.Ensure(gemButton, UiSoundIds.DefaultButton);
             }
         }
         isBound = true;

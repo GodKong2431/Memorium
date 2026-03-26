@@ -37,6 +37,7 @@ public class SkillSlotItem : MonoBehaviour
     private void Awake()
     {
         equipButton.onClick.AddListener(OnEquipButtonClicked);
+        UiButtonSoundPlayer.Ensure(equipButton, UiSoundIds.DefaultButton);
     }
 
     // 오브젝트 파괴 시 버튼 리스너를 정리합니다.

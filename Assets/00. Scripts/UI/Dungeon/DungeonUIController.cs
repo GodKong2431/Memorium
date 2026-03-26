@@ -54,13 +54,15 @@ public class DungeonUIController : UIControllerBase
 
     protected override void Subscribe()
     {
-        GameEventManager.OnCurrencyChanged += OnCurrencyChanged;
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnItemAmountChanged += OnItemAmountChanged;
         GameEventManager.OnStageChanged += OnStageChanged;
     }
 
     protected override void Unsubscribe()
     {
-        GameEventManager.OnCurrencyChanged -= OnCurrencyChanged;
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnItemAmountChanged -= OnItemAmountChanged;
         GameEventManager.OnStageChanged -= OnStageChanged;
     }
 
@@ -155,10 +157,7 @@ public class DungeonUIController : UIControllerBase
 
     private void RefreshStateOnly()
     {
-        BigDouble currentKeyAmount = GetCurrentDungeonKeyAmount();
         int requiredCount = Mathf.Max(1, requiredKeyCount);
-        BigDouble requiredAmount = new BigDouble(requiredCount);
-        bool hasEnoughKey = currentKeyAmount >= requiredAmount;
         bool isDungeonInProgress = IsDungeonInProgress();
 
         if (isDungeonInProgress)
@@ -171,6 +170,8 @@ public class DungeonUIController : UIControllerBase
                 continue;
 
             bool firstStageUnlocked = IsFirstStageUnlocked(viewData.stageType);
+            BigDouble currentKeyAmount = CheckDungeon.GetTicketAmount(viewData.stageType, 1);
+            bool hasEnoughKey = currentKeyAmount >= new BigDouble(requiredCount);
             item.SetLocked(!firstStageUnlocked);
             item.SetNeededKeyState(currentKeyAmount, requiredCount, enoughKeyColor, notEnoughKeyColor);
             item.SetEnterInteractable(firstStageUnlocked && hasEnoughKey);
@@ -188,7 +189,7 @@ public class DungeonUIController : UIControllerBase
         if (!IsFirstStageUnlocked(stageType))
             return;
 
-        if (GetCurrentDungeonKeyAmount() < new BigDouble(RequiredKeyCount))
+        if (!CheckDungeon.HasEnoughTicket(stageType, 1, RequiredKeyCount))
             return;
 
         selectedStageType = stageType;
@@ -208,9 +209,9 @@ public class DungeonUIController : UIControllerBase
             enterPopupObject.SetActive(true);
     }
 
-    private void OnCurrencyChanged(CurrencyType type, BigDouble amount)
+    private void OnItemAmountChanged(InventoryItemContext item, BigDouble amount)
     {
-        if (type != CurrencyType.DungeonTicket)
+        if (item.ItemType != ItemType.Key)
             return;
 
         if (!isBuilt)
@@ -298,18 +299,6 @@ public class DungeonUIController : UIControllerBase
             return false;
 
         return CheckDungeon.HasDungeonAccess(stageType, 1);
-    }
-
-    private static BigDouble GetCurrentDungeonKeyAmount()
-    {
-        if (InventoryManager.Instance == null)
-            return BigDouble.Zero;
-
-        CurrencyInventoryModule currencyModule = InventoryManager.Instance.GetModule<CurrencyInventoryModule>();
-        if (currencyModule == null)
-            return BigDouble.Zero;
-
-        return currencyModule.GetAmount(CurrencyType.DungeonTicket);
     }
 
     private static bool IsDungeonInProgress()

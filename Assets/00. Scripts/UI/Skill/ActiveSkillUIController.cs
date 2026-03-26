@@ -327,6 +327,7 @@ public class ActiveSkillUIController : UIControllerBase
             int capturedIndex = i;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => OnPresetButtonClicked(capturedIndex));
+            UiButtonSoundPlayer.Ensure(button, UiSoundIds.DefaultButton);
         }
     }
 

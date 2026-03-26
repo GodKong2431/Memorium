@@ -69,6 +69,7 @@ public class BattleSkillSlotView : MonoBehaviour
             defaultButtonColors = rootButton.colors;
             rootButton.onClick.RemoveListener(HandleSlotClick);
             rootButton.onClick.AddListener(HandleSlotClick);
+            UiButtonSoundPlayer.Ensure(rootButton, UiSoundIds.DefaultButton);
         }
 
         SetEmpty();

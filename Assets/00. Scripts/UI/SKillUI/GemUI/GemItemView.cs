@@ -27,6 +27,7 @@ public class GemItemView : MonoBehaviour
         {
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(HandleClick);
+            UiButtonSoundPlayer.Ensure(button, UiSoundIds.DefaultButton);
         }
     }
 

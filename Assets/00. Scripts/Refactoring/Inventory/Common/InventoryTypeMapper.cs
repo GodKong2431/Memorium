@@ -11,9 +11,6 @@ public static class InventoryTypeMapper
             case ItemType.PaidCurrency:
                 currencyType = CurrencyType.Crystal;
                 return true;
-            case ItemType.Key:
-                currencyType = CurrencyType.DungeonTicket;
-                return true;
             default:
                 currencyType = default;
                 return false;

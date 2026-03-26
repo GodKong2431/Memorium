@@ -569,7 +569,6 @@ public sealed class MiscContentsUIController : UIControllerBase
         {
             case ItemType.FreeCurrency:
             case ItemType.PaidCurrency:
-            case ItemType.Key:
                 return true;
             default:
                 return false;
@@ -594,26 +593,7 @@ public sealed class MiscContentsUIController : UIControllerBase
 
     private static int CompareEntryOrder(MiscItemEntry lhs, MiscItemEntry rhs)
     {
-        int categoryCompare = GetCategoryOrder(lhs.ItemType).CompareTo(GetCategoryOrder(rhs.ItemType));
-        if (categoryCompare != 0)
-            return categoryCompare;
-
-        int nameCompare = string.Compare(lhs.Name, rhs.Name, StringComparison.Ordinal);
-        if (nameCompare != 0)
-            return nameCompare;
-
         return lhs.ItemId.CompareTo(rhs.ItemId);
-    }
-
-    private static int GetCategoryOrder(ItemType itemType)
-    {
-        if (itemType == ItemType.SkillScroll)
-            return 0;
-
-        if (IsGemType(itemType))
-            return 1;
-
-        return 2;
     }
 
     private static bool IsGemType(ItemType itemType)
