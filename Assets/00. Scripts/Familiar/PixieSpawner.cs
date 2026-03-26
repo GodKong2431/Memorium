@@ -1,6 +1,8 @@
 
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.AI;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class PixieSpawner : MonoBehaviour
@@ -113,8 +115,16 @@ public class PixieSpawner : MonoBehaviour
     {
         if (obj == null) return;
 
+        StartCoroutine(PlayerPosInitBeforeSetUpPixie(obj, data));
+    }
+
+    IEnumerator PlayerPosInitBeforeSetUpPixie(GameObject obj, OwnedPixieData data)
+    {
+        NavMeshAgent agent = GetComponent<NavMeshAgent>();
+        yield return new WaitUntil(() => agent.isOnNavMesh);
         spawnedPixie = obj.GetComponent<PixieFollower>();
         spawnedPixie.gameObject.SetActive(true);
+        //여기서 플레이어 위치 값이 초기화됐는지 확인해야 하는디
         spawnedPixie.Init(transform, data, effectController, playerStateMachine._ctx);
     }
 

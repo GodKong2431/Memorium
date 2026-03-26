@@ -87,12 +87,14 @@ public class PixieFollower : MonoBehaviour
     public void Init(Transform target, OwnedPixieData data, EffectController playerEffectController, PlayerStateContext stateContext)
     {
         this.followTarget = target;
+
         this.fairyData = data;
         this.stateContext = stateContext;
         maxSpeed = CharacterStatManager.Instance.GetFinalStat(StatType.MOVE_SPEED) * 1.2f;
 
         var effectProvider = GetComponent<PixieEffectProvider>();
         effectProvider.Init(data, target, playerEffectController, stateContext);
+        Debug.Log("[PixieFollowe] 플레이어 위치 이동 시도 : Init");
         Warp();
         EffectLoadAndSpawn(data.pixieId);
     }
@@ -110,6 +112,7 @@ public class PixieFollower : MonoBehaviour
 
         if (dist >= teleportDistance)
         {
+            Debug.Log("[PixieFollowe] 플레이어 위치 이동 시도 : CalculateMovement");
             Warp();
             currentSpeed = 0f;
             return;
@@ -135,7 +138,9 @@ public class PixieFollower : MonoBehaviour
     public void Warp()
     {
         var pos = followTarget.position;
-        transform.position = new Vector3(pos.x, 0f, pos.z);
+        //transform.position = new Vector3(pos.x, 0f, pos.z);
+        transform.position = pos;
+        Debug.Log("[PixieFollowe] 플레이어 위치로 이동");//이거 시작하자마자 이동해서 그렇다. 만약 warp 할거면 플레이어 위치가 초기화 된 후 해야 한다
         currentSpeed = 0f;
         moveDirection = Vector3.zero;
         lastUpdateTime = Time.time;
