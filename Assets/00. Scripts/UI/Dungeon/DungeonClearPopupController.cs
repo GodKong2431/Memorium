@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,8 @@ public sealed class DungeonClearPopupController : MonoBehaviour
     {
         public StageType stageType = StageType.None;
         public RectTransform panelRoot;
+        public TMP_Text dungeonNameText;
+        public RectTransform rewardContentRoot;
         public Button exitButton;
         public Button nextLevelButton;
         public TMP_Text nextLevelButtonText;
@@ -34,15 +37,16 @@ public sealed class DungeonClearPopupController : MonoBehaviour
 
     [Header("Entry")]
     [SerializeField] private int requiredKeyCount = 1;
+    [SerializeField] private GameObject equipmentRewardItemPrefab;
     [SerializeField] private string nextLevelLabel = "다음 단계";
     [SerializeField] private string retryLabel = "재도전";
 
-    private readonly StageKeyCatalog stageKeyCatalog = new StageKeyCatalog();
     private DungeonClearPanelBinding activePanelBinding;
     private StageType activeStageType = StageType.None;
     private int activeStageLevel = 1;
     private bool isFailurePopup;
     private bool isButtonBound;
+    private readonly List<RewardManager.DungeonRewardEntry> rewardPreviewBuffer = new List<RewardManager.DungeonRewardEntry>();
 
     private void Awake()
     {
@@ -74,6 +78,7 @@ public sealed class DungeonClearPopupController : MonoBehaviour
         if (popupRoot == null)
             popupRoot = transform as RectTransform;
 
+        RefreshActivePanel();
         UpdateNextButtonState();
     }
 
@@ -93,10 +98,11 @@ public sealed class DungeonClearPopupController : MonoBehaviour
             return false;
 
         activeStageType = stageType;
-        activeStageLevel = Mathf.Max(1, stageLevel);
+        activeStageLevel = CheckDungeon.ClampLevel(stageType, Mathf.Max(1, stageLevel));
         isFailurePopup = showFailureState;
 
         ApplyDungeonPanelVisibility(stageType);
+        RefreshActivePanel();
         UpdateNextButtonState();
 
         if (clearTitleText != null)
@@ -144,13 +150,16 @@ public sealed class DungeonClearPopupController : MonoBehaviour
             activeStageType = stageType;
 
         int targetLevel = ResolveTargetLevel(stageType, activeStageLevel, out _);
-        if (!CheckDungeon.HasDungeonAccess(stageType, targetLevel))
+        if (!CheckDungeon.CanEnter(stageType, targetLevel, requiredKeyCount))
+            return;
+
+        if (!CheckDungeon.TryGetDungeonReq(stageType, targetLevel, out int dungeonId, out _))
             return;
 
         if (!CheckDungeon.TrySpendTicket(stageType, targetLevel, requiredKeyCount))
             return;
 
-        if (CheckDungeon.TryGetDungeonReq(stageType, targetLevel, out int dungeonId, out _) && DungeonManager.Instance != null)
+        if (DungeonManager.Instance != null)
             DungeonManager.Instance.currentDungeonID = dungeonId;
 
         HidePopup();
@@ -213,7 +222,34 @@ public sealed class DungeonClearPopupController : MonoBehaviour
             activePanelBinding.nextLevelButtonText.text = isRetry ? retryLabel : nextLevelLabel;
 
         if (activePanelBinding.nextLevelButton != null)
-            activePanelBinding.nextLevelButton.interactable = CheckDungeon.HasDungeonAccess(activeStageType, targetLevel);
+            activePanelBinding.nextLevelButton.interactable = CheckDungeon.CanEnter(activeStageType, targetLevel, requiredKeyCount);
+    }
+
+    private void RefreshActivePanel()
+    {
+        if (activePanelBinding == null)
+            return;
+
+        if (activePanelBinding.dungeonNameText != null)
+            activePanelBinding.dungeonNameText.text = $"{DungeonUIController.GetDungeonName(activeStageType)} {activeStageLevel}단계";
+
+        if (activePanelBinding.rewardContentRoot != null && !activePanelBinding.rewardContentRoot.gameObject.activeSelf)
+            activePanelBinding.rewardContentRoot.gameObject.SetActive(true);
+
+        rewardPreviewBuffer.Clear();
+        bool hasActualRewards = false;
+        if (!isFailurePopup && RewardManager.Instance != null)
+            hasActualRewards = RewardManager.Instance.TryGetLastDungeonClearRewards(activeStageType, activeStageLevel, rewardPreviewBuffer);
+
+        if (!hasActualRewards && RewardManager.Instance != null)
+            RewardManager.Instance.TryGetDungeonRewardPreview(activeStageType, activeStageLevel, rewardPreviewBuffer);
+
+        DungeonContentUI.RebuildRewardItems(
+            activePanelBinding.rewardContentRoot,
+            rewardPreviewBuffer,
+            DungeonUIController.LoadRewardIcon,
+            true,
+            equipmentRewardItemPrefab);
     }
 
     private DungeonClearPanelBinding FindPanelBinding(StageType stageType)
@@ -254,10 +290,7 @@ public sealed class DungeonClearPopupController : MonoBehaviour
 
     private int ResolveMaxLevelCount(StageType stageType)
     {
-        if (!stageKeyCatalog.TryGetStageKeys(stageType, out System.Collections.Generic.List<int> stageKeys))
-            return 1;
-
-        return Mathf.Max(1, stageKeys.Count);
+        return Mathf.Max(1, CheckDungeon.GetMaxLevelCount(stageType));
     }
 
 }

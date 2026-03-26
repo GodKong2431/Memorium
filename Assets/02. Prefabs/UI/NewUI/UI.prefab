@@ -3611,6 +3611,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2381418798088913845}
   - component: {fileID: 1937495062589756469}
+  - component: {fileID: 9100999999999999702}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -3637,10 +3638,10 @@ RectTransform:
   m_Father: {fileID: 4072086832631689173}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: -0.000030517578, y: 0}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1937495062589756469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3665,6 +3666,20 @@ MonoBehaviour:
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 99999
+--- !u!114 &9100999999999999702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 320287565867325623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
 --- !u!1 &325135898854762367
 GameObject:
   m_ObjectHideFlags: 0
@@ -12182,8 +12197,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 7004207258501508334}
+  m_Children: []
   m_Father: {fileID: 7128635887855992391}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -17678,25 +17692,34 @@ MonoBehaviour:
   panelBindings:
   - stageType: 2
     panelRoot: {fileID: 4634916036699184730}
+    dungeonNameText: {fileID: 6577169808535323217}
+    rewardContentRoot: {fileID: 486511222245606775}
     exitButton: {fileID: 3815126991185911993}
     nextLevelButton: {fileID: 6691596687430921499}
     nextLevelButtonText: {fileID: 2544537959718065109}
   - stageType: 3
     panelRoot: {fileID: 4072731876536818798}
+    dungeonNameText: {fileID: 8285663966879104498}
+    rewardContentRoot: {fileID: 4937297563613296835}
     exitButton: {fileID: 2289183053996877985}
     nextLevelButton: {fileID: 1142062588949089264}
     nextLevelButtonText: {fileID: 583243842246100377}
   - stageType: 4
     panelRoot: {fileID: 5718645872551686525}
+    dungeonNameText: {fileID: 6742068424383791791}
+    rewardContentRoot: {fileID: 2591063905021959252}
     exitButton: {fileID: 7734164700068680674}
     nextLevelButton: {fileID: 802026949858845127}
     nextLevelButtonText: {fileID: 2334923762325770247}
   - stageType: 5
     panelRoot: {fileID: 8208349710145996475}
+    dungeonNameText: {fileID: 7343335789435517779}
+    rewardContentRoot: {fileID: 8367396789561341343}
     exitButton: {fileID: 8114224889798590777}
     nextLevelButton: {fileID: 2410510863426373433}
     nextLevelButtonText: {fileID: 4873486504659628579}
   requiredKeyCount: 1
+  equipmentRewardItemPrefab: {fileID: 8470297352295664229, guid: d206eece595ede74a8330c2d733765f4, type: 3}
   nextLevelLabel: "\uB2E4\uC74C \uB2E8\uACC4"
   retryLabel: "\uC7AC\uB3C4\uC804"
 --- !u!1 &1597054860866740911
@@ -65308,6 +65331,7 @@ MonoBehaviour:
   enterButton: {fileID: 4195668316341147689}
   rewardScrollRect: {fileID: 959194330347954203}
   rewardContentRoot: {fileID: 2381418798088913845}
+  equipmentRewardItemPrefab: {fileID: 8470297352295664229, guid: d206eece595ede74a8330c2d733765f4, type: 3}
   maximumUsePanel: {fileID: 2592165963328888119}
   popupContentRoot: {fileID: 0}
 --- !u!1 &5813644111503900546
@@ -82622,7 +82646,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &956608073318984858
 RectTransform:
   m_ObjectHideFlags: 0
@@ -95706,6 +95730,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8367396789561341343}
   - component: {fileID: 8292900735745596179}
+  - component: {fileID: 9100999999999999703}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -95733,7 +95758,7 @@ RectTransform:
   m_Father: {fileID: 1287003522282721127}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
@@ -95763,6 +95788,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &9100999999999999703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8657729280375145258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
 --- !u!1 &8676569445031421732
 GameObject:
   m_ObjectHideFlags: 0
@@ -98943,6 +98982,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2591063905021959252}
   - component: {fileID: 5280348798296645373}
+  - component: {fileID: 9100999999999999704}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -98966,7 +99006,7 @@ RectTransform:
   m_Father: {fileID: 3248081250297892652}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
@@ -98996,6 +99036,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &9100999999999999704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8912194036411866497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
 --- !u!1 &8913824449757583217
 GameObject:
   m_ObjectHideFlags: 0

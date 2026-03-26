@@ -49,8 +49,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         }
     }
 
-    private readonly StageKeyCatalog stageKeyCatalog = new StageKeyCatalog();
-    private readonly List<int> currentRewardItemIds = new List<int>();
+    private readonly List<RewardManager.DungeonRewardEntry> currentRewardEntries = new List<RewardManager.DungeonRewardEntry>();
 
     [Header("UI")]
     [SerializeField] private Image dungeonBackgroundImage;
@@ -62,6 +61,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     [SerializeField] private Button enterButton;
     [SerializeField] private ScrollRect rewardScrollRect;
     [SerializeField] private RectTransform rewardContentRoot;
+    [SerializeField] private GameObject equipmentRewardItemPrefab;
     [SerializeField] private GameObject maximumUsePanel;
     [SerializeField] private RectTransform popupContentRoot;
 
@@ -85,6 +85,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     {
         EnsureRuntimeReferences();
         currentStageType = StageType.None;
+        currentRewardEntries.Clear();
         SetOverlayVisible(false);
         RestoreOriginalPresentation();
 
@@ -151,7 +152,6 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     public void Show(
         StageType stageType,
         string dungeonName,
-        IReadOnlyList<int> rewardItemIds,
         int requiredKeyCount)
     {
         if (StageManager.Instance != null && StageManager.Instance.IsDungeonInProgress)
@@ -166,19 +166,14 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
 
         currentStageType = stageType;
         currentRequiredKeyCount = Mathf.Max(1, requiredKeyCount);
-        maxLevelCount = ResolveMaxLevelCount(stageType);
-        maxUnlockedLevel = ResolveMaxUnlockedLevel(stageType, maxLevelCount);
-        currentLevel = Mathf.Clamp(maxUnlockedLevel, 1, Mathf.Max(1, maxLevelCount));
-
-        currentRewardItemIds.Clear();
-        if (rewardItemIds != null)
-            currentRewardItemIds.AddRange(rewardItemIds);
+        maxLevelCount = Mathf.Max(1, CheckDungeon.GetMaxLevelCount(stageType));
+        maxUnlockedLevel = CheckDungeon.GetMaxUnlockedLevel(stageType);
+        currentLevel = CheckDungeon.ClampLevel(stageType, maxUnlockedLevel);
 
         if (dungeonNameText != null)
             dungeonNameText.text = dungeonName;
 
         ApplyDungeonPreview(stageType);
-        RebuildRewards(currentRewardItemIds);
 
         PresentAsOverlay();
         gameObject.SetActive(true);
@@ -209,8 +204,9 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         if (curLevelText != null)
             curLevelText.text = currentLevel.ToString();
 
+        RefreshRewards();
+
         bool isLevelUnlocked = CheckDungeon.HasDungeonAccess(currentStageType, currentLevel);
-        bool hasEnoughKeys = HasEnoughKeys();
 
         if (beforeButton != null)
             beforeButton.interactable = currentLevel > 1;
@@ -222,7 +218,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             sweepButton.interactable = isLevelUnlocked;
 
         if (enterButton != null)
-            enterButton.interactable = isLevelUnlocked && hasEnoughKeys;
+            enterButton.interactable = CheckDungeon.CanEnter(currentStageType, currentLevel, currentRequiredKeyCount);
     }
 
     private void OnClickBefore()
@@ -261,12 +257,6 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             return;
         }
 
-        if (!CheckDungeon.HasDungeonAccess(currentStageType, currentLevel))
-        {
-            RefreshState();
-            return;
-        }
-
         int ticketCost = currentRequiredKeyCount;
 
         if (IsMaximumUseEnabled())
@@ -275,13 +265,25 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             Debug.LogWarning("[DungeonLevelPopupUI] 열쇠 전부 사용");
         }
 
+        if (!CheckDungeon.CanEnter(currentStageType, currentLevel, ticketCost))
+        {
+            RefreshState();
+            return;
+        }
+
+        if (!CheckDungeon.TryGetDungeonReq(currentStageType, currentLevel, out int dungeonId, out _))
+        {
+            RefreshState();
+            return;
+        }
+
         if (!CheckDungeon.TrySpendTicket(currentStageType, currentLevel, ticketCost))
         {
             RefreshState();
             return;
         }
 
-        if (CheckDungeon.TryGetDungeonReq(currentStageType, currentLevel, out int dungeonId, out _))
+        if (DungeonManager.Instance != null)
             DungeonManager.Instance.currentDungeonID = dungeonId;
 
         StageManager.Instance.SetStageType(currentStageType, currentLevel);
@@ -306,69 +308,21 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         // TODO: 배경 스프라이트 변경
     }
 
-    private void RebuildRewards(IReadOnlyList<int> rewardItemIds)
+    private void RefreshRewards()
     {
-        if (rewardContentRoot == null || rewardContentRoot.childCount == 0)
-            return;
-
-        Transform template = rewardContentRoot.GetChild(0);
-        int rewardCount = rewardItemIds != null ? rewardItemIds.Count : 0;
-
-        for (int i = 0; i < rewardCount; i++)
-        {
-            Transform rewardItem = i < rewardContentRoot.childCount
-                ? rewardContentRoot.GetChild(i)
-                : Instantiate(template, rewardContentRoot, false);
-
-            rewardItem.name = $"(Btn)ItemFrame_{rewardItemIds[i]}";
-            rewardItem.gameObject.SetActive(true);
-
-            Sprite icon = DungeonUIController.LoadRewardIcon(rewardItemIds[i]);
-            ApplyRewardIcon(rewardItem, icon);
-        }
-
-        for (int i = rewardCount; i < rewardContentRoot.childCount; i++)
-            rewardContentRoot.GetChild(i).gameObject.SetActive(false);
+        currentRewardEntries.Clear();
+        RewardManager.Instance?.TryGetDungeonRewardPreview(currentStageType, currentLevel, currentRewardEntries);
+        RebuildRewards(currentRewardEntries);
     }
 
-    private static void ApplyRewardIcon(Transform rewardItem, Sprite icon)
+    private void RebuildRewards(IReadOnlyList<RewardManager.DungeonRewardEntry> rewards)
     {
-        Image[] images = rewardItem.GetComponentsInChildren<Image>(true);
-        for (int i = 0; i < images.Length; i++)
-        {
-            if (images[i] == null || images[i].transform == rewardItem)
-                continue;
-
-            images[i].sprite = icon;
-            return;
-        }
-    }
-
-    private int ResolveMaxLevelCount(StageType stageType)
-    {
-        if (!stageKeyCatalog.TryGetStageKeys(stageType, out List<int> stageKeys))
-            return 1;
-
-        return Mathf.Max(1, stageKeys.Count);
-    }
-
-    private static int ResolveMaxUnlockedLevel(StageType stageType, int maxLevel)
-    {
-        int highestUnlockedLevel = 0;
-        for (int level = 1; level <= maxLevel; level++)
-        {
-            if (!CheckDungeon.HasDungeonAccess(stageType, level))
-                break;
-
-            highestUnlockedLevel = level;
-        }
-
-        return Mathf.Clamp(highestUnlockedLevel == 0 ? 1 : highestUnlockedLevel, 1, Mathf.Max(1, maxLevel));
-    }
-
-    private bool HasEnoughKeys()
-    {
-        return CheckDungeon.HasEnoughTicket(currentStageType, currentLevel, currentRequiredKeyCount);
+        DungeonContentUI.RebuildRewardItems(
+            rewardContentRoot,
+            rewards,
+            DungeonUIController.LoadRewardIcon,
+            true,
+            equipmentRewardItemPrefab);
     }
 
     private bool IsMaximumUseEnabled()

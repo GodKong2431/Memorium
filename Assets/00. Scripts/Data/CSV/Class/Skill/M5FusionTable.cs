@@ -11,7 +11,7 @@ public class M5FusionTable : TableBase
     public float duration;
     public float tickInterval;
     public float defDown;
-    public string fusionSound;
+    public int fusionSound;
     public string fusionVFX;
     public string desc;
 }
