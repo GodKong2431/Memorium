@@ -16,6 +16,7 @@ public class PoisonEffect : StatusEffectBase
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         base.OnApply(target, buffApplicable);
+        SoundManager.Instance.PlayCombatSfx(tableData.m5SFX);
         PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(tableData.m5VFX, target.transform, true, false, onSpawned: OnParticleSpawned));
     }
 

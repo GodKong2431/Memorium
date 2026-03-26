@@ -105,6 +105,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     }
     private void CacheGemButtonImages()
     {
+        if (gemButtonImages != null) return;
         if (gemButtons == null) return;
 
         gemButtonImages = new Image[gemEquipObjects.Length];
@@ -123,6 +124,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         EnsureSetup();
         EnsureOverlayParent();
         BindButtonsOnce();
+        CacheGemButtonImages();
         currentSkillId = skillId;
         showingDefaultInfo = true;
         ApplyView(table, ownedData);
@@ -269,7 +271,6 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     private void ApplyDefaultInfo(SkillInfoTable table, OwnedSkillData ownedData)
     {
         int level = ownedData != null ? ownedData.level : 0;
-        Debug.Log($"[SkillInfoPanel] skillId={currentSkillId} level={level} maxLevel={ownedData?.MaxLevel}");
 
         SetNumberText(currentLevelText, ownedData != null ? ownedData.level : 0);
         SetNumberText(maxLevelText, ownedData != null ? ownedData.MaxLevel : 0);

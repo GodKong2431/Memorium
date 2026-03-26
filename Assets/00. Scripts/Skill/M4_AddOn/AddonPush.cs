@@ -13,8 +13,14 @@ public class AddonPush : ISkillHitAddon
         float distance = dataContext.m4Data.m4Distance;
         float duration = dataContext.m4Data.m4Duration;
 
+#if UNITY_EDITOR
+        Debug.Log("넉백");
+#endif
         if (target.TryGetComponent<IKnockbackable>(out var damageable))
         {
+#if UNITY_EDITOR
+            Debug.Log("타겟넉백");
+#endif
             damageable.ApplyKnockback(direction, distance, duration);
         }
     }

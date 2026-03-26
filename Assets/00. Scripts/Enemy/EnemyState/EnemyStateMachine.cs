@@ -74,13 +74,24 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     public bool IsAlive => _currentType != EnemyStateType.Dead;
     public bool isMoving => Context.Agent.velocity.sqrMagnitude > 0.1f;
 
+    //넉백 필드
+    private bool _isKnockbackActive;
+    private KnockbackInfo _knockbackInfo;
+    private float _knockbackSpeed;
+    private float _knockbackElapsedTime;
+    private Vector3 _knockbackStartPos;
+    private bool _wasRootMotionEnabled;
+
+    private bool _wasKinematic;
+    private Rigidbody _rb;
     private void Awake()
     {
         var agent = GetComponent<NavMeshAgent>();
         var statPresenter = GetComponent<EnemyStatPresenter>();
         var skillHandler = GetComponent<EnemySkillHandler>();
         var effectController = GetComponent<EffectController>();
-
+        if (_rb == null)
+            _rb = GetComponent<Rigidbody>();
         ResolveAssets(statPresenter);
 
         _ctx = new EnemyStateContext
@@ -209,10 +220,87 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
         {
             _ctx.BossAttackManager.Tick(Time.deltaTime);
         }
+        UpdateKnockback();
 
         _current.OnUpdate(_ctx);
     }
+    public void ApplyKnockback(Vector3 direction, float distance, float duration)
+    {
+        if (!IsAlive) return;
 
+        _knockbackInfo = new KnockbackInfo
+        {
+            direction = direction,
+            distance = distance,
+            duration = duration
+        };
+
+        _knockbackSpeed = distance / duration;
+        _knockbackElapsedTime = 0f;
+        _isKnockbackActive = true;
+        _knockbackStartPos = _ctx.EnemyTransform.position;
+
+        if (_ctx.Agent != null && _ctx.Agent.isActiveAndEnabled)
+        {
+            _ctx.Agent.enabled = false;
+        }
+        if (_ctx.Animator != null)
+        {
+            _wasRootMotionEnabled = _ctx.Animator.applyRootMotion;
+            _ctx.Animator.applyRootMotion = false;
+        }
+        if (_rb != null)
+        {
+            _wasKinematic = _rb.isKinematic;
+            _rb.isKinematic = true;
+        }
+    }
+
+    private void UpdateKnockback()
+    {
+        if (!_isKnockbackActive) return;
+
+        if (_knockbackElapsedTime < _knockbackInfo.duration)
+        {
+            _knockbackElapsedTime += Time.deltaTime;
+
+            Vector3 direction = _knockbackInfo.direction;
+            direction.y = 0f;
+            direction = direction.normalized;
+
+            float step = _knockbackSpeed * Time.deltaTime;
+            _ctx.EnemyTransform.position += direction * step;
+
+            float movedDist = Vector3.Distance(_knockbackStartPos, _ctx.EnemyTransform.position);
+        }
+        else
+        {
+            _isKnockbackActive = false;
+
+            float finalDist = Vector3.Distance(_knockbackStartPos, _ctx.EnemyTransform.position);
+            if (_ctx.Animator != null)
+            {
+                _ctx.Animator.applyRootMotion = _wasRootMotionEnabled;
+            }
+            if (_rb != null)
+            {
+                _rb.isKinematic = _wasKinematic;
+            }
+            if (_ctx.Agent != null)
+            {
+                _ctx.Agent.enabled = true;
+
+                if (NavMesh.SamplePosition(_ctx.EnemyTransform.position, out var hit, 2.0f, NavMesh.AllAreas))
+                {
+                    _ctx.Agent.Warp(hit.position);
+                }
+                else
+                {
+                    _ctx.Agent.Warp(_ctx.EnemyTransform.position);
+                }
+            }
+        }
+    }
     private void OnRequestStateChange(EnemyStateType next)
     {
         ChangeState(next);
@@ -267,28 +355,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             ChangeState(EnemyStateType.Onhit);
     }
 
-    /// <summary>
-    /// 외부에서 넉백 또는 당기기시 호출
-    /// </summary>
-    /// <param name="direction"></param>
-    /// <param name="distance"></param>
-    /// <param name="duration"></param>
-    public void ApplyKnockback(Vector3 direction, float distance, float duration)
-    {
-
-        _ctx.PendingKnockback = new KnockbackInfo
-        {
-            direction = direction,
-            distance = distance,
-            duration = duration
-        };
-
-        if (!IsAlive) return;
-        if (_currentType != EnemyStateType.Dead)
-        {
-            ChangeState(EnemyStateType.Onhit);
-        }
-    }
 
     /// <summary>
     /// 풀에서 재스폰될 때 호출. 체력·상태·에이전트 리셋.

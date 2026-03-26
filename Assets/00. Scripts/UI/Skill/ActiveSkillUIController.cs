@@ -699,7 +699,6 @@ public class ActiveSkillUIController : UIControllerBase
         if (m4Id != 0 && DataManager.Instance.SkillModule4Dict.TryGetValue(m4Id, out var m4Data))
         {
             sprite = SkillIconResolver.TryLoad(m4Data.m4Icon);
-            Debug.Log($"{m4Data.m4Icon}");
 
         }
 
@@ -710,7 +709,6 @@ public class ActiveSkillUIController : UIControllerBase
             {
 
                 sprite = SkillIconResolver.TryLoad(m5Data.m5Icon);
-                Debug.Log($"{m5Data.m5Icon}");
             }
         }
 

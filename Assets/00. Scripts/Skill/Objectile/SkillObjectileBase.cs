@@ -4,9 +4,11 @@ public abstract class SkillObjectileBase : MonoBehaviour, ISkillDetectable
 {
     protected ISkillHitHandler owner;     
     protected SkillData data;             
-    protected LayerMask targetLayer;       
+    protected LayerMask targetLayer;
 
     protected Collider[] hitBuffer = new Collider[SkillConstants.HIT_BUFFER_SIZE];
+
+    protected Collider[] cachedTargets = new Collider[SkillConstants.HIT_BUFFER_SIZE];
 
     public Collider[] GetBuffer() => hitBuffer;
 
@@ -25,7 +27,10 @@ public abstract class SkillObjectileBase : MonoBehaviour, ISkillDetectable
         debugLastCastPos =transform.position;
 
     }
-
+    public Collider[] GetAddonBuffer()
+    {
+        return cachedTargets; 
+    }
     protected virtual void OnDrawGizmos()
     {
         if (data == null || data.m2Data == null) return;
