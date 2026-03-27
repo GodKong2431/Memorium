@@ -10,18 +10,8 @@ using UnityEngine.AI;
 /// </summary>
 public class EnemyStateAttack : IEnemyState
 {
-    private enum Skill2AnimPhase
-    {
-        None,
-        WaitTaunt,
-        WaitAttack,
-        Done
-    }
-
-    private const string Skill2TauntTrigger = "Taunt";
-    private const string Skill2AttackTrigger = "Animation_Boss_Attack_Normal";
-    private const float Skill2IdleToTauntDelay = 0.12f;
-    private const float Skill2TauntToAttackDelay = 0.22f;
+    /// <summary>보스 skillAttack2: Animator 서브 SM(Skill2Flow) 진입용 단일 트리거</summary>
+    private const string BossSkill2SubStateTrigger = "Animation_Boss_Attack_Skill2";
     private const float SkillAttackEffectLifeTime = 1.5f;
 
     private float _attackEndTime;
@@ -30,8 +20,6 @@ public class EnemyStateAttack : IEnemyState
     private bool _isSkillAttack;
     private bool _damageApplied;
     private BossManageTable _currentBossAttack;
-    private Skill2AnimPhase _skill2AnimPhase;
-    private float _skill2NextAnimTime;
     public EnemyStateType Type => EnemyStateType.Attack;
 
     public void OnEnter(EnemyStateContext ctx)
@@ -92,22 +80,12 @@ public class EnemyStateAttack : IEnemyState
             PlayBossAreaPrepareSound(ctx);
 
         if (_currentBossAttack.attackType == AttackType.skillAttack2)
-        {
-            _skill2AnimPhase = Skill2AnimPhase.WaitTaunt;
-            _skill2NextAnimTime = Time.time + Skill2IdleToTauntDelay;
-            ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Idle);
-        }
+            ctx.SetAnimatorTrigger(BossSkill2SubStateTrigger);
         // 애니메이션 트리거는 BossManageTable.animation 값을 그대로 사용한다고 가정
         else if (!string.IsNullOrEmpty(_currentBossAttack.animation))
-        {
-            _skill2AnimPhase = Skill2AnimPhase.None;
             ctx.SetAnimatorTrigger(_currentBossAttack.animation);
-        }
         else
-        {
-            _skill2AnimPhase = Skill2AnimPhase.None;
             ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
-        }
 
         if (HasValidBossParticleEffectKey(_currentBossAttack))
             SpawnBossTableParticleEffect(ctx, _currentBossAttack);
@@ -140,8 +118,6 @@ public class EnemyStateAttack : IEnemyState
         {
             if (ctx.FaceTargetWhileAttacking && ctx.PlayerTransform != null)
                 RotateTowardsTarget(ctx.EnemyTransform, ctx.PlayerTransform.position, ctx.AttackTurnSpeed);
-
-            UpdateSkill2AnimationSequence(ctx);
 
             if (_attackInProgress && Time.time >= _attackEndTime)
             {
@@ -180,7 +156,7 @@ public class EnemyStateAttack : IEnemyState
                 }
 
                 _attackInProgress = false;
-                ClearAttackEffect();
+                ClearAttackEffect(ctx);
                 ctx.RequestState(EnemyStateType.Chase);
             }
         }
@@ -211,7 +187,7 @@ public class EnemyStateAttack : IEnemyState
                 }
             }
             _attackInProgress = false;
-            ClearAttackEffect();
+            ClearAttackEffect(ctx);
             ctx.RequestState(EnemyStateType.Chase);
         }
     }
@@ -221,13 +197,11 @@ public class EnemyStateAttack : IEnemyState
         if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled && ctx.Agent.isOnNavMesh)
             ctx.Agent.updateRotation = true;
 
-        ClearAttackEffect();
+        ClearAttackEffect(ctx);
         _currentBossAttack = null;
-        _skill2AnimPhase = Skill2AnimPhase.None;
-        _skill2NextAnimTime = 0f;
     }
 
-    private void ClearAttackEffect()
+    private void ClearAttackEffect(EnemyStateContext ctx)
     {
         if (_currentAttackEffect != null)
         {
@@ -296,32 +270,6 @@ public class EnemyStateAttack : IEnemyState
         GameObject effect = Object.Instantiate(ctx.SkillAttackEffectPrefab, spawnPos, Quaternion.identity);
         if (SkillAttackEffectLifeTime > 0f)
             Object.Destroy(effect, SkillAttackEffectLifeTime);
-    }
-
-    private void UpdateSkill2AnimationSequence(EnemyStateContext ctx)
-    {
-        if (_currentBossAttack == null || _currentBossAttack.attackType != AttackType.skillAttack2)
-            return;
-
-        if (_skill2AnimPhase == Skill2AnimPhase.Done || Time.time < _skill2NextAnimTime)
-            return;
-
-        if (_skill2AnimPhase == Skill2AnimPhase.WaitTaunt)
-        {
-            ctx.SetAnimatorTrigger(Skill2TauntTrigger);
-            _skill2AnimPhase = Skill2AnimPhase.WaitAttack;
-            _skill2NextAnimTime = Time.time + Skill2TauntToAttackDelay;
-            return;
-        }
-
-        if (_skill2AnimPhase == Skill2AnimPhase.WaitAttack)
-        {
-            // skillAttack2는 마지막 단계를 항상 Attack으로 고정한다.
-            // CSV animation 값이 Taunt/빈값인 경우에도 공격 모션으로 확실히 넘어가도록 강제.
-            ctx.SetAnimatorTrigger(Skill2AttackTrigger);
-
-            _skill2AnimPhase = Skill2AnimPhase.Done;
-        }
     }
 
     private static void PlayAttackHitSound(EnemyStateContext ctx)

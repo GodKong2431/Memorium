@@ -1667,10 +1667,10 @@ GameObject:
   - component: {fileID: 4155712937089923410}
   - component: {fileID: 5108986457297822603}
   - component: {fileID: 618621799190646691}
-  - component: {fileID: 1499544219749399491}
   - component: {fileID: -4960599674456142728}
+  - component: {fileID: 2943429106693624101}
   m_Layer: 6
-  m_Name: 2020001_AbyssLord 1
+  m_Name: 2020003_EarthGuardian
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6563,6 +6563,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStatPresenter
   monsterIdFromDataManager: 2020002
+  _data:
+    monsterID: 
+    monsterName: 
+    monsterType: 
+    monsterHealth: 0
+    monsterAttackpoint: 0
+    monsterAttackspeed: 0
+    monsterSpeed: 0
+    attackRange: 0
+    monsterDefense: 0
 --- !u!195 &4155712937089923410
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -6615,6 +6625,8 @@ MonoBehaviour:
   animator: {fileID: 8821505893171259612}
   animationConfig: {fileID: 0}
   attackEffectPrefab: {fileID: 0}
+  skillAttackEffectPrefab: {fileID: 0}
+  skillAttackEffectOffset: {x: 0, y: 0, z: 0}
   attackEffectScaleMultiplier: 0.2
   chaseTurnSpeed: 6
   attackTurnSpeed: 10
@@ -6631,27 +6643,6 @@ MonoBehaviour:
   bossAreaAttackPrepareSoundId: 0
   bossAreaAttackCastSoundId: 0
   assetDatabaseOverride: {fileID: 11400000, guid: 71fdfc997ae904943a84ed37cbcfbea7, type: 2}
---- !u!135 &1499544219749399491
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7581462744483251969}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 1.7875857
-  m_Center: {x: -4.2124332e-10, y: 1.1164584, z: 0.17112787}
 --- !u!54 &-4960599674456142728
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -6679,6 +6670,29 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!136 &2943429106693624101
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7581462744483251969}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.7
+  m_Height: 3
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.4, z: 0}
 --- !u!1 &7809730416499482034
 GameObject:
   m_ObjectHideFlags: 0
