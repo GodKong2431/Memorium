@@ -8432,7 +8432,7 @@ GameObject:
   - component: {fileID: 2419254218947479086}
   - component: {fileID: 2372473625673498668}
   m_Layer: 6
-  m_Name: 2010010_AbyssalCatapult
+  m_Name: 2010006_Medusa
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10440,7 +10440,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a3af68a6d5ca364e9fdec187c11d870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStatPresenter
-  monsterIdFromDataManager: 2010010
+  monsterIdFromDataManager: 2010006
+  _data:
+    monsterID: 
+    monsterName: 
+    monsterType: 
+    monsterHealth: 0
+    monsterAttackpoint: 0
+    monsterAttackspeed: 0
+    monsterSpeed: 0
+    attackRange: 0
+    monsterDefense: 0
 --- !u!195 &5853924480435346973
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -10493,7 +10503,13 @@ MonoBehaviour:
   animator: {fileID: 1986317322321342292}
   animationConfig: {fileID: 0}
   attackEffectPrefab: {fileID: 0}
+  skillAttackEffectPrefab: {fileID: 0}
+  skillAttackEffectOffset: {x: 0, y: 0, z: 0}
   attackEffectScaleMultiplier: 0.2
+  chaseTurnSpeed: 6
+  attackTurnSpeed: 10
+  faceTargetWhileAttacking: 1
+  maxAttackAngle: 60
   onHitEffectPrefab: {fileID: 0}
   attackSoundId: 0
   onHitSoundId: 0
