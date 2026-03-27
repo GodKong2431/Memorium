@@ -89,10 +89,12 @@ public sealed partial class StoneUI : UIControllerBase
     private Coroutine bootstrapRoutine;
     private bool built;
     private bool bindingsWarningLogged;
-    private bool panelEventsBound;
     private StoneGrade? selectedGrade;
     private int selectedTier;
     private int currentTierIndex;
+    private PopupStackService.Handle bonusInfoPopupHandle;
+    private PopupStackService.Handle upgradePopupHandle;
+    private PopupStackService.Handle upgradeConfirmPopupHandle;
     
     protected override void Initialize()
     {
@@ -119,6 +121,18 @@ public sealed partial class StoneUI : UIControllerBase
         StopBootstrap();
         UnsubscribeStatManager();
         UnregisterPanelEvents();
+        PopupStackService.Dismiss(ref upgradeConfirmPopupHandle);
+        PopupStackService.Dismiss(ref upgradePopupHandle);
+        PopupStackService.Dismiss(ref bonusInfoPopupHandle);
+
+        if (infoPanel != null)
+            SetPanelActive(infoPanel.gameObject, false);
+
+        if (upgradePanel != null)
+        {
+            upgradePanel.HidePopups();
+            SetPanelActive(upgradePanel.gameObject, false);
+        }
     }
 
     protected override void RefreshView()
@@ -310,24 +324,6 @@ public sealed partial class StoneUI : UIControllerBase
 
     private void RegisterPanelEvents()
     {
-        // 패널 바깥 클릭 이벤트는 중복 등록을 막는다.
-        if (panelEventsBound)
-        {
-            return;
-        }
-
-        if (infoPanel != null)
-        {
-            infoPanel.OutsideClicked += CloseBonusInfoPanel;
-        }
-
-        if (upgradePanel != null)
-        {
-            upgradePanel.OutsideClicked += CloseUpgradePanel;
-            upgradePanel.PopupOutsideClicked += CloseUpgradePopups;
-        }
-
-        panelEventsBound = true;
     }
 
     private void BindStaticButtons()
@@ -379,23 +375,6 @@ public sealed partial class StoneUI : UIControllerBase
 
     private void UnregisterPanelEvents()
     {
-        if (!panelEventsBound)
-        {
-            return;
-        }
-
-        if (infoPanel != null)
-        {
-            infoPanel.OutsideClicked -= CloseBonusInfoPanel;
-        }
-
-        if (upgradePanel != null)
-        {
-            upgradePanel.OutsideClicked -= CloseUpgradePanel;
-            upgradePanel.PopupOutsideClicked -= CloseUpgradePopups;
-        }
-
-        panelEventsBound = false;
     }
 
     private void EnsureStoneItemPool()

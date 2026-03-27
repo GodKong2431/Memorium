@@ -42,6 +42,7 @@ public sealed class CachaResultPopupUI : MonoBehaviour
     private Coroutine revealRoutine;
     private Action repeatAction;
     private Sprite defaultRepeatCurrencyIcon;
+    private PopupStackService.Handle popupHandle;
 
     private void Awake()
     {
@@ -60,6 +61,8 @@ public sealed class CachaResultPopupUI : MonoBehaviour
 
     private void OnDestroy()
     {
+        PopupStackService.Dismiss(ref popupHandle);
+
         if (revealRoutine != null)
             StopCoroutine(revealRoutine);
 
@@ -77,6 +80,16 @@ public sealed class CachaResultPopupUI : MonoBehaviour
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
 
+        RectTransform popupRoot = transform as RectTransform;
+        PopupStackService.Present(ref popupHandle, new PopupStackService.Request
+        {
+            PopupRoot = popupRoot,
+            ContentRoot = popupRoot,
+            OverlayParent = popupRoot != null ? popupRoot.parent as RectTransform : null,
+            OnRequestClose = Hide,
+            CloseOnOutside = false
+        });
+
         RebuildResultItems(gachaType, result);
         RefreshRepeatButton(gachaType, drawCount);
         RefreshLayout(drawCount);
@@ -86,6 +99,7 @@ public sealed class CachaResultPopupUI : MonoBehaviour
     public void Hide()
     {
         repeatAction = null;
+        PopupStackService.Dismiss(ref popupHandle);
         if (revealRoutine != null)
         {
             StopCoroutine(revealRoutine);

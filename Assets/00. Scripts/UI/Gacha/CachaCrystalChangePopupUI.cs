@@ -18,6 +18,7 @@ public sealed class CachaCrystalChangePopupUI : MonoBehaviour
 
     private Action confirmAction;
     private Sprite crystalIconSprite;
+    private PopupStackService.Handle popupHandle;
 
     private void Awake()
     {
@@ -33,6 +34,8 @@ public sealed class CachaCrystalChangePopupUI : MonoBehaviour
 
     private void OnDestroy()
     {
+        PopupStackService.Dismiss(ref popupHandle);
+
         if (buttonConfirm != null)
             buttonConfirm.onClick.RemoveListener(OnConfirmClicked);
 
@@ -66,12 +69,23 @@ public sealed class CachaCrystalChangePopupUI : MonoBehaviour
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
 
+        RectTransform popupRoot = transform as RectTransform;
+        PopupStackService.Present(ref popupHandle, new PopupStackService.Request
+        {
+            PopupRoot = popupRoot,
+            ContentRoot = popupRoot,
+            OverlayParent = popupRoot != null ? popupRoot.parent as RectTransform : null,
+            OnRequestClose = Hide,
+            CloseOnOutside = false
+        });
+
         return true;
     }
 
     public void Hide()
     {
         confirmAction = null;
+        PopupStackService.Dismiss(ref popupHandle);
 
         if (gameObject.activeSelf)
             gameObject.SetActive(false);

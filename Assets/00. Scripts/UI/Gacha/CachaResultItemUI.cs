@@ -20,11 +20,20 @@ public sealed class CachaResultItemUI : MonoBehaviour
     private readonly List<Image> tierStars = new List<Image>();
     private Color[] defaultFrameColors;
     private Vector3 defaultScale;
+    private bool isInitialized;
 
     public bool IsRareResult { get; private set; }
 
     private void Awake()
     {
+        EnsureInitialized();
+    }
+
+    private void EnsureInitialized()
+    {
+        if (isInitialized)
+            return;
+
         if (imageTierStarTemplate == null && panelTierRoot != null && panelTierRoot.childCount > 0)
             imageTierStarTemplate = panelTierRoot.GetChild(0).GetComponent<Image>();
 
@@ -43,10 +52,15 @@ public sealed class CachaResultItemUI : MonoBehaviour
             buttonItem.onClick.RemoveAllListeners();
 
         defaultScale = transform.localScale;
+        if (defaultScale.sqrMagnitude <= Mathf.Epsilon)
+            defaultScale = Vector3.one;
+
+        isInitialized = true;
     }
 
     public void BindForResult(int itemId, int count)
     {
+        EnsureInitialized();
         IsRareResult = false;
         transform.localScale = defaultScale;
 
@@ -67,6 +81,7 @@ public sealed class CachaResultItemUI : MonoBehaviour
 
     public void PrepareForCustomDisplay()
     {
+        EnsureInitialized();
         IsRareResult = false;
         transform.localScale = defaultScale;
 
@@ -104,6 +119,7 @@ public sealed class CachaResultItemUI : MonoBehaviour
 
     public void SetTierDisplay(bool visible, int grade, Color starColor)
     {
+        EnsureInitialized();
         SetTierVisible(visible);
         if (visible)
             SetTierStarCount(Mathf.Max(1, grade), starColor);
@@ -111,16 +127,19 @@ public sealed class CachaResultItemUI : MonoBehaviour
 
     public void SetFrameTint(Color color)
     {
+        EnsureInitialized();
         SetFrameColor(color);
     }
 
     public void SetGemDisplay(bool visible)
     {
+        EnsureInitialized();
         SetGemVisible(visible);
     }
 
     public void ResetFrameTint()
     {
+        EnsureInitialized();
         ResetFrameColor();
     }
 
@@ -305,6 +324,8 @@ public sealed class CachaResultItemUI : MonoBehaviour
 
     public void PlayRareEffect()
     {
+        EnsureInitialized();
+
         if (SoundManager.Instance != null)
             SoundManager.Instance.PlayUiSfx(UiSoundIds.GachaJackpot);
 

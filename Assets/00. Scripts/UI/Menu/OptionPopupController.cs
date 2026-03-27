@@ -3,10 +3,12 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class OptionPopupController : MonoBehaviour
 {
-    [SerializeField] private OptionPopupPanelUI popupPanel;
+    [SerializeField] private OverlayPopupPanelUI popupPanel;
     [SerializeField] private bool closeOnStart = true;
 
     public static OptionPopupController Current { get; private set; }
+
+    private PopupStackService.Handle popupHandle;
 
     private void Awake()
     {
@@ -17,15 +19,11 @@ public sealed class OptionPopupController : MonoBehaviour
     private void OnEnable()
     {
         Current = this;
-
-        if (popupPanel != null)
-            popupPanel.OutsideClicked += ClosePopup;
     }
 
     private void OnDisable()
     {
-        if (popupPanel != null)
-            popupPanel.OutsideClicked -= ClosePopup;
+        PopupStackService.Dismiss(ref popupHandle);
 
         if (Current == this)
             Current = null;
@@ -61,11 +59,18 @@ public sealed class OptionPopupController : MonoBehaviour
             if (sheetObject != null && !sheetObject.activeSelf)
                 sheetObject.SetActive(true);
 
-            popupPanel.BringToFront();
-            popupPanel.SuppressClickForCurrentFrame();
+            PopupStackService.Present(ref popupHandle, new PopupStackService.Request
+            {
+                PopupRoot = popupRoot.transform as RectTransform,
+                ContentRoot = sheetRoot != null ? sheetRoot : popupRoot.transform as RectTransform,
+                OverlayParent = popupRoot.transform.parent as RectTransform,
+                OnRequestClose = ClosePopup,
+                CloseOnOutside = true
+            });
         }
         else if (popupRoot.activeSelf)
         {
+            PopupStackService.Dismiss(ref popupHandle);
             popupRoot.SetActive(false);
         }
 

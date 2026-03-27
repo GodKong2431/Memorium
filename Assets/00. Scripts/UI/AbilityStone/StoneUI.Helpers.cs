@@ -402,6 +402,14 @@ public sealed partial class StoneUI
         CloseUpgradePanel();
         SetPanelActive(infoPanel != null ? infoPanel.gameObject : null, shouldOpen);
 
+        if (!shouldOpen)
+        {
+            CloseBonusInfoPanel();
+            return;
+        }
+
+        ShowBonusInfoPopup();
+
         if (shouldOpen)
         {
             if (TryPrepareRuntimeData())
@@ -417,6 +425,7 @@ public sealed partial class StoneUI
 
     private void CloseBonusInfoPanel()
     {
+        PopupStackService.Dismiss(ref bonusInfoPopupHandle);
         SetPanelActive(infoPanel != null ? infoPanel.gameObject : null, false);
     }
 
@@ -432,6 +441,8 @@ public sealed partial class StoneUI
 
         if (selectedGrade == grade && selectedTier == tierIndex && upgradePanel.gameObject.activeSelf)
         {
+            ShowUpgradePopup();
+
             if (TryPrepareRuntimeData())
             {
                 RefreshUpgradePanel();
@@ -442,9 +453,10 @@ public sealed partial class StoneUI
 
         selectedGrade = grade;
         selectedTier = tierIndex;
-        SetPanelActive(infoPanel != null ? infoPanel.gameObject : null, false);
+        CloseBonusInfoPanel();
         SetPanelActive(upgradePanel.gameObject, true);
         upgradePanel.HidePopups();
+        ShowUpgradePopup();
 
         if (TryPrepareRuntimeData())
         {
@@ -460,9 +472,11 @@ public sealed partial class StoneUI
 
     private void CloseUpgradePanel()
     {
+        CloseUpgradePopups();
+        PopupStackService.Dismiss(ref upgradePopupHandle);
+
         if (upgradePanel != null)
         {
-            upgradePanel.HidePopups();
             SetPanelActive(upgradePanel.gameObject, false);
         }
 
@@ -481,6 +495,7 @@ public sealed partial class StoneUI
     private void CloseUpgradePopups()
     {
         // 확인 팝업 두 개는 같은 함수로 함께 닫는다.
+        PopupStackService.Dismiss(ref upgradeConfirmPopupHandle);
         upgradePanel?.HidePopups();
     }
 
@@ -501,6 +516,7 @@ public sealed partial class StoneUI
         if (upgradePanel.ReconfigurePopupRoot != null)
         {
             upgradePanel.ReconfigurePopupRoot.SetActive(true);
+            PresentUpgradeConfirmPopup(upgradePanel.ReconfigurePopupRoot, upgradePanel.ReconfigurePopupContentRoot);
         }
 
         RefreshReconfigurePopup(stoneData, true, currencyType);
@@ -524,9 +540,69 @@ public sealed partial class StoneUI
         if (upgradePanel.ResetPopupRoot != null)
         {
             upgradePanel.ResetPopupRoot.SetActive(true);
+            PresentUpgradeConfirmPopup(upgradePanel.ResetPopupRoot, upgradePanel.ResetPopupContentRoot);
         }
 
         RefreshResetPopup(stoneData, true, totalAttemptCount, currencyType);
+    }
+
+    private void ShowBonusInfoPopup()
+    {
+        if (infoPanel == null)
+            return;
+
+        RectTransform popupRoot = infoPanel.transform as RectTransform;
+        if (popupRoot == null)
+            return;
+
+        RectTransform contentRoot = infoPanel.PanelRoot != null ? infoPanel.PanelRoot : popupRoot;
+        PopupStackService.Present(ref bonusInfoPopupHandle, new PopupStackService.Request
+        {
+            PopupRoot = popupRoot,
+            ContentRoot = contentRoot,
+            OverlayParent = popupRoot.parent as RectTransform,
+            OnRequestClose = CloseBonusInfoPanel,
+            CloseOnOutside = true
+        });
+    }
+
+    private void ShowUpgradePopup()
+    {
+        if (upgradePanel == null)
+            return;
+
+        RectTransform popupRoot = upgradePanel.transform as RectTransform;
+        if (popupRoot == null)
+            return;
+
+        RectTransform contentRoot = upgradePanel.PanelRoot != null ? upgradePanel.PanelRoot : popupRoot;
+        PopupStackService.Present(ref upgradePopupHandle, new PopupStackService.Request
+        {
+            PopupRoot = popupRoot,
+            ContentRoot = contentRoot,
+            OverlayParent = popupRoot.parent as RectTransform,
+            OnRequestClose = CloseUpgradePanel,
+            CloseOnOutside = true
+        });
+    }
+
+    private void PresentUpgradeConfirmPopup(GameObject popupRootObject, RectTransform contentRoot)
+    {
+        if (upgradePanel == null || popupRootObject == null)
+            return;
+
+        RectTransform popupRoot = popupRootObject.transform as RectTransform;
+        if (popupRoot == null)
+            return;
+
+        PopupStackService.Present(ref upgradeConfirmPopupHandle, new PopupStackService.Request
+        {
+            PopupRoot = popupRoot,
+            ContentRoot = contentRoot != null ? contentRoot : popupRoot,
+            OverlayParent = upgradePanel.transform as RectTransform,
+            OnRequestClose = CloseUpgradePopups,
+            CloseOnOutside = true
+        });
     }
 
     private void UpdateNextGradeButton(StoneGrade grade, bool unlocked, int tier)

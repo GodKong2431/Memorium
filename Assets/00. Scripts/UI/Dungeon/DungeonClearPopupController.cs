@@ -101,6 +101,9 @@ public sealed class DungeonClearPopupController : MonoBehaviour
         activeStageLevel = CheckDungeon.ClampLevel(stageType, Mathf.Max(1, stageLevel));
         isFailurePopup = showFailureState;
 
+        popupRoot.gameObject.SetActive(true);
+        popupRoot.SetAsLastSibling();
+
         ApplyDungeonPanelVisibility(stageType);
         RefreshActivePanel();
         UpdateNextButtonState();
@@ -111,8 +114,6 @@ public sealed class DungeonClearPopupController : MonoBehaviour
             clearTitleText.gameObject.SetActive(true);
         }
 
-        popupRoot.gameObject.SetActive(true);
-        popupRoot.SetAsLastSibling();
         return true;
     }
 
