@@ -227,6 +227,7 @@ public class ActiveSkillUIController : UIControllerBase
             bool canTriggerStateAction = CanTriggerStateAction(ownedData, visualState, currentCount);
             ActiveSkillItemGemSlotDisplayData[] upgradeGemSlots = BuildUpgradeGemSlots(pair.Key, ownedData);
             bool canLevelUp = skillModule.CanLevelUpSkill(pair.Key);
+            Sprite levelUpCostIcon = SkillIconResolver.TryLoadScrollIcon(table);
             string levelUpCostString;
             if (ownedData != null)
             {
@@ -260,7 +261,8 @@ public class ActiveSkillUIController : UIControllerBase
                     canTriggerStateAction,
                     upgradeGemSlots,
                     canLevelUp, 
-                    levelUpCostString),
+                    levelUpCostString,
+                    levelUpCostIcon),
                 HandleSkillDetailRequested,
                 BeginEquipSelection,
                 HandleItemStateActionClicked,

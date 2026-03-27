@@ -39,13 +39,8 @@ public class BerserkerGageUI : MonoBehaviour
     private void OnEnable()
     {
         ActiveUis.Add(this);
-
-        if (berserkerOrb != null)
-        {
-            berserkerOrb.OnBerserkerOrbChanged += Refresh;
-            berserkerOrb.OnBerserkerOrbFull += OnBerserkerModeAutoTriggered;
-        }
-
+        EnsureRuntimeTargets();
+        BindBerserkerOrbEvents();
         BerserkerModeController.OnBerserkerModeChanged += OnBerserkerModeChanged;
 
         Refresh();
@@ -54,13 +49,7 @@ public class BerserkerGageUI : MonoBehaviour
     private void OnDisable()
     {
         ActiveUis.Remove(this);
-
-        if (berserkerOrb != null)
-        {
-            berserkerOrb.OnBerserkerOrbChanged -= Refresh;
-            berserkerOrb.OnBerserkerOrbFull -= OnBerserkerModeAutoTriggered;
-        }
-
+        UnbindBerserkerOrbEvents();
         BerserkerModeController.OnBerserkerModeChanged -= OnBerserkerModeChanged;
     }
 
@@ -72,6 +61,8 @@ public class BerserkerGageUI : MonoBehaviour
 
     private void Update()
     {
+        EnsureRuntimeTargets();
+
         if (berserkerModeController != null && berserkerModeController.IsActive)
             ApplyGaugeVisual();
     }
@@ -84,6 +75,7 @@ public class BerserkerGageUI : MonoBehaviour
 
     private void Refresh()
     {
+        EnsureRuntimeTargets();
         ApplyGaugeVisual();
 
         if (_button == null)
@@ -106,6 +98,8 @@ public class BerserkerGageUI : MonoBehaviour
 
     private void ApplyGaugeVisual()
     {
+        EnsureRuntimeTargets();
+
         if (fillImage == null)
             return;
 
@@ -164,6 +158,8 @@ public class BerserkerGageUI : MonoBehaviour
 
     private void TryActivate(bool playClickSound)
     {
+        EnsureRuntimeTargets();
+
         if (berserkerOrb == null || berserkerModeController == null)
             return;
 
@@ -192,5 +188,39 @@ public class BerserkerGageUI : MonoBehaviour
             SoundManager.Instance.PlayCombatSfx(UiSoundIds.BerserkerGaugeReady);
 
         _wasReady = isReady;
+    }
+
+    private void EnsureRuntimeTargets()
+    {
+        PlayerBerserkerOrb runtimeOrb = PlayerBerserkerOrb.Instance;
+        if (runtimeOrb != null && !ReferenceEquals(berserkerOrb, runtimeOrb))
+        {
+            UnbindBerserkerOrbEvents();
+            berserkerOrb = runtimeOrb;
+            BindBerserkerOrbEvents();
+        }
+
+        if (berserkerModeController == null || !ReferenceEquals(berserkerModeController, BerserkerModeController.Instance))
+            berserkerModeController = BerserkerModeController.Instance;
+    }
+
+    private void BindBerserkerOrbEvents()
+    {
+        if (berserkerOrb == null)
+            return;
+
+        berserkerOrb.OnBerserkerOrbChanged -= Refresh;
+        berserkerOrb.OnBerserkerOrbFull -= OnBerserkerModeAutoTriggered;
+        berserkerOrb.OnBerserkerOrbChanged += Refresh;
+        berserkerOrb.OnBerserkerOrbFull += OnBerserkerModeAutoTriggered;
+    }
+
+    private void UnbindBerserkerOrbEvents()
+    {
+        if (berserkerOrb == null)
+            return;
+
+        berserkerOrb.OnBerserkerOrbChanged -= Refresh;
+        berserkerOrb.OnBerserkerOrbFull -= OnBerserkerModeAutoTriggered;
     }
 }

@@ -51,6 +51,7 @@ public class StageManager : Singleton<StageManager>
     // 현재 스테이지 타입과 일반 스테이지 진행 값
     [SerializeField] private StageType curStageType;
     public int normalStage = 1;
+    private int normalStageBeforeDungeonEntry = 1;
 
     public StageType CurrentStageType => curStageType;
     public bool IsDungeonInProgress => curStageType != StageType.None && curStageType != StageType.NormalStage;
@@ -116,6 +117,7 @@ public class StageManager : Singleton<StageManager>
         var (savedCurStage, savedMaxStage, savedOnFailedStage) = saveStageData.InitStageData();
 
         normalStage = Mathf.Max(1, savedCurStage);
+        normalStageBeforeDungeonEntry = normalStage;
         if (savedMaxStage == null)
         {
             maxStage = new List<int>();
@@ -290,6 +292,7 @@ public class StageManager : Singleton<StageManager>
                 curStage++;
 
             normalStage = curStage;
+            normalStageBeforeDungeonEntry = normalStage;
             SetReward();
             SetKillCount();
             //infinityMap?.MapReset();
@@ -346,7 +349,7 @@ public class StageManager : Singleton<StageManager>
             else
             {
                 ResetDungeonClearFlow();
-                SetStageType(StageType.NormalStage, normalStage);
+                SetStageType(StageType.NormalStage, Mathf.Max(1, normalStageBeforeDungeonEntry));
                 SceneController.Instance.LoadScene(SceneType.StageScene);
             }
         }
@@ -400,6 +403,7 @@ public class StageManager : Singleton<StageManager>
 
 
             normalStage = curStage;
+            normalStageBeforeDungeonEntry = normalStage;
             SetReward();
             SetKillCount();
             //infinityMap?.MapReset();
@@ -447,7 +451,7 @@ public class StageManager : Singleton<StageManager>
             else
             {
                 ResetDungeonClearFlow();
-                SetStageType(StageType.NormalStage, normalStage);
+                SetStageType(StageType.NormalStage, Mathf.Max(1, normalStageBeforeDungeonEntry));
                 SceneController.Instance.LoadScene(SceneType.StageScene);
             }
         }
@@ -462,6 +466,11 @@ public class StageManager : Singleton<StageManager>
         monsterSpawner = null;
 
         int requestedLevel = Mathf.Max(1, level);
+
+        if (curStageType == StageType.NormalStage && dungeonType != StageType.NormalStage)
+            normalStageBeforeDungeonEntry = Mathf.Max(1, curStage);
+        else if (dungeonType == StageType.NormalStage)
+            normalStageBeforeDungeonEntry = Mathf.Max(1, requestedLevel);
 
         QueuePendingStageEntryRequest(dungeonType, requestedLevel);
         ApplyStageState(dungeonType, requestedLevel, updateNormalStage: dungeonType == StageType.NormalStage);
@@ -555,7 +564,10 @@ public class StageManager : Singleton<StageManager>
         }
 
         if (updateNormalStage)
+        {
             normalStage = curStage;
+            normalStageBeforeDungeonEntry = normalStage;
+        }
     }
 
     private bool CanQueueBossSpawn()

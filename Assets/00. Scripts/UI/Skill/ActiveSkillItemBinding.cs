@@ -38,6 +38,7 @@ public class ActiveSkillItemBinding : MonoBehaviour
     [Header("Level Up")]
     [SerializeField] private Button levelUpButton;
     [SerializeField] private TMP_Text levelUpCostText;
+    [SerializeField] private Image levelUpCostIconImage;
 
     public Image IconImage => iconImage;
     public TMP_Text NameLabel => nameLabel;
@@ -61,6 +62,7 @@ public class ActiveSkillItemBinding : MonoBehaviour
     public GameObject[] UpgradeGemLockObjects => upgradeGemLockObjects;
     public Button LevelUpButton => levelUpButton;
     public TMP_Text LevelUpCostText => levelUpCostText;
+    public Image LevelUpCostIconImage => levelUpCostIconImage;
 
     private void Awake()
     {
@@ -77,6 +79,9 @@ public class ActiveSkillItemBinding : MonoBehaviour
     public void EnsureReferences()
     {
         EnsureUpgradeGemArrays();
+
+        if (levelUpCostIconImage == null)
+            levelUpCostIconImage = FindLevelUpCostIcon();
 
         if (upgradeRoot == null)
             return;
@@ -119,6 +124,7 @@ public class ActiveSkillItemBinding : MonoBehaviour
                     upgradeGemLockObjects[i] = lockTransform.gameObject;
             }
         }
+
     }
 
     private void EnsureUpgradeGemArrays()
@@ -163,5 +169,21 @@ public class ActiveSkillItemBinding : MonoBehaviour
         }
 
         return null;
+    }
+
+    private Image FindLevelUpCostIcon()
+    {
+        Transform searchRoot = levelUpCostText != null
+            ? levelUpCostText.transform.parent
+            : null;
+
+        if (searchRoot == null && levelUpButton != null)
+            searchRoot = levelUpButton.transform.parent;
+
+        Transform iconTransform = FindChildRecursive(searchRoot, "(Img)GoldIcon");
+        if (iconTransform == null && searchRoot != null)
+            iconTransform = FindChildRecursive(searchRoot.parent, "(Img)GoldIcon");
+
+        return iconTransform != null ? iconTransform.GetComponent<Image>() : null;
     }
 }

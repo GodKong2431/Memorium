@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class MapManager : Singleton<MapManager>
 {
-    //생성할 맵 프리팹
+    // Map prefabs grouped by stage type.
     [SerializeField] private GameObject[] normalMapGroupsPrefab;
     [SerializeField] private GameObject[] goldDungeonMapGroupPrefab;
     [SerializeField] private GameObject[] expDungeonMapGroupPrefab;
@@ -17,11 +17,27 @@ public class MapManager : Singleton<MapManager>
 
     public List<MapPosInfo> mapPosInfo = new List<MapPosInfo>();
 
-    public bool mapSetting=false;
+    public bool mapSetting = false;
     public List<GameObject> maps = new List<GameObject>();
     public Dictionary<int, GameObject> mapGroups = new Dictionary<int, GameObject>();
 
     public bool readyToMonsterSpawnerMove = false;
+
+    private static int GetMapGroupKey(StageType stageType, int floor)
+    {
+        return ((int)stageType * 1000) + Mathf.Max(0, floor);
+    }
+
+    private bool TryGetLiveMapGroup(StageType stageType, int floor, out GameObject mapGroup)
+    {
+        int key = GetMapGroupKey(stageType, floor);
+        if (mapGroups.TryGetValue(key, out mapGroup) && mapGroup != null)
+            return true;
+
+        mapGroups.Remove(key);
+        mapGroup = null;
+        return false;
+    }
 
     protected override void Awake()
     {
@@ -32,37 +48,49 @@ public class MapManager : Singleton<MapManager>
         mapGroupPrefabByStageType[StageType.HallOfTraining] = expDungeonMapGroupPrefab;
         mapGroupPrefabByStageType[StageType.CelestiAlchemyWorkshop] = itemFarmingDungeonMapGroupPrefab;
         mapGroupPrefabByStageType[StageType.EidosTreasureVault] = rareItemDungeonMapGroupPrefab;
-
     }
+
     public void MapSetting(StageType curStageType, int curFloor)
     {
-        //처음 쵝화 시에는 현재 층이 0이라 스테이지 타입 같아도 상관 없음
-        if (curMapFloor == curFloor && curMapStageType == curStageType)
-            return;
+        bool hasCurrentLiveMap =
+            curMapFloor > 0 &&
+            TryGetLiveMapGroup(curMapStageType, curMapFloor, out _);
 
-        //이전 층의 맵은 비활성화
-        if (mapGroups.ContainsKey(curMapFloor) && mapGroups[curMapFloor]!=null)
-            mapGroups[curMapFloor].SetActive(false);
+        // This singleton survives scene loads, but the spawned map objects do not.
+        // Only skip setup when the cached map object is still alive.
+        if (curMapFloor == curFloor &&
+            curMapStageType == curStageType &&
+            hasCurrentLiveMap)
+        {
+            return;
+        }
+
+        if (TryGetLiveMapGroup(curMapStageType, curMapFloor, out GameObject previousMapGroup))
+            previousMapGroup.SetActive(false);
 
         curMapFloor = curFloor;
         curMapStageType = curStageType;
         mapGroupPrefab = mapGroupPrefabByStageType[curStageType];
         if (maps == null)
             maps = new List<GameObject>();
-        //층이 올라가거나 내려가는 것 모두 대비 <- 1층의 맵은 ~~다
-        if (!mapGroups.ContainsKey(curFloor) || mapGroups[curFloor] == null)
-            mapGroups[curFloor] = Instantiate(mapGroupPrefab[curFloor - 1]);
 
-        mapGroups[curMapFloor].SetActive(true);
+        int targetKey = GetMapGroupKey(curStageType, curFloor);
+        if (!TryGetLiveMapGroup(curStageType, curFloor, out GameObject currentMapGroup))
+        {
+            currentMapGroup = Instantiate(mapGroupPrefab[curFloor - 1]);
+            mapGroups[targetKey] = currentMapGroup;
+        }
+
+        currentMapGroup.SetActive(true);
 
         maps.Clear();
         mapPosInfo.Clear();
-        for (int i = 0; i < mapGroups[curFloor].transform.childCount; i++)
+        for (int i = 0; i < currentMapGroup.transform.childCount; i++)
         {
-            maps.Add(mapGroups[curFloor].transform.GetChild(i).gameObject);
+            maps.Add(currentMapGroup.transform.GetChild(i).gameObject);
             mapPosInfo.Add(maps[i].GetComponent<MapPosInfo>());
         }
-        
-        mapSetting=true;
+
+        mapSetting = true;
     }
 }
