@@ -1,6 +1,7 @@
 using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,8 @@ public class BingoContext
     public RectTransform retry {get; set;}
     public List<SynergyViewItem> SynergyViewObjects {get; set;}
     public List<BingoColumnSlot> Columns {get; set;}
+    
+    public List<TextMeshProUGUI> BingoButtons {get; set;}
     
     public BingoContext()
     {
