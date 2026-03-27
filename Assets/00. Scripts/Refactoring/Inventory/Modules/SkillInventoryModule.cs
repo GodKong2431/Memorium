@@ -321,7 +321,35 @@ public sealed class SkillInventoryModule : IInventoryModule
     }
     public SkillGemSlotData GetGemSlotData(int skillId)
     {
-        return gemPresetManager.GetPreset(presetHandler.CurrentPresetIndex)?.Get(skillId);
+        if (skillId <= 0)
+            return null;
+
+        SkillGemSlotData gemData = gemPresetManager.GetPreset(presetHandler.CurrentPresetIndex)?.Get(skillId);
+        if (gemData != null)
+            return gemData.Clone();
+
+        SkillPreset currentPreset = presetHandler.GetCurrentPreset();
+        if (currentPreset?.slots == null)
+            return null;
+
+        for (int i = 0; i < currentPreset.slots.Length; i++)
+        {
+            SkillPresetSlot slot = currentPreset.slots[i];
+            if (slot == null || slot.IsEmpty || slot.skillID != skillId)
+                continue;
+
+            SkillGemSlotData fallbackData = new SkillGemSlotData(skillId);
+            fallbackData.m4JemID = slot.m4JemID;
+            fallbackData.m5JemIDs[0] = slot.m5JemIDs != null && slot.m5JemIDs.Length > 0
+                ? slot.m5JemIDs[0]
+                : SkillPresetSlot.EmptySkillId;
+            fallbackData.m5JemIDs[1] = slot.m5JemIDs != null && slot.m5JemIDs.Length > 1
+                ? slot.m5JemIDs[1]
+                : SkillPresetSlot.EmptySkillId;
+            return fallbackData;
+        }
+
+        return null;
     }
     // 프리셋 슬롯에 스킬을 장착한다.
     public bool SetPresetSlot(int slotIndex, int skillId)
