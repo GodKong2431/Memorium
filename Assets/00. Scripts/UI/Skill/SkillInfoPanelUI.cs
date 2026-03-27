@@ -296,6 +296,9 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         if (levelUpCostText != null)
             levelUpCostText.gameObject.SetActive(showLevelUp);
 
+        if (levelUpCostText != null)
+            levelUpCostText.SetText(showLevelUp ? BuildLevelUpProgressText(ownedData) : string.Empty);
+
         if (!showLevelUp)
             return;
 
@@ -344,10 +347,9 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
             SetGemObjectState(gemAddObjects, i, isOpen && !hasEquippedGem);
             SetGemObjectState(gemEquipObjects, i, hasEquippedGem);
 
-            if (hasEquippedGem && gemButtonImages != null && i < gemButtonImages.Length && gemButtonImages[i] != null)
+            if (gemButtonImages != null && i < gemButtonImages.Length && gemButtonImages[i] != null)
             {
-                Sprite icon = GetGemIcon(equippedGemId);
-                gemButtonImages[i].sprite = icon;
+                gemButtonImages[i].sprite = hasEquippedGem ? GetGemIcon(equippedGemId) : null;
             }
         }
     }
@@ -579,6 +581,19 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
             return 0;
 
         return (int)ownedData.GetOwnedScrollCount().ToDouble();
+    }
+
+    private static string BuildLevelUpProgressText(OwnedSkillData ownedData)
+    {
+        if (ownedData == null)
+            return "0/MAX";
+
+        int ownedScrollCount = Mathf.FloorToInt(ownedData.GetOwnedScrollCount().ToFloat());
+        if (!ownedData.CanLevelUp)
+            return $"{ownedScrollCount}/MAX";
+
+        int requiredScrollCount = Mathf.FloorToInt(ownedData.GetLevelUpCost().ToFloat());
+        return $"{ownedScrollCount}/{requiredScrollCount}";
     }
 
     // 열린 젬 슬롯 수를 보유 데이터에서 계산합니다.
