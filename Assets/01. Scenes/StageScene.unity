@@ -1254,6 +1254,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!225 &786289389 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 2389451324916614233, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+  m_PrefabInstance: {fileID: 7151944950682389466}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &930009146
 GameObject:
   m_ObjectHideFlags: 0
@@ -4355,6 +4360,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8965816930541767416, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: bingobuttons.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8965816930541767416, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: 'bingobuttons.Array.data[0]'
+      value: 
+      objectReference: {fileID: 786289389}
+    - target: {fileID: 8965816930541767416, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: 'bingobuttons.Array.data[1]'
+      value: 
+      objectReference: {fileID: 754471149}
+    - target: {fileID: 8965816930541767416, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: 'bingobuttons.Array.data[2]'
+      value: 
+      objectReference: {fileID: 705879997}
+    - target: {fileID: 8965816930541767416, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: 'bingobuttons.Array.data[3]'
+      value: 
+      objectReference: {fileID: 1129891771}
     - target: {fileID: 8969864623361497231, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: stats
       value: 
