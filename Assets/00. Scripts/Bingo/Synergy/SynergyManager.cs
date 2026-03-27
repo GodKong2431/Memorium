@@ -134,8 +134,9 @@ public class SynergyManager : Singleton<SynergyManager>
             yield break;
         }
         
-        OnChangedSynergy?.Invoke(currentSynergy);
         currentSynergy.SynergyData = item.synergyData;
+        
+        OnChangedSynergy?.Invoke(currentSynergy);
     }
 
     public void TestSyer()
