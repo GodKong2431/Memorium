@@ -10,7 +10,7 @@ public class SynergyData
     public RarityType rarityType;
     public StatType statType1;
     public StatType statType2;
-    
+    public int dustProvided;
     public int count;
     public float statUp1;
     public float StatUp2;

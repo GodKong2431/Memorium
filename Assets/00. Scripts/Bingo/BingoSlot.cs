@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -11,14 +12,31 @@ public class BingoSlot : MonoBehaviour
     
     [SerializeField] private Image itemSprite;
     
-    [SerializeField] List<BingoLink> currentLink = new List<BingoLink>();
+    [SerializeField] RarityType currentType;
     
     [SerializeField] private int maxLink = 5;
     
     [SerializeField] private int row;
     [SerializeField] private int col;
     
-    [SerializeField] public int countnum = 0;
+    [SerializeField] private int _countnum = 0;
+    
+    [SerializeField] private int linkItemId;
+    
+    public int Countnum
+    {
+        get {return _countnum;}
+        set
+        {
+            _countnum = value;
+            
+            if(maxLink <= _countnum && currentType != RarityType.mythic)
+            {
+                NextLinkItemUP();
+                ResetCount();
+            }
+        }
+    }
     
     [SerializeField] public Button button;
     
@@ -113,19 +131,20 @@ public class BingoSlot : MonoBehaviour
         this.col = col;
     }
     
-    public void CountUP()
+    public void CountUP(int index)
     {
         if (!isUnlock)
         {
             isUnlock = true;
         }
         
-        countnum++;
+        Countnum += index;
         
     }
     public void ReCall()
     {
-        countnum = 0;
+        InventoryManager.Instance.AddItem(linkItemId, Countnum);
+        Countnum = 0;
         //인벤토리 연동
     }
     
@@ -161,11 +180,20 @@ public class BingoSlot : MonoBehaviour
     
     public int ReturnCount()
     {
-        return countnum;
+        return Countnum;
     }
     
     public void ResetCount()
     {
-        countnum = 0;
+        Countnum = 0;
+    }
+    
+    public void NextLinkItemUP()
+    {
+        if (currentType == RarityType.mythic)
+            return;
+            
+        int NextLinkItemId = linkItemId + 1;
+        InventoryManager.Instance.AddItem(NextLinkItemId, 1);
     }
 }

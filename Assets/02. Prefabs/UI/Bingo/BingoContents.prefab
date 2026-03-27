@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4845323965406518774}
   - component: {fileID: 7608597667608209004}
   m_Layer: 5
-  m_Name: "[\uD31D\uC5C5] \uC120\uD0DD\uB41C \uC2DC\uB108\uC9C0 \uC0C1\uC138\uC124\uBA85"
+  m_Name: "\uC120\uD0DD\uB41C \uC2DC\uB108\uC9C0 \uC0C1\uC138\uC124\uBA85"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3301,7 +3301,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8261680689650610701
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3398,7 +3398,7 @@ GameObject:
   - component: {fileID: 5129864823773487818}
   - component: {fileID: 617674023776806703}
   - component: {fileID: 5557976120878928300}
-  - component: {fileID: 3684353278655427384}
+  - component: {fileID: 2264885580502392142}
   m_Layer: 5
   m_Name: "\uBC84\uD2BC_\uC2DC\uB108\uC9C0 \uBD84\uD574"
   m_TagString: Untagged
@@ -3464,7 +3464,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &3684353278655427384
+--- !u!114 &2264885580502392142
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3473,9 +3473,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1466524500316409341}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Toggle
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0
@@ -3505,9 +3505,13 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 5557976120878928300}
-  m_OnClick:
+  toggleTransition: 1
+  graphic: {fileID: 0}
+  m_Group: {fileID: 0}
+  onValueChanged:
     m_PersistentCalls:
       m_Calls: []
+  m_IsOn: 0
 --- !u!1 &1473476422446163215
 GameObject:
   m_ObjectHideFlags: 0
@@ -5110,6 +5114,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4029153054286367759}
+  - component: {fileID: 6279006350830971398}
   m_Layer: 5
   m_Name: Dia
   m_TagString: Untagged
@@ -5136,6 +5141,18 @@ RectTransform:
   m_AnchoredPosition: {x: 220.31995, y: -218.87048}
   m_SizeDelta: {x: 99.365, y: 96.27}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &6279006350830971398
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1995661397377929245}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2003240822014903997
 GameObject:
   m_ObjectHideFlags: 0
@@ -5544,7 +5561,7 @@ GameObject:
   - component: {fileID: 750026262108159560}
   - component: {fileID: 4165561526994986716}
   m_Layer: 5
-  m_Name: "[\uD31D\uC5C5]\uBC84\uD2BC_\uC2DC\uB108\uC9C0 \uBD84\uD574 \uD655\uC815"
+  m_Name: "\uBC84\uD2BC_\uC2DC\uB108\uC9C0 \uBD84\uD574 \uD655\uC815"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5773,6 +5790,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 4968705464376388935}
+        m_TargetAssemblyTypeName: BingoUI, Assembly-CSharp
+        m_MethodName: OnIDSet
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3410004
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 4968705464376388935}
         m_TargetAssemblyTypeName: BingoUI, Assembly-CSharp
         m_MethodName: OnClickBingoGacha
@@ -6331,14 +6360,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.81046486, g: 0, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cbbe9c9dd83daca47b4da6d1f7525ca0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 16061e8a27f52094481f290916bd7999, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6831,6 +6860,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 4968705464376388935}
+        m_TargetAssemblyTypeName: BingoUI, Assembly-CSharp
+        m_MethodName: OnIDSet
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3410002
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 4968705464376388935}
         m_TargetAssemblyTypeName: BingoUI, Assembly-CSharp
         m_MethodName: OnClickBingoGacha
@@ -8786,6 +8827,7 @@ GameObject:
   - component: {fileID: 2427135289938374876}
   - component: {fileID: 1048011802133333829}
   - component: {fileID: 7059503487795307411}
+  - component: {fileID: 4448480489947644475}
   m_Layer: 5
   m_Name: Row
   m_TagString: Untagged
@@ -8876,6 +8918,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!225 &4448480489947644475
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3428982592519693430}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3683054334190612078
 GameObject:
   m_ObjectHideFlags: 0
@@ -9560,6 +9614,18 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 4968705464376388935}
         m_TargetAssemblyTypeName: BingoUI, Assembly-CSharp
+        m_MethodName: OnIDSet
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3410001
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 4968705464376388935}
+        m_TargetAssemblyTypeName: BingoUI, Assembly-CSharp
         m_MethodName: OnClickBingoGacha
         m_Mode: 3
         m_Arguments:
@@ -9885,6 +9951,7 @@ GameObject:
   - component: {fileID: 7775991492513484105}
   - component: {fileID: 5978648527050053846}
   - component: {fileID: 6577864325570511489}
+  - component: {fileID: 5290578866624378671}
   m_Layer: 5
   m_Name: Col
   m_TagString: Untagged
@@ -9975,6 +10042,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!225 &5290578866624378671
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4325257135573015363}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4515331352646766218
 GameObject:
   m_ObjectHideFlags: 0
@@ -10383,6 +10462,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 4968705464376388935}
+        m_TargetAssemblyTypeName: BingoUI, Assembly-CSharp
+        m_MethodName: OnIDSet
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3410003
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 4968705464376388935}
         m_TargetAssemblyTypeName: BingoUI, Assembly-CSharp
         m_MethodName: OnClickBingoGacha
@@ -11791,7 +11882,7 @@ GameObject:
   - component: {fileID: 8298892836381374766}
   - component: {fileID: 4699144876099470257}
   m_Layer: 5
-  m_Name: "[\uD31D\uC5C5] \uC544\uC774\uD15C \uD130\uCE58 \uC2DC"
+  m_Name: "\uC544\uC774\uD15C \uD130\uCE58 \uC2DC"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13044,12 +13135,19 @@ MonoBehaviour:
   - {fileID: 8118982970767625272}
   - {fileID: 3507487507821598630}
   - {fileID: 2176362843259968651}
+  BingoButtons:
+  - {fileID: 3709157001729640310}
+  - {fileID: 4884705705702505866}
+  - {fileID: 6010967750161415450}
+  - {fileID: 2884761744229727315}
+  - {fileID: 2463780788615554440}
   SlotColumns:
   - {fileID: 188373366433742218}
   - {fileID: 8856641814079431456}
   - {fileID: 2512163051656820208}
   - {fileID: 252457973731528817}
   retry: {fileID: 4845374974834092600}
+  linkItemId: 0
 --- !u!114 &8931287115813792261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13244,7 +13342,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cbbe9c9dd83daca47b4da6d1f7525ca0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0bdd4e5890900234691603964d704c79, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13526,14 +13624,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.9402026, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cbbe9c9dd83daca47b4da6d1f7525ca0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1f9d1f72cbae4dc4f952e947bdc2f92f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13602,14 +13700,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.43476006, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cbbe9c9dd83daca47b4da6d1f7525ca0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6f8905973a05b814c88391c46cdfe3e6, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13786,7 +13884,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BingoItemManager
   _currentItem: {fileID: 0}
   pluckItems: []
-  bingobuttons: {fileID: 5454283457342492011}
+  bingobuttons:
+  - {fileID: 5454283457342492011}
+  - {fileID: 5290578866624378671}
+  - {fileID: 4448480489947644475}
+  - {fileID: 6279006350830971398}
 --- !u!1 &6779719925471599682
 GameObject:
   m_ObjectHideFlags: 0
@@ -14606,6 +14708,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 4968705464376388935}
+        m_TargetAssemblyTypeName: BingoUI, Assembly-CSharp
+        m_MethodName: OnIDSet
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3410005
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 4968705464376388935}
         m_TargetAssemblyTypeName: BingoUI, Assembly-CSharp
         m_MethodName: OnClickBingoGacha
@@ -16608,14 +16722,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.9748427, b: 0.26611346, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cbbe9c9dd83daca47b4da6d1f7525ca0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bbfc7437192316742a6efe25225cfd23, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -17304,7 +17418,7 @@ GameObject:
   - component: {fileID: 6997446278200633202}
   - component: {fileID: 1074164899227778730}
   m_Layer: 5
-  m_Name: "[\uD31D\uC5C5] \uD328\uB110_\uC2DC\uB108\uC9C0 \uBCC0\uACBD"
+  m_Name: "\uD328\uB110_\uC2DC\uB108\uC9C0 \uBCC0\uACBD"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17444,6 +17558,8 @@ MonoBehaviour:
   _currentItem: {fileID: 0}
   retryUI: {fileID: 5407080938707147612}
   synergyChangeButton: {fileID: 1227214383645885914}
+  currencyText: {fileID: 201336166097309932}
+  dismantleToggle: {fileID: 2264885580502392142}
   _isDismantleMode: 0
 --- !u!114 &1074164899227778730
 MonoBehaviour:
@@ -18168,7 +18284,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6905923673795853812, guid: 90a07e76cd32d694bb3ddba824fac507, type: 3}
       propertyPath: m_Name
-      value: "[\uD31D\uC5C5] \uD328\uB110_\uB9AC\uD2B8\uB77C\uC774 \uBC84\uD2BC \uADF8\uB8F9"
+      value: "\uD328\uB110_\uB9AC\uD2B8\uB77C\uC774 \uBC84\uD2BC \uADF8\uB8F9"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

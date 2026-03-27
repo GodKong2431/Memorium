@@ -21,6 +21,9 @@ public class SynergyUI : MonoBehaviour
     [SerializeField] private SynergyItem _currentItem;
     [SerializeField] private RetryUI retryUI;
     [SerializeField] private Button synergyChangeButton;
+    [SerializeField] private TextMeshProUGUI currencyText;
+
+    [SerializeField] private Toggle dismantleToggle;
 
     [SerializeField] private bool _isDismantleMode;    
     public bool isDismantleMode
@@ -64,13 +67,22 @@ public class SynergyUI : MonoBehaviour
     void Start()
     {
         SynergyManager.Instance.retryUI = retryUI;
+        currencyText.text = $"{InventoryManager.Instance.GetItemAmount(3450001).ToFloat()}";
         synergyChangeButton.onClick.AddListener(()=>SynergyManager.Instance.TestSyer());
         SetSynergy();
     }
 
+    void OnEnable()
+    {
+        InventoryManager.Instance.OnItemAmountChanged += UpdateDustCurreny;
+    }
+
+
     void OnDisable()
     {
+        InventoryManager.Instance.OnItemAmountChanged -= UpdateDustCurreny;
         currentItem = null;
+        dismantleToggle.isOn = false;
         gameObject.SetActive(false);
     }
     public static string GetSynergyText(SynergyStat synergyStat)
@@ -99,7 +111,9 @@ public class SynergyUI : MonoBehaviour
             {
                 var item = Instantiate(SynergyManager.Instance.synergyDataSo.SynergyItems[synergy.Key], rectTransform);
                 item.LoadSynergy(synergy.Key,synergyStat.Key);
-                item.SetButton(this);
+                
+                dismantleToggle.onValueChanged.AddListener(_ => item.SetButton(this,_));
+                
                 
                 // Toggle itemToggle = item.GetComponent<Toggle>();
                 // if (itemToggle == null)
@@ -115,6 +129,14 @@ public class SynergyUI : MonoBehaviour
                 synergyItems.Add(item);
             }
         }
+    }
+    
+    public void UpdateDustCurreny(InventoryItemContext item, BigDouble amount)
+    {
+        if (item.ItemId != 3450001)
+            return;
+            
+        currencyText.text = $"{InventoryManager.Instance.GetItemAmount(item.ItemId).ToFloat()}";
     }
     
     public void DismantleModeSet()

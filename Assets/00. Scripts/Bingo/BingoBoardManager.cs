@@ -29,7 +29,7 @@ public struct SynergySlotSaveData
 public struct BingoBoardSaveData
 {
     List<BingoSlotSaveData> bingoSlotSaveDatas;
-    
+
     List<SynergySlotSaveData> SynergySlotSaveDatas;
 }
 
@@ -95,7 +95,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             return;
         }
         
-        ctx.BoardTransform.onClick.AddListener(() => OnClick(bingoItemManager.itemBase is AgainItem item ? item : null));
+        ctx.BoardTransform.onClick.AddListener(() => OnClick(bingoItemManager.itemBase as AgainItem));
         
         // slotTest.onClick.RemoveAllListeners();
         // slotTest.onClick.AddListener(()=> Testpe());
@@ -164,9 +164,11 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             {
                 bingoBoardSO.RaritySolts.TryGetValue(slotColumn[row], out var bingoSlot);
                 BingoSlot slotItem = Instantiate(bingoSlot , slotColumns[col].transform);
+                
                 slotColumns[col].bingoSlotDatas.Add(slotItem);
                 
                 slotItem.Init(col,row);
+                
                 slotItem.UpdateUnlock += RowSynergy[row].Check;
                 slotItem.UpdateUnlock += ColSynergy[col].Check;
                 
@@ -240,13 +242,33 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     {
         RarityType cellRarity = (RarityType)enumIndex;
         
+        if (RarityType.mythic == (RarityType)enumIndex)
+        {
+            SlotGradeList.TryGetValue(RarityType.mythic, out var bingoSlots);
+            
+            int unlockCount = 0;
+            
+            foreach(var slot in bingoSlots)
+            {
+                if (slot.isUnlock)
+                    unlockCount++;
+            }
+            
+            if (bingoSlots.Count <= unlockCount)
+            {
+                return;
+            }
+            
+        }
+        
+        if (!InventoryManager.Instance.RemoveItem(id,1))
+            return;
+        
         if (againItem != null)
         {
             againItem.UseItem();
             againItem = null;
         }
-            
-        InventoryManager.Instance.RemoveItem(id,1);
         
         StartCoroutine(GachaStart(cellRarity));
     }
@@ -283,7 +305,9 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         }
         
         ResetItem();
-        slot.CountUP();
+        slot.CountUP(1);
+        
+        //여기서 저장
     }
     
     void OnEvent()

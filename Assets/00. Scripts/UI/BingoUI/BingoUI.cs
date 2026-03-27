@@ -43,7 +43,14 @@ public class BingoUI : MonoBehaviour
     void Start()
     {
         Init();
-        OnSetLinkCounter();
+        
+        int id = 3410001;
+        
+        foreach(var text in BingoButtons)
+        {
+            text.text = $"{InventoryManager.Instance.GetItemAmount(id).ToFloat()}";
+            id++;
+        }
     }
 
     void OnEnable()
@@ -68,21 +75,16 @@ public class BingoUI : MonoBehaviour
     public void OnSetLinkCounter(InventoryItemContext item, BigDouble amount)
     {
         int startId = 3410001;
-    int endId = startId + BingoButtons.Count - 1;
+        int endId = startId + BingoButtons.Count - 1;
 
-    if (item.ItemId < startId || item.ItemId > endId)
-        return;
+        if (item.ItemId < startId || item.ItemId > endId)
+            return;
 
-    OnSetLinkCounter();
+        OnSetLinkCounter(item.ItemId);
     }
     
-    public void OnSetLinkCounter()
+    public void OnSetLinkCounter(int id)
     {
-        int id = 3410001;
-        foreach(var link in BingoButtons)
-        {
-            link.text = $"{InventoryManager.Instance.GetItemAmount(id).ToFloat()}";
-            id++;
-        }
+            BingoButtons[id-3410001].text = $"{InventoryManager.Instance.GetItemAmount(id).ToFloat()}";
     }
 }

@@ -9,8 +9,14 @@ public class SynergyItem : MonoBehaviour
     
     [SerializeField] private Image statImage;
     [SerializeField] private TextMeshProUGUI increaseStatText;
-    [SerializeField] private TextMeshProUGUI currentCountText;
+    [SerializeField] private TextMeshProUGUI currentCountText;    
+    [SerializeField] private TextMeshProUGUI dismantleCountText;
     [SerializeField] public Button itemButton;
+    
+    [SerializeField] private HoldAcceleratorAddon holdAcceleratorAddon;
+    
+    [SerializeField] public int dismantleCount = 0;
+    
     
     public void LoadSynergy(RarityType rarityKey, SynergyStat SynergyKey)
     {
@@ -19,19 +25,70 @@ public class SynergyItem : MonoBehaviour
         SynergyStatData.TryGetValue(rarityKey, out synergyData);
         
         increaseStatText.text = $"+ {synergyData.statUp1 * 100}%";
-        currentCountText.text = $"{synergyData.count}";
+        currentCountText.text = $"{InventoryManager.Instance.GetItemAmount(synergyData.ID).ToFloat()}";
         
         statImage.sprite = IconManager.GetSynergyIcon(SynergyKey);
         
+    }
+    public void SetButton(SynergyUI synergyUI, bool toggle)
+    {
+        itemButton.onClick.RemoveAllListeners();
+        
+        if (!toggle)
+        {
+            itemButton.onClick.AddListener(()=> synergyUI.currentItem = this);
+            holdAcceleratorAddon.enabled = false;
+        }
+        
+        else
+        {
+            itemButton.onClick.AddListener(()=> DismantleCountUP());
+            holdAcceleratorAddon.enabled = true;
+        }
+    }
+    
+    void OnEnable()
+    {
+        InventoryManager.Instance.OnItemAmountChanged += UpdateItemCount;
+        UpdateDismantleCountText();
+    }
+
+    void OnDisable()
+    {
+        InventoryManager.Instance.OnItemAmountChanged -= UpdateItemCount;
+    }
+
+    public void UpdateItemCount(InventoryItemContext item, BigDouble amount)
+    {
+        if (item.ItemId != synergyData.ID)
+            return;
+        
+        currentCountText.text = $"{InventoryManager.Instance.GetItemAmount(item.ItemId).ToFloat()}";
+    }
+    
+    public void DismantleCountUP()
+    {
+        if (dismantleCount >= InventoryManager.Instance.GetItemAmount(synergyData.ID).ToFloat())
+            return;
+        
+        dismantleCount++;
+        UpdateDismantleCountText();
         
     }
-    public void SetButton(SynergyUI synergyUI)
+    
+    public void UpdateDismantleCountText()
     {
-        itemButton.onClick.AddListener(()=> synergyUI.currentItem = this);
+        dismantleCountText.text = dismantleCount <= 0 ? "" : $"(-{dismantleCount})";
     }
     
-    
-    public void DismantleModeSet()
+    public void DismantleSynergy()
     {
+        if(dismantleCount == 0 && !InventoryManager.Instance.RemoveItem(synergyData.ID, dismantleCount))
+            return;
+        
+        var dust = SynergyManager.Instance.synergyDustDatas.TryGetValue(synergyData.rarityType, out var dustData) ? dustData.dustProvided : 0;
+        
+        InventoryManager.Instance.AddItem(3450001, dust * dismantleCount);
+        
     }
 }

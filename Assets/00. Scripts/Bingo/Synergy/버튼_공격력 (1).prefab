@@ -500,6 +500,7 @@ GameObject:
   - component: {fileID: 7315439530325025764}
   - component: {fileID: -6573328408787570752}
   - component: {fileID: 8765822017154721071}
+  - component: {fileID: -5541588933864260127}
   m_Layer: 5
   m_Name: "\uBC84\uD2BC_\uACF5\uACA9\uB825 (1)"
   m_TagString: Untagged
@@ -585,13 +586,17 @@ MonoBehaviour:
     rarityType: 0
     statType1: 0
     statType2: 0
+    dustProvided: 0
     count: 0
     statUp1: 0
     StatUp2: 0
   statImage: {fileID: 854477241315623030}
   increaseStatText: {fileID: 2626651687698082760}
   currentCountText: {fileID: 2508703465065061570}
+  dismantleCountText: {fileID: 6080964521350502715}
   itemButton: {fileID: 8765822017154721071}
+  holdAcceleratorAddon: {fileID: -5541588933864260127}
+  dismantleCount: 0
 --- !u!114 &8765822017154721071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -636,3 +641,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &-5541588933864260127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9065250656125566643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45dcfdb7a3eb76942b2f64fbd05fd78d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HoldAcceleratorAddon
+  holdDelay: 1
+  accelerationDuration: 3
+  minTicksPerSecond: 2
+  maxTicksPerSecond: 20

@@ -1,4 +1,5 @@
 using AYellowpaper.SerializedCollections;
+using Mono.Cecil.Cil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ public class SynergyManager : Singleton<SynergyManager>
     public Button button;
     
     public SerializedDictionary<int, SynergyData> synergyDatas;
+    public SerializedDictionary<RarityType, DustData> synergyDustDatas;
     public SynergyDataSO synergyDataSo;
     
     public BingoSynergy currentSynergy;
@@ -54,6 +56,19 @@ public class SynergyManager : Singleton<SynergyManager>
             id = 3431001;
             id += plusid++;
         }
+        
+        id = 3510001;
+        
+        foreach(var data in synergyDataSo.SynergyDustDataDict)
+        {
+            
+            DataManager.Instance.DustDict.TryGetValue(id, out var dustData);
+            data.Value.dustCost = dustData.dustCost;
+            data.Value.dustProvided = dustData.dustProvided;
+            synergyDustDatas.Add(data.Key, data.Value);
+            id++;
+        }
+        
     }
 
     public BingoSynergy Gacha(List<BingoSynergy> synergies)
@@ -142,6 +157,9 @@ public class SynergyManager : Singleton<SynergyManager>
     public void TestSyer()
     {
         if (item == null)
+            return;
+        
+        if (!InventoryManager.Instance.RemoveItem(item.synergyData.ID,1))
             return;
         
         StartCoroutine(Testppt());
