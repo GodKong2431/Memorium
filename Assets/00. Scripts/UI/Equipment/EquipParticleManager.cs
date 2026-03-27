@@ -104,7 +104,10 @@ public class EquipParticleManager : Singleton<EquipParticleManager>
             if (particle == null)
                 yield break;
 
-            particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            if (checkReturn)
+            {
+                particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
         }
 
         if (checkReturn)
