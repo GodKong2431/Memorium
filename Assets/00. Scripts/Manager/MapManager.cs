@@ -9,11 +9,20 @@ public class MapManager : Singleton<MapManager>
     [SerializeField] private GameObject[] expDungeonMapGroupPrefab;
     [SerializeField] private GameObject[] itemFarmingDungeonMapGroupPrefab;
     [SerializeField] private GameObject[] rareItemDungeonMapGroupPrefab;
+
+    [SerializeField] int[] normalMapBGMId;
+    [SerializeField] int[] goldDungeonMapBGMId;
+    [SerializeField] int[] expDungeonMapBGMId;
+    [SerializeField] int[] itemFarmingDungeonMapBGMId;
+    [SerializeField] int[] rareItemDungeonMapBGMId;
+
+
     GameObject[] mapGroupPrefab;
     int curMapFloor = 0;
     StageType curMapStageType;
 
     Dictionary<StageType, GameObject[]> mapGroupPrefabByStageType;
+    Dictionary<StageType, int[]> bgmIdByStageType;
 
     public List<MapPosInfo> mapPosInfo = new List<MapPosInfo>();
 
@@ -48,6 +57,13 @@ public class MapManager : Singleton<MapManager>
         mapGroupPrefabByStageType[StageType.HallOfTraining] = expDungeonMapGroupPrefab;
         mapGroupPrefabByStageType[StageType.CelestiAlchemyWorkshop] = itemFarmingDungeonMapGroupPrefab;
         mapGroupPrefabByStageType[StageType.EidosTreasureVault] = rareItemDungeonMapGroupPrefab;
+
+        bgmIdByStageType = new Dictionary<StageType, int[]>();
+        bgmIdByStageType[StageType.NormalStage] = normalMapBGMId;
+        bgmIdByStageType[StageType.GuardianTaxVault] = goldDungeonMapBGMId;
+        bgmIdByStageType[StageType.HallOfTraining] = expDungeonMapBGMId;
+        bgmIdByStageType[StageType.CelestiAlchemyWorkshop] = itemFarmingDungeonMapBGMId;
+        bgmIdByStageType[StageType.EidosTreasureVault] = rareItemDungeonMapBGMId;
     }
 
     public void MapSetting(StageType curStageType, int curFloor)
@@ -80,6 +96,10 @@ public class MapManager : Singleton<MapManager>
             currentMapGroup = Instantiate(mapGroupPrefab[curFloor - 1]);
             mapGroups[targetKey] = currentMapGroup;
         }
+
+        ////bgmKey 가져오기
+        int bgmKey = bgmIdByStageType[curStageType][curFloor - 1];
+        SoundManager.Instance.PlayBgm(bgmKey);
 
         currentMapGroup.SetActive(true);
 
