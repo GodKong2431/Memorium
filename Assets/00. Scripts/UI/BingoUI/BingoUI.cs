@@ -1,6 +1,7 @@
 using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,11 +15,13 @@ public class BingoUI : MonoBehaviour
 
     [SerializeField] private List<SynergyViewItem> SynergyViews;
     
+    [SerializeField] private List<TextMeshProUGUI> BingoButtons;
+    
     [SerializeField] List<BingoColumnSlot> SlotColumns = new List<BingoColumnSlot>();
     [SerializeField] private RectTransform retry;
     public BingoContext _ctx { get; private set; }
-
-    public static event Action<int> OnClickBingoGachaButton;
+    public int linkItemId;
+    public static event Action<int, int> OnClickBingoGachaButton;
     
     void Init()
     {
@@ -32,6 +35,7 @@ public class BingoUI : MonoBehaviour
             DiaLineSynergyTransform = DiaSynergyTransform,
             SynergyViewObjects = SynergyViews,
             Columns = new List<BingoColumnSlot>(SlotColumns),
+            BingoButtons = BingoButtons,
         };
         BingoBoardManager.Instance.Init(_ctx);
     }
@@ -39,10 +43,46 @@ public class BingoUI : MonoBehaviour
     void Start()
     {
         Init();
+        OnSetLinkCounter();
+    }
+
+    void OnEnable()
+    {
+        InventoryManager.Instance.OnItemAmountChanged += OnSetLinkCounter;
+    }
+
+    void OnDisable()
+    {
+        InventoryManager.Instance.OnItemAmountChanged -= OnSetLinkCounter;
+    }
+
+    public void OnIDSet(int index)
+    {
+        linkItemId = index;
     }
     
     public void OnClickBingoGacha(int index)
     {
-        OnClickBingoGachaButton?.Invoke(index);
+        OnClickBingoGachaButton?.Invoke(index, linkItemId);
+    }
+    public void OnSetLinkCounter(InventoryItemContext item, BigDouble amount)
+    {
+        int startId = 3410001;
+    int endId = startId + BingoButtons.Count - 1;
+
+    if (item.ItemId < startId || item.ItemId > endId)
+        return;
+
+    OnSetLinkCounter();
+    }
+    
+    public void OnSetLinkCounter()
+    {
+        int id = 3410001;
+        foreach(var link in BingoButtons)
+        {
+            link.text = $"{InventoryManager.Instance.GetItemAmount(id).ToFloat()}";
+            id++;
+        }
     }
 }

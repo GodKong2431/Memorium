@@ -19,7 +19,7 @@ public class BingoItemManager : MonoBehaviour
     
     public List<PluckItem> pluckItems = new List<PluckItem>();
     
-    [SerializeField] private CanvasGroup bingobuttons;
+    [SerializeField] private List<CanvasGroup> bingobuttons;
 
     void Start()
     {
@@ -28,7 +28,10 @@ public class BingoItemManager : MonoBehaviour
 
     public void BingoBoardClick(bool use)
     {
-        bingobuttons.blocksRaycasts = !use;
-    }
+        foreach (var bingobutton in bingobuttons)
+        {
+            bingobutton.blocksRaycasts = !use;
+        }
+    }   
     
 }

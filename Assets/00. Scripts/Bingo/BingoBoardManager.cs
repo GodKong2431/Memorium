@@ -2,6 +2,7 @@ using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
@@ -94,7 +95,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             return;
         }
         
-        ctx.BoardTransform.onClick.AddListener(() => OnClick(bingoItemManager.itemBase));
+        ctx.BoardTransform.onClick.AddListener(() => OnClick(bingoItemManager.itemBase is AgainItem item ? item : null));
         
         // slotTest.onClick.RemoveAllListeners();
         // slotTest.onClick.AddListener(()=> Testpe());
@@ -123,7 +124,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         }
 
         var slotColumns = ctx.Columns;
-        
+
         
         foreach (var synergy in bingoBoardSO.bingoSynergys)
         {
@@ -235,7 +236,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         return (T)Enum.ToObject(typeof(T), index);
     }
     
-    public void BingoGacha(int enumIndex)
+    public void BingoGacha(int enumIndex, int id)
     {
         RarityType cellRarity = (RarityType)enumIndex;
         
@@ -244,6 +245,8 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             againItem.UseItem();
             againItem = null;
         }
+            
+        InventoryManager.Instance.RemoveItem(id,1);
         
         StartCoroutine(GachaStart(cellRarity));
     }
