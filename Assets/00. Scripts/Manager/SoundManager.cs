@@ -33,6 +33,10 @@ public class SoundManager : Singleton<SoundManager>
     #region Inspector
     [SerializeField] private int uiSourceCount = 4;
     [SerializeField] private int combatSourceCount = 8;
+    [SerializeField] private int combatWorldSourceCount = 6;
+    [SerializeField] private int combatWorldSourceMaxCount = 16;
+    [SerializeField] private float combatWorldMinDistance = 1f;
+    [SerializeField] private float combatWorldMaxDistance = 30f;
     [Range(0f, 1f)] [SerializeField] private float defaultMasterVolume = 1f;
     [Range(0f, 1f)] [SerializeField] private float defaultBgmVolume = 1f;
     [Range(0f, 1f)] [SerializeField] private float defaultCombatSfxVolume = 1f;
@@ -43,12 +47,15 @@ public class SoundManager : Singleton<SoundManager>
     private readonly Dictionary<int, SoundEntry> soundById = new Dictionary<int, SoundEntry>();
     private readonly List<AudioSource> uiSources = new List<AudioSource>();
     private readonly List<AudioSource> combatSources = new List<AudioSource>();
+    private readonly List<AudioSource> activeCombatWorldSources = new List<AudioSource>();
 
     private AudioSource bgmSource;
     private AudioSource combatLoopSource;
+    private GameObject combatWorldSourceTemplate;
     private DataManager subscribedDataManager;
     private int nextUiSourceIndex;
     private int nextCombatSourceIndex;
+    private int totalCombatWorldSourceCount;
     private float currentBgmClipVolume = 1f;
     private float currentCombatLoopClipVolume = 1f;
     private float masterVolume;
@@ -92,6 +99,14 @@ public class SoundManager : Singleton<SoundManager>
     {
         UnsubscribeDataManager();
         base.OnDestroy();
+    }
+
+    private void Update()
+    {
+        if (Instance != this)
+            return;
+
+        RecycleFinishedCombatWorldSources();
     }
     #endregion
 
@@ -240,6 +255,15 @@ public class SoundManager : Singleton<SoundManager>
         if (combatSourceCount < 1)
             combatSourceCount = 1;
 
+        if (combatWorldSourceCount < 1)
+            combatWorldSourceCount = 1;
+
+        if (combatWorldSourceMaxCount < combatWorldSourceCount)
+            combatWorldSourceMaxCount = combatWorldSourceCount;
+
+        combatWorldMinDistance = Mathf.Max(0.1f, combatWorldMinDistance);
+        combatWorldMaxDistance = Mathf.Max(combatWorldMinDistance, combatWorldMaxDistance);
+
         if (bgmSource == null)
         {
             bgmSource = CreateChildSource("BGM_Source");
@@ -252,11 +276,14 @@ public class SoundManager : Singleton<SoundManager>
             combatLoopSource.loop = true;
         }
 
+        EnsureCombatWorldSourceTemplate();
         CleanupSources(uiSources);
         CleanupSources(combatSources);
+        CleanupCombatWorldSources();
 
         EnsureSourceCount(uiSources, uiSourceCount, "UI_SFX_Source_");
         EnsureSourceCount(combatSources, combatSourceCount, "Combat_SFX_Source_");
+        PrewarmCombatWorldSources(combatWorldSourceCount);
     }
 
     private void CleanupSources(List<AudioSource> sources)
@@ -277,6 +304,50 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
+    private void CleanupCombatWorldSources()
+    {
+        for (int i = activeCombatWorldSources.Count - 1; i >= 0; i--)
+        {
+            AudioSource source = activeCombatWorldSources[i];
+            if (source == null)
+                activeCombatWorldSources.RemoveAt(i);
+        }
+    }
+
+    private void EnsureCombatWorldSourceTemplate()
+    {
+        if (combatWorldSourceTemplate != null)
+            return;
+
+        combatWorldSourceTemplate = new GameObject("Combat_World_SFX_Source_Template");
+        combatWorldSourceTemplate.transform.SetParent(transform, false);
+        combatWorldSourceTemplate.hideFlags = HideFlags.HideInHierarchy;
+
+        AudioSource source = combatWorldSourceTemplate.AddComponent<AudioSource>();
+        ConfigureCombatWorldSource(source);
+    }
+
+    private void PrewarmCombatWorldSources(int requiredCount)
+    {
+        if (combatWorldSourceTemplate == null || totalCombatWorldSourceCount >= requiredCount)
+            return;
+
+        int createCount = requiredCount - totalCombatWorldSourceCount;
+        List<GameObject> borrowedObjects = new List<GameObject>(createCount);
+        for (int i = 0; i < createCount; i++)
+        {
+            GameObject pooledObject = ObjectPoolManager.Get(combatWorldSourceTemplate, Vector3.zero, Quaternion.identity);
+            if (pooledObject == null)
+                break;
+
+            borrowedObjects.Add(pooledObject);
+            totalCombatWorldSourceCount++;
+        }
+
+        for (int i = 0; i < borrowedObjects.Count; i++)
+            ObjectPoolManager.Return(borrowedObjects[i]);
+    }
+
     private AudioSource CreateChildSource(string childName)
     {
         GameObject child = new GameObject(childName);
@@ -289,6 +360,19 @@ public class SoundManager : Singleton<SoundManager>
         source.spatialBlend = 0f;
         source.volume = 1f;
         return source;
+    }
+
+    private void ConfigureCombatWorldSource(AudioSource source)
+    {
+        if (source == null)
+            return;
+
+        source.playOnAwake = false;
+        source.loop = false;
+        source.spatialBlend = 1f;
+        source.minDistance = combatWorldMinDistance;
+        source.maxDistance = combatWorldMaxDistance;
+        source.dopplerLevel = 0f;
     }
     #endregion
 
@@ -337,7 +421,16 @@ public class SoundManager : Singleton<SoundManager>
         if (!TryLoadClip(entry, out AudioClip clip))
             return false;
 
-        AudioSource.PlayClipAtPoint(clip, worldPos, GetEffectiveVolume(entry.clipVolume, combatSfxVolume));
+        AudioSource source = GetCombatWorldSource();
+        if (source == null)
+            return false;
+
+        ConfigureCombatWorldSource(source);
+        source.transform.position = worldPos;
+        source.clip = clip;
+        source.volume = GetEffectiveVolume(entry.clipVolume, combatSfxVolume);
+        source.Play();
+        activeCombatWorldSources.Add(source);
         return true;
     }
 
@@ -374,6 +467,86 @@ public class SoundManager : Singleton<SoundManager>
         AudioSource source = sources[index];
         index = (index + 1) % sources.Count;
         return source;
+    }
+
+    private AudioSource GetCombatWorldSource()
+    {
+        RecycleFinishedCombatWorldSources();
+
+        if (combatWorldSourceTemplate == null)
+            return null;
+
+        if (activeCombatWorldSources.Count < totalCombatWorldSourceCount)
+        {
+            return SpawnCombatWorldSource();
+        }
+
+        if (totalCombatWorldSourceCount < combatWorldSourceMaxCount)
+        {
+            AudioSource source = SpawnCombatWorldSource();
+            if (source != null)
+                totalCombatWorldSourceCount++;
+            return source;
+        }
+
+        if (activeCombatWorldSources.Count > 0)
+        {
+            AudioSource source = activeCombatWorldSources[0];
+            activeCombatWorldSources.RemoveAt(0);
+
+            if (source != null)
+                ObjectPoolManager.Return(source.gameObject);
+
+            return SpawnCombatWorldSource();
+        }
+
+        return null;
+    }
+
+    private AudioSource SpawnCombatWorldSource()
+    {
+        GameObject pooledObject = ObjectPoolManager.Get(combatWorldSourceTemplate, Vector3.zero, Quaternion.identity);
+        if (pooledObject == null)
+            return null;
+
+        AudioSource source = pooledObject.GetComponent<AudioSource>();
+        if (source == null)
+            return null;
+
+        ResetCombatWorldSource(source);
+        return source;
+    }
+
+    private void RecycleFinishedCombatWorldSources()
+    {
+        for (int i = activeCombatWorldSources.Count - 1; i >= 0; i--)
+        {
+            AudioSource source = activeCombatWorldSources[i];
+            if (source == null)
+            {
+                activeCombatWorldSources.RemoveAt(i);
+                continue;
+            }
+
+            if (source.isPlaying)
+                continue;
+
+            activeCombatWorldSources.RemoveAt(i);
+            ObjectPoolManager.Return(source.gameObject);
+        }
+    }
+
+    private void ResetCombatWorldSource(AudioSource source)
+    {
+        if (source == null)
+            return;
+
+        source.Stop();
+        source.clip = null;
+        source.loop = false;
+        source.volume = 1f;
+        ConfigureCombatWorldSource(source);
+        source.transform.localPosition = Vector3.zero;
     }
 
     private bool TryResolve(int soundId, out SoundEntry entry)

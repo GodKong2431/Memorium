@@ -9,6 +9,7 @@ internal static class SceneUiRuntime
             return;
 
         NormalizeCanvasScale(sceneUiRoot);
+        SafeAreaRuntime.RefreshWithin(sceneUiRoot);
 
         Camera gameplayCamera = ResolveGameplayCamera(sceneUiRoot);
         Camera uiCamera = ResolveUiCamera(sceneUiRoot);
