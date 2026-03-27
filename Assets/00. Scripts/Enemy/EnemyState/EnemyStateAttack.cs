@@ -45,7 +45,11 @@ public class EnemyStateAttack : IEnemyState
             _attackEndTime = Time.time + delay;
             _attackInProgress = true;
 
-            ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
+            bool skillTypeMonster = ctx.StatPresenter != null && ctx.StatPresenter.IsSkillAttackMonster;
+            if (skillTypeMonster)
+                ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Skill);
+            else
+                ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
 
             // DB에 skillAttackEffectPrefab이 설정된 몹만 플레이어 머리 위에 스킬 연출 VFX를 출력.
             if (ctx.SkillAttackEffectPrefab != null)
