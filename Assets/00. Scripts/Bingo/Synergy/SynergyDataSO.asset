@@ -12,6 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ccc2e93d6364034a9d737309158a25a, type: 3}
   m_Name: SynergyDataSO
   m_EditorClassIdentifier: Assembly-CSharp::SynergyDataSO
+  SynergyItems:
+    _serializedList:
+    - Key: 0
+      Value: {fileID: -6573328408787570752, guid: 3607c8d99f4287d49ad1f79cf653f20f, type: 3}
+    - Key: 1
+      Value: {fileID: 5663892380941285194, guid: 881275cf7d70c954fb9c04f80561d5ac, type: 3}
+    - Key: 2
+      Value: {fileID: -7789018357295340382, guid: 813f087c132fd8a43be3e0bdca678a48, type: 3}
+    - Key: 3
+      Value: {fileID: -2590481185169361924, guid: b0aa4f6a099a4a24ab6db17b19bedb4e, type: 3}
+    - Key: 4
+      Value: {fileID: 2777106831211757304, guid: a3f3ce46ec48009459d5021e37ec0219, type: 3}
   SynergyDataDict:
     _serializedList:
     - Key: 1
@@ -19,302 +31,382 @@ MonoBehaviour:
         _serializedList:
         - Key: 0
           Value:
+            ID: 3431001
+            synergyStat: 1
             rarityType: 0
-            statType1: 1
+            statType1: 5
             statType2: 0
-            statUp1: 0.1
+            statUp1: 0.06
             StatUp2: 0
         - Key: 1
           Value:
-            rarityType: 0
-            statType1: 1
+            ID: 3432001
+            synergyStat: 1
+            rarityType: 1
+            statType1: 5
             statType2: 0
-            statUp1: 0.2
+            statUp1: 0.07
             StatUp2: 0
         - Key: 2
           Value:
-            rarityType: 0
-            statType1: 1
+            ID: 3433001
+            synergyStat: 1
+            rarityType: 2
+            statType1: 5
             statType2: 0
-            statUp1: 0.3
+            statUp1: 0.08
             StatUp2: 0
         - Key: 3
           Value:
-            rarityType: 0
-            statType1: 1
+            ID: 3434001
+            synergyStat: 1
+            rarityType: 3
+            statType1: 5
             statType2: 0
-            statUp1: 0.4
+            statUp1: 0.09
             StatUp2: 0
         - Key: 4
           Value:
-            rarityType: 0
-            statType1: 1
+            ID: 3435001
+            synergyStat: 1
+            rarityType: 4
+            statType1: 5
             statType2: 0
-            statUp1: 0.5
+            statUp1: 0.1
             StatUp2: 0
     - Key: 2
       Value:
         _serializedList:
         - Key: 0
           Value:
+            ID: 3431002
+            synergyStat: 2
             rarityType: 0
-            statType1: 5
+            statType1: 6
             statType2: 0
-            statUp1: 0.1
+            statUp1: 0.06
             StatUp2: 0
         - Key: 1
           Value:
-            rarityType: 0
-            statType1: 5
+            ID: 3432002
+            synergyStat: 2
+            rarityType: 1
+            statType1: 6
             statType2: 0
-            statUp1: 0.2
+            statUp1: 0.07
             StatUp2: 0
         - Key: 2
           Value:
-            rarityType: 0
-            statType1: 5
+            ID: 3433002
+            synergyStat: 2
+            rarityType: 2
+            statType1: 6
             statType2: 0
-            statUp1: 0.3
+            statUp1: 0.08
             StatUp2: 0
         - Key: 3
           Value:
-            rarityType: 0
-            statType1: 5
+            ID: 3434002
+            synergyStat: 2
+            rarityType: 3
+            statType1: 6
             statType2: 0
-            statUp1: 0.4
+            statUp1: 0.09
             StatUp2: 0
         - Key: 4
           Value:
-            rarityType: 0
-            statType1: 5
+            ID: 3435002
+            synergyStat: 2
+            rarityType: 4
+            statType1: 6
             statType2: 0
-            statUp1: 0.5
+            statUp1: 0.1
             StatUp2: 0
     - Key: 3
       Value:
         _serializedList:
         - Key: 0
           Value:
+            ID: 3431003
+            synergyStat: 3
             rarityType: 0
-            statType1: 6
-            statType2: 0
-            statUp1: 0.1
-            StatUp2: 0
+            statType1: 7
+            statType2: 8
+            statUp1: 0.06
+            StatUp2: 0.06
         - Key: 1
           Value:
-            rarityType: 0
-            statType1: 6
-            statType2: 0
-            statUp1: 0.2
-            StatUp2: 0
+            ID: 3432003
+            synergyStat: 3
+            rarityType: 1
+            statType1: 7
+            statType2: 8
+            statUp1: 0.07
+            StatUp2: 0.07
         - Key: 2
           Value:
-            rarityType: 0
-            statType1: 6
-            statType2: 0
-            statUp1: 0.3
-            StatUp2: 0
+            ID: 3433003
+            synergyStat: 3
+            rarityType: 2
+            statType1: 7
+            statType2: 8
+            statUp1: 0.08
+            StatUp2: 0.08
         - Key: 3
           Value:
-            rarityType: 0
-            statType1: 6
-            statType2: 0
-            statUp1: 0.4
-            StatUp2: 0
+            ID: 3434003
+            synergyStat: 3
+            rarityType: 3
+            statType1: 7
+            statType2: 8
+            statUp1: 0.09
+            StatUp2: 0.09
         - Key: 4
           Value:
-            rarityType: 0
-            statType1: 6
-            statType2: 0
-            statUp1: 0.5
-            StatUp2: 0
+            ID: 3435003
+            synergyStat: 3
+            rarityType: 4
+            statType1: 7
+            statType2: 8
+            statUp1: 0.1
+            StatUp2: 0.1
     - Key: 4
       Value:
         _serializedList:
         - Key: 0
           Value:
+            ID: 3431004
+            synergyStat: 4
             rarityType: 0
-            statType1: 7
-            statType2: 8
-            statUp1: 0.1
-            StatUp2: 0.1
+            statType1: 11
+            statType2: 0
+            statUp1: 0.06
+            StatUp2: 0
         - Key: 1
           Value:
-            rarityType: 0
-            statType1: 7
-            statType2: 8
-            statUp1: 0.2
-            StatUp2: 0.2
+            ID: 3432004
+            synergyStat: 4
+            rarityType: 1
+            statType1: 11
+            statType2: 0
+            statUp1: 0.07
+            StatUp2: 0
         - Key: 2
           Value:
-            rarityType: 0
-            statType1: 7
-            statType2: 8
-            statUp1: 0.3
-            StatUp2: 0.3
+            ID: 3433004
+            synergyStat: 4
+            rarityType: 2
+            statType1: 11
+            statType2: 0
+            statUp1: 0.08
+            StatUp2: 0
         - Key: 3
           Value:
-            rarityType: 0
-            statType1: 7
-            statType2: 8
-            statUp1: 0.4
-            StatUp2: 0.4
+            ID: 3434004
+            synergyStat: 4
+            rarityType: 3
+            statType1: 11
+            statType2: 0
+            statUp1: 0.09
+            StatUp2: 0
         - Key: 4
           Value:
-            rarityType: 0
-            statType1: 7
-            statType2: 8
-            statUp1: 0.5
-            StatUp2: 0.5
+            ID: 3435004
+            synergyStat: 4
+            rarityType: 4
+            statType1: 11
+            statType2: 0
+            statUp1: 0.1
+            StatUp2: 0
     - Key: 5
       Value:
         _serializedList:
         - Key: 0
           Value:
+            ID: 3431005
+            synergyStat: 5
             rarityType: 0
-            statType1: 11
+            statType1: 13
             statType2: 0
-            statUp1: 0.1
+            statUp1: 0.06
             StatUp2: 0
         - Key: 1
           Value:
-            rarityType: 0
-            statType1: 11
+            ID: 3432005
+            synergyStat: 5
+            rarityType: 1
+            statType1: 13
             statType2: 0
-            statUp1: 0.2
+            statUp1: 0.07
             StatUp2: 0
         - Key: 2
           Value:
-            rarityType: 0
-            statType1: 11
+            ID: 3433005
+            synergyStat: 5
+            rarityType: 2
+            statType1: 13
             statType2: 0
-            statUp1: 0.3
+            statUp1: 0.08
             StatUp2: 0
         - Key: 3
           Value:
-            rarityType: 0
-            statType1: 11
+            ID: 3434005
+            synergyStat: 5
+            rarityType: 3
+            statType1: 13
             statType2: 0
-            statUp1: 0.4
+            statUp1: 0.09
             StatUp2: 0
         - Key: 4
           Value:
-            rarityType: 0
-            statType1: 11
+            ID: 3435005
+            synergyStat: 5
+            rarityType: 4
+            statType1: 13
             statType2: 0
-            statUp1: 0.5
+            statUp1: 0.1
             StatUp2: 0
     - Key: 6
       Value:
         _serializedList:
         - Key: 0
           Value:
+            ID: 3431006
+            synergyStat: 6
             rarityType: 0
-            statType1: 13
+            statType1: 1
             statType2: 0
-            statUp1: 0.1
+            statUp1: 0.06
             StatUp2: 0
         - Key: 1
           Value:
-            rarityType: 0
-            statType1: 13
+            ID: 3432006
+            synergyStat: 6
+            rarityType: 1
+            statType1: 1
             statType2: 0
-            statUp1: 0.2
+            statUp1: 0.07
             StatUp2: 0
         - Key: 2
           Value:
-            rarityType: 0
-            statType1: 13
+            ID: 3433006
+            synergyStat: 6
+            rarityType: 2
+            statType1: 1
             statType2: 0
-            statUp1: 0.3
+            statUp1: 0.08
             StatUp2: 0
         - Key: 3
           Value:
-            rarityType: 0
-            statType1: 13
+            ID: 3434006
+            synergyStat: 6
+            rarityType: 3
+            statType1: 1
             statType2: 0
-            statUp1: 0.4
+            statUp1: 0.09
             StatUp2: 0
         - Key: 4
           Value:
-            rarityType: 0
-            statType1: 13
+            ID: 3435006
+            synergyStat: 6
+            rarityType: 4
+            statType1: 1
             statType2: 0
-            statUp1: 0.5
+            statUp1: 0.1
             StatUp2: 0
     - Key: 7
       Value:
         _serializedList:
         - Key: 0
           Value:
+            ID: 3431007
+            synergyStat: 7
             rarityType: 0
-            statType1: 15
+            statType1: 16
             statType2: 0
-            statUp1: 0.1
+            statUp1: 0.06
             StatUp2: 0
         - Key: 1
           Value:
-            rarityType: 0
-            statType1: 15
+            ID: 3432007
+            synergyStat: 7
+            rarityType: 1
+            statType1: 16
             statType2: 0
-            statUp1: 0.2
+            statUp1: 0.07
             StatUp2: 0
         - Key: 2
           Value:
-            rarityType: 0
-            statType1: 15
+            ID: 3433007
+            synergyStat: 7
+            rarityType: 2
+            statType1: 16
             statType2: 0
-            statUp1: 0.3
+            statUp1: 0.08
             StatUp2: 0
         - Key: 3
           Value:
-            rarityType: 0
-            statType1: 15
+            ID: 3434007
+            synergyStat: 7
+            rarityType: 3
+            statType1: 16
             statType2: 0
-            statUp1: 0.4
+            statUp1: 0.09
             StatUp2: 0
         - Key: 4
           Value:
-            rarityType: 0
-            statType1: 15
+            ID: 3435007
+            synergyStat: 7
+            rarityType: 4
+            statType1: 16
             statType2: 0
-            statUp1: 0.5
+            statUp1: 0.1
             StatUp2: 0
     - Key: 8
       Value:
         _serializedList:
         - Key: 0
           Value:
+            ID: 3431008
+            synergyStat: 8
             rarityType: 0
-            statType1: 16
+            statType1: 15
             statType2: 0
-            statUp1: 0.1
+            statUp1: 0.06
             StatUp2: 0
         - Key: 1
           Value:
-            rarityType: 0
-            statType1: 16
+            ID: 3432008
+            synergyStat: 8
+            rarityType: 1
+            statType1: 15
             statType2: 0
-            statUp1: 0.2
+            statUp1: 0.07
             StatUp2: 0
         - Key: 2
           Value:
-            rarityType: 0
-            statType1: 16
+            ID: 3433008
+            synergyStat: 8
+            rarityType: 2
+            statType1: 15
             statType2: 0
-            statUp1: 0.3
+            statUp1: 0.08
             StatUp2: 0
         - Key: 3
           Value:
-            rarityType: 0
-            statType1: 16
+            ID: 3434008
+            synergyStat: 8
+            rarityType: 3
+            statType1: 15
             statType2: 0
-            statUp1: 0.4
+            statUp1: 0.09
             StatUp2: 0
         - Key: 4
           Value:
-            rarityType: 0
-            statType1: 16
+            ID: 3435008
+            synergyStat: 8
+            rarityType: 4
+            statType1: 15
             statType2: 0
-            statUp1: 0.5
+            statUp1: 0.1
             StatUp2: 0

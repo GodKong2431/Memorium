@@ -1,3 +1,5 @@
+using Google.Impl;
+using System.Threading.Tasks;
 using UnityEngine;
 
 // 발화 출혈+화상
@@ -19,7 +21,45 @@ public class IgnitionEffect : StatusEffectBase
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         SoundManager.Instance.PlayCombatSfx(fusion.fusionSound);
-        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(fusion.fusionVFX, target.transform, true, false, onSpawned: OnParticleSpawned));
+        //PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(fusion.fusionVFX, target.transform, true, true, onSpawned: OnParticleSpawned));
+        //base.OnApply(target, buffApplicable);
+
+        //int count = DetectInRadius(target.transform.position, explosionRadius, layerMask);
+        //var buffer = GetHitBuffer();
+
+        //for (int i = 0; i < count; i++)
+        //{
+        //    if (buffer[i].TryGetComponent<IDamageable>(out var enemy) && enemy.IsAlive)
+        //    {
+
+        //        enemy.TakeDamage(explosionDamage, DamageType.FixedPercentageDamage);
+        //    }
+        //}
+
+        //effect?.StopAndReturnManual();
+
+        //비동기 방식 진행을 위해 메서드 분리
+        SpawnAndSetEffect(target, buffApplicable);
+    }
+
+
+    //생성된 파티클을 불러오고 이를 effect에 배치
+    private async void SpawnAndSetEffect(IDamageable target, IBuffApplicable buffApplicable)
+    {
+        GameObject particle = await PoolableParticleManager.Instance.SpawnParticleAsync(new ParticleSpawnContext(fusion.fusionVFX, target.transform, true, false, onSpawned: OnParticleSpawned));
+        if (particle == null)
+        {
+            Debug.Log("[LacerationEffect] 파티클 가져오기 실패");
+            return;
+        }
+
+        if (!particle.TryGetComponent<PoolableParticle>(out var poolable))
+        {
+            poolable = particle.AddComponent<PoolableParticle>();
+        }
+
+        effect = particle.GetComponent<PoolableParticle>();
+
         base.OnApply(target, buffApplicable);
 
         int count = DetectInRadius(target.transform.position, explosionRadius, layerMask);
@@ -34,8 +74,21 @@ public class IgnitionEffect : StatusEffectBase
             }
         }
 
+        ParticleSystem ps = particle.GetComponent<ParticleSystem>();
+
+        while (ps != null && ps.IsAlive(true))
+        {
+            await Task.Yield();
+        }
+
         effect?.StopAndReturnManual();
+
+        if (particle != null && particle.activeSelf)
+        {
+            ObjectPoolManager.Return(particle);
+        }
     }
+
 
     protected override void OnTick() { }
 }

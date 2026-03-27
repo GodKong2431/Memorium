@@ -253,8 +253,8 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         float abilityStoneBonusStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
             ? AbilityStoneManager.Instance.GetBonusStat(statType)
             : 0f;
-        float bingoSynergyStat = BingoBoard.Instance != null && BingoBoard.Instance.LoadBingo
-            ? BingoBoard.Instance.GetSynergyStat(statType)
+        float bingoSynergyStat = BingoBoardManager.Instance != null && BingoBoardManager.Instance.LoadBingo
+            ? BingoBoardManager.Instance.GetSynergyStat(statType)
             : 0f;
 
         float previewValue =

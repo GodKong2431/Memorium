@@ -39,6 +39,7 @@ public readonly struct ActiveSkillItemDisplayData
     public readonly ActiveSkillItemGemSlotDisplayData[] UpgradeGemSlots;
     public readonly bool CanLevelUp;
     public readonly string LevelUpCostString;
+    public readonly Sprite LevelUpCostIcon;
     public ActiveSkillItemDisplayData(
         int skillId,
         string skillName,
@@ -52,7 +53,8 @@ public readonly struct ActiveSkillItemDisplayData
         bool canTriggerStateAction,
         ActiveSkillItemGemSlotDisplayData[] upgradeGemSlots,
         bool canLevelUp,
-        string levelUpCostString
+        string levelUpCostString,
+        Sprite levelUpCostIcon
        )
     {
         SkillId = skillId;
@@ -68,6 +70,7 @@ public readonly struct ActiveSkillItemDisplayData
         UpgradeGemSlots = upgradeGemSlots;
         CanLevelUp = canLevelUp;
         LevelUpCostString = levelUpCostString;
+        LevelUpCostIcon = levelUpCostIcon;
     }
 }
 
@@ -132,6 +135,12 @@ public sealed class ActiveSkillItemView
 
         if (binding.LevelUpCostText != null)
             binding.LevelUpCostText.SetText(data.LevelUpCostString ?? "");
+
+        if (binding.LevelUpCostIconImage != null)
+        {
+            binding.LevelUpCostIconImage.sprite = data.LevelUpCostIcon;
+            binding.LevelUpCostIconImage.preserveAspect = true;
+        }
     }
 
     private void BindButtonsOnce()

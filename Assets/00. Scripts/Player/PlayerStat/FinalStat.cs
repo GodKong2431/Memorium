@@ -47,7 +47,7 @@ public class FinalStat
         
         float ablityStoneBonusStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetBonusStat(playerStatType) : 0f;
         
-        float bingoSynergyStat = BingoBoard.Instance.LoadBingo ? BingoBoard.Instance.GetSynergyStat(playerStatType) : 0f;
+        float bingoSynergyStat = BingoBoardManager.Instance.LoadBingo ? BingoBoardManager.Instance.GetSynergyStat(playerStatType) : 0f;
         
         float passiveStat = InventoryManager.Instance.DataLoad ? InventoryManager.Instance.GetModule<PassiveSkillModule>()?.GetPassiveStat(playerStatType) ?? 0f : 0f;
         

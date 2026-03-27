@@ -29,6 +29,7 @@ public class BingoSlot : MonoBehaviour
     public event Action UpdateUnlock;
     
     [SerializeField] private bool _isUnlock;
+    [SerializeField] private Image blackImage;
         
     public bool isUnlock
     {
@@ -42,6 +43,11 @@ public class BingoSlot : MonoBehaviour
             if (_isUnlock == value) return;
             
             _isUnlock = value;
+            if (blackImage != null)
+            {
+                blackImage.gameObject.SetActive(false);
+            }
+            
             UpdateUnlock?.Invoke();
         }
     }
@@ -73,10 +79,12 @@ public class BingoSlot : MonoBehaviour
             
             _currentitem = value;
             
-            if (_currentitem != null)
-            {
-                itemSprite.sprite = _currentitem.itemSprite;
+            if (itemSprite == null)
                 return;
+            
+            if (_currentitem != null && _currentitem.itemSprite != null)
+            {
+                
             }
             
             itemSprite.sprite = null;
@@ -85,7 +93,7 @@ public class BingoSlot : MonoBehaviour
     
     [SerializeField] public RarityType bingoGrade;
     
-    private BingoBoard mgr;
+    private BingoBoardManager mgr;
     
     public bool isLock;
 
@@ -96,7 +104,7 @@ public class BingoSlot : MonoBehaviour
 
     void Start()
     {
-        mgr = BingoBoard.Instance;
+        mgr = BingoBoardManager.Instance;
         button.onClick.AddListener(() => OnClick(mgr.bingoItemManager.itemBase));
     }
     public void Init(int col, int row)
@@ -123,7 +131,7 @@ public class BingoSlot : MonoBehaviour
     
     public void OnClick(ItemBase bingoItem)
     {
-        
+        Debug.Log("빙고 슬롯 눌림");
         if (bingoItem == null)
         {
             return;
@@ -139,7 +147,7 @@ public class BingoSlot : MonoBehaviour
         {
             if(!pluckItem.IsWithinBounds(row, col))
                 return;
-            foreach(var item in BingoBoard.Instance.bingoItemManager.pluckItems)
+            foreach(var item in BingoBoardManager.Instance.bingoItemManager.pluckItems)
             {
                 if(pluckItem != item)
                 {

@@ -42,6 +42,12 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
     private void Start()
     {
+        if (playerStateMachine == null)
+        {
+            enabled = false;
+            return;
+        }
+
         if (DataManager.Instance.DataLoad)
         {
             EnsureSkillModuleSubscription();
@@ -250,6 +256,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     public bool AutoCast(float dist)
     {
         if (skilldataContexts == null) return false;
+        if (skillCaster == null) return false;
         if (skillCaster.IsCasting()) return false;
 
         var enemy = EnemyTarget.GetTarget(transform.position);
@@ -267,8 +274,9 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         if (skilldataContexts == null) return false;
         if (index < 0 || index >= skilldataContexts.Length) return false;
         if (!ReadySkill(index, distToTarget)) return false;
+        if (!TryGetStateContext(out PlayerStateContext stateContext)) return false;
 
-        playerStateMachine._ctx.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
+        stateContext.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
         skillCaster.CastSkill(skilldataContexts[index]);
         float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(StatType.COOLDOWN_REDUCE);
         float maxCooldown = Mathf.Max(0f, skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f));
@@ -304,8 +312,9 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     private bool CheckMana(int index)
     {
         if (skilldataContexts[index]?.skillData?.skillTable == null) return false;
+        if (!TryGetStateContext(out PlayerStateContext stateContext)) return false;
         float cost = skilldataContexts[index].skillData.skillTable.manaCost;
-        return playerStateMachine._ctx.CurrentMana >= cost;
+        return stateContext.CurrentMana >= cost;
 
     }
 
@@ -345,6 +354,15 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
     public void SetInvincible(bool active)
     {
-        playerStateMachine._ctx.SetInvincibility(active);
+        if (!TryGetStateContext(out PlayerStateContext stateContext))
+            return;
+
+        stateContext.SetInvincibility(active);
+    }
+
+    private bool TryGetStateContext(out PlayerStateContext stateContext)
+    {
+        stateContext = playerStateMachine != null ? playerStateMachine._ctx : null;
+        return stateContext != null;
     }
 }

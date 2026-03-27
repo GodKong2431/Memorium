@@ -28,8 +28,11 @@ public class BingoSynergy : MonoBehaviour
             StatType2 = value.statType2;
             IncreaseStat1 = value.statUp1;
             IncreaseStat2 = value.StatUp2;
+            
+            statIcon.sprite = IconManager.GetSynergyIcon(synergyData.synergyStat);
         }
     }
+        
     private TextMeshProUGUI text;
     
     public StatType StatType1 {get {return statType1;} private set { statType1 = value; }}
@@ -63,6 +66,14 @@ public class BingoSynergy : MonoBehaviour
         this.bingoSynergyLine = bingoSynergyLine;
         this.index = index;
     }
+    
+    public void SetSynergy(int key)
+    {
+        SynergyManager.Instance.synergyDatas.TryGetValue(key, out var synergyData);
+        
+        SynergyData = synergyData;
+    }
+    
 
     private void Awake()
     {
@@ -72,12 +83,17 @@ public class BingoSynergy : MonoBehaviour
     }
     public void Check()
     {
-        if (BingoBoard.Instance.CheckLine(bingoSynergyLine, index))
+        if (BingoBoardManager.Instance.CheckLine(bingoSynergyLine, index))
         {
             isBingo = true;
             CharacterStatManager.Instance.FinalStat(statType1);
             CharacterStatManager.Instance.FinalStat(statType2);
         }
         
+    }
+    
+    public Sprite GetIcon()
+    {
+        return statIcon.sprite;
     }
 }

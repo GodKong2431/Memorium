@@ -440,7 +440,7 @@ public class EquipReinforceUIController : UIControllerBase
         if (handler.goldId == 0)
             return false;
 
-        return InventoryManager.Instance.GetItemAmount(handler.goldId) > cost;
+        return InventoryManager.Instance.GetItemAmount(handler.goldId) >= cost;
     }
 
     private bool TryResolveHandler()

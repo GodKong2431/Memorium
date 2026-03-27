@@ -19,6 +19,16 @@ public sealed class SafeAreaFitter : MonoBehaviour
         ApplySafeArea(force: true);
     }
 
+    public Rect GetAppliedSafeArea()
+    {
+        int screenWidth = Screen.width;
+        int screenHeight = Screen.height;
+        if (screenWidth <= 0 || screenHeight <= 0)
+            return Rect.zero;
+
+        return GetAppliedSafeArea(screenWidth, screenHeight);
+    }
+
     private void Awake()
     {
         ApplySafeArea(force: true);
@@ -38,6 +48,9 @@ public sealed class SafeAreaFitter : MonoBehaviour
 
     private void Update()
     {
+        if (Application.isPlaying)
+            return;
+
         ApplySafeArea(force: false);
     }
 
@@ -51,11 +64,7 @@ public sealed class SafeAreaFitter : MonoBehaviour
         if (screenWidth <= 0 || screenHeight <= 0)
             return;
 
-        Rect safeArea = Screen.safeArea;
-        if (safeArea.width <= 0f || safeArea.height <= 0f)
-            safeArea = new Rect(0f, 0f, screenWidth, screenHeight);
-
-        safeArea = BuildTargetSafeArea(safeArea, screenWidth, screenHeight);
+        Rect safeArea = GetAppliedSafeArea(screenWidth, screenHeight);
 
         Vector2Int screenSize = new Vector2Int(screenWidth, screenHeight);
         if (!force && lastSafeArea == safeArea && lastScreenSize == screenSize)
@@ -75,6 +84,15 @@ public sealed class SafeAreaFitter : MonoBehaviour
         rectTransform.anchorMax = anchorMax;
         rectTransform.offsetMin = Vector2.zero;
         rectTransform.offsetMax = Vector2.zero;
+    }
+
+    private Rect GetAppliedSafeArea(int screenWidth, int screenHeight)
+    {
+        Rect safeArea = Screen.safeArea;
+        if (safeArea.width <= 0f || safeArea.height <= 0f)
+            safeArea = new Rect(0f, 0f, screenWidth, screenHeight);
+
+        return BuildTargetSafeArea(safeArea, screenWidth, screenHeight);
     }
 
     private Rect BuildTargetSafeArea(Rect safeArea, int screenWidth, int screenHeight)

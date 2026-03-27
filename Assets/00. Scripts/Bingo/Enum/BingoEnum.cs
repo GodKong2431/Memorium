@@ -28,14 +28,14 @@ public enum BingoItemType
 public enum SynergyStat
 {
     None,
-    HP = 1,
-    ATK = 2,
-    ATK_SPEED = 3,
-    DEF = 4,
-    MOVE_SPEED = 5,
-    GOLD_GAIN = 6,
-    BOSS_DMG = 7,
-    NORMAL_DMG = 8,
+    ATK = 1,
+    ATK_SPEED = 2,
+    DEF = 3,
+    MOVE_SPEED = 4,
+    GOLD_GAIN = 5,
+    HP = 6,
+    NORMAL_DMG = 7,
+    BOSS_DMG = 8,
 }
 
 public enum Direction

@@ -1,5 +1,6 @@
 
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 public struct ParticleSpawnContext
 {
@@ -50,6 +51,30 @@ public class PoolableParticleManager : Singleton<PoolableParticleManager>
         }
 
         PoolAddressableManager.Instance.GetPooledObject(ctx.key, pos, ctx.rotation, loadedObj => SetupParticle(loadedObj, ctx)); // 프리로드 안해놔서 없을경우 
+    }
+
+    //객체 반환용 비동기 메서드 추가 작성
+    public async Task<GameObject> SpawnParticleAsync(ParticleSpawnContext ctx)
+    {
+        if (!IsValidKey(ctx.key)) return null;
+
+        var pos = ctx.target != null ? ctx.target.position : ctx.targetPosition;
+        GameObject obj = PoolAddressableManager.Instance.GetPooledObject(ctx.key, pos, ctx.rotation);// 프리로드해서 매니저에 이미 있었을경우
+
+        if (obj != null)
+        {
+            SetupParticle(obj, ctx);
+            return obj;
+        }
+        var tcs = new TaskCompletionSource<GameObject>();
+
+        PoolAddressableManager.Instance.GetPooledObject(ctx.key, pos, ctx.rotation, loadedObj => 
+        {
+            SetupParticle(loadedObj, ctx);
+            tcs.SetResult(loadedObj);
+        }); // 프리로드 안해놔서 없을경우 
+
+        return await tcs.Task;
     }
 
     private void SetupParticle(GameObject obj, ParticleSpawnContext ctx)

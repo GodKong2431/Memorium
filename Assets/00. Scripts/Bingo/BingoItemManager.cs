@@ -1,25 +1,37 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class BingoItemManager : MonoBehaviour
 {
-    public ItemBase itemBase;
-    
-    public Toggle currentItem;
+    [SerializeField] private ItemBase _currentItem;
+    public ItemBase itemBase
+    {
+        get {return _currentItem;}
+        set
+        {
+            _currentItem = value;
+            OnChangedItem?.Invoke(value);
+        }
+    }
+    public static event Action<ItemBase> OnChangedItem;
     
     public List<PluckItem> pluckItems = new List<PluckItem>();
     
-    [SerializeField] private CanvasGroup bingobuttons;
+    [SerializeField] private List<CanvasGroup> bingobuttons;
 
     void Start()
     {
-        BingoBoard.Instance.bingoItemManager = this;
+        BingoBoardManager.Instance.bingoItemManager = this;
     }
 
     public void BingoBoardClick(bool use)
     {
-        bingobuttons.blocksRaycasts = !use;
-    }
+        foreach (var bingobutton in bingobuttons)
+        {
+            bingobutton.blocksRaycasts = !use;
+        }
+    }   
     
 }

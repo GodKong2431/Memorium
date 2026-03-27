@@ -7,6 +7,8 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class DungeonClearPopupController : MonoBehaviour
 {
+    private const string InsufficientDungeonTicketMessage = "\uC785\uC7A5\uAD8C\uC774 \uBD80\uC871\uD569\uB2C8\uB2E4.";
+
 #pragma warning disable CS0649
     [Serializable]
     private sealed class DungeonClearPanelBinding
@@ -59,9 +61,21 @@ public sealed class DungeonClearPopupController : MonoBehaviour
         HidePopup();
     }
 
+    private void OnEnable()
+    {
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnItemAmountChanged += OnItemAmountChanged;
+    }
+
     private void OnDestroy()
     {
         GameEventManager.OnDungeonClearPopupRequested -= HandlePopupRequested;
+    }
+
+    private void OnDisable()
+    {
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnItemAmountChanged -= OnItemAmountChanged;
     }
 
     public void ResetForSceneChange()
@@ -152,13 +166,21 @@ public sealed class DungeonClearPopupController : MonoBehaviour
 
         int targetLevel = ResolveTargetLevel(stageType, activeStageLevel, out _);
         if (!CheckDungeon.CanEnter(stageType, targetLevel, requiredKeyCount))
+        {
+            UpdateNextButtonState();
+            InstanceMessageManager.TryShow(InsufficientDungeonTicketMessage);
             return;
+        }
 
         if (!CheckDungeon.TryGetDungeonReq(stageType, targetLevel, out int dungeonId, out _))
             return;
 
         if (!CheckDungeon.TrySpendTicket(stageType, targetLevel, requiredKeyCount))
+        {
+            UpdateNextButtonState();
+            InstanceMessageManager.TryShow(InsufficientDungeonTicketMessage);
             return;
+        }
 
         if (DungeonManager.Instance != null)
             DungeonManager.Instance.currentDungeonID = dungeonId;
@@ -292,6 +314,14 @@ public sealed class DungeonClearPopupController : MonoBehaviour
     private int ResolveMaxLevelCount(StageType stageType)
     {
         return Mathf.Max(1, CheckDungeon.GetMaxLevelCount(stageType));
+    }
+
+    private void OnItemAmountChanged(InventoryItemContext item, BigDouble amount)
+    {
+        if (item.ItemType != ItemType.Key)
+            return;
+
+        UpdateNextButtonState();
     }
 
 }

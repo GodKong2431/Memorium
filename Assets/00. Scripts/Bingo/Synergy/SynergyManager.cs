@@ -1,30 +1,61 @@
+using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[Serializable]
 public class SynergyManager : Singleton<SynergyManager>
 {
-    public RarityType rarity;
-    public SynergyStat stat;
+    public SynergyItem item;
     
     public Button button;
     
-    public SynergyData synergyData;
+    public SerializedDictionary<int, SynergyData> synergyDatas;
     public SynergyDataSO synergyDataSo;
+    
+    public BingoSynergy currentSynergy;
     
     event Action testEvent;
     bool eventTriggered;
     
     bool isAceppt;
         
+    public RetryUI retryUI;
+    
+    public static event Action OnOpenPopUp;
+    
+    public event Action<BingoSynergy> OnChangedSynergy;
     public float GetSynergyStat(StatType statType)
     {
         return 0f;
     }
-    
+
+    IEnumerator Start()
+    {
+        yield return new WaitUntil(() => DataManager.Instance != null);
+        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
+        
+        int id = 3431001;
+        int plusid = 1;
+        
+        foreach(var data in synergyDataSo.SynergyDataDict)
+        {
+            foreach(var synergydata in data.Value)
+            {
+                synergydata.Value.LoadSynergy(id);
+                synergyDatas.Add(id, synergydata.Value);
+                id += 1000;
+            }
+            id = 3431001;
+            id += plusid++;
+        }
+    }
+
     public BingoSynergy Gacha(List<BingoSynergy> synergies)
     {
         
@@ -83,26 +114,36 @@ public class SynergyManager : Singleton<SynergyManager>
         eventTriggered = false;
         isAceppt = false;
         
-        var synergy = Gacha(BingoBoard.Instance.Synergies);
-        
-        Debug.Log($"{synergy.bingoSynergyLine.ToString()}, {synergy.index}");
+        currentSynergy = Gacha(BingoBoardManager.Instance.Synergies);
         
         testEvent += OnEvent;
+        
+        // 선택된 자리 애니메이션
+        
+        OpenPopup();
             
         yield return new WaitUntil(()=> eventTriggered);
             
+        ClosePopup();
+        
+        // 선택된 자리 애니메이션 종료
         testEvent -= OnEvent;
         
-        if (isAceppt)
+        if (!isAceppt)
         {
             yield break;
         }
         
-        synergy.SynergyData = synergyDataSo.SynergyDataDict[stat][rarity];
+        currentSynergy.SynergyData = item.synergyData;
+        
+        OnChangedSynergy?.Invoke(currentSynergy);
     }
 
     public void TestSyer()
     {
+        if (item == null)
+            return;
+        
         StartCoroutine(Testppt());
     }
     
@@ -116,6 +157,17 @@ public class SynergyManager : Singleton<SynergyManager>
         isAceppt = asd;
         
         testEvent?.Invoke();
+    }
+    
+    void OpenPopup()
+    {
+        retryUI.gameObject.SetActive(true);
+        OnOpenPopUp?.Invoke();
+    }
+    
+    void ClosePopup()
+    {
+        retryUI.gameObject.SetActive(false);
     }
     
 }

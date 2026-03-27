@@ -9,6 +9,7 @@ internal static class SkillIconResolver
 {
     // 리소스 로드 결과를 재사용하기 위한 문자열 키 캐시입니다.
     private static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>(StringComparer.Ordinal);
+    private static readonly Dictionary<int, Sprite> ScrollIconCache = new Dictionary<int, Sprite>();
     // 임시 스킬 아이콘 카탈로그 캐시입니다.
     private static SkillTemporaryIconCatalog temporaryCatalog;
 
@@ -32,6 +33,28 @@ internal static class SkillIconResolver
     {
         Sprite resolved = TryLoad(key);
         return resolved != null ? resolved : GetTemporaryIcon(skillId);
+    }
+
+    public static Sprite TryLoadScrollIcon(SkillInfoTable skillInfo)
+    {
+        return skillInfo == null ? null : TryLoadScrollIcon(skillInfo.skillScrollID);
+    }
+
+    public static Sprite TryLoadScrollIcon(int scrollItemId)
+    {
+        if (scrollItemId <= 0)
+            return null;
+
+        if (ScrollIconCache.TryGetValue(scrollItemId, out Sprite cached))
+            return cached;
+
+        ItemInfoTable itemInfo = null;
+        if (DataManager.Instance?.ItemInfoDict != null)
+            DataManager.Instance.ItemInfoDict.TryGetValue(scrollItemId, out itemInfo);
+
+        Sprite resolved = IconManager.GetItemIcon(itemInfo);
+        ScrollIconCache[scrollItemId] = resolved;
+        return resolved;
     }
 
     // 다양한 경로 표기를 허용하며 실제 Resources 경로를 해석합니다.

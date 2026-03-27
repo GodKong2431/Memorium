@@ -63,6 +63,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Button levelUpButton;
     // 레벨업 비용을 표시할 텍스트입니다.
     [SerializeField] private TMP_Text levelUpCostText;
+    [SerializeField] private Image levelUpCostIconImage;
 
     [Header("Gem")]
     // 열린 젬 슬롯 개수만큼 보여줄 버튼 배열입니다.
@@ -218,6 +219,9 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     {
         if (cachedRectTransform == null)
             cachedRectTransform = transform as RectTransform;
+
+        if (levelUpCostIconImage == null)
+            levelUpCostIconImage = FindLevelUpCostIcon();
     }
 
     // 상세 패널을 시트 마스크 밖의 캔버스 오버레이 계층으로 올립니다.
@@ -242,7 +246,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     {
         ApplyHeader(table, ownedData);
         ApplyDefaultInfo(table, ownedData);
-        ApplyLevelUpButton(ownedData); 
+        ApplyLevelUpButton(table, ownedData);
         ApplyGemButtons(ownedData);
         ApplyRarityDescriptions(ownedData);
     }
@@ -284,7 +288,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         if (defaultDescriptionText != null)
             defaultDescriptionText.SetText(GetDescription(table));
     }
-    private void ApplyLevelUpButton(OwnedSkillData ownedData)
+    private void ApplyLevelUpButton(SkillInfoTable table, OwnedSkillData ownedData)
     {
         SkillInventoryModule skillModule = GetSkillModule();
 
@@ -298,6 +302,13 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
 
         if (levelUpCostText != null)
             levelUpCostText.SetText(showLevelUp ? BuildLevelUpProgressText(ownedData) : string.Empty);
+
+        if (levelUpCostIconImage != null)
+        {
+            levelUpCostIconImage.gameObject.SetActive(showLevelUp);
+            levelUpCostIconImage.sprite = showLevelUp ? SkillIconResolver.TryLoadScrollIcon(table) : null;
+            levelUpCostIconImage.preserveAspect = true;
+        }
 
         if (!showLevelUp)
             return;
@@ -726,5 +737,40 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         return Mathf.Approximately(value, Mathf.Round(value))
             ? Mathf.RoundToInt(value).ToString()
             : value.ToString("0.0");
+    }
+
+    private Image FindLevelUpCostIcon()
+    {
+        Transform searchRoot = levelUpCostText != null
+            ? levelUpCostText.transform.parent
+            : null;
+
+        if (searchRoot == null && levelUpButton != null)
+            searchRoot = levelUpButton.transform.parent;
+
+        Transform iconTransform = FindChildRecursive(searchRoot, "(Img)GoldIcon");
+        if (iconTransform == null && searchRoot != null)
+            iconTransform = FindChildRecursive(searchRoot.parent, "(Img)GoldIcon");
+
+        return iconTransform != null ? iconTransform.GetComponent<Image>() : null;
+    }
+
+    private static Transform FindChildRecursive(Transform root, string childName)
+    {
+        if (root == null)
+            return null;
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Transform child = root.GetChild(i);
+            if (child.name == childName)
+                return child;
+
+            Transform nested = FindChildRecursive(child, childName);
+            if (nested != null)
+                return nested;
+        }
+
+        return null;
     }
 }
