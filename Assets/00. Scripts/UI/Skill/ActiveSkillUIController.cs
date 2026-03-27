@@ -81,6 +81,8 @@ public class ActiveSkillUIController : UIControllerBase
     private Coroutine waitReadyRoutine;
     // 목록이 한 번이라도 생성되었는지 여부입니다.
     private bool built;
+    // 장착 오버레이의 바깥 클릭을 감지하는 공통 백드롭입니다.
+    private OverlayPopupPanelUI equipBackgroundOverlay;
     // 현재 장착 대기 중인 스킬 ID입니다.
     private int pendingEquipSkillId = -1;
     // 현재 장착 대기 중인 스킬 타입입니다.
@@ -95,11 +97,13 @@ public class ActiveSkillUIController : UIControllerBase
         EnsureSkillModuleSubscribed();
         BindPresetButtons();
         BindEquippedSkillSlots();
+        BindEquipBackgroundOverlay();
     }
 
     // UI 비활성 시 버튼과 모듈 이벤트를 해제합니다.
     protected override void Unsubscribe()
     {
+        UnbindEquipBackgroundOverlay();
         UnbindPresetButtons();
         UnbindEquippedSkillSlots();
         UnsubscribeFromSkillModule();
@@ -376,6 +380,34 @@ public class ActiveSkillUIController : UIControllerBase
         }
     }
 
+    private void BindEquipBackgroundOverlay()
+    {
+        if (equipBackgroundOverlay == null && equipSkillPanelRoot != null)
+            equipBackgroundOverlay = equipSkillPanelRoot.GetComponent<OverlayPopupPanelUI>();
+
+        if (equipBackgroundOverlay == null)
+            return;
+
+        equipBackgroundOverlay.OutsideClicked -= HandleEquipBackgroundOutsideClicked;
+        equipBackgroundOverlay.OutsideClicked += HandleEquipBackgroundOutsideClicked;
+    }
+
+    private void UnbindEquipBackgroundOverlay()
+    {
+        if (equipBackgroundOverlay == null)
+            return;
+
+        equipBackgroundOverlay.OutsideClicked -= HandleEquipBackgroundOutsideClicked;
+    }
+
+    private void HandleEquipBackgroundOutsideClicked()
+    {
+        if (pendingEquipSkillId < 0)
+            return;
+
+        ClearEquipSelection();
+    }
+
     // 프리셋 버튼 클릭 시 활성 프리셋을 전환합니다.
     private void OnPresetButtonClicked(int presetIndex)
     {
@@ -431,6 +463,7 @@ public class ActiveSkillUIController : UIControllerBase
             equipSkillNameText?.SetText(table.skillName);
 
         UpdateEquipSelectionState();
+        equipBackgroundOverlay?.SuppressClickForCurrentFrame();
     }
 
     // 잠금 해제 또는 승급 버튼 클릭을 처리합니다.

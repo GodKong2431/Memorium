@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 2296943369595910198}
   - component: {fileID: 797148783571236425}
   - component: {fileID: 4726504579378153619}
+  - component: {fileID: 6346820408411417717}
   m_Layer: 5
   m_Name: (Panel)SkillEquipPanel
   m_TagString: Untagged
@@ -137,7 +138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -153,6 +154,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6346820408411417717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2544712607593408125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91ebd2b4c18d42bf9e0dc64318f4f8c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OverlayPopupPanelUI
+  sheetRoot: {fileID: 7984245869621996947}
 --- !u!1 &5492231361852778994
 GameObject:
   m_ObjectHideFlags: 0

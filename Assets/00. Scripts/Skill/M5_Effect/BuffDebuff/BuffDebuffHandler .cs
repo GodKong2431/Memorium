@@ -49,6 +49,9 @@ public class BuffDebuffHandler
         float total = 0f;
         foreach (var modifier in modifiers)
         {
+            if (modifier.statType != playerStatType)
+                continue;
+
             total += modifier.GetValue();
         }
         return total;
