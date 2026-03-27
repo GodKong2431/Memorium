@@ -322,7 +322,7 @@ public class EquipmentHandler : MonoBehaviour
         BigDouble cost = baseCost + (baseCost * reinforcementWeight * curEquipmentReinforcement);
 
         //강화 비용 부족 시 False 반환
-        if (InventoryManager.Instance.GetItemAmount(goldId) <= cost)
+        if (InventoryManager.Instance.GetItemAmount(goldId) < cost)
         {
             Debug.Log("[EquipmentHandler] 강화비용 부족");
             return false;
