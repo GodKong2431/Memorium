@@ -20,9 +20,10 @@ public class LacerationEffect : StatusEffectBase
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         SoundManager.Instance.PlayCombatSfx(fusion.fusionSound);
+        //PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(fusion.fusionVFX, target.transform, true, true, onSpawned: OnParticleSpawned));
 
         //비동기 방식 진행을 위해 메서드 분리
-        SpawnAndSetEffect(target);
+        SpawnAndSetEffect(target, buffApplicable);
 
         base.OnApply(target, buffApplicable);
 
@@ -36,7 +37,7 @@ public class LacerationEffect : StatusEffectBase
     }
 
     //생성된 파티클을 불러오고 이를 effect에 배치
-    private async void SpawnAndSetEffect(IDamageable target)
+    private async void SpawnAndSetEffect(IDamageable target, IBuffApplicable buffApplicable)
     {
         GameObject particle = await PoolableParticleManager.Instance.SpawnParticleAsync(new ParticleSpawnContext(fusion.fusionVFX, target.transform, true, false, onSpawned: OnParticleSpawned));
         if (particle == null)
