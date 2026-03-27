@@ -14,6 +14,8 @@ public class MonsterAnimationConfig : ScriptableObject
     [SerializeField] private string triggerChase = "Chase";
     [Tooltip("일반 공격")]
     [SerializeField] private string triggerAttack = "Attack";
+    [Tooltip("스킬 공격형 몬스터(skillAttackMonster)의 일반 시전 애니")]
+    [SerializeField] private string triggerSkill = "Skill";
     [Tooltip("레거시 보스 공격 트리거 (현재는 Attack과 동일하게 사용)")]
     [SerializeField] private string triggerAttackBoss = "Attack";
     [Tooltip("피격")]
@@ -35,6 +37,7 @@ public class MonsterAnimationConfig : ScriptableObject
         Idle,
         Chase,
         Attack,
+        Skill,
         AttackBoss,
         Onhit,
         Die,
@@ -48,6 +51,7 @@ public class MonsterAnimationConfig : ScriptableObject
             TriggerKey.Idle => triggerIdle,
             TriggerKey.Chase => triggerChase,
             TriggerKey.Attack => triggerAttack,
+            TriggerKey.Skill => triggerSkill,
             TriggerKey.AttackBoss => triggerAttackBoss,
             TriggerKey.Onhit => triggerOnhit,
             TriggerKey.Die => triggerDead,

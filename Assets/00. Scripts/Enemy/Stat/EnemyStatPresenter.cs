@@ -91,6 +91,12 @@ public class EnemyStatPresenter : MonoBehaviour
     public bool IsBoss => monsterIdFromDataManager != 0 && MonsterDataProvider.IsBoss(monsterIdFromDataManager);
 
     /// <summary>
+    /// 스킬 공격형 몬스터(skillAttackMonster) 여부. DataManager 기준.
+    /// </summary>
+    public bool IsSkillAttackMonster =>
+        monsterIdFromDataManager != 0 && MonsterDataProvider.IsSkillAttackMonster(monsterIdFromDataManager);
+
+    /// <summary>
     /// DataManager 로드 완료 후, monsterIdFromDataManager로 스탯 재로드.
     /// </summary>
     public void RefreshFromDataManager()
