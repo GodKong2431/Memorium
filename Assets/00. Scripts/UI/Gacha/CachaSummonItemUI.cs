@@ -132,6 +132,9 @@ public sealed class CachaSummonItemUI : MonoBehaviour
         if (manager.CanDrawWithTickets(gachaType, drawCount))
             return PerformSummon(drawCount);
 
+        if (GameOptionSettings.SkipGachaCrystalPopup)
+            return PerformSummon(drawCount);
+
         if (crystalChangePopup != null)
             return crystalChangePopup.Show(gachaType, summonTitle, drawCount, () => PerformSummon(drawCount));
 

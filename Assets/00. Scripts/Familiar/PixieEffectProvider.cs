@@ -182,6 +182,9 @@ using UnityEngine;
     }
     private void SpawnDebuffEffects()
     {
+        if (GameOptionSettings.HidePixieDebuffEffect)
+            return;
+
         float effectRadius = 100f;
         int count = DetectEnemies(effectRadius);
         for (int i = 0; i < count; i++)
