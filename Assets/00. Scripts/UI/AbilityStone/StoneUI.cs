@@ -352,7 +352,7 @@ public sealed partial class StoneUI : UIControllerBase
                 continue;
 
             int capturedIndex = i;
-            SetButtonAction(slotItem.Button, () => OnClickUpgradeSlot(capturedIndex));
+            SetButtonAction(slotItem.Button, () => OnClickUpgradeSlot(capturedIndex), 0);
         }
     }
 
