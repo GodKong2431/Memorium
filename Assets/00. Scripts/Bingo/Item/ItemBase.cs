@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,10 +8,18 @@ public abstract class ItemBase : MonoBehaviour
 {
     [SerializeField] public BingoItemType itemType;
     
-    [SerializeField] public Sprite itemSprite;
+    [SerializeField] public Image itemSprite;
 
+    [SerializeField] public int itemCount;
+    
+    [SerializeField] public TextMeshProUGUI itemCountText;
+    
+    [SerializeField] public int itemInfoID;
+    
     [SerializeField] public Toggle Itemtoggle;
-    [SerializeField] public BingoBoard mgr ;
+    [SerializeField] public BingoBoardManager mgr ;
+    
+    [SerializeField] public BingoItemManager itemMgr;
     
     [SerializeField] private BingoSlot currentSlot;
     
@@ -42,8 +51,7 @@ public abstract class ItemBase : MonoBehaviour
     
     public virtual void Init()
     {
-        mgr = BingoBoard.Instance;
-        var itemMgr = mgr.bingoItemManager;
+        mgr = BingoBoardManager.Instance;
         Itemtoggle.onValueChanged.AddListener(_ => itemMgr.itemBase = _? this : null);
     }
     

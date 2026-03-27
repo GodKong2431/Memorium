@@ -9,12 +9,12 @@ public class PluckItem : ItemBase
     public override void Start()
     {
         base.Start();
-        mgr.bingoItemManager.pluckItems.Add(this);
+        itemMgr.pluckItems.Add(this);
     }
 
     public bool IsWithinBounds(int row, int col)
     {
-        int boradRange = BingoBoard.Instance.BingoRange;
+        int boradRange = BingoBoardManager.Instance.BingoRange;
         
         switch (dir)
         {
@@ -25,11 +25,11 @@ public class PluckItem : ItemBase
                 row++;
                 return row >= boradRange ? false : true;
             case Direction.Up:
-                col++;
-                return col >= boradRange ? false : true;
-            case Direction.Down:
                 col--;
                 return col < 0 ? false : true;
+            case Direction.Down:
+                col++;
+                return col >= boradRange ? false : true;
             default:
                 return false;
         }
@@ -68,13 +68,13 @@ public class PluckItem : ItemBase
                 row++;
                 break;
             case Direction.Up:
-                col++;
+                col--;
                 break;
             case Direction.Down:
-                col--;
+                col++;
                 break;
         }
         
-        return BingoBoard.Instance.GetSlot(col, row);
+        return BingoBoardManager.Instance.GetSlot(col, row);
     }
 }

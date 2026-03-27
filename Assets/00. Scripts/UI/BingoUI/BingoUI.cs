@@ -2,19 +2,20 @@ using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BingoUI : MonoBehaviour
 {
-    [SerializeField] private RectTransform BingoBoardTransform;
-
+    [SerializeField] private Button BingoBoardTransform;
     [SerializeField] private SerializedDictionary<int, List<GameObject>> BingoSlot = new SerializedDictionary<int, List<GameObject>>();  
-
     [SerializeField] private RectTransform ColSynergyTransform;
     [SerializeField] private RectTransform RowSynergyTransform;
+    [SerializeField] private RectTransform DiaSynergyTransform;
 
-    [SerializeField] private List<GameObject> Synergys;
+    [SerializeField] private List<SynergyViewItem> SynergyViews;
     
     [SerializeField] List<BingoColumnSlot> SlotColumns = new List<BingoColumnSlot>();
+    [SerializeField] private RectTransform retry;
     public BingoContext _ctx { get; private set; }
 
     public static event Action<int> OnClickBingoGachaButton;
@@ -23,24 +24,21 @@ public class BingoUI : MonoBehaviour
     {
         _ctx = new BingoContext
         {
+            retry = this.retry,
+            BoardTransform = BingoBoardTransform,
             Slots = BingoSlot,
             ColumnSynergyTransform = ColSynergyTransform,
             RowLineSynergyTransform = RowSynergyTransform,
-            SynergyObjects = Synergys,
-            Columns = SlotColumns,
+            DiaLineSynergyTransform = DiaSynergyTransform,
+            SynergyViewObjects = SynergyViews,
+            Columns = new List<BingoColumnSlot>(SlotColumns),
         };
-        BingoBoard.Instance.Init(_ctx);
+        BingoBoardManager.Instance.Init(_ctx);
     }
     
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Init();
     }
     
     public void OnClickBingoGacha(int index)

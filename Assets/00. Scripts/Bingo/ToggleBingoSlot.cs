@@ -15,7 +15,7 @@ public class ToggleBingoSlot : MonoBehaviour
             
             if (_currentitem != null)
             {
-                itemSprite.sprite = _currentitem.itemSprite;
+                
             }
             
             itemSprite.sprite = null;

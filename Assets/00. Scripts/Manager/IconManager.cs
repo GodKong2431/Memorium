@@ -6,6 +6,7 @@ public static class IconManager
     public static StatIconSO StatIconSO = Resources.Load<StatIconSO>("Icons/StatIconSO");
     public static StoneIconSO StoneIconSO = Resources.Load<StoneIconSO>("Icons/StoneIconSO");
     public static CurrencyIconSO CurrencyIconSO = Resources.Load<CurrencyIconSO>("Icons/CurrencyIconSO");
+    public static SynergyIconSO SynergyIconSO = Resources.Load<SynergyIconSO>("Icons/SynergyIconSO");
 
     public static Sprite GetStatIcon(StatType statType)
     {
@@ -21,6 +22,14 @@ public static class IconManager
             return null;
 
         return CurrencyIconSO.CurrencyIconDict.TryGetValue(currencyType, out var icon) ? icon : null;
+    }
+    
+    public static Sprite GetSynergyIcon(SynergyStat synergyStat)
+    {
+        if (SynergyIconSO == null || SynergyIconSO.SynergyIcons == null)
+            return null;
+                
+        return SynergyIconSO.SynergyIcons.TryGetValue(synergyStat, out var icon) ? icon : null;
     }
 
     public static Sprite GetEquipmentIcon(EquipListTable table)

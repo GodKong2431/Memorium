@@ -4,10 +4,35 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;   
 
-public class BingoBoard : Singleton<BingoBoard>
+[Serializable]
+public struct BingoSlotSaveData
+{
+    public int row; // 몇번재 줄
+    public int col; // 몇번째 라인
+    public int count; // 몇개 가지고 있는지
+    public int rarityEnum; // 슬롯 등급이 뭔지
+    public bool unlockStates; // 언락 되어 있는지
+}
+
+public struct SynergySlotSaveData
+{
+    public int index; // 몇번째 줄인지 
+    public int enumCount; // 가로 세로 대각선인지
+    public int synergyID; // 들어가있는 시너지의 ID
+}
+
+public struct BingoBoardSaveData
+{
+    List<BingoSlotSaveData> bingoSlotSaveDatas;
+    
+    List<SynergySlotSaveData> SynergySlotSaveDatas;
+}
+
+public class BingoBoardManager : Singleton<BingoBoardManager>
 {
     [SerializeField] public SerializedDictionary<BingoColumnSlot, List<BingoSlot>> SlotList = new SerializedDictionary<BingoColumnSlot, List<BingoSlot>>();
     [SerializeField] private BingoContext ctx;
@@ -69,7 +94,7 @@ public class BingoBoard : Singleton<BingoBoard>
             return;
         }
         
-        bingoButton.onClick.AddListener(() => OnClick(bingoItemManager.itemBase));
+        ctx.BoardTransform.onClick.AddListener(() => OnClick(bingoItemManager.itemBase));
         
         // slotTest.onClick.RemoveAllListeners();
         // slotTest.onClick.AddListener(()=> Testpe());
@@ -97,126 +122,98 @@ public class BingoBoard : Singleton<BingoBoard>
             return;
         }
 
+        var slotColumns = ctx.Columns;
+        
+        
+        foreach (var synergy in bingoBoardSO.bingoSynergys)
+        {
+            foreach (var item in synergy.Value)
+            {
+                switch (synergy.Key)
+                {
+                    case SynergyDirection.Row:
+                        item.Value.Init(synergy.Key,item.Key);
+                        item.Value.SetSynergy(GetFirstSynergy(item.Value));
+                        var synergyRowItem = Instantiate(item.Value , ctx.RowLineSynergyTransform);
+                        RowSynergy.Add(item.Key,synergyRowItem);
+                        Synergies.Add(synergyRowItem);
+                        break;
+                    case SynergyDirection.Column:
+                        item.Value.Init(synergy.Key,item.Key);
+                        item.Value.SetSynergy(GetFirstSynergy(item.Value));
+                        var synergyColItem = Instantiate(item.Value , ctx.ColumnSynergyTransform);
+                        ColSynergy.Add(item.Key,synergyColItem);
+                        Synergies.Add(synergyColItem);
+                        break;
+                    case SynergyDirection.Diagonal:
+                        item.Value.Init(synergy.Key,item.Key);
+                        item.Value.SetSynergy(GetFirstSynergy(item.Value));
+                        DiagSynergy = Instantiate(item.Value , ctx.DiaLineSynergyTransform);
+                        Synergies.Add(DiagSynergy);
+                        break;
+                }
+            }
+        }
+        
         for (int col = 0; col < bingoBoardSO.bingoSlots.Count; col++)
         {
-            if (!bingoBoardSO.bingoSlots.TryGetValue(col, out var soColumn) || soColumn == null)
+            var slotColumn = bingoBoardSO.bingoSlots[col];
+            
+            for (int row = 0; row < slotColumn.Count; row++)
             {
-                continue;
-            }
-
-            if (col < 0 || col >= ctx.Columns.Count)
-            {
-                continue;
-            }
-
-            var slotColumn = ctx.Columns[col];
-
-            if (slotColumn == null)
-            {
-                continue;
-            }
-
-            for (int row = 0; row < soColumn.Count; row++)
-            {
-                if (!soColumn.TryGetValue(row, out var rarity))
-                {
-                    continue;
-                }
-
-                if (!bingoBoardSO.RaritySolts.TryGetValue(rarity, out var slotPrefab) || slotPrefab == null)
-                {
-                    continue;
-                }
-
-                BingoSlot slotItem = Instantiate(slotPrefab, slotColumn.transform);
-
-                slotItem.bingoGrade = rarity;
-                slotItem.Init(col, row);
-
-                if (RowSynergy.TryGetValue(row, out var rowSynergy))
-                {
-                    slotItem.UpdateUnlock += rowSynergy.Check;
-                }
-
-                if (ColSynergy.TryGetValue(col, out var colSynergy))
-                {
-                    slotItem.UpdateUnlock += colSynergy.Check;
-                }
-
-                if (col == row && DiagSynergy != null)
+                bingoBoardSO.RaritySolts.TryGetValue(slotColumn[row], out var bingoSlot);
+                BingoSlot slotItem = Instantiate(bingoSlot , slotColumns[col].transform);
+                slotColumns[col].bingoSlotDatas.Add(slotItem);
+                
+                slotItem.Init(col,row);
+                slotItem.UpdateUnlock += RowSynergy[row].Check;
+                slotItem.UpdateUnlock += ColSynergy[col].Check;
+                
+                if (col == row)
                 {
                     slotItem.UpdateUnlock += DiagSynergy.Check;
                 }
-
-                slotColumn.bingoSlotDatas.Add(slotItem);
-                SlotList[slotColumn].Add(slotItem);
-                SlotGradeList[rarity].Add(slotItem);
+                
+                SlotList[slotColumns[col]].Add(slotItem);
+                SlotGradeList[slotColumn[row]].Add(slotItem);
             }
         }
         
-        if (transform1 == null && transform2 == null)
+        // 데이터 로딩
+        
+        for (int i = 0; i < Synergies.Count; i++)
         {
-            return;
+            ctx.SynergyViewObjects[i].SetView(Synergies[i]);
         }
-        
-        // foreach (var synergy in bingoBoardSO.bingoSynergy)
-        // {
-        //     foreach (var item in synergy.Value)
-        //     {
-        //         switch (synergy.Key)
-        //         {
-        //             case SynergyDirection.Row:
-        //                 item.Value.Init(synergy.Key,item.Key);
-        //                 var synergyRowItem = Instantiate(item.Value , transform1);
-        //                 RowSynergy.Add(item.Key,synergyRowItem);
-        //                 Synergies.Add(synergyRowItem);
-        //                 break;
-        //             case SynergyDirection.Column:
-        //                 item.Value.Init(synergy.Key,item.Key);
-        //                 var synergyColItem = Instantiate(item.Value , transform2);
-        //                 ColSynergy.Add(item.Key,synergyColItem);
-        //                 Synergies.Add(synergyColItem);
-        //                 break;
-        //             case SynergyDirection.Diagonal:
-        //                 item.Value.Init(synergy.Key,item.Key);
-        //                 DiagSynergy = Instantiate(item.Value , transform2);
-        //                 Synergies.Add(DiagSynergy);
-        //                 break;
-        //         }
-        //     }
-        // }
-        
-        // for (int col = 0; col < bingoBoardSO.bingoSlots.Count; col++)
-        // {
-        //     var slotColumn = bingoBoardSO.bingoSlots[col];
-            
-        //     for (int row = 0; row < slotColumn.Count; row++)
-        //     {
-        //         BingoSlot slotItem = Instantiate(slotColumn[row] , SlotColumns[col].transform);
-                
-        //         slotItem.Init(col,row);
-        //         slotItem.UpdateUnlock += RowSynergy[row].Check;
-        //         slotItem.UpdateUnlock += ColSynergy[col].Check;
-                
-        //         if (col == row)
-        //         {
-        //             slotItem.UpdateUnlock += DiagSynergy.Check;
-        //         }
-                
-        //         SlotList[SlotColumns[col]].Add(slotItem);
-        //         SlotGradeList[slotColumn[row].bingoGrade].Add(slotItem);
-        //     }
-        // }
     }
 
+    public int GetFirstSynergy(BingoSynergy bingoSynergy)
+    {
+        foreach(var key in DataManager.Instance.BoardSynergyDict)
+        {
+            if (key.Value.synergyDirection != SynergyDirection.Diagonal)
+            {
+                key.Value.lineNumber -= 1;
+            }
+            
+            if (bingoSynergy.bingoSynergyLine == key.Value.synergyDirection && bingoSynergy.index == key.Value.lineNumber)
+            {
+                return key.Value.startSynergyId;
+            }
+        }
+        
+        return 0;
+    }
+    
     void OnEnable()
     {
+        synergyMgr.OnChangedSynergy += UpdateSynergyView;
         BingoUI.OnClickBingoGachaButton += BingoGacha;
     }
     
     void OnDisable()
     {
-
+        synergyMgr.OnChangedSynergy -= UpdateSynergyView;
         BingoUI.OnClickBingoGachaButton -= BingoGacha;
     }
 
@@ -255,19 +252,25 @@ public class BingoBoard : Singleton<BingoBoard>
         eventTriggered = false;
         isAgain = false;
         
+        // 빙고 애니메이션 넣을 자리
+        
         var slot = Gacha(cellRarity);
+        
+        // 선택된 빙고 애니메이션 넣을 자리
         
         Debug.Log($"{slot.Col}, {slot.Row}");
         
         if (againGacha)
         {
             testEvent += OnEvent;
-            
+            OpenPopUp();
             yield return new WaitUntil(()=> eventTriggered);
-            
+            ClosePopUp();
             againGacha = false;
             testEvent -= OnEvent;
         }
+        
+        // 선택된 빙고 애니메이션 종료 자리
         
         if (isAgain)
         {
@@ -427,9 +430,9 @@ public class BingoBoard : Singleton<BingoBoard>
     }
     public BingoSlot GetSlot(int col, int row)
     {
-        if (ctx == null || ctx.Columns == null || col < 0 || col >= ctx.Columns.Count)
+        if (ctx == null || ctx.Columns == null)
         {
-            throw new ArgumentOutOfRangeException(nameof(col), "Invalid bingo column index.");
+            return null;
         }
 
         return SlotList[ctx.Columns[col]][row];
@@ -476,5 +479,20 @@ public class BingoBoard : Singleton<BingoBoard>
         againItem = againItem == bingoItem ? null : bingoItem;
     }
     
+    public void OpenPopUp()
+    {
+        ctx.retry.gameObject.SetActive(true);
+        ctx.retry.GetComponent<RetryUI>().SetBingoButton();
+    }
     
+    public void ClosePopUp()
+    {
+        ctx.retry.gameObject.SetActive(false);
+    }
+    
+    public void UpdateSynergyView(BingoSynergy bingoSynergy)
+    {
+        int index = Synergies.IndexOf(bingoSynergy);
+        ctx.SynergyViewObjects[index].SetView(bingoSynergy);
+    }
 }

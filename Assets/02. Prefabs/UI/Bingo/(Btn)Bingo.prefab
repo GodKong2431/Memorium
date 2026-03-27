@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8065526656999158734}
   - component: {fileID: 4008922237917492653}
   - component: {fileID: 1749372037241694940}
+  - component: {fileID: 5522138020746643121}
   m_Layer: 5
   m_Name: (Btn)Bingo
   m_TagString: Untagged
@@ -133,6 +134,44 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 5522138020746643121}
+        m_TargetAssemblyTypeName: SizeChanger, Assembly-CSharp
+        m_MethodName: SizeChange
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 1882
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 5522138020746643121}
+        m_TargetAssemblyTypeName: SizeChanger, Assembly-CSharp
+        m_MethodName: SizeChangeContent
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 1617
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &5522138020746643121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2981423712860971659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f42409b9557655241ba12cf7d15cfb4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SizeChanger
+  PanelArea: {fileID: 0}
+  contentsArea: {fileID: 0}
 --- !u!1 &5199384783118297437
 GameObject:
   m_ObjectHideFlags: 0
