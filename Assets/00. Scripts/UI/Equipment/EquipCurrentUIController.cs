@@ -33,12 +33,14 @@ public class EquipCurrentUIController : UIControllerBase
     private readonly List<EquipItemView> views = new List<EquipItemView>();
     private readonly List<EquipItemView> mergeResultViews = new List<EquipItemView>();
     private readonly List<EquipmentInventoryModule.MergeResultEntry> mergeResults = new List<EquipmentInventoryModule.MergeResultEntry>();
+    [SerializeField] private float mergeResultCloseBlockDuration = 0.5f;
 
     private InventoryManager inventory;
     private bool isBuilt;
     private bool isMergeResultVisible;
     private bool mergeEffectsPending;
     private int ignoreMergeResultCloseUntilFrame = -1;
+    private float ignoreMergeResultCloseUntilTime = -1f;
     private Button boundMergeButton;
     private Button boundEquipButton;
     private Button boundMergeResultBackgroundButton;
@@ -529,6 +531,7 @@ public class EquipCurrentUIController : UIControllerBase
         isMergeResultVisible = true;
         mergeEffectsPending = true;
         ignoreMergeResultCloseUntilFrame = Time.frameCount + 1;
+        ignoreMergeResultCloseUntilTime = Time.unscaledTime + Mathf.Max(0f, mergeResultCloseBlockDuration);
         RefreshMergeResults();
         ApplyMergeResultVisibility();
     }
@@ -536,6 +539,7 @@ public class EquipCurrentUIController : UIControllerBase
     private void HideMergeResultPopup()
     {
         isMergeResultVisible = false;
+        ignoreMergeResultCloseUntilTime = -1f;
         SetMergeResultVisible(false);
     }
 
@@ -607,6 +611,9 @@ public class EquipCurrentUIController : UIControllerBase
             return;
 
         if (Time.frameCount <= ignoreMergeResultCloseUntilFrame)
+            return;
+
+        if (Time.unscaledTime < ignoreMergeResultCloseUntilTime)
             return;
 
         HideMergeResultPopup();
