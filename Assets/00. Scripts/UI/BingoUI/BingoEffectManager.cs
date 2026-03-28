@@ -259,6 +259,50 @@ public class BingoEffectManager : Singleton<BingoEffectManager>
         PlayEffect(target, synergyDismantleEffect, synergyDismantleEffectQueue, nameof(synergyDismantleEffect), true);
     }
 
+    public ParticleSystem PlaySynergyDismantleEffectManual(Transform target)
+    {
+        if (target == null || !TryGetTemplate(synergyDismantleEffect, nameof(synergyDismantleEffect), out ParticleSystem template))
+            return null;
+
+        ParticleSystem particle = GetParticle(synergyDismantleEffectQueue, template);
+        if (particle == null)
+            return null;
+
+        particle.transform.SetParent(target, false);
+        ApplyLocalPositionRotation(particle.transform, template.transform);
+        particle.transform.localScale = GetHierarchyLocalScale(template.transform);
+
+        // 이동 중 파티클이 원점에 남지 않도록 로컬 시뮬레이션으로 고정한다.
+        ParticleSystem[] children = particle.GetComponentsInChildren<ParticleSystem>(true);
+        for (int i = 0; i < children.Length; i++)
+        {
+            ParticleSystem child = children[i];
+            if (child == null)
+                continue;
+
+            var main = child.main;
+            main.simulationSpace = ParticleSystemSimulationSpace.Local;
+        }
+
+        if (particle.gameObject.layer != 5)
+            particle.gameObject.layer = 5;
+
+        particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        particle.Play(true);
+        return particle;
+    }
+
+    public void ReturnSynergyDismantleEffect(ParticleSystem particle)
+    {
+        if (particle == null)
+            return;
+
+        ReturnToPoolWithoutScale(
+            particle,
+            synergyDismantleEffect != null ? synergyDismantleEffect.transform : null,
+            synergyDismantleEffectQueue);
+    }
+
     public ParticleSystem PlayGachaBingoSlotManual(Transform target)
     {
         if (target == null || !TryGetTemplate(GachaBingoSlot, nameof(GachaBingoSlot), out ParticleSystem template))
@@ -446,6 +490,19 @@ public class BingoEffectManager : Singleton<BingoEffectManager>
         StartCoroutine(MoveToPoolWhenSafe(particle, template));
     }
 
+    private void ReturnToPoolWithoutScale(ParticleSystem particle, Transform templateTransform, Queue<ParticleSystem> queue)
+    {
+        if (particle == null)
+            return;
+
+        EnsurePoolRoot();
+        particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        particle.gameObject.SetActive(false);
+        queue.Enqueue(particle);
+
+        StartCoroutine(MoveToPoolWhenSafeWithoutScale(particle, templateTransform));
+    }
+
     private GameObject PlayGameObjectManual(
         Transform target,
         GameObject template,
@@ -547,6 +604,31 @@ public class BingoEffectManager : Singleton<BingoEffectManager>
         target.localPosition = template.localPosition;
         target.localRotation = template.localRotation;
         target.localScale = template.localScale;
+    }
+
+    private static void ApplyLocalPositionRotation(Transform target, Transform template)
+    {
+        if (target == null || template == null)
+            return;
+
+        target.localPosition = template.localPosition;
+        target.localRotation = template.localRotation;
+    }
+
+    private static Vector3 GetHierarchyLocalScale(Transform leaf)
+    {
+        if (leaf == null)
+            return Vector3.one;
+
+        Vector3 scale = Vector3.one;
+        Transform current = leaf;
+        while (current != null)
+        {
+            scale = Vector3.Scale(scale, current.localScale);
+            current = current.parent;
+        }
+
+        return scale;
     }
 
     private static void ApplyUiTransform(Transform target, Transform template, Transform parent)
@@ -739,6 +821,41 @@ public class BingoEffectManager : Singleton<BingoEffectManager>
                 particle.transform.SetParent(poolRoot, false);
                 if (template != null)
                     ApplyLocalTransform(particle.transform, template.transform);
+                yield break;
+            }
+            catch (UnityException)
+            {
+                retries++;
+                retryNextFrame = true;
+            }
+
+            if (retryNextFrame)
+                yield return null;
+        }
+    }
+
+    private IEnumerator MoveToPoolWhenSafeWithoutScale(ParticleSystem particle, Transform templateTransform)
+    {
+        if (particle == null)
+            yield break;
+
+        yield return null;
+
+        const int maxRetries = 3;
+        int retries = 0;
+        while (retries < maxRetries)
+        {
+            if (particle == null || particle.gameObject.activeSelf)
+                yield break;
+
+            EnsurePoolRoot();
+            bool retryNextFrame = false;
+
+            try
+            {
+                particle.transform.SetParent(poolRoot, false);
+                if (templateTransform != null)
+                    ApplyLocalPositionRotation(particle.transform, templateTransform);
                 yield break;
             }
             catch (UnityException)

@@ -1311,6 +1311,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BingoEffectManager
       objectReference: {fileID: 0}
+    - target: {fileID: 8343397581583439962, guid: de8c1528181f5ec4a9f8a5e7437f75e5, type: 3}
+      propertyPath: synergyDismantleEffect
+      value: 
+      objectReference: {fileID: 198909081397204100, guid: 5c5666aea2ba3d7478603748abde9c4c, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2625,6 +2629,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1909904969}
   m_CullTransparentMesh: 1
+--- !u!224 &1921914256 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2752166742086433417, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+  m_PrefabInstance: {fileID: 7151944950682389466}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1970673716
 GameObject:
   m_ObjectHideFlags: 0
@@ -3446,6 +3455,46 @@ PrefabInstance:
     - target: {fileID: 721623422365547277, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: curveWidth
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: curveHeight
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: dustTransform
+      value: 
+      objectReference: {fileID: 1921914256}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: flightAcceleration
+      value: 800
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: initialFlightSpeed
+      value: 600
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: dustAmountPerEffect
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: flightAccelerationMax
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: flightAccelerationMin
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: initialFlightSpeedMax
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: initialFlightSpeedMin
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 864451933630713486, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: m_AnchorMax.x

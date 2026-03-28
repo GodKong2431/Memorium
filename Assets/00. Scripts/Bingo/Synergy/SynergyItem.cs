@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -93,20 +94,34 @@ public class SynergyItem : MonoBehaviour
         dismantleCountText.text = dismantleCount <= 0 ? "" : $"(-{dismantleCount})";
     }
     
-    public void DismantleSynergy()
+    public void DismantleSynergy(SynergyUI synergyUI)
     {
+        StartCoroutine(StartDismantleSynergy(synergyUI));
+    }
+    
+    public IEnumerator StartDismantleSynergy(SynergyUI synergyUI)
+    {
+        yield return null;
+        
         if (dismantleCount == 0)
-            return;
+            yield break;
 
         if (SynergyManager.Instance == null ||
             !SynergyManager.Instance.TryGetDustData(synergyData.rarityType, out var dustData))
-            return;
+            yield break;
 
         if(!InventoryManager.Instance.RemoveItem(synergyData.ID, dismantleCount))
-            return;
+            yield break;
 
-        InventoryManager.Instance.AddItem(3450001, dustData.dustProvided * dismantleCount);
-        
+        int gainedDust = dustData.dustProvided * dismantleCount;
         DismantleCountReset();
+
+        if (gainedDust <= 0)
+            yield break;
+
+        if (synergyUI != null)
+            synergyUI.PlaySynergyDismantleDust(transform, gainedDust);
+        else
+            InventoryManager.Instance.AddItem(3450001, gainedDust);
     }
 }
