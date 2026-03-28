@@ -32,8 +32,8 @@ public class RetryUI : MonoBehaviour
     {
         retryButton.onClick.RemoveAllListeners();
         yesButton.onClick.RemoveAllListeners();
-        retryButton.onClick.AddListener(()=>BingoBoardManager.Instance.OnTestButton(false));
-        yesButton.onClick.AddListener(()=>BingoBoardManager.Instance.OnTestButton(true));
+        retryButton.onClick.AddListener(()=>BingoBoardManager.Instance.OnTestButton(true));
+        yesButton.onClick.AddListener(()=>BingoBoardManager.Instance.OnTestButton(false));
         
         retryText.text = "재시도";
         

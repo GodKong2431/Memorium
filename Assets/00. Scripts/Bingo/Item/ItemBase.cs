@@ -40,13 +40,39 @@ public abstract class ItemBase : MonoBehaviour
     public virtual void Start()
     {
         Init();
+        itemCountText.text = $"{InventoryManager.Instance.GetItemAmount(itemInfoID)}";
     }
 
+    void OnEnable()
+    {
+        InventoryManager.Instance.OnItemAmountChanged += UpdateUI;
+    }
+
+    void OnDisable()
+    {
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnItemAmountChanged -= UpdateUI;
+            Reset();
+        }
+        
+    }
+    
+    public void UpdateUI(InventoryItemContext item, BigDouble amount)
+    {
+            
+        if (item.ItemId != itemInfoID)
+        
+            return;
+        
+        itemCountText.text = $"{InventoryManager.Instance.GetItemAmount(item.ItemId)}";
+    }
+    
     public abstract void UseItem(BingoSlot bingoSlot = null);
     
     public virtual void ResetSlot(BingoSlot bingoSlot)
     {
-        bingoSlot.currentitem = null;
+        bingoSlot.Currentitem = null;
     }
     
     public virtual void Init()
@@ -57,6 +83,12 @@ public abstract class ItemBase : MonoBehaviour
     
     public void Reset()
     {
-        Itemtoggle.isOn = false;
+        if (Itemtoggle == null)
+            return;
+
+        Itemtoggle.SetIsOnWithoutNotify(false);
+
+        if (itemMgr != null && itemMgr.itemBase == this)
+            itemMgr.itemBase = null;
     }
 }

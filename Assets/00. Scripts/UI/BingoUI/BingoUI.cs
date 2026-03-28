@@ -60,7 +60,13 @@ public class BingoUI : MonoBehaviour
 
     void OnDisable()
     {
-        InventoryManager.Instance.OnItemAmountChanged -= OnSetLinkCounter;
+        if (BingoBoardManager.Instance != null)
+            BingoBoardManager.Instance.ResetForBingoUiDisable();
+
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnItemAmountChanged -= OnSetLinkCounter;
+        }
     }
 
     public void OnIDSet(int index)

@@ -37,12 +37,14 @@ public class SynergyItem : MonoBehaviour
         if (!toggle)
         {
             itemButton.onClick.AddListener(()=> synergyUI.currentItem = this);
+            DismantleCountReset();
             holdAcceleratorAddon.enabled = false;
         }
         
         else
         {
             itemButton.onClick.AddListener(()=> DismantleCountUP());
+            DismantleCountReset();
             holdAcceleratorAddon.enabled = true;
         }
     }
@@ -55,7 +57,11 @@ public class SynergyItem : MonoBehaviour
 
     void OnDisable()
     {
-        InventoryManager.Instance.OnItemAmountChanged -= UpdateItemCount;
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnItemAmountChanged -= UpdateItemCount;
+        }
+        
     }
 
     public void UpdateItemCount(InventoryItemContext item, BigDouble amount)
@@ -64,6 +70,12 @@ public class SynergyItem : MonoBehaviour
             return;
         
         currentCountText.text = $"{InventoryManager.Instance.GetItemAmount(item.ItemId).ToFloat()}";
+    }
+    
+    public void DismantleCountReset()
+    {
+        dismantleCount = 0;
+        UpdateDismantleCountText();
     }
     
     public void DismantleCountUP()
@@ -83,12 +95,18 @@ public class SynergyItem : MonoBehaviour
     
     public void DismantleSynergy()
     {
-        if(dismantleCount == 0 && !InventoryManager.Instance.RemoveItem(synergyData.ID, dismantleCount))
+        if (dismantleCount == 0)
             return;
+
+        if (SynergyManager.Instance == null ||
+            !SynergyManager.Instance.TryGetDustData(synergyData.rarityType, out var dustData))
+            return;
+
+        if(!InventoryManager.Instance.RemoveItem(synergyData.ID, dismantleCount))
+            return;
+
+        InventoryManager.Instance.AddItem(3450001, dustData.dustProvided * dismantleCount);
         
-        var dust = SynergyManager.Instance.synergyDustDatas.TryGetValue(synergyData.rarityType, out var dustData) ? dustData.dustProvided : 0;
-        
-        InventoryManager.Instance.AddItem(3450001, dust * dismantleCount);
-        
+        DismantleCountReset();
     }
 }

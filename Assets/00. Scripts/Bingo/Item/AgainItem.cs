@@ -10,6 +10,7 @@ public class AgainItem : ItemBase
 
     public override void UseItem(BingoSlot bingoSlot = null)
     {
+        InventoryManager.Instance.RemoveItem(itemInfoID, 1);
         mgr.againGacha = true;
     }
 }

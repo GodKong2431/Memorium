@@ -39,7 +39,7 @@ public class PluckItem : ItemBase
     {
         if (CurrentSlot != null)
         {
-            CurrentSlot.currentitem = null;
+            CurrentSlot.Currentitem = null;
             CurrentSlot = null;
         }
     }

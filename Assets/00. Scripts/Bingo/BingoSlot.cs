@@ -11,6 +11,7 @@ public class BingoSlot : MonoBehaviour
     [SerializeField] private ItemBase _currentitem;
     
     [SerializeField] private Image itemSprite;
+    private ParticleSystem currentPluckEffect;
     
     [SerializeField] RarityType currentType;
     
@@ -70,12 +71,17 @@ public class BingoSlot : MonoBehaviour
         }
     }
     
-    public ItemBase currentitem
+    public ItemBase Currentitem
     {
         get {return _currentitem;}
         set
         {
-            if (value == null)
+            if (_currentitem is PluckItem && _currentitem != value)
+            {
+                ReturnPluckEffect();
+            }
+
+            if (value == null && _currentitem != null)
             {
                 _currentitem.CurrentSlot = null;
             }
@@ -89,24 +95,59 @@ public class BingoSlot : MonoBehaviour
                 
                 if(value.CurrentSlot != null)
                 {
-                    value.CurrentSlot.currentitem = null;
+                    value.CurrentSlot.Currentitem = null;
                     value.CurrentSlot = null;
                 }
                 value.CurrentSlot = this;
             }
             
             _currentitem = value;
+
+            if (_currentitem is PluckItem pluckItem && BingoEffectManager.Instance != null)
+            {
+                if (currentPluckEffect != null)
+                {
+                    BingoEffectManager.Instance.ReturnPluckItemEffect(currentPluckEffect);
+                    currentPluckEffect = null;
+                }
+
+                currentPluckEffect = BingoEffectManager.Instance.PlayPluckItemEffectManual(transform, pluckItem.dir);
+            }
+            else
+            {
+                ReturnPluckEffect();
+            }
             
             if (itemSprite == null)
                 return;
-            
-            if (_currentitem != null && _currentitem.itemSprite != null)
+
+            Sprite slotSprite = null;
+            if (_currentitem is LockItem lockItem)
             {
-                
+                if (lockItem.spriteImage != null)
+                    slotSprite = lockItem.spriteImage;
+                else if (_currentitem.itemSprite != null)
+                    slotSprite = _currentitem.itemSprite.sprite;
             }
-            
-            itemSprite.sprite = null;
+
+            itemSprite.sprite = slotSprite;
+            itemSprite.enabled = slotSprite != null;
+
+            Color color = itemSprite.color;
+            color.a = slotSprite != null ? 1f : 0f;
+            itemSprite.color = color;
         }
+    }
+
+    private void ReturnPluckEffect()
+    {
+        if (currentPluckEffect == null)
+            return;
+
+        if (BingoEffectManager.Instance != null)
+            BingoEffectManager.Instance.ReturnPluckItemEffect(currentPluckEffect);
+
+        currentPluckEffect = null;
     }
     
     [SerializeField] public RarityType bingoGrade;
@@ -123,7 +164,20 @@ public class BingoSlot : MonoBehaviour
     void Start()
     {
         mgr = BingoBoardManager.Instance;
-        button.onClick.AddListener(() => OnClick(mgr.bingoItemManager.itemBase));
+        if (button != null)
+            button.onClick.AddListener(HandleSlotClick);
+    }
+
+    private void HandleSlotClick()
+    {
+        if (mgr == null)
+            mgr = BingoBoardManager.Instance;
+
+        ItemBase selectedItem = null;
+        if (mgr != null && mgr.bingoItemManager != null)
+            selectedItem = mgr.bingoItemManager.itemBase;
+
+        OnClick(selectedItem);
     }
     public void Init(int col, int row)
     {
@@ -143,6 +197,14 @@ public class BingoSlot : MonoBehaviour
     }
     public void ReCall()
     {
+
+        if (BingoEffectManager.Instance != null && BingoBoardManager.Instance != null)
+        {
+            Transform target = BingoBoardManager.Instance.GetBingoButtonTransformByItemId(linkItemId);
+            if (target != null)
+                BingoEffectManager.Instance.PlayRecallItemSecondaryEffect(target);
+        }
+
         InventoryManager.Instance.AddItem(linkItemId, Countnum);
         Countnum = 0;
         //인벤토리 연동
@@ -150,32 +212,53 @@ public class BingoSlot : MonoBehaviour
     
     public void OnClick(ItemBase bingoItem)
     {
-        Debug.Log("빙고 슬롯 눌림");
+        InventoryManager inventoryManager = InventoryManager.Instance;
+        if (inventoryManager == null)
+            return;
+
         if (bingoItem == null)
+            return;
+        
+        if (inventoryManager.GetItemAmount(bingoItem.itemInfoID) <= 0)
         {
             return;
         }
         
-        if(bingoItem as ReCallItem)
-        {
-            bingoItem.UseItem(this);
+        if (currentType == RarityType.mythic && bingoItem is LockItem)
             return;
-        }
         
-        if(bingoItem is PluckItem pluckItem)
+        if (bingoItem is ReCallItem)
         {
-            if(!pluckItem.IsWithinBounds(row, col))
+            if (currentType == RarityType.mythic)
                 return;
-            foreach(var item in BingoBoardManager.Instance.bingoItemManager.pluckItems)
+            
+            if (Countnum <= 0)
+                return;
+            
+            bingoItem.UseItem(this);
+            
+            return;
+        }
+        
+        if (bingoItem is PluckItem pluckItem)
+        {
+            if (!pluckItem.IsWithinBounds(row, col))
+                return;
+
+            BingoBoardManager boardManager = BingoBoardManager.Instance;
+            if (boardManager == null || boardManager.bingoItemManager == null || boardManager.bingoItemManager.pluckItems == null)
+                return;
+
+            foreach (var item in boardManager.bingoItemManager.pluckItems)
             {
-                if(pluckItem != item)
+                if (pluckItem != item)
                 {
                     item.ResetSlot();
                 }
             }
         }
         
-        currentitem = currentitem == bingoItem ? null : bingoItem;
+        Currentitem = Currentitem == bingoItem ? null : bingoItem;
     }
     
     public int ReturnCount()
@@ -195,5 +278,13 @@ public class BingoSlot : MonoBehaviour
             
         int NextLinkItemId = linkItemId + 1;
         InventoryManager.Instance.AddItem(NextLinkItemId, 1);
+
+        // 이 메서드가 작동되면 2번째 이펙트가 생겨야함(효과 끝나면 사라지는)
+        if (BingoEffectManager.Instance != null && BingoBoardManager.Instance != null)
+        {
+            Transform target = BingoBoardManager.Instance.GetBingoButtonTransformByItemId(NextLinkItemId);
+            if (target != null)
+                BingoEffectManager.Instance.PlayRecallItemSecondaryEffect(target);
+        }
     }
 }

@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6638110887858072325
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3609604960683421141}
+  - component: {fileID: 8343397581583439962}
+  m_Layer: 0
+  m_Name: BingoEffectManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3609604960683421141
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6638110887858072325}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 402.52554, y: 1476.8978, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8343397581583439962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6638110887858072325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 178eab37f556db544af5ce1a55ed2a87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BingoEffectManager
+  linkRegisterEffect: {fileID: 2369634902745506818, guid: 71362a929c674414da051b27df2372dd, type: 3}
+  synergyRegisterEffect: {fileID: 2369634902745506818, guid: 27140574802efd649b8002b97e27b6d3, type: 3}
+  itemEquipEffect: {fileID: 4198296623310340123, guid: 54620e62dafc44649ad86f2b62714c12, type: 3}
+  boardEnterEffect: {fileID: 1716224641230681127, guid: 085f59ccf5c8a28479877516626b88bc, type: 3}
+  pluckItemEffect: {fileID: 933491238707051447, guid: 88f8f21dba7e2d445b1c7eb94976967a, type: 3}
+  recallItemPrimaryEffect: {fileID: 621449928070495441, guid: 8990b499047de6847a11b5d5ffc52c0d, type: 3}
+  recallItemSecondaryEffect: {fileID: 3511545448771390309, guid: 35eca847acd6744459e89f8202e9f59c, type: 3}
+  synergyDismantleEffect: {fileID: 0}
+  GachaBingoSlot: {fileID: 3817245836847615687, guid: 132ed440f7d348a409b468e8b03478dc, type: 3}
+  GachaSynergySlot: {fileID: 3817245836847615687, guid: adc35573d46c7224d90a77c3c2e9ad5f, type: 3}

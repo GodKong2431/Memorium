@@ -1351,17 +1351,9 @@ public class BottomPanelController : MonoBehaviour
         if (page == null || scrollCache == null || scrollCache.rect == null)
             return;
 
-        RectTransform layoutParent = scrollCache.rect.parent as RectTransform;
-        if (layoutParent == null)
-            layoutParent = page;
-
-        float pageTop = GetTopEdgeInReferenceSpace(layoutParent, layoutParent);
-        float pageBottom = GetBottomEdgeInReferenceSpace(layoutParent, layoutParent);
-        float rectTop = GetTopEdgeInReferenceSpace(scrollCache.rect, layoutParent);
-        float rectBottom = GetBottomEdgeInReferenceSpace(scrollCache.rect, layoutParent);
-
-        scrollCache.topInset = Mathf.Max(0f, pageTop - rectTop);
-        scrollCache.bottomInset = Mathf.Max(0f, rectBottom - pageBottom);
+        RectTransform rect = scrollCache.rect;
+        scrollCache.topInset = Mathf.Max(0f, -rect.offsetMax.y);
+        scrollCache.bottomInset = Mathf.Max(0f, rect.offsetMin.y);
     }
 
     // ScrollRect는 원래 상하 여백을 유지한 채 세로 크기만 다시 맞춘다.

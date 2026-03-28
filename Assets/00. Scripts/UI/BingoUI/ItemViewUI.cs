@@ -19,6 +19,7 @@ public class ItemViewUI : MonoBehaviour
     
     void OnDisable()
     {
+        GetComponent<Toggle>().isOn = false;
         gameObject.SetActive(false);
     }
     void OpenPopUp(ItemBase currentItem)

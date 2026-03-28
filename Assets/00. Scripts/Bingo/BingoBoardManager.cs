@@ -35,6 +35,7 @@ public struct BingoBoardSaveData
 
 public class BingoBoardManager : Singleton<BingoBoardManager>
 {
+    [SerializeField] private float gachaDelay;
     [SerializeField] public SerializedDictionary<BingoColumnSlot, List<BingoSlot>> SlotList = new SerializedDictionary<BingoColumnSlot, List<BingoSlot>>();
     [SerializeField] private BingoContext ctx;
     [SerializeField] BingoBoardSO bingoBoardSO;
@@ -63,6 +64,8 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     bool eventTriggered;
     
     public ItemBase againItem; 
+    private ParticleSystem againItemBoardEnterEffect;
+    private ParticleSystem gachaPreviewEffect;
     public bool againGacha;
     
     bool isAgain;
@@ -102,6 +105,9 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         
         SlotList.Clear();
         SlotGradeList.Clear();
+        RowSynergy.Clear();
+        ColSynergy.Clear();
+        Synergies.Clear();
         
         foreach (var slotColumn in ctx.Columns)
         {
@@ -133,23 +139,23 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
                 switch (synergy.Key)
                 {
                     case SynergyDirection.Row:
-                        item.Value.Init(synergy.Key,item.Key);
-                        item.Value.SetSynergy(GetFirstSynergy(item.Value));
                         var synergyRowItem = Instantiate(item.Value , ctx.RowLineSynergyTransform);
+                        synergyRowItem.Init(synergy.Key, item.Key);
+                        synergyRowItem.SetSynergy(GetFirstSynergy(synergyRowItem));
                         RowSynergy.Add(item.Key,synergyRowItem);
                         Synergies.Add(synergyRowItem);
                         break;
                     case SynergyDirection.Column:
-                        item.Value.Init(synergy.Key,item.Key);
-                        item.Value.SetSynergy(GetFirstSynergy(item.Value));
                         var synergyColItem = Instantiate(item.Value , ctx.ColumnSynergyTransform);
+                        synergyColItem.Init(synergy.Key, item.Key);
+                        synergyColItem.SetSynergy(GetFirstSynergy(synergyColItem));
                         ColSynergy.Add(item.Key,synergyColItem);
                         Synergies.Add(synergyColItem);
                         break;
                     case SynergyDirection.Diagonal:
-                        item.Value.Init(synergy.Key,item.Key);
-                        item.Value.SetSynergy(GetFirstSynergy(item.Value));
                         DiagSynergy = Instantiate(item.Value , ctx.DiaLineSynergyTransform);
+                        DiagSynergy.Init(synergy.Key, item.Key);
+                        DiagSynergy.SetSynergy(GetFirstSynergy(DiagSynergy));
                         Synergies.Add(DiagSynergy);
                         break;
                 }
@@ -164,11 +170,11 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             {
                 bingoBoardSO.RaritySolts.TryGetValue(slotColumn[row], out var bingoSlot);
                 BingoSlot slotItem = Instantiate(bingoSlot , slotColumns[col].transform);
-                
+
                 slotColumns[col].bingoSlotDatas.Add(slotItem);
                 
                 slotItem.Init(col,row);
-                
+
                 slotItem.UpdateUnlock += RowSynergy[row].Check;
                 slotItem.UpdateUnlock += ColSynergy[col].Check;
                 
@@ -192,20 +198,61 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
 
     public int GetFirstSynergy(BingoSynergy bingoSynergy)
     {
-        foreach(var key in DataManager.Instance.BoardSynergyDict)
+        if (bingoSynergy == null || DataManager.Instance == null || DataManager.Instance.BoardSynergyDict == null)
+            return 0;
+
+        List<BoardSynergyTable> candidates = new List<BoardSynergyTable>();
+        foreach (var entry in DataManager.Instance.BoardSynergyDict)
         {
-            if (key.Value.synergyDirection != SynergyDirection.Diagonal)
-            {
-                key.Value.lineNumber -= 1;
-            }
-            
-            if (bingoSynergy.bingoSynergyLine == key.Value.synergyDirection && bingoSynergy.index == key.Value.lineNumber)
-            {
-                return key.Value.startSynergyId;
-            }
+            BoardSynergyTable table = entry.Value;
+            if (table == null || table.synergyDirection != bingoSynergy.bingoSynergyLine)
+                continue;
+
+            candidates.Add(table);
         }
-        
+
+        if (candidates.Count == 0)
+            return 0;
+
+        if (bingoSynergy.bingoSynergyLine == SynergyDirection.Diagonal)
+            return candidates[0].startSynergyId;
+
+        int zeroBasedLine = bingoSynergy.index + 1;
+        int oneBasedLine = bingoSynergy.index;
+
+        // 프로젝트마다 index 기준(0-based/1-based)이 달라질 수 있어 둘 다 허용한다.
+        foreach (BoardSynergyTable table in candidates)
+        {
+            if (table.lineNumber == zeroBasedLine || table.lineNumber == oneBasedLine)
+                return table.startSynergyId;
+        }
+
+        candidates.Sort((a, b) => a.lineNumber.CompareTo(b.lineNumber));
+        int fallbackIndex = Mathf.Clamp(bingoSynergy.index, 0, candidates.Count - 1);
+        if (fallbackIndex >= candidates.Count && fallbackIndex - 1 >= 0)
+            fallbackIndex -= 1;
+
+        if (fallbackIndex >= 0 && fallbackIndex < candidates.Count)
+            return candidates[fallbackIndex].startSynergyId;
+
         return 0;
+    }
+
+    public void RefreshSynergies()
+    {
+        if (Synergies == null)
+            return;
+
+        for (int i = 0; i < Synergies.Count; i++)
+        {
+            BingoSynergy synergy = Synergies[i];
+            if (synergy == null)
+                continue;
+
+            synergy.SetSynergy(GetFirstSynergy(synergy));
+            if (ctx != null && ctx.SynergyViewObjects != null && i < ctx.SynergyViewObjects.Count)
+                ctx.SynergyViewObjects[i].SetView(synergy);
+        }
     }
     
     void OnEnable()
@@ -218,6 +265,34 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     {
         synergyMgr.OnChangedSynergy -= UpdateSynergyView;
         BingoUI.OnClickBingoGachaButton -= BingoGacha;
+        ResetForBingoUiDisable();
+    }
+
+    public void ResetForBingoUiDisable()
+    {
+        if (bingoItemManager != null)
+            bingoItemManager.ResetForBingoUiDisable();
+
+        if (againItemBoardEnterEffect != null && BingoEffectManager.Instance != null)
+            BingoEffectManager.Instance.ReturnBoardEnterEffect(againItemBoardEnterEffect);
+
+        againItemBoardEnterEffect = null;
+        ReturnGachaPreviewEffect();
+        againItem = null;
+        againGacha = false;
+        isAgain = false;
+
+        foreach (var row in SlotList)
+        {
+            if (row.Value == null)
+                continue;
+
+            foreach (var slot in row.Value)
+            {
+                if (slot != null && slot.Currentitem != null)
+                    slot.Currentitem = null;
+            }
+        }
     }
 
     public void DropdownSet<T>(ref TMP_Dropdown dropdown, Action<T> setValue) where T : Enum
@@ -267,6 +342,13 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         if (againItem != null)
         {
             againItem.UseItem();
+            
+            if (againItemBoardEnterEffect != null && BingoEffectManager.Instance != null)
+            {
+                BingoEffectManager.Instance.ReturnBoardEnterEffect(againItemBoardEnterEffect);
+                againItemBoardEnterEffect = null;
+            }
+            
             againItem = null;
         }
         
@@ -276,17 +358,20 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     {
         eventTriggered = false;
         isAgain = false;
-        
-        // 빙고 애니메이션 넣을 자리
-        
+        ParticleSystem selectedBingoEffect = null;
+                
         var slot = Gacha(cellRarity);
         
-        // 선택된 빙고 애니메이션 넣을 자리
-        
-        Debug.Log($"{slot.Col}, {slot.Row}");
+        // 여기서 가챠 애니메이션을 넣고싶어;
+        if (cellRarity != RarityType.mythic)
+            yield return StartCoroutine(PlayGachaBingoSlotAnimation(cellRarity));
         
         if (againGacha)
         {
+            // 여기는 선택된 이펙트 계속 유지하는거
+            if (BingoEffectManager.Instance != null && slot != null)
+                selectedBingoEffect = BingoEffectManager.Instance.PlayLinkRegisterEffectManual(slot.transform);
+
             testEvent += OnEvent;
             OpenPopUp();
             yield return new WaitUntil(()=> eventTriggered);
@@ -295,14 +380,24 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             testEvent -= OnEvent;
         }
         
-        // 선택된 빙고 애니메이션 종료 자리
+        else
+        {
+            //여기는 이펙트가 끝나면 자동으로 되돌아가는거
+            if (BingoEffectManager.Instance != null && slot != null)
+                BingoEffectManager.Instance.PlayLinkRegisterEffect(slot.transform);
+        }
         
         if (isAgain)
         {
-            
+            // 선택된 빙고 애니메이션 종료 자리
+            if (BingoEffectManager.Instance != null && selectedBingoEffect != null)
+                BingoEffectManager.Instance.ReturnLinkRegisterEffect(selectedBingoEffect);
             StartCoroutine(GachaStart(cellRarity));
             yield break;
         }
+
+        if (BingoEffectManager.Instance != null && selectedBingoEffect != null)
+            BingoEffectManager.Instance.ReturnLinkRegisterEffect(selectedBingoEffect);
         
         ResetItem();
         slot.CountUP(1);
@@ -313,6 +408,68 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     void OnEvent()
     {
         eventTriggered = true;
+    }
+
+    private IEnumerator PlayGachaBingoSlotAnimation(RarityType cellRarity)
+    {
+        if (BingoEffectManager.Instance == null)
+            yield break;
+
+        if (!SlotGradeList.TryGetValue(cellRarity, out var raritySlots) || raritySlots == null || raritySlots.Count == 0)
+            yield break;
+
+        List<BingoSlot> candidates = new List<BingoSlot>();
+        foreach (var slot in raritySlots)
+        {
+            if (slot == null || slot.isLock)
+                continue;
+
+            candidates.Add(slot);
+        }
+
+        if (candidates.Count == 0)
+            yield break;
+
+        float totalDuration = Mathf.Max(0f, gachaDelay);
+        if (totalDuration <= 0f)
+            yield break;
+
+        float elapsed = 0f;
+        const float previewTick = 0.06f;
+
+        try
+        {
+            while (elapsed < totalDuration)
+            {
+                ReturnGachaPreviewEffect();
+
+                BingoSlot previewSlot = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+                if (previewSlot != null)
+                    gachaPreviewEffect = BingoEffectManager.Instance.PlayGachaBingoSlotManual(previewSlot.transform);
+
+                float wait = Mathf.Min(previewTick, totalDuration - elapsed);
+                if (wait <= 0f)
+                    break;
+
+                yield return new WaitForSeconds(wait);
+                elapsed += wait;
+            }
+        }
+        finally
+        {
+            ReturnGachaPreviewEffect();
+        }
+    }
+
+    private void ReturnGachaPreviewEffect()
+    {
+        if (gachaPreviewEffect == null)
+            return;
+
+        if (BingoEffectManager.Instance != null)
+            BingoEffectManager.Instance.ReturnGachaBingoSlot(gachaPreviewEffect);
+
+        gachaPreviewEffect = null;
     }
     
     public void OnTestButton(bool adf)
@@ -328,9 +485,9 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         {
             foreach(var slot in row.Value)
             {
-                if (slot.currentitem != null)
+                if (slot.Currentitem != null)
                 {
-                    slot.currentitem.UseItem(slot);
+                    slot.Currentitem.UseItem(slot);
                 }
             }
         }
@@ -342,9 +499,10 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         {
             foreach(var slot in row.Value)
             {
-                if (slot.currentitem != null)
+                if (slot.Currentitem != null)
                 {
-                    slot.currentitem.ResetSlot(slot);
+                    InventoryManager.Instance.RemoveItem(slot.Currentitem.itemInfoID, 1);
+                    slot.Currentitem.ResetSlot(slot);
                 }
             }
         }
@@ -464,6 +622,23 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
 
         return SlotList[ctx.Columns[col]][row];
     }
+
+    public Transform GetBingoButtonTransformByItemId(int itemId)
+    {
+        if (ctx == null || ctx.BingoButtons == null)
+            return null;
+
+        int index = itemId - 3410001;
+        if (index < 0 || index >= ctx.BingoButtons.Count)
+            return null;
+
+        TextMeshProUGUI buttonText = ctx.BingoButtons[index];
+        if (buttonText == null)
+            return null;
+
+        Button button = buttonText.GetComponentInParent<Button>();
+        return button != null ? button.transform : buttonText.transform;
+    }
     
     public float GetSynergyStat(StatType statType)
     {
@@ -497,13 +672,26 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     
     public void OnClick(ItemBase bingoItem)
     {
-        
-        if (bingoItem == null)
+        //여기서 aginItem 등록되면 이펙트를 호출하고 등록이 끝나거나 null이 들어오면 돌려보내(이펙트 효과는 계속 유지 되어야해)
+
+        ItemBase nextAgainItem = bingoItem == null ? null : (againItem == bingoItem ? null : bingoItem);
+
+        if (againItemBoardEnterEffect != null && BingoEffectManager.Instance != null)
         {
-            return;
+            BingoEffectManager.Instance.ReturnBoardEnterEffect(againItemBoardEnterEffect);
+            againItemBoardEnterEffect = null;
         }
-        
-        againItem = againItem == bingoItem ? null : bingoItem;
+
+        againItem = nextAgainItem;
+
+        if (againItem != null && BingoEffectManager.Instance != null)
+        {
+            Transform target = ctx != null && ctx.BoardTransform != null
+                ? ctx.BoardTransform.transform
+                : againItem.transform;
+
+            againItemBoardEnterEffect = BingoEffectManager.Instance.PlayBoardEnterEffectManual(target);
+        }
     }
     
     public void OpenPopUp()

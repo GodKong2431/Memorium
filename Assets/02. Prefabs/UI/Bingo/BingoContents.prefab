@@ -354,7 +354,7 @@ MonoBehaviour:
   itemType: 1
   itemSprite: {fileID: 1703353110394588336}
   itemCount: 0
-  itemCountText: {fileID: 0}
+  itemCountText: {fileID: 3498039413911089989}
   itemInfoID: 3460002
   Itemtoggle: {fileID: 2091497286337137751}
   mgr: {fileID: 0}
@@ -1827,7 +1827,7 @@ MonoBehaviour:
   itemType: 2
   itemSprite: {fileID: 573977132393147451}
   itemCount: 0
-  itemCountText: {fileID: 0}
+  itemCountText: {fileID: 2822863105139341943}
   itemInfoID: 3420003
   Itemtoggle: {fileID: 5853926951891370943}
   mgr: {fileID: 0}
@@ -2196,6 +2196,7 @@ GameObject:
   - component: {fileID: 7303297366237865474}
   - component: {fileID: 8778181128069778082}
   - component: {fileID: 1305943072971932764}
+  - component: {fileID: 607977675208393038}
   m_Layer: 5
   m_Name: "\uBC84\uD2BC_\uBE59\uACE0 (2)"
   m_TagString: Untagged
@@ -2218,9 +2219,9 @@ RectTransform:
   - {fileID: 1073235158692867633}
   m_Father: {fileID: 4535080484501357134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 200, y: -290}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &7303297366237865474
@@ -2304,7 +2305,33 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8778181128069778082}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6997446278200633202}
+        m_TargetAssemblyTypeName: SynergyUI, Assembly-CSharp
+        m_MethodName: OnClickGachaButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &607977675208393038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973498672321826862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abecbdf4625b890409f24f39743b7927, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BingoGachaButtonUI
+  costText: {fileID: 8152720696096437891}
+  rarityType: 1
 --- !u!1 &1025665962073997929
 GameObject:
   m_ObjectHideFlags: 0
@@ -2974,7 +3001,7 @@ MonoBehaviour:
   itemType: 1
   itemSprite: {fileID: 6672843097438860396}
   itemCount: 0
-  itemCountText: {fileID: 0}
+  itemCountText: {fileID: 8684111541509303712}
   itemInfoID: 3420004
   Itemtoggle: {fileID: 6419518320729201414}
   mgr: {fileID: 0}
@@ -2994,6 +3021,7 @@ GameObject:
   - component: {fileID: 5623436081195163461}
   - component: {fileID: 6564787892868196646}
   - component: {fileID: 5454283457342492011}
+  - component: {fileID: 224837981244386748}
   m_Layer: 5
   m_Name: BingoBoard
   m_TagString: Untagged
@@ -3070,6 +3098,19 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!210 &224837981244386748
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1253582378264126361}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 11
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &1366519876088678960
 GameObject:
   m_ObjectHideFlags: 0
@@ -3136,7 +3177,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f05ffdff22a41408e9d58882eb432c43, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 57f7868fd0979a14785c7a40e9037356, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3674,6 +3715,7 @@ GameObject:
   - component: {fileID: 7714766458812245230}
   - component: {fileID: 8780128841396749140}
   - component: {fileID: 7194664133037777420}
+  - component: {fileID: 2944669378870464291}
   m_Layer: 5
   m_Name: "\uBC84\uD2BC_\uBE59\uACE0 (5)"
   m_TagString: Untagged
@@ -3696,9 +3738,9 @@ RectTransform:
   - {fileID: 8437492696449615086}
   m_Father: {fileID: 4535080484501357134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 200, y: -590}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &7714766458812245230
@@ -3782,7 +3824,33 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8780128841396749140}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6997446278200633202}
+        m_TargetAssemblyTypeName: SynergyUI, Assembly-CSharp
+        m_MethodName: OnClickGachaButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 4
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &2944669378870464291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1489138502347682363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abecbdf4625b890409f24f39743b7927, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BingoGachaButtonUI
+  costText: {fileID: 4944199822284735936}
+  rarityType: 4
 --- !u!1 &1489249098745729409
 GameObject:
   m_ObjectHideFlags: 0
@@ -4914,7 +4982,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 75, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3623319205701814552
 CanvasRenderer:
@@ -5095,7 +5163,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f05ffdff22a41408e9d58882eb432c43, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 57f7868fd0979a14785c7a40e9037356, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5114,7 +5182,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4029153054286367759}
-  - component: {fileID: 6279006350830971398}
+  - component: {fileID: 1910168468502779303}
+  - component: {fileID: 2111360846619115533}
   m_Layer: 5
   m_Name: Dia
   m_TagString: Untagged
@@ -5141,7 +5210,7 @@ RectTransform:
   m_AnchoredPosition: {x: 220.31995, y: -218.87048}
   m_SizeDelta: {x: 99.365, y: 96.27}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!225 &6279006350830971398
+--- !u!225 &1910168468502779303
 CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5153,6 +5222,19 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!210 &2111360846619115533
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1995661397377929245}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 11
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &2003240822014903997
 GameObject:
   m_ObjectHideFlags: 0
@@ -6291,7 +6373,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f05ffdff22a41408e9d58882eb432c43, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 57f7868fd0979a14785c7a40e9037356, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6699,7 +6781,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 75, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1812909766780969372
 CanvasRenderer:
@@ -7245,6 +7327,7 @@ GameObject:
   - component: {fileID: 1116659522333456821}
   - component: {fileID: 2691917195395442474}
   - component: {fileID: 4178400472158359337}
+  - component: {fileID: 6646765997093403115}
   m_Layer: 5
   m_Name: "\uBC84\uD2BC_\uBE59\uACE0 (3)"
   m_TagString: Untagged
@@ -7267,9 +7350,9 @@ RectTransform:
   - {fileID: 561595363860488048}
   m_Father: {fileID: 4535080484501357134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 200, y: -390}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &1116659522333456821
@@ -7353,7 +7436,33 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2691917195395442474}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6997446278200633202}
+        m_TargetAssemblyTypeName: SynergyUI, Assembly-CSharp
+        m_MethodName: OnClickGachaButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &6646765997093403115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2913748897162682653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abecbdf4625b890409f24f39743b7927, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BingoGachaButtonUI
+  costText: {fileID: 7318919164912667962}
+  rarityType: 2
 --- !u!1 &2924970649784357082
 GameObject:
   m_ObjectHideFlags: 0
@@ -8827,7 +8936,8 @@ GameObject:
   - component: {fileID: 2427135289938374876}
   - component: {fileID: 1048011802133333829}
   - component: {fileID: 7059503487795307411}
-  - component: {fileID: 4448480489947644475}
+  - component: {fileID: 5976695767187247910}
+  - component: {fileID: 6617645020306109534}
   m_Layer: 5
   m_Name: Row
   m_TagString: Untagged
@@ -8918,7 +9028,7 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!225 &4448480489947644475
+--- !u!225 &5976695767187247910
 CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8930,6 +9040,19 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!210 &6617645020306109534
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3428982592519693430}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 11
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &3683054334190612078
 GameObject:
   m_ObjectHideFlags: 0
@@ -9209,7 +9332,7 @@ MonoBehaviour:
   itemType: 1
   itemSprite: {fileID: 2570006458196076353}
   itemCount: 0
-  itemCountText: {fileID: 0}
+  itemCountText: {fileID: 3618477911638545843}
   itemInfoID: 3460001
   Itemtoggle: {fileID: 6690412707416000969}
   mgr: {fileID: 0}
@@ -9670,7 +9793,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 10}
+  m_AnchoredPosition: {x: 50, y: 12}
   m_SizeDelta: {x: 50, y: 55}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &7634829997931412478
@@ -9701,7 +9824,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f05ffdff22a41408e9d58882eb432c43, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 57f7868fd0979a14785c7a40e9037356, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -9742,6 +9865,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4824068986933319962}
   - {fileID: 6026161147939969175}
   m_Father: {fileID: 3479376422564830851}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -9951,7 +10075,8 @@ GameObject:
   - component: {fileID: 7775991492513484105}
   - component: {fileID: 5978648527050053846}
   - component: {fileID: 6577864325570511489}
-  - component: {fileID: 5290578866624378671}
+  - component: {fileID: 927298045352824443}
+  - component: {fileID: 2307571498106918265}
   m_Layer: 5
   m_Name: Col
   m_TagString: Untagged
@@ -10042,7 +10167,7 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!225 &5290578866624378671
+--- !u!225 &927298045352824443
 CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10054,6 +10179,94 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!210 &2307571498106918265
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4325257135573015363}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 11
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
+--- !u!1 &4371945706117054719
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4824068986933319962}
+  - component: {fileID: 2088249451589904791}
+  - component: {fileID: 4217338222674660295}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4824068986933319962
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4371945706117054719}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5970305789521770721}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 10}
+  m_SizeDelta: {x: -80, y: -20}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2088249451589904791
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4371945706117054719}
+  m_CullTransparentMesh: 1
+--- !u!114 &4217338222674660295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4371945706117054719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &4515331352646766218
 GameObject:
   m_ObjectHideFlags: 0
@@ -10164,7 +10377,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 75, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8355858964763956378
 CanvasRenderer:
@@ -10872,7 +11085,7 @@ MonoBehaviour:
   itemType: 3
   itemSprite: {fileID: 3846850072913452905}
   itemCount: 0
-  itemCountText: {fileID: 0}
+  itemCountText: {fileID: 3419932779279460263}
   itemInfoID: 3420001
   Itemtoggle: {fileID: 7792192874556402584}
   mgr: {fileID: 0}
@@ -11294,7 +11507,7 @@ MonoBehaviour:
   itemType: 1
   itemSprite: {fileID: 5006020772990671022}
   itemCount: 0
-  itemCountText: {fileID: 0}
+  itemCountText: {fileID: 7852452584889346103}
   itemInfoID: 3420006
   Itemtoggle: {fileID: 8125071303362486268}
   mgr: {fileID: 0}
@@ -11476,7 +11689,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 75, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6549336744115808427
 CanvasRenderer:
@@ -11881,6 +12094,7 @@ GameObject:
   - component: {fileID: 2354476310902814201}
   - component: {fileID: 8298892836381374766}
   - component: {fileID: 4699144876099470257}
+  - component: {fileID: 2018045278231680254}
   m_Layer: 5
   m_Name: "\uC544\uC774\uD15C \uD130\uCE58 \uC2DC"
   m_TagString: Untagged
@@ -11962,6 +12176,54 @@ MonoBehaviour:
   itemCount: {fileID: 5476458592864617108}
   itemName: {fileID: 5601449550035268395}
   itemDesc: {fileID: 2536679916080753086}
+--- !u!114 &2018045278231680254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5351402026918601424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Toggle
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 8298892836381374766}
+  toggleTransition: 1
+  graphic: {fileID: 0}
+  m_Group: {fileID: 3880991603311443227}
+  onValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_IsOn: 0
 --- !u!1 &5549941914557612671
 GameObject:
   m_ObjectHideFlags: 0
@@ -12452,7 +12714,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f05ffdff22a41408e9d58882eb432c43, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 57f7868fd0979a14785c7a40e9037356, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -12981,7 +13243,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 75, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6647239299449123205
 CanvasRenderer:
@@ -13783,7 +14045,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f05ffdff22a41408e9d58882eb432c43, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 57f7868fd0979a14785c7a40e9037356, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13886,9 +14148,9 @@ MonoBehaviour:
   pluckItems: []
   bingobuttons:
   - {fileID: 5454283457342492011}
-  - {fileID: 5290578866624378671}
-  - {fileID: 4448480489947644475}
-  - {fileID: 6279006350830971398}
+  - {fileID: 927298045352824443}
+  - {fileID: 5976695767187247910}
+  - {fileID: 1910168468502779303}
 --- !u!1 &6779719925471599682
 GameObject:
   m_ObjectHideFlags: 0
@@ -14031,12 +14293,13 @@ MonoBehaviour:
   itemType: 0
   itemSprite: {fileID: 3795846575170053700}
   itemCount: 0
-  itemCountText: {fileID: 0}
+  itemCountText: {fileID: 3825134186235632085}
   itemInfoID: 3420002
   Itemtoggle: {fileID: 676835897474920640}
   mgr: {fileID: 0}
   itemMgr: {fileID: 1654072613169628106}
   currentSlot: {fileID: 0}
+  spriteImage: {fileID: 21300000, guid: f027e92dbbd896440aa873a19c299b6f, type: 3}
 --- !u!1 &6796454697222807827
 GameObject:
   m_ObjectHideFlags: 0
@@ -15006,6 +15269,7 @@ GameObject:
   - component: {fileID: 3696763812621565252}
   - component: {fileID: 7153557314906737809}
   - component: {fileID: 1555909147088385958}
+  - component: {fileID: 333286212771601036}
   m_Layer: 5
   m_Name: "\uD328\uB110_\uBE59\uACE0\uD310"
   m_TagString: Untagged
@@ -15118,6 +15382,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &333286212771601036
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7451275699091290280}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7471877985374211676
 GameObject:
   m_ObjectHideFlags: 0
@@ -15660,8 +15936,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -13.679993, y: -249.19998}
-  m_SizeDelta: {x: 27.359, y: 0}
+  m_AnchoredPosition: {x: -13.679993, y: -0.00032043457}
+  m_SizeDelta: {x: 27.359, y: -473.742}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2275319217805403588
 CanvasRenderer:
@@ -15901,6 +16177,7 @@ GameObject:
   - component: {fileID: 7882474585228136181}
   - component: {fileID: 8746127123402707076}
   - component: {fileID: 6446973758961408096}
+  - component: {fileID: 2755692377719732838}
   m_Layer: 5
   m_Name: "\uBC84\uD2BC_\uBE59\uACE0 (4)"
   m_TagString: Untagged
@@ -15923,9 +16200,9 @@ RectTransform:
   - {fileID: 8185516361789830509}
   m_Father: {fileID: 4535080484501357134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 200, y: -490}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &7882474585228136181
@@ -16009,7 +16286,33 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8746127123402707076}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6997446278200633202}
+        m_TargetAssemblyTypeName: SynergyUI, Assembly-CSharp
+        m_MethodName: OnClickGachaButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &2755692377719732838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7972409396674372480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abecbdf4625b890409f24f39743b7927, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BingoGachaButtonUI
+  costText: {fileID: 3187252623746027499}
+  rarityType: 3
 --- !u!1 &8008184687462122669
 GameObject:
   m_ObjectHideFlags: 0
@@ -17288,7 +17591,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 75, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4592262586782538559
 CanvasRenderer:
@@ -17559,8 +17862,10 @@ MonoBehaviour:
   retryUI: {fileID: 5407080938707147612}
   synergyChangeButton: {fileID: 1227214383645885914}
   currencyText: {fileID: 201336166097309932}
+  BingoBoard: {fileID: 333286212771601036}
   dismantleToggle: {fileID: 2264885580502392142}
   _isDismantleMode: 0
+  dismantleText: {fileID: 7135333297966239762}
 --- !u!114 &1074164899227778730
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18033,7 +18338,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 75, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4341440737304964542
 CanvasRenderer:
@@ -18085,6 +18390,7 @@ GameObject:
   - component: {fileID: 7997312691861215400}
   - component: {fileID: 2726250030273182579}
   - component: {fileID: 5408354974709456325}
+  - component: {fileID: 3359706509667070579}
   m_Layer: 5
   m_Name: "\uBC84\uD2BC_\uBE59\uACE0 (1)"
   m_TagString: Untagged
@@ -18107,9 +18413,9 @@ RectTransform:
   - {fileID: 9162869678304955484}
   m_Father: {fileID: 4535080484501357134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 200, y: -190}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &7997312691861215400
@@ -18193,7 +18499,33 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2726250030273182579}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6997446278200633202}
+        m_TargetAssemblyTypeName: SynergyUI, Assembly-CSharp
+        m_MethodName: OnClickGachaButton
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &3359706509667070579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9222347984611248558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abecbdf4625b890409f24f39743b7927, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BingoGachaButtonUI
+  costText: {fileID: 7675645115766910964}
+  rarityType: 0
 --- !u!1001 &617379412919360036
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18285,6 +18617,14 @@ PrefabInstance:
     - target: {fileID: 6905923673795853812, guid: 90a07e76cd32d694bb3ddba824fac507, type: 3}
       propertyPath: m_Name
       value: "\uD328\uB110_\uB9AC\uD2B8\uB77C\uC774 \uBC84\uD2BC \uADF8\uB8F9"
+      objectReference: {fileID: 0}
+    - target: {fileID: 8141950552221179397, guid: 90a07e76cd32d694bb3ddba824fac507, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 2200
+      objectReference: {fileID: 0}
+    - target: {fileID: 8141950552221179397, guid: 90a07e76cd32d694bb3ddba824fac507, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
