@@ -35,6 +35,8 @@ public struct BingoBoardSaveData
 
 public class BingoBoardManager : Singleton<BingoBoardManager>
 {
+    public static event Action<bool> OnBingoGachaRunningChanged;
+
     [SerializeField] private float gachaDelay;
     [SerializeField] public SerializedDictionary<BingoColumnSlot, List<BingoSlot>> SlotList = new SerializedDictionary<BingoColumnSlot, List<BingoSlot>>();
     [SerializeField] private BingoContext ctx;
@@ -67,6 +69,8 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     private ParticleSystem againItemBoardEnterEffect;
     private ParticleSystem gachaPreviewEffect;
     public bool againGacha;
+    public bool IsBingoGachaRunning { get; private set; }
+    private int activeBingoGachaRoutineCount;
     
     bool isAgain;
     
@@ -281,6 +285,8 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         againItem = null;
         againGacha = false;
         isAgain = false;
+        activeBingoGachaRoutineCount = 0;
+        SetBingoGachaRunning(false);
 
         foreach (var row in SlotList)
         {
@@ -356,53 +362,61 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     }
     public IEnumerator GachaStart(RarityType cellRarity)
     {
-        eventTriggered = false;
-        isAgain = false;
-        ParticleSystem selectedBingoEffect = null;
+        BeginBingoGacha();
+        try
+        {
+            eventTriggered = false;
+            isAgain = false;
+            ParticleSystem selectedBingoEffect = null;
                 
-        var slot = Gacha(cellRarity);
-        
-        // 여기서 가챠 애니메이션을 넣고싶어;
-        if (cellRarity != RarityType.mythic)
-            yield return StartCoroutine(PlayGachaBingoSlotAnimation(cellRarity));
-        
-        if (againGacha)
-        {
-            // 여기는 선택된 이펙트 계속 유지하는거
-            if (BingoEffectManager.Instance != null && slot != null)
-                selectedBingoEffect = BingoEffectManager.Instance.PlayLinkRegisterEffectManual(slot.transform);
+            var slot = Gacha(cellRarity);
+            
+            // 여기서 가챠 애니메이션을 넣고싶어;
+            if (cellRarity != RarityType.mythic)
+                yield return StartCoroutine(PlayGachaBingoSlotAnimation(cellRarity));
+            
+            if (againGacha)
+            {
+                // 여기는 선택된 이펙트 계속 유지하는거
+                if (BingoEffectManager.Instance != null && slot != null)
+                    selectedBingoEffect = BingoEffectManager.Instance.PlayLinkRegisterEffectManual(slot.transform);
 
-            testEvent += OnEvent;
-            OpenPopUp();
-            yield return new WaitUntil(()=> eventTriggered);
-            ClosePopUp();
-            againGacha = false;
-            testEvent -= OnEvent;
-        }
-        
-        else
-        {
-            //여기는 이펙트가 끝나면 자동으로 되돌아가는거
-            if (BingoEffectManager.Instance != null && slot != null)
-                BingoEffectManager.Instance.PlayLinkRegisterEffect(slot.transform);
-        }
-        
-        if (isAgain)
-        {
-            // 선택된 빙고 애니메이션 종료 자리
+                testEvent += OnEvent;
+                OpenPopUp();
+                yield return new WaitUntil(()=> eventTriggered);
+                ClosePopUp();
+                againGacha = false;
+                testEvent -= OnEvent;
+            }
+            
+            else
+            {
+                //여기는 이펙트가 끝나면 자동으로 되돌아가는거
+                if (BingoEffectManager.Instance != null && slot != null)
+                    BingoEffectManager.Instance.PlayLinkRegisterEffect(slot.transform);
+            }
+            
+            if (isAgain)
+            {
+                // 선택된 빙고 애니메이션 종료 자리
+                if (BingoEffectManager.Instance != null && selectedBingoEffect != null)
+                    BingoEffectManager.Instance.ReturnLinkRegisterEffect(selectedBingoEffect);
+                yield return StartCoroutine(GachaStart(cellRarity));
+                yield break;
+            }
+
             if (BingoEffectManager.Instance != null && selectedBingoEffect != null)
                 BingoEffectManager.Instance.ReturnLinkRegisterEffect(selectedBingoEffect);
-            StartCoroutine(GachaStart(cellRarity));
-            yield break;
+            
+            ResetItem();
+            slot.CountUP(1);
+            
+            //여기서 저장
         }
-
-        if (BingoEffectManager.Instance != null && selectedBingoEffect != null)
-            BingoEffectManager.Instance.ReturnLinkRegisterEffect(selectedBingoEffect);
-        
-        ResetItem();
-        slot.CountUP(1);
-        
-        //여기서 저장
+        finally
+        {
+            EndBingoGacha();
+        }
     }
     
     void OnEvent()
@@ -709,5 +723,28 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     {
         int index = Synergies.IndexOf(bingoSynergy);
         ctx.SynergyViewObjects[index].SetView(bingoSynergy);
+    }
+
+    private void BeginBingoGacha()
+    {
+        activeBingoGachaRoutineCount++;
+        if (activeBingoGachaRoutineCount == 1)
+            SetBingoGachaRunning(true);
+    }
+
+    private void EndBingoGacha()
+    {
+        activeBingoGachaRoutineCount = Mathf.Max(0, activeBingoGachaRoutineCount - 1);
+        if (activeBingoGachaRoutineCount == 0)
+            SetBingoGachaRunning(false);
+    }
+
+    private void SetBingoGachaRunning(bool isRunning)
+    {
+        if (IsBingoGachaRunning == isRunning)
+            return;
+
+        IsBingoGachaRunning = isRunning;
+        OnBingoGachaRunningChanged?.Invoke(isRunning);
     }
 }

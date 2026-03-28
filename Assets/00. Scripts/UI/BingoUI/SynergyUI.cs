@@ -37,6 +37,10 @@ public class SynergyUI : MonoBehaviour
     [SerializeField] private Toggle dismantleToggle;
 
     [SerializeField] private bool _isDismantleMode;    
+    private bool isSynergyGachaRunning;
+    private bool isBingoGachaRunning;
+    private readonly HashSet<ParticleSystem> activeDismantleEffects = new HashSet<ParticleSystem>();
+    private int pendingDismantleDustAmount;
     
     [SerializeField] private TextMeshProUGUI dismantleText;
     
@@ -85,6 +89,7 @@ public class SynergyUI : MonoBehaviour
         currencyText.text = $"{InventoryManager.Instance.GetItemAmount(3450001).ToFloat()}";
         synergyChangeButton.onClick.AddListener(()=>SynergyManager.Instance.TestSyer());
         dismantleToggle.onValueChanged.AddListener(_ => SetButton(_));
+        RefreshDismantleToggleInteractable();
         
         SetSynergy();
     }
@@ -114,11 +119,20 @@ public class SynergyUI : MonoBehaviour
     {
         BingoBoard.blocksRaycasts = false;
         InventoryManager.Instance.OnItemAmountChanged += UpdateDustCurreny;
+        SynergyManager.OnSynergyGachaRunningChanged += HandleSynergyGachaRunningChanged;
+        BingoBoardManager.OnBingoGachaRunningChanged += HandleBingoGachaRunningChanged;
+        isSynergyGachaRunning = SynergyManager.Instance != null && SynergyManager.Instance.IsSynergyGachaRunning;
+        isBingoGachaRunning = BingoBoardManager.Instance != null && BingoBoardManager.Instance.IsBingoGachaRunning;
+        RefreshDismantleToggleInteractable();
     }
 
 
     void OnDisable()
     {
+        SynergyManager.OnSynergyGachaRunningChanged -= HandleSynergyGachaRunningChanged;
+        BingoBoardManager.OnBingoGachaRunningChanged -= HandleBingoGachaRunningChanged;
+        FlushDismantleEffectsImmediately();
+
         if (InventoryManager.Instance != null)
         {
             BingoBoard.blocksRaycasts = true;
@@ -143,6 +157,7 @@ public class SynergyUI : MonoBehaviour
         if (totalDustAmount <= 0)
             return;
 
+        ReservePendingDust(totalDustAmount);
         EnsureDismantleTarget();
         StartCoroutine(PlaySynergyDismantleDustRoutine(source, totalDustAmount));
     }
@@ -165,7 +180,7 @@ public class SynergyUI : MonoBehaviour
             ParticleSystem effectInstance = SpawnDismantleEffect(sourceParent, out Vector3 startLocalPosition);
             if (effectInstance == null)
             {
-                InventoryManager.Instance.AddItem(DustItemId, gainAmount);
+                GrantReservedDust(gainAmount);
             }
             else
             {
@@ -236,6 +251,28 @@ public class SynergyUI : MonoBehaviour
         OnSynergyGachaButton?.Invoke(index);
     }
 
+    private void HandleSynergyGachaRunningChanged(bool isRunning)
+    {
+        isSynergyGachaRunning = isRunning;
+        RefreshDismantleToggleInteractable();
+    }
+
+    private void HandleBingoGachaRunningChanged(bool isRunning)
+    {
+        isBingoGachaRunning = isRunning;
+        RefreshDismantleToggleInteractable();
+    }
+
+    private void RefreshDismantleToggleInteractable()
+    {
+        bool canInteract = !isSynergyGachaRunning && !isBingoGachaRunning;
+        if (dismantleToggle != null)
+            dismantleToggle.interactable = canInteract;
+
+        if (synergyChangeButton != null)
+            synergyChangeButton.interactable = canInteract;
+    }
+
     private ParticleSystem SpawnDismantleEffect(Transform source, out Vector3 startLocalPosition)
     {
         startLocalPosition = Vector3.zero;
@@ -260,6 +297,7 @@ public class SynergyUI : MonoBehaviour
         }
 
         effectInstance.transform.SetAsLastSibling();
+        activeDismantleEffects.Add(effectInstance);
         return effectInstance;
     }
 
@@ -351,14 +389,12 @@ public class SynergyUI : MonoBehaviour
             effectTransform.localPosition = finalPosition;
         }
 
-        InventoryManager.Instance.AddItem(DustItemId, gainAmount);
+        GrantReservedDust(gainAmount);
 
         if (effectInstance != null)
         {
-            if (BingoEffectManager.Instance != null)
-                BingoEffectManager.Instance.ReturnSynergyDismantleEffect(effectInstance);
-            else
-                Destroy(effectInstance.gameObject);
+            activeDismantleEffects.Remove(effectInstance);
+            ReturnDismantleEffectToPool(effectInstance);
         }
     }
 
@@ -390,6 +426,62 @@ public class SynergyUI : MonoBehaviour
         }
 
         dustTransform = rectTransform != null ? rectTransform : transform as RectTransform;
+    }
+
+    private void ReservePendingDust(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        pendingDismantleDustAmount += amount;
+    }
+
+    private void GrantReservedDust(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        int grantAmount = Mathf.Min(amount, pendingDismantleDustAmount);
+        if (grantAmount <= 0)
+            return;
+
+        pendingDismantleDustAmount -= grantAmount;
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.AddItem(DustItemId, grantAmount);
+    }
+
+    private void FlushDismantleEffectsImmediately()
+    {
+        StopAllCoroutines();
+
+        int remainingDust = pendingDismantleDustAmount;
+        pendingDismantleDustAmount = 0;
+        if (remainingDust > 0 && InventoryManager.Instance != null)
+            InventoryManager.Instance.AddItem(DustItemId, remainingDust);
+
+        if (activeDismantleEffects.Count <= 0)
+            return;
+
+        foreach (ParticleSystem effect in activeDismantleEffects)
+        {
+            if (effect == null)
+                continue;
+
+            ReturnDismantleEffectToPool(effect);
+        }
+
+        activeDismantleEffects.Clear();
+    }
+
+    private static void ReturnDismantleEffectToPool(ParticleSystem effectInstance)
+    {
+        if (effectInstance == null)
+            return;
+
+        if (BingoEffectManager.Instance != null)
+            BingoEffectManager.Instance.ReturnSynergyDismantleEffect(effectInstance);
+        else
+            Destroy(effectInstance.gameObject);
     }
     
 }

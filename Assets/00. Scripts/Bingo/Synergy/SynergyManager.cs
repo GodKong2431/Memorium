@@ -12,6 +12,8 @@ using UnityEngine.UI;
 [Serializable]
 public class SynergyManager : Singleton<SynergyManager>
 {
+    public static event Action<bool> OnSynergyGachaRunningChanged;
+
     [SerializeField] private float synergGachaDelay;
     public SynergyItem item;
     
@@ -30,6 +32,8 @@ public class SynergyManager : Singleton<SynergyManager>
     bool isAceppt;
         
     public RetryUI retryUI;
+    public bool IsSynergyGachaRunning { get; private set; }
+    private int activeSynergyGachaRoutineCount;
     
     public static event Action OnOpenPopUp;
     
@@ -78,6 +82,8 @@ public class SynergyManager : Singleton<SynergyManager>
     void OnDisable()
     {
         SynergyUI.OnSynergyGachaButton -= SynergyGacha;
+        activeSynergyGachaRoutineCount = 0;
+        SetSynergyGachaRunning(false);
     }
 
     private void BuildDustDataCache()
@@ -378,44 +384,52 @@ public class SynergyManager : Singleton<SynergyManager>
     
     public IEnumerator Testppt()
     {
-        eventTriggered = false;
-        isAceppt = false;
-        ParticleSystem selectedSynergyEffect = null;
-
-        BingoBoardManager boardManager = BingoBoardManager.Instance;
-        if (boardManager == null || boardManager.Synergies == null || boardManager.Synergies.Count == 0)
-            yield break;
-
-        List<BingoSynergy> synergies = boardManager.Synergies;
-        currentSynergy = Gacha(synergies);
-
-        yield return StartCoroutine(PlayGachaSynergySlotAnimation(synergies));
-        
-        testEvent += OnEvent;
-        
-        // 선택된 자리 애니메이션
-        if (BingoEffectManager.Instance != null && currentSynergy != null)
-            selectedSynergyEffect = BingoEffectManager.Instance.PlaySynergyRegisterEffectManual(currentSynergy.transform);
-        
-        OpenPopup();
-            
-        yield return new WaitUntil(()=> eventTriggered);
-            
-        ClosePopup();
-        
-        // 선택된 자리 애니메이션 종료
-        if (BingoEffectManager.Instance != null && selectedSynergyEffect != null)
-            BingoEffectManager.Instance.ReturnSynergyRegisterEffect(selectedSynergyEffect);
-        testEvent -= OnEvent;
-        
-        if (!isAceppt)
+        BeginSynergyGacha();
+        try
         {
-            yield break;
+            eventTriggered = false;
+            isAceppt = false;
+            ParticleSystem selectedSynergyEffect = null;
+
+            BingoBoardManager boardManager = BingoBoardManager.Instance;
+            if (boardManager == null || boardManager.Synergies == null || boardManager.Synergies.Count == 0)
+                yield break;
+
+            List<BingoSynergy> synergies = boardManager.Synergies;
+            currentSynergy = Gacha(synergies);
+
+            yield return StartCoroutine(PlayGachaSynergySlotAnimation(synergies));
+        
+            testEvent += OnEvent;
+        
+            // 선택된 자리 애니메이션
+            if (BingoEffectManager.Instance != null && currentSynergy != null)
+                selectedSynergyEffect = BingoEffectManager.Instance.PlaySynergyRegisterEffectManual(currentSynergy.transform);
+        
+            OpenPopup();
+            
+            yield return new WaitUntil(()=> eventTriggered);
+            
+            ClosePopup();
+        
+            // 선택된 자리 애니메이션 종료
+            if (BingoEffectManager.Instance != null && selectedSynergyEffect != null)
+                BingoEffectManager.Instance.ReturnSynergyRegisterEffect(selectedSynergyEffect);
+            testEvent -= OnEvent;
+        
+            if (!isAceppt)
+            {
+                yield break;
+            }
+        
+            currentSynergy.SynergyData = item.synergyData;
+        
+            OnChangedSynergy?.Invoke(currentSynergy);
         }
-        
-        currentSynergy.SynergyData = item.synergyData;
-        
-        OnChangedSynergy?.Invoke(currentSynergy);
+        finally
+        {
+            EndSynergyGacha();
+        }
     }
 
     public void TestSyer()
@@ -542,6 +556,29 @@ public class SynergyManager : Singleton<SynergyManager>
 
         SynergyData selected = candidates[UnityEngine.Random.Range(0, candidates.Count)];
         InventoryManager.Instance.AddItem(selected.ID, 1);
+    }
+
+    private void BeginSynergyGacha()
+    {
+        activeSynergyGachaRoutineCount++;
+        if (activeSynergyGachaRoutineCount == 1)
+            SetSynergyGachaRunning(true);
+    }
+
+    private void EndSynergyGacha()
+    {
+        activeSynergyGachaRoutineCount = Mathf.Max(0, activeSynergyGachaRoutineCount - 1);
+        if (activeSynergyGachaRoutineCount == 0)
+            SetSynergyGachaRunning(false);
+    }
+
+    private void SetSynergyGachaRunning(bool isRunning)
+    {
+        if (IsSynergyGachaRunning == isRunning)
+            return;
+
+        IsSynergyGachaRunning = isRunning;
+        OnSynergyGachaRunningChanged?.Invoke(isRunning);
     }
     
 }
