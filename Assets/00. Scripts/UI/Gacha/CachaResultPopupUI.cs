@@ -274,21 +274,7 @@ public sealed class CachaResultPopupUI : MonoBehaviour
         if (spendCurrencyType == CurrencyType.Crystal)
             return crystalRepeatCurrencyIcon != null ? crystalRepeatCurrencyIcon : LoadCrystalIcon();
 
-        return ticketRepeatCurrencyIcon != null ? ticketRepeatCurrencyIcon : LoadTicketIcon(gachaType);
-    }
-
-    private static CurrencyType GetTicketCurrency(GachaType gachaType)
-    {
-        switch (gachaType)
-        {
-            case GachaType.Armor:
-                return CurrencyType.ArmorDrawTicket;
-            case GachaType.SkillScroll:
-                return CurrencyType.SkillScrollDrawTicket;
-            case GachaType.Weapon:
-            default:
-                return CurrencyType.WeaponDrawTicket;
-        }
+        return LoadTicketIcon(gachaType) ?? ticketRepeatCurrencyIcon;
     }
 
     private static int GetTicketCost(int drawCount)
@@ -307,20 +293,7 @@ public sealed class CachaResultPopupUI : MonoBehaviour
 
     private Sprite LoadTicketIcon(GachaType gachaType)
     {
-        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.GachaTicketDict == null)
-            return null;
-
-        TicketType ticketType = ConvertToTicketType(gachaType);
-        foreach (KeyValuePair<int, GachaTicketTable> pair in DataManager.Instance.GachaTicketDict)
-        {
-            GachaTicketTable table = pair.Value;
-            if (table == null || table.ticketType != ticketType)
-                continue;
-
-            return LoadSprite(table.ticketResources);
-        }
-
-        return null;
+        return IconManager.GetGachaTicketIcon(gachaType);
     }
 
     private Sprite LoadCrystalIcon()
@@ -336,20 +309,6 @@ public sealed class CachaResultPopupUI : MonoBehaviour
             return null;
 
         return LoadSprite(crystalInfo.itemIcon);
-    }
-
-    private static TicketType ConvertToTicketType(GachaType gachaType)
-    {
-        switch (gachaType)
-        {
-            case GachaType.Armor:
-                return TicketType.Armor;
-            case GachaType.SkillScroll:
-                return TicketType.SkillScroll;
-            case GachaType.Weapon:
-            default:
-                return TicketType.Weapon;
-        }
     }
 
     private static void GetLayoutPreset(int drawCount, out Vector2 panelSize, out Vector2 scrollSize)
