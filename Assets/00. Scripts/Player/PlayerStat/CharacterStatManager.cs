@@ -180,7 +180,14 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
     {
         if (playerStatType == StatType.None)
             return;
-        FinalStats.TryGetValue(playerStatType, out var finalStat);
+
+        // 초기화 이전 호출(예: 저장 데이터 복원 시점)에서는 계산을 건너뛴다.
+        if (FinalStats == null || FinalStats.Count == 0)
+            return;
+
+        if (!FinalStats.TryGetValue(playerStatType, out var finalStat) || finalStat == null)
+            return;
+
         finalStat.FinalStatCalculate();
 
         if (_isBatchUpdatingStats)

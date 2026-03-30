@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -54,8 +55,12 @@ public class BingoSynergy : MonoBehaviour
             
             if (isBingo)
             {
-                CharacterStatManager.Instance.FinalStat(statType1);
-                CharacterStatManager.Instance.FinalStat(statType2);
+                CharacterStatManager statManager = CharacterStatManager.Instance;
+                if (statManager != null && statManager.TableLoad)
+                {
+                    statManager.FinalStat(statType1);
+                    statManager.FinalStat(statType2);
+                }
             }
             
             if (statIcon != null)
@@ -148,17 +153,37 @@ public class BingoSynergy : MonoBehaviour
     }
     public void Check()
     {
+        if (isActiveAndEnabled)
+        {
+            StartCoroutine(CheckStart());
+            return;
+        }
+
+        BingoBoardManager boardManager = BingoBoardManager.Instance;
+        if (boardManager != null && boardManager.isActiveAndEnabled)
+            boardManager.StartCoroutine(CheckStart());
+    }
+    
+    public IEnumerator CheckStart()
+    {
+        yield return new WaitUntil(()=> BingoBoardManager.Instance != null);
+        yield return new WaitUntil(()=> BingoBoardManager.Instance.LoadBingo);
+        yield return new WaitUntil(() => CharacterStatManager.Instance != null);
+        yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
+        
         if (BingoBoardManager.Instance.CheckLine(bingoSynergyLine, index))
         {
             isBingo = true;
-            SoundManager.Instance.PlayUiSfx(9100068);
+            
+            if (BingoBoardManager.Instance.isSoundOn)
+                SoundManager.Instance.PlayUiSfx(9100068);
+                
             if (blackImage != null)
                 blackImage.gameObject.SetActive(false);
                 
             CharacterStatManager.Instance.FinalStat(statType1);
             CharacterStatManager.Instance.FinalStat(statType2);
         }
-        
     }
     
     public Sprite GetIcon()

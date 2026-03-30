@@ -7,6 +7,7 @@ using System.Linq;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;   
 
 [Serializable]
@@ -102,6 +103,8 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     bool isAgain;
     bool isPluck;
     
+    public bool isSoundOn;
+    
     public Button bingoButton;
     
     public bool LoadBingo = false;
@@ -109,6 +112,8 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     public SaveBingoData saveBingoData;
 
     public Action bingoSlotChanged;
+    private bool isInitStarted;
+    private bool isSaveCallbacksBound;
 
 
     public int BingoRange
@@ -121,10 +126,14 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         bingoItemManager = FindAnyObjectByType<BingoItemManager>();
 
         saveBingoData = JSONService.Load<SaveBingoData>();
+        StartCoroutine(InitializeOnGameStart());
     }
 
     public void Init(BingoContext _ctx)
     {
+        if (saveBingoData == null)
+            saveBingoData = JSONService.Load<SaveBingoData>();
+
         ctx = _ctx;
 
         if (ctx == null)
@@ -285,10 +294,76 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             saveBingoData.LoadBingoSlotData(ctx);
         }
 
-        bingoSlotChanged += () => saveBingoData.SaveBingoSlotData(SlotList);
-        synergyMgr.OnChangedSynergy += (x) => saveBingoData.SaveBingoSynergyData(Synergies);
+        if (!isSaveCallbacksBound)
+        {
+            bingoSlotChanged += SaveBingoSlotData;
+            synergyMgr.OnChangedSynergy += SaveBingoSynergyData;
+            isSaveCallbacksBound = true;
+        }
 
         LoadBingo = true;
+        StartCoroutine(ApplyLoadedBingoStatsWhenReady());
+    }
+
+    private IEnumerator InitializeOnGameStart()
+    {
+        if (isInitStarted || LoadBingo)
+            yield break;
+
+        isInitStarted = true;
+
+        while (!LoadBingo)
+        {
+            BingoUI bingoUi = FindBingoUiInLoadedScene();
+            if (bingoUi != null)
+                bingoUi.EnsureInitialized();
+
+            if (LoadBingo)
+                yield break;
+
+            yield return null;
+        }
+    }
+
+    private static BingoUI FindBingoUiInLoadedScene()
+    {
+        BingoUI[] bingoUis = Resources.FindObjectsOfTypeAll<BingoUI>();
+        foreach (var bingoUi in bingoUis)
+        {
+            if (bingoUi == null)
+                continue;
+
+            if (!bingoUi.gameObject.scene.IsValid() || !bingoUi.gameObject.scene.isLoaded)
+                continue;
+
+            return bingoUi;
+        }
+
+        return null;
+    }
+
+    private IEnumerator ApplyLoadedBingoStatsWhenReady()
+    {
+        yield return new WaitUntil(() => CharacterStatManager.Instance != null);
+        yield return new WaitUntil(() => CharacterStatManager.Instance.TableLoad);
+
+        CharacterStatManager.Instance.AllStatUpdate();
+    }
+
+    private void SaveBingoSlotData()
+    {
+        if (saveBingoData == null)
+            return;
+
+        saveBingoData.SaveBingoSlotData(SlotList);
+    }
+
+    private void SaveBingoSynergyData(BingoSynergy _)
+    {
+        if (saveBingoData == null)
+            return;
+
+        saveBingoData.SaveBingoSynergyData(Synergies);
     }
 
     public int GetFirstSynergy(BingoSynergy bingoSynergy)
@@ -347,7 +422,9 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             if (synergy == null)
                 continue;
 
-            synergy.SetSynergy(GetFirstSynergy(synergy));
+            int currentSynergyId = synergy.SynergyData != null ? synergy.SynergyData.ID : 0;
+            int targetSynergyId = currentSynergyId > 0 ? currentSynergyId : GetFirstSynergy(synergy);
+            synergy.SetSynergy(targetSynergyId);
             if (ctx != null && ctx.SynergyViewObjects != null && i < ctx.SynergyViewObjects.Count)
                 ctx.SynergyViewObjects[i].SetView(synergy);
         }
@@ -355,14 +432,23 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     
     void OnEnable()
     {
-        synergyMgr.OnChangedSynergy += UpdateSynergyView;
+        if (synergyMgr == null)
+            synergyMgr = FindAnyObjectByType<SynergyManager>();
+
+        if (synergyMgr != null)
+            synergyMgr.OnChangedSynergy += UpdateSynergyView;
+
         BingoUI.OnClickBingoGachaButton += BingoGacha;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
     
     void OnDisable()
     {
-        synergyMgr.OnChangedSynergy -= UpdateSynergyView;
+        if (synergyMgr != null)
+            synergyMgr.OnChangedSynergy -= UpdateSynergyView;
+
         BingoUI.OnClickBingoGachaButton -= BingoGacha;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         ResetForBingoUiDisable();
     }
 
@@ -415,6 +501,8 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     
     public void BingoGacha(int enumIndex, int id)
     {
+        if (isSoundOn == false)
+            isSoundOn = true;
         RarityType cellRarity = (RarityType)enumIndex;
         
         if (RarityType.mythic == (RarityType)enumIndex)
@@ -763,6 +851,9 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         
         foreach(var synergy in Synergies)
         {
+            if (synergy == null)
+                continue;
+
             if (!synergy.isBingo)
             {
                 continue;
@@ -824,8 +915,52 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     
     public void UpdateSynergyView(BingoSynergy bingoSynergy)
     {
+        if (ctx == null || ctx.SynergyViewObjects == null || bingoSynergy == null)
+            return;
+
         int index = Synergies.IndexOf(bingoSynergy);
+        if (index < 0 || index >= ctx.SynergyViewObjects.Count)
+            return;
+
         ctx.SynergyViewObjects[index].SetView(bingoSynergy);
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        StartCoroutine(EnsureBingoInitializedForScene(scene));
+    }
+
+    private IEnumerator EnsureBingoInitializedForScene(Scene scene)
+    {
+        // 씬 오브젝트 초기화가 끝난 뒤 빙고 UI를 재연결한다.
+        yield return null;
+
+        BingoUI bingoUi = FindBingoUiInScene(scene);
+        if (bingoUi == null)
+            yield break;
+
+        bingoUi.EnsureInitialized();
+    }
+
+    private static BingoUI FindBingoUiInScene(Scene scene)
+    {
+        BingoUI[] bingoUis = Resources.FindObjectsOfTypeAll<BingoUI>();
+        foreach (var bingoUi in bingoUis)
+        {
+            if (bingoUi == null)
+                continue;
+
+            GameObject go = bingoUi.gameObject;
+            if (!go.scene.IsValid() || !go.scene.isLoaded)
+                continue;
+
+            if (go.scene != scene)
+                continue;
+
+            return bingoUi;
+        }
+
+        return null;
     }
 
     private void BeginBingoGacha()

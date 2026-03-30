@@ -22,9 +22,14 @@ public class BingoUI : MonoBehaviour
     public BingoContext _ctx { get; private set; }
     public int linkItemId;
     public static event Action<int, int> OnClickBingoGachaButton;
+    private bool isInitialized;
     
     void Init()
     {
+        BingoBoardManager boardManager = FindFirstObjectByType<BingoBoardManager>();
+        if (boardManager == null)
+            return;
+
         _ctx = new BingoContext
         {
             retry = this.retry,
@@ -37,35 +42,45 @@ public class BingoUI : MonoBehaviour
             Columns = new List<BingoColumnSlot>(SlotColumns),
             BingoButtons = BingoButtons,
         };
-        BingoBoardManager.Instance.Init(_ctx);
+        
+        boardManager.Init(_ctx);
+    }
+    
+    public void EnsureInitialized()
+    {
+        if (isInitialized)
+            return;
+
+        Init();
+
+        BingoBoardManager boardManager = FindFirstObjectByType<BingoBoardManager>();
+        if (boardManager != null && boardManager.LoadBingo)
+            isInitialized = true;
     }
     
     void Start()
     {
-        Init();
-        
-        int id = 3410001;
-        
-        foreach(var text in BingoButtons)
-        {
-            text.text = $"{InventoryManager.Instance.GetItemAmount(id).ToFloat()}";
-            id++;
-        }
+        EnsureInitialized();
+        RefreshLinkCounters();
     }
 
     void OnEnable()
     {
-        InventoryManager.Instance.OnItemAmountChanged += OnSetLinkCounter;
+        InventoryManager inventoryManager = FindFirstObjectByType<InventoryManager>();
+        if (inventoryManager != null)
+            inventoryManager.OnItemAmountChanged += OnSetLinkCounter;
     }
 
     void OnDisable()
     {
-        if (BingoBoardManager.Instance != null)
-            BingoBoardManager.Instance.ResetForBingoUiDisable();
+        BingoBoardManager boardManager = FindFirstObjectByType<BingoBoardManager>();
+        if (boardManager != null)
+            boardManager.ResetForBingoUiDisable();
 
-        if (InventoryManager.Instance != null)
+        InventoryManager inventoryManager = FindFirstObjectByType<InventoryManager>();
+        if (inventoryManager != null)
         {
-            InventoryManager.Instance.OnItemAmountChanged -= OnSetLinkCounter;
+            inventoryManager.OnItemAmountChanged -= OnSetLinkCounter;
         }
     }
 
@@ -91,6 +106,29 @@ public class BingoUI : MonoBehaviour
     
     public void OnSetLinkCounter(int id)
     {
-            BingoButtons[id-3410001].text = $"{InventoryManager.Instance.GetItemAmount(id).ToFloat()}";
+        InventoryManager inventoryManager = FindFirstObjectByType<InventoryManager>();
+        if (inventoryManager == null)
+            return;
+
+        int index = id - 3410001;
+        if (index < 0 || index >= BingoButtons.Count || BingoButtons[index] == null)
+            return;
+
+        BingoButtons[index].text = $"{inventoryManager.GetItemAmount(id).ToFloat()}";
+    }
+
+    private void RefreshLinkCounters()
+    {
+        InventoryManager inventoryManager = FindFirstObjectByType<InventoryManager>();
+        if (inventoryManager == null || !inventoryManager.DataLoad)
+            return;
+
+        int id = 3410001;
+        foreach (var text in BingoButtons)
+        {
+            if (text != null)
+                text.text = $"{inventoryManager.GetItemAmount(id).ToFloat()}";
+            id++;
+        }
     }
 }
