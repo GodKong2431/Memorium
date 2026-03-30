@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using TMPro;
 using UnityEngine;
@@ -16,6 +17,8 @@ public class BingoSynergy : MonoBehaviour
     [SerializeField] private SynergyData synergyData;
     [SerializeField] private Image statIcon;
     [SerializeField] private Image frameImage;
+    [SerializeField] private Image blackImage;
+    
     [Header("Frame Colors")]
     [SerializeField] private Color normalFrameColor = new Color32(255, 255, 255, 255);
     [SerializeField] private Color uncommonFrameColor = new Color32(46, 196, 148, 255);
@@ -48,7 +51,13 @@ public class BingoSynergy : MonoBehaviour
             StatType2 = synergyData.statType2;
             IncreaseStat1 = synergyData.statUp1;
             IncreaseStat2 = synergyData.StatUp2;
-
+            
+            if (isBingo)
+            {
+                CharacterStatManager.Instance.FinalStat(statType1);
+                CharacterStatManager.Instance.FinalStat(statType2);
+            }
+            
             if (statIcon != null)
             {
                 Sprite resolvedIcon = IconManager.GetSynergyIcon(synergyData.synergyStat);
@@ -142,6 +151,10 @@ public class BingoSynergy : MonoBehaviour
         if (BingoBoardManager.Instance.CheckLine(bingoSynergyLine, index))
         {
             isBingo = true;
+            SoundManager.Instance.PlayUiSfx(9100068);
+            if (blackImage != null)
+                blackImage.gameObject.SetActive(false);
+                
             CharacterStatManager.Instance.FinalStat(statType1);
             CharacterStatManager.Instance.FinalStat(statType2);
         }

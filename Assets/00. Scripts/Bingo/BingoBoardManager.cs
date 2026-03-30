@@ -100,6 +100,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     private int activeBingoGachaRoutineCount;
     
     bool isAgain;
+    bool isPluck;
     
     public Button bingoButton;
     
@@ -460,9 +461,11 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         {
             eventTriggered = false;
             isAgain = false;
+            isPluck = false;
             ParticleSystem selectedBingoEffect = null;
-                
+                 
             var slot = Gacha(cellRarity);
+            SoundManager.Instance.PlayUiSfx(9100067);
             
             // 여기서 가챠 애니메이션을 넣고싶어;
             if (cellRarity != RarityType.mythic)
@@ -481,6 +484,9 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
                 againGacha = false;
                 testEvent -= OnEvent;
             }
+            
+            if (isPluck)
+                SoundManager.Instance.PlayUiSfx(9100071);
             
             else
             {
@@ -503,6 +509,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             
             ResetItem();
             slot.CountUP(1);
+            SoundManager.Instance.PlayUiSfx(9100066);
 
             //여기서 저장
             bingoSlotChanged.Invoke();
@@ -649,6 +656,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             if (r < acc)
             {
                 var s = slot.pluckSlot ? slot.pluckSlot : slot;
+                isPluck = slot.pluckSlot != null;
                 return s;
             }
         }
@@ -658,6 +666,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
                 if (GetWeight(slot) > 0)
                 {
                     var s = slot.pluckSlot ? slot.pluckSlot : slot;
+                    isPluck = slot.pluckSlot != null;
                     return s;
                 }
             }

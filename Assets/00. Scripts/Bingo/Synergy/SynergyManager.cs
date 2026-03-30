@@ -397,6 +397,8 @@ public class SynergyManager : Singleton<SynergyManager>
 
             List<BingoSynergy> synergies = boardManager.Synergies;
             currentSynergy = Gacha(synergies);
+            
+            SoundManager.Instance.PlayUiSfx(9100067);
 
             yield return StartCoroutine(PlayGachaSynergySlotAnimation(synergies));
         
@@ -423,7 +425,7 @@ public class SynergyManager : Singleton<SynergyManager>
             }
         
             currentSynergy.SynergyData = item.synergyData;
-        
+            SoundManager.Instance.PlayUiSfx(9100066);
             OnChangedSynergy?.Invoke(currentSynergy);
             //시너지 변경 시점
         }
@@ -557,6 +559,7 @@ public class SynergyManager : Singleton<SynergyManager>
 
         SynergyData selected = candidates[UnityEngine.Random.Range(0, candidates.Count)];
         InventoryManager.Instance.AddItem(selected.ID, 1);
+        SoundManager.Instance.PlayUiSfx(9100073);
     }
 
     private void BeginSynergyGacha()

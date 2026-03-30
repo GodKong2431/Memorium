@@ -118,6 +118,15 @@ public class BingoSlot : MonoBehaviour
                 ReturnPluckEffect();
             }
             
+            if (_currentitem != null)
+            {
+                SoundManager.Instance.PlayUiSfx(9100069);
+            }
+            else
+            {
+                SoundManager.Instance.PlayUiSfx(9100070);
+            }
+            
             if (itemSprite == null)
                 return;
 
@@ -279,7 +288,6 @@ public class BingoSlot : MonoBehaviour
         int NextLinkItemId = linkItemId + 1;
         InventoryManager.Instance.AddItem(NextLinkItemId, 1);
 
-        // 이 메서드가 작동되면 2번째 이펙트가 생겨야함(효과 끝나면 사라지는)
         if (BingoEffectManager.Instance != null && BingoBoardManager.Instance != null)
         {
             Transform target = BingoBoardManager.Instance.GetBingoButtonTransformByItemId(NextLinkItemId);

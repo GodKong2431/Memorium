@@ -161,7 +161,8 @@ public class SynergyUI : MonoBehaviour
     {
         if (totalDustAmount <= 0)
             return;
-
+            
+        SoundManager.Instance.PlayUiSfx(9100072);
         ReservePendingDust(totalDustAmount);
         EnsureDismantleTarget();
         StartCoroutine(PlaySynergyDismantleDustRoutine(source, totalDustAmount));
