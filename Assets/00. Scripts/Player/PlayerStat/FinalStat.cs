@@ -50,9 +50,17 @@ public class FinalStat
         float bingoSynergyStat = BingoBoardManager.Instance.LoadBingo ? BingoBoardManager.Instance.GetSynergyStat(playerStatType) : 0f;
         
         float passiveStat = InventoryManager.Instance.DataLoad ? InventoryManager.Instance.GetModule<PassiveSkillModule>()?.GetPassiveStat(playerStatType) ?? 0f : 0f;
-        
-        var calc = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat + passiveStat) * (1 + ablityStoneBonusStat + bingoSynergyStat + ablityStoneMultStat);
-        
+
+
+        //if (playerStatType != StatType.ATK)
+        //{
+        var calc = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat + passiveStat) * ((1 + ablityStoneBonusStat)*(1+ bingoSynergyStat)*(1+ablityStoneMultStat));
+        //}
+        //else
+        //{
+        //    var calc = (baseStatValue + upgradeStatValue + levelBonus + traitValue  + abilityStoneStat + passiveStat) * (1 + ablityStoneBonusStat + bingoSynergyStat + ablityStoneMultStat + equipStat);
+        //}
+
         if (StatMaxLimit.TryGetValue(playerStatType, out var max))
             finalStat = Mathf.Clamp(calc, baseStatValue, max);
         else
