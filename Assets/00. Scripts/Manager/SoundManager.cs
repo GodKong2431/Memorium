@@ -37,6 +37,7 @@ public class SoundManager : Singleton<SoundManager>
     [SerializeField] private int combatWorldSourceMaxCount = 16;
     [SerializeField] private float combatWorldMinDistance = 1f;
     [SerializeField] private float combatWorldMaxDistance = 30f;
+    [SerializeField] private SoundVolDb volDb;
     [Range(0f, 1f)] [SerializeField] private float defaultMasterVolume = 1f;
     [Range(0f, 1f)] [SerializeField] private float defaultBgmVolume = 1f;
     [Range(0f, 1f)] [SerializeField] private float defaultCombatSfxVolume = 1f;
@@ -56,6 +57,8 @@ public class SoundManager : Singleton<SoundManager>
     private int nextUiSourceIndex;
     private int nextCombatSourceIndex;
     private int totalCombatWorldSourceCount;
+    private int currentBgmSoundId;
+    private int currentCombatLoopSoundId;
     private float currentBgmClipVolume = 1f;
     private float currentCombatLoopClipVolume = 1f;
     private float masterVolume;
@@ -81,6 +84,7 @@ public class SoundManager : Singleton<SoundManager>
             return;
 
         LoadVolumeSettings();
+        LoadVolDb();
         EnsureSources();
         SubscribeDataManager();
         RebuildLibrary();
@@ -114,6 +118,7 @@ public class SoundManager : Singleton<SoundManager>
     public void RebuildLibrary()
     {
         soundById.Clear();
+        LoadVolDb();
 
         var soundDict = DataManager.Instance?.SoundDict;
         if (soundDict == null || soundDict.Count == 0)
@@ -133,14 +138,20 @@ public class SoundManager : Singleton<SoundManager>
             {
                 category = ResolveCategory(table.typeId),
                 resourcePath = resourcePath,
-                clipVolume = Mathf.Clamp01(table.soundVolume)
+                clipVolume = ResolveClipVolume(pair.Key, table.soundVolume)
             };
         }
+
+        RefreshLiveClips();
     }
 
     public bool PlayBgm(int soundId)
     {
-        return TryResolve(soundId, out SoundEntry entry) && PlayBgm(entry);
+        if (!TryResolve(soundId, out SoundEntry entry) || !PlayBgm(entry))
+            return false;
+
+        currentBgmSoundId = soundId;
+        return true;
     }
 
     public void StopBgm()
@@ -150,6 +161,7 @@ public class SoundManager : Singleton<SoundManager>
 
         bgmSource.Stop();
         bgmSource.clip = null;
+        currentBgmSoundId = 0;
         currentBgmClipVolume = 1f;
     }
 
@@ -170,7 +182,11 @@ public class SoundManager : Singleton<SoundManager>
 
     public bool PlayCombatLoopSfx(int soundId)
     {
-        return TryResolve(soundId, out SoundEntry entry) && PlayCombatLoop(entry);
+        if (!TryResolve(soundId, out SoundEntry entry) || !PlayCombatLoop(entry))
+            return false;
+
+        currentCombatLoopSoundId = soundId;
+        return true;
     }
 
     public void StopCombatLoopSfx()
@@ -180,6 +196,7 @@ public class SoundManager : Singleton<SoundManager>
 
         combatLoopSource.Stop();
         combatLoopSource.clip = null;
+        currentCombatLoopSoundId = 0;
         currentCombatLoopClipVolume = 1f;
     }
 
@@ -615,6 +632,37 @@ public class SoundManager : Singleton<SoundManager>
             normalized = normalized.Substring(0, normalized.Length - extension.Length);
 
         return normalized.Trim('/');
+    }
+
+    private void LoadVolDb()
+    {
+        if (volDb != null)
+            return;
+
+        volDb = Resources.Load<SoundVolDb>(SoundVolDb.ResPath);
+    }
+
+    private float ResolveClipVolume(int soundId, float baseVolume)
+    {
+        if (volDb != null && volDb.TryGetVol(soundId, out float tunedVolume))
+            return tunedVolume;
+
+        return Mathf.Clamp01(baseVolume);
+    }
+
+    private void RefreshLiveClips()
+    {
+        if (currentBgmSoundId > 0 && soundById.TryGetValue(currentBgmSoundId, out SoundEntry bgmEntry))
+        {
+            currentBgmClipVolume = bgmEntry.clipVolume;
+            ApplyBgmVolume();
+        }
+
+        if (currentCombatLoopSoundId > 0 && soundById.TryGetValue(currentCombatLoopSoundId, out SoundEntry loopEntry))
+        {
+            currentCombatLoopClipVolume = loopEntry.clipVolume;
+            ApplyCombatLoopVolume();
+        }
     }
 
     private float GetEffectiveVolume(float clipVolume, float categoryVolume)
