@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 public class StageUIController : UIControllerBase
 {
+    [Header("Sort")]
+    [SerializeField] private int backOrder = -20;
+
     [Header("Popup Stage Level")]
     [SerializeField] private TextMeshProUGUI textPopupStageLevel;
 
@@ -37,10 +40,20 @@ public class StageUIController : UIControllerBase
     [SerializeField] private Color colorSummonBossEnabled = new Color(1f, 1f, 1f, 1f);
     [SerializeField] private Color colorSummonBossDisabled = new Color(0.49411765f, 0.49411765f, 0.49411765f, 1f);
 
+    private Canvas backCanvas;
+    private GraphicRaycaster backRaycaster;
+
     protected override void Initialize()
     {
+        ApplyBackSort();
         SetSummonInteractable(false);
         WarnBossUi();
+    }
+
+    protected override void OnEnable()
+    {
+        ApplyBackSort();
+        base.OnEnable();
     }
 
     protected override void Subscribe()
@@ -337,5 +350,30 @@ public class StageUIController : UIControllerBase
     {
         if (target != null)
             target.gameObject.SetActive(visible);
+    }
+
+    private void ApplyBackSort()
+    {
+        Transform parent = transform.parent;
+        Canvas rootCanvas = parent != null ? parent.GetComponentInParent<Canvas>() : null;
+        if (rootCanvas == null)
+            return;
+
+        if (backCanvas == null)
+            backCanvas = GetComponent<Canvas>();
+        if (backCanvas == null)
+            backCanvas = gameObject.AddComponent<Canvas>();
+
+        backCanvas.overrideSorting = true;
+        backCanvas.renderMode = rootCanvas.renderMode;
+        backCanvas.sortingLayerID = rootCanvas.sortingLayerID;
+        backCanvas.sortingOrder = backOrder;
+        backCanvas.worldCamera = rootCanvas.worldCamera;
+        backCanvas.planeDistance = rootCanvas.planeDistance;
+
+        if (backRaycaster == null)
+            backRaycaster = GetComponent<GraphicRaycaster>();
+        if (backRaycaster == null)
+            backRaycaster = gameObject.AddComponent<GraphicRaycaster>();
     }
 }

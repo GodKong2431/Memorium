@@ -26,8 +26,11 @@ public class PlayerHealthBarFollowUI : MonoBehaviour
     [SerializeField] private bool clampToScreen = true;
     [SerializeField] private Vector2 screenPadding = new Vector2(48f, 48f);
     [SerializeField] private bool renderBehindSiblingUi = true;
+    [SerializeField] private int backOrder = -30;
 
     private CanvasGroup canvasGroup;
+    private Canvas backCanvas;
+    private GraphicRaycaster backRaycaster;
     private Toggle sheetToggle;
     private Image toggleRaycastImage;
     private Transform targetTransform;
@@ -377,6 +380,7 @@ public class PlayerHealthBarFollowUI : MonoBehaviour
             panelRoot.SetParent(canvasRoot, false);
 
         panelRoot.SetAsFirstSibling();
+        ApplyBackSort(canvas);
     }
 
     private void RegisterSheetToggle()
@@ -422,6 +426,29 @@ public class PlayerHealthBarFollowUI : MonoBehaviour
         canvasGroup.alpha = visible ? 1f : 0f;
         canvasGroup.blocksRaycasts = visible;
         canvasGroup.interactable = visible;
+    }
+
+    private void ApplyBackSort(Canvas rootCanvas)
+    {
+        if (panelRoot == null || rootCanvas == null)
+            return;
+
+        if (backCanvas == null)
+            backCanvas = panelRoot.GetComponent<Canvas>();
+        if (backCanvas == null)
+            backCanvas = panelRoot.gameObject.AddComponent<Canvas>();
+
+        backCanvas.overrideSorting = true;
+        backCanvas.renderMode = rootCanvas.renderMode;
+        backCanvas.sortingLayerID = rootCanvas.sortingLayerID;
+        backCanvas.sortingOrder = backOrder;
+        backCanvas.worldCamera = rootCanvas.worldCamera;
+        backCanvas.planeDistance = rootCanvas.planeDistance;
+
+        if (backRaycaster == null)
+            backRaycaster = panelRoot.GetComponent<GraphicRaycaster>();
+        if (backRaycaster == null)
+            backRaycaster = panelRoot.gameObject.AddComponent<GraphicRaycaster>();
     }
 
     private static void UpdateSlider(Slider slider, float currentValue, float maxValue)
