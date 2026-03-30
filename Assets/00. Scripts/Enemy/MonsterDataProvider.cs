@@ -8,17 +8,23 @@ using System.Collections.Generic;
 /// 
 public struct MonsterStatusByStage
 {
-    public float monsterAttScale;
-    public float monsterAttsScale;
-    public float monsterHPScale;
+    //public float monsterAttScale;
+    //public float monsterAttsScale;
+    //public float monsterHPScale;
+    public int monsterAttScale;
+    public int monsterAttsScale;
+    public int monsterHPScale;
 
     public MonsterStatusByStage(int growthId)
     {
         MonsterGrowthTable monsterGrowthTable = DataManager.Instance.EnemyGrowthDict[growthId];
 
-        monsterAttScale = Mathf.Pow(monsterGrowthTable.monsterAttScale,monsterGrowthTable.stageLevelScale-1);
-        monsterAttsScale = Mathf.Pow(monsterGrowthTable.monsterAttsScale, monsterGrowthTable.stageLevelScale - 1);
-        monsterHPScale = Mathf.Pow(monsterGrowthTable.monsterHPScale, monsterGrowthTable.stageLevelScale - 1);
+        monsterAttScale = (int)monsterGrowthTable.monsterAttScale;
+        monsterAttsScale = (int)monsterGrowthTable.monsterAttsScale;
+        monsterHPScale = (int)monsterGrowthTable.monsterHPScale;
+        //monsterAttScale = Mathf.Pow(monsterGrowthTable.monsterAttScale,monsterGrowthTable.stageLevelScale-1);
+        //monsterAttsScale = Mathf.Pow(monsterGrowthTable.monsterAttsScale, monsterGrowthTable.stageLevelScale - 1);
+        //monsterHPScale = Mathf.Pow(monsterGrowthTable.monsterHPScale, monsterGrowthTable.stageLevelScale - 1);
     }
 
 }
@@ -43,14 +49,24 @@ public static class MonsterDataProvider
     {
         if (table == null) return null;
 
+        int plusMonsterHpByStage = StageManager.Instance.monsterStatusByStage.monsterHPScale;
+        int plusMonsterAttackByStage = StageManager.Instance.monsterStatusByStage.monsterAttScale;
+        int plusMonsterAttackSpeedByStage = StageManager.Instance.monsterStatusByStage.monsterAttsScale;
+
+        if (IsBoss(table.ID))
+        {
+            plusMonsterHpByStage *= 5;
+            plusMonsterAttackByStage *= 5;
+            plusMonsterAttackSpeedByStage *= 5;
+        }
         return new EnemyStatData
         {
             monsterID = table.ID.ToString(),
             monsterName = GetDisplayName(table.monsterName) ?? table.monsterName,
-            monsterType = table.monsterType.ToString(),
-            monsterHealth = table.healthPoint * StageManager.Instance.monsterStatusByStage.monsterHPScale,
-            monsterAttackpoint = table.attackPoint * StageManager.Instance.monsterStatusByStage.monsterAttScale,
-            monsterAttackspeed = table.attackSpeed * StageManager.Instance.monsterStatusByStage.monsterAttsScale,
+            monsterType = table.monsterType.ToString(),  
+            monsterHealth = table.healthPoint + plusMonsterHpByStage,
+            monsterAttackpoint = table.attackPoint + plusMonsterAttackByStage,
+            monsterAttackspeed = table.attackSpeed + plusMonsterAttackSpeedByStage,
             monsterSpeed = table.speed,
             attackRange = table.attackRange,
             monsterDefense = table.baseDef,
