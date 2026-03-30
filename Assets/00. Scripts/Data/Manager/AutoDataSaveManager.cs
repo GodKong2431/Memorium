@@ -18,6 +18,7 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
     SaveAbilityStoneData abilityStoneData;
     SavePixieData pixieData;
     SaveGemData gemData;
+    SaveBingoData bingoData;
 
     private bool onSave=false;
 
@@ -57,6 +58,11 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         yield return new WaitUntil(() => AbilityStoneManager.Instance.LoadStone);
         abilityStoneData = AbilityStoneManager.Instance.saveAbilityStoneData;
 
+        //빙고 데이터
+        yield return new WaitUntil(() => BingoBoardManager.Instance != null);
+        yield return new WaitUntil(() => BingoBoardManager.Instance.LoadBingo);
+        bingoData = BingoBoardManager.Instance.saveBingoData;
+
         StartCoroutine(AutoSaveCoroutine());
     }
     private IEnumerator AutoSaveCoroutine()
@@ -87,6 +93,8 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         if(abilityStoneData != null&&abilityStoneData.IsDirty ) saveTask.Add(AutoSaveTaskStart(abilityStoneData));
         if (pixieData != null&&pixieData.IsDirty) saveTask.Add(AutoSaveTaskStart(pixieData));
         if(gemData != null&&gemData.IsDirty) saveTask.Add(AutoSaveTaskStart(gemData));
+        if(bingoData != null&&bingoData.IsDirty) saveTask.Add(AutoSaveTaskStart(bingoData));
+
 
         if (saveTask.Count > 0)
         {
@@ -108,6 +116,7 @@ public class AutoDataSaveManager : Singleton<AutoDataSaveManager>
         if (abilityStoneData != null&&abilityStoneData.IsDirty) SaveData(abilityStoneData);
         if (pixieData != null && pixieData.IsDirty) SaveData(pixieData);
         if (gemData != null&& gemData.IsDirty) SaveData(gemData);
+        if(bingoData != null && bingoData.IsDirty) SaveData(bingoData);
     }
 
     private void OnApplicationPause(bool pause)

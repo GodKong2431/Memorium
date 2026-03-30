@@ -425,6 +425,7 @@ public class SynergyManager : Singleton<SynergyManager>
             currentSynergy.SynergyData = item.synergyData;
         
             OnChangedSynergy?.Invoke(currentSynergy);
+            //시너지 변경 시점
         }
         finally
         {

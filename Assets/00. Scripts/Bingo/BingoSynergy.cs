@@ -12,7 +12,7 @@ public class BingoSynergy : MonoBehaviour
     [SerializeField] private float increaseStat1;
     [SerializeField] private float increaseStat2;
     [SerializeField] public int index;
-    [SerializeField] public SynergyDirection bingoSynergyLine;
+    [SerializeField] public SynergyDirection bingoSynergyLine;//enumCount
     [SerializeField] private SynergyData synergyData;
     [SerializeField] private Image statIcon;
     [SerializeField] private Image frameImage;

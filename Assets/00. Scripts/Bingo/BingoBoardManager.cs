@@ -17,20 +17,47 @@ public struct BingoSlotSaveData
     public int count; // 몇개 가지고 있는지
     public int rarityEnum; // 슬롯 등급이 뭔지
     public bool unlockStates; // 언락 되어 있는지
+
+    public BingoSlotSaveData(int rowData, int colData, int countData, int rarityData, bool unlockData)
+    {
+        row = rowData;
+        col = colData;
+        count = countData;
+        rarityEnum = rarityData;
+        unlockStates = unlockData;
+    }
 }
 
+[Serializable]
 public struct SynergySlotSaveData
 {
     public int index; // 몇번째 줄인지 
     public int enumCount; // 가로 세로 대각선인지
     public int synergyID; // 들어가있는 시너지의 ID
-}
 
+    public SynergySlotSaveData(int indexData, int enumCountData, int synergyIdData)
+    {
+        index = indexData;
+        enumCount = enumCountData;
+        synergyID = synergyIdData;
+    }
+}
+[Serializable]
 public struct BingoBoardSaveData
 {
-    List<BingoSlotSaveData> bingoSlotSaveDatas;
+    public List<BingoSlotSaveData> bingoSlotSaveDatas;
 
-    List<SynergySlotSaveData> SynergySlotSaveDatas;
+    public List<SynergySlotSaveData> synergySlotSaveDatas;
+
+    public BingoBoardSaveData(List<BingoSlotSaveData> bingoSlotData = null, List<SynergySlotSaveData> synergySlotData = null)
+    {
+        bingoSlotSaveDatas = bingoSlotData;
+        synergySlotSaveDatas = synergySlotData;
+        if (bingoSlotData == null)
+            bingoSlotSaveDatas = new List<BingoSlotSaveData>();
+        if (synergySlotSaveDatas == null)
+            synergySlotSaveDatas = new List<SynergySlotSaveData>();
+    }
 }
 
 public class BingoBoardManager : Singleton<BingoBoardManager>
@@ -76,8 +103,13 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     
     public Button bingoButton;
     
-    public bool LoadBingo;
-    
+    public bool LoadBingo = false;
+
+    public SaveBingoData saveBingoData;
+
+    public Action bingoSlotChanged;
+
+
     public int BingoRange
     {
         get => SlotList.Keys.Count();
@@ -86,6 +118,8 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     void Start()
     {
         bingoItemManager = FindAnyObjectByType<BingoItemManager>();
+
+        saveBingoData = JSONService.Load<SaveBingoData>();
     }
 
     public void Init(BingoContext _ctx)
@@ -133,39 +167,85 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             return;
         }
 
+        bool onLoadData = saveBingoData.InitBingoData();
+
         var slotColumns = ctx.Columns;
 
-        
         foreach (var synergy in bingoBoardSO.bingoSynergys)
         {
             foreach (var item in synergy.Value)
             {
                 switch (synergy.Key)
                 {
-                    case SynergyDirection.Row:
-                        var synergyRowItem = Instantiate(item.Value , ctx.RowLineSynergyTransform);
-                        synergyRowItem.Init(synergy.Key, item.Key);
-                        synergyRowItem.SetSynergy(GetFirstSynergy(synergyRowItem));
-                        RowSynergy.Add(item.Key,synergyRowItem);
+                    case SynergyDirection.Row://enumCount
+                        var synergyRowItem = Instantiate(item.Value, ctx.RowLineSynergyTransform);
+                        synergyRowItem.Init(synergy.Key, item.Key);//item.Key == index
+
+                        //시너지 데이터 불러오기
+                        if (onLoadData)
+                        {
+                            int synergyId = saveBingoData.FindSynergyID(synergy.Key, item.Key);
+                            if(synergyId != -1)
+                                synergyRowItem.SetSynergy(saveBingoData.FindSynergyID(synergy.Key, item.Key));
+                            else
+                                synergyRowItem.SetSynergy(GetFirstSynergy(synergyRowItem));
+                        }
+                        else
+                        {
+                            synergyRowItem.SetSynergy(GetFirstSynergy(synergyRowItem));// SynergyData.ID
+                        }
+
+
+                        RowSynergy.Add(item.Key, synergyRowItem);
                         Synergies.Add(synergyRowItem);
                         break;
                     case SynergyDirection.Column:
-                        var synergyColItem = Instantiate(item.Value , ctx.ColumnSynergyTransform);
+                        var synergyColItem = Instantiate(item.Value, ctx.ColumnSynergyTransform);
                         synergyColItem.Init(synergy.Key, item.Key);
-                        synergyColItem.SetSynergy(GetFirstSynergy(synergyColItem));
-                        ColSynergy.Add(item.Key,synergyColItem);
+
+
+                        if (onLoadData)
+                        {
+                            int synergyId = saveBingoData.FindSynergyID(synergy.Key, item.Key);
+                            if (synergyId != -1)
+                                synergyColItem.SetSynergy(saveBingoData.FindSynergyID(synergy.Key, item.Key));
+                            else
+                                synergyColItem.SetSynergy(GetFirstSynergy(synergyColItem));
+                        }
+                        else
+                        {
+                            synergyColItem.SetSynergy(GetFirstSynergy(synergyColItem));// SynergyData.ID
+                        }
+
+
+                        ColSynergy.Add(item.Key, synergyColItem);
                         Synergies.Add(synergyColItem);
                         break;
+
+
                     case SynergyDirection.Diagonal:
-                        DiagSynergy = Instantiate(item.Value , ctx.DiaLineSynergyTransform);
+                        DiagSynergy = Instantiate(item.Value, ctx.DiaLineSynergyTransform);
                         DiagSynergy.Init(synergy.Key, item.Key);
-                        DiagSynergy.SetSynergy(GetFirstSynergy(DiagSynergy));
+
+                        if (onLoadData)
+                        {
+                            int synergyId = saveBingoData.FindSynergyID(synergy.Key, item.Key);
+                            if (synergyId != -1)
+                                DiagSynergy.SetSynergy(saveBingoData.FindSynergyID(synergy.Key, item.Key));
+                            else
+                                DiagSynergy.SetSynergy(GetFirstSynergy(DiagSynergy));
+                        }
+                        else
+                        {
+                            DiagSynergy.SetSynergy(GetFirstSynergy(DiagSynergy));// SynergyData.ID
+                        }
+
                         Synergies.Add(DiagSynergy);
                         break;
                 }
             }
         }
-        
+
         for (int col = 0; col < bingoBoardSO.bingoSlots.Count; col++)
         {
             var slotColumn = bingoBoardSO.bingoSlots[col];
@@ -192,12 +272,22 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             }
         }
         
-        // 데이터 로딩
-        
+        // 데이터 로딩      
         for (int i = 0; i < Synergies.Count; i++)
         {
             ctx.SynergyViewObjects[i].SetView(Synergies[i]);
         }
+
+        //저장된 데이터 불러오기 성공 시
+        if (onLoadData)
+        {
+            saveBingoData.LoadBingoSlotData(ctx);
+        }
+
+        bingoSlotChanged += () => saveBingoData.SaveBingoSlotData(SlotList);
+        synergyMgr.OnChangedSynergy += (x) => saveBingoData.SaveBingoSynergyData(Synergies);
+
+        LoadBingo = true;
     }
 
     public int GetFirstSynergy(BingoSynergy bingoSynergy)
@@ -238,6 +328,9 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
 
         if (fallbackIndex >= 0 && fallbackIndex < candidates.Count)
             return candidates[fallbackIndex].startSynergyId;
+
+        ////데이터 저장 시점
+        //bingoSlotChanged.Invoke();
 
         return 0;
     }
@@ -410,8 +503,9 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             
             ResetItem();
             slot.CountUP(1);
-            
+
             //여기서 저장
+            bingoSlotChanged.Invoke();
         }
         finally
         {
