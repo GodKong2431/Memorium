@@ -54,6 +54,27 @@ public static class IconManager
         return table == null ? null : GetResourceSprite(table.itemIcon);
     }
 
+    public static Sprite GetGachaTicketIcon(GachaType gachaType)
+    {
+        return GetGachaTicketIcon(ConvertToTicketType(gachaType));
+    }
+
+    public static Sprite GetGachaTicketIcon(TicketType ticketType)
+    {
+        if (!TryGetGachaTicketTable(ticketType, out GachaTicketTable table))
+            return null;
+
+        if (DataManager.Instance?.ItemInfoDict != null &&
+            DataManager.Instance.ItemInfoDict.TryGetValue(table.ID, out ItemInfoTable itemInfo))
+        {
+            Sprite itemIcon = GetItemIcon(itemInfo);
+            if (itemIcon != null)
+                return itemIcon;
+        }
+
+        return GetResourceSprite(table.ticketResources);
+    }
+
     public static Sprite GetResourceSprite(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
@@ -80,5 +101,39 @@ public static class IconManager
             path = path.Substring(0, extensionIndex);
 
         return path.TrimStart('/');
+    }
+
+    private static bool TryGetGachaTicketTable(TicketType ticketType, out GachaTicketTable table)
+    {
+        table = null;
+
+        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.GachaTicketDict == null)
+            return false;
+
+        foreach (var pair in DataManager.Instance.GachaTicketDict)
+        {
+            GachaTicketTable current = pair.Value;
+            if (current == null || current.ticketType != ticketType)
+                continue;
+
+            table = current;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static TicketType ConvertToTicketType(GachaType gachaType)
+    {
+        switch (gachaType)
+        {
+            case GachaType.Armor:
+                return TicketType.Armor;
+            case GachaType.SkillScroll:
+                return TicketType.SkillScroll;
+            case GachaType.Weapon:
+            default:
+                return TicketType.Weapon;
+        }
     }
 }

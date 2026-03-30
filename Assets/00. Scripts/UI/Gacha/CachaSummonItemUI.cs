@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,6 +14,8 @@ public sealed class CachaSummonItemUI : MonoBehaviour
     [SerializeField] private RectTransform summonExpRoot;
     [SerializeField] private TextMeshProUGUI textSummonLevel;
     [SerializeField] private TextMeshProUGUI textTicketAmount;
+    [SerializeField] private Image ticketIcon;
+    [SerializeField] private Image[] costIcons;
 
     private Action onSummonStateChanged;
     private CachaCrystalChangePopupUI crystalChangePopup;
@@ -25,6 +28,8 @@ public sealed class CachaSummonItemUI : MonoBehaviour
     {
         if (summonExpRoot != null)
             summonExpSlider = summonExpRoot.GetComponent<Slider>();
+
+        FindIcons();
 
         if (buttonSummonOnce != null)
             buttonSummonOnce.onClick.AddListener(OnSummonOnceClicked);
@@ -84,6 +89,8 @@ public sealed class CachaSummonItemUI : MonoBehaviour
 
         if (textTicketAmount != null)
             textTicketAmount.text = GetTicketAmount().ToString("F0");
+
+        RefreshIcons();
 
         RefreshButtonState(buttonSummonOnce, 1);
         RefreshButtonState(buttonSummonTen, 10);
@@ -232,6 +239,58 @@ public sealed class CachaSummonItemUI : MonoBehaviour
                 return CurrencyType.SkillScrollDrawTicket;
             default:
                 return CurrencyType.WeaponDrawTicket;
+        }
+    }
+
+    private void FindIcons()
+    {
+        if (ticketIcon != null && costIcons != null && costIcons.Length > 0)
+            return;
+
+        Image[] images = GetComponentsInChildren<Image>(true);
+        List<Image> foundCostIcons = new List<Image>();
+
+        if (costIcons != null && costIcons.Length > 0)
+            foundCostIcons.AddRange(costIcons);
+
+        for (int i = 0; i < images.Length; i++)
+        {
+            Image image = images[i];
+            if (image == null)
+                continue;
+
+            if (ticketIcon == null && image.name == "(Img)TicketIcon")
+            {
+                ticketIcon = image;
+                continue;
+            }
+
+            if (image.name == "(Img)CurrencyIcon" && !foundCostIcons.Contains(image))
+                foundCostIcons.Add(image);
+        }
+
+        if (foundCostIcons.Count > 0)
+            costIcons = foundCostIcons.ToArray();
+    }
+
+    private void RefreshIcons()
+    {
+        FindIcons();
+
+        Sprite icon = IconManager.GetGachaTicketIcon(gachaType);
+        if (icon == null)
+            return;
+
+        if (ticketIcon != null)
+            ticketIcon.sprite = icon;
+
+        if (costIcons == null)
+            return;
+
+        for (int i = 0; i < costIcons.Length; i++)
+        {
+            if (costIcons[i] != null)
+                costIcons[i].sprite = icon;
         }
     }
 }
