@@ -124,7 +124,8 @@ public class BingoSlot : MonoBehaviour
             }
             else
             {
-                SoundManager.Instance.PlayUiSfx(9100070);
+                if (SoundManager.Instance != null)
+                    SoundManager.Instance.PlayUiSfx(9100070);
             }
             
             if (itemSprite == null)

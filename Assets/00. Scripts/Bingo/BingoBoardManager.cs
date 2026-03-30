@@ -114,6 +114,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     public Action bingoSlotChanged;
     private bool isInitStarted;
     private bool isSaveCallbacksBound;
+    private bool isBoardButtonBound;
 
 
     public int BingoRange
@@ -145,8 +146,9 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         {
             return;
         }
-        
-        ctx.BoardTransform.onClick.AddListener(() => OnClick(bingoItemManager.itemBase as AgainItem));
+
+        BindBoardButton();
+        UpdateBoardTransformInteractable(bingoItemManager != null ? bingoItemManager.itemBase : null);
         
         // slotTest.onClick.RemoveAllListeners();
         // slotTest.onClick.AddListener(()=> Testpe());
@@ -435,11 +437,17 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
         if (synergyMgr == null)
             synergyMgr = FindAnyObjectByType<SynergyManager>();
 
+        if (bingoItemManager == null)
+            bingoItemManager = FindAnyObjectByType<BingoItemManager>();
+
         if (synergyMgr != null)
             synergyMgr.OnChangedSynergy += UpdateSynergyView;
 
         BingoUI.OnClickBingoGachaButton += BingoGacha;
+        BingoItemManager.OnChangedItem += OnChangedBingoItem;
         SceneManager.sceneLoaded += OnSceneLoaded;
+
+        UpdateBoardTransformInteractable(bingoItemManager != null ? bingoItemManager.itemBase : null);
     }
     
     void OnDisable()
@@ -448,6 +456,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             synergyMgr.OnChangedSynergy -= UpdateSynergyView;
 
         BingoUI.OnClickBingoGachaButton -= BingoGacha;
+        BingoItemManager.OnChangedItem -= OnChangedBingoItem;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         ResetForBingoUiDisable();
     }
@@ -984,5 +993,47 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
 
         IsBingoGachaRunning = isRunning;
         OnBingoGachaRunningChanged?.Invoke(isRunning);
+    }
+
+    private void BindBoardButton()
+    {
+        if (ctx == null || ctx.BoardTransform == null)
+            return;
+
+        if (!isBoardButtonBound)
+        {
+            ctx.BoardTransform.onClick.AddListener(OnBoardTransformClick);
+            isBoardButtonBound = true;
+            return;
+        }
+
+        // 재초기화 시 중복 구독을 방지한다.
+        ctx.BoardTransform.onClick.RemoveListener(OnBoardTransformClick);
+        ctx.BoardTransform.onClick.AddListener(OnBoardTransformClick);
+    }
+
+    private void OnBoardTransformClick()
+    {
+        if (bingoItemManager == null)
+            bingoItemManager = FindAnyObjectByType<BingoItemManager>();
+
+        if (bingoItemManager == null)
+            return;
+
+        if (bingoItemManager.itemBase is AgainItem againItemBase)
+            OnClick(againItemBase);
+    }
+
+    private void OnChangedBingoItem(ItemBase currentItem)
+    {
+        UpdateBoardTransformInteractable(currentItem);
+    }
+
+    private void UpdateBoardTransformInteractable(ItemBase currentItem)
+    {
+        if (ctx == null || ctx.BoardTransform == null)
+            return;
+
+        ctx.BoardTransform.interactable = currentItem is AgainItem;
     }
 }
