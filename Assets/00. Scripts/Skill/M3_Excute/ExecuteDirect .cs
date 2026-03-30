@@ -9,7 +9,7 @@ public class ExecuteDirect : ISkillExecuteStrategy
         var m2 = SkillStrategyContainer.GetDetect(data.m2Data.m2Type);
 
         int count = m2.Detect(hitCenter, direction, data.m2Data, bufferProvider, targetLayer);
-        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(dataContext?.skillData.m3Data.m3VFX, targetPosition:hitCenter));
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(dataContext?.skillData.m3Data.m3VFX, targetPosition:hitCenter,rotation: owner.transform.localRotation));
         if (count > 0)
         {
             owner.HandleSkillHit(count, dataContext, bufferProvider.GetBuffer());

@@ -13,7 +13,7 @@ public class BleedEffect : StatusEffectBase
     {
         tableData = data;
         duration = data.duration;
-        damage = 1;
+        damage = data.damageValue;
         tickInterval = data.tickInterval;
         maxStack = data.maxStack;
     }

@@ -9,7 +9,7 @@ public class FireEffect : StatusEffectBase
         tableData = data;
         duration = data.duration;
         tickInterval = data.tickInterval;        
-        damage = 1;
+        damage = data.damageValue;
         defReduction = data.defDown;
     }
 
