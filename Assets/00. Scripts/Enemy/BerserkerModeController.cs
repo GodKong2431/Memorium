@@ -179,9 +179,6 @@ public class BerserkerModeController : MonoBehaviour
     
     private void PlayLoopEffect()
     {
-        if (SoundManager.Instance != null)
-            SoundManager.Instance.PlayCombatLoopSfx(UiSoundIds.BerserkerActiveLoop);
-
         SpawnLoopEffect(EffectKet1, true);
         SpawnLoopEffect(EffectKet2, true);
     }
@@ -199,9 +196,6 @@ public class BerserkerModeController : MonoBehaviour
     
     private void RemoveVfx(bool notifyEvent = true)
     {
-        if (SoundManager.Instance != null)
-            SoundManager.Instance.StopCombatLoopSfx();
-
         foreach(var effect in gradeEffects)
         {
             effect.StopAndReturnManual();
