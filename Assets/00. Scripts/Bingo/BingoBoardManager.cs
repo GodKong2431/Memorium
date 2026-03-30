@@ -584,13 +584,10 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             
             if (isPluck)
                 SoundManager.Instance.PlayUiSfx(9100071);
-            
-            else
-            {
-                //여기는 이펙트가 끝나면 자동으로 되돌아가는거
-                if (BingoEffectManager.Instance != null && slot != null)
-                    BingoEffectManager.Instance.PlayLinkRegisterEffect(slot.transform);
-            }
+
+            // Pluck으로 당겨진 슬롯도 최종 등록 대상이므로 등록 이펙트는 항상 재생한다.
+            if (BingoEffectManager.Instance != null && slot != null)
+                BingoEffectManager.Instance.PlayLinkRegisterEffect(slot.transform);
             
             if (isAgain)
             {

@@ -45,6 +45,9 @@ public sealed partial class StoneUI : UIControllerBase
     private const string TextReconfigureInfo = "현재 옵션을 다시 구성합니다.";
     private const string TextResetInfo = "현재 강화 수치를 모두 초기화합니다.";
     private const string TextCurrent = "현재";
+    private const string TextLockedAbilityMessage = "해금되지 않은 어빌리티입니다";
+    private const string TextUnlockLevel = "해금 조건 레벨";
+    private const string TextUpgradeCount = "강화 수치";
 
     [Header("Runtime")]
     [SerializeField] private CharacterStatManager stats;
@@ -836,11 +839,71 @@ public sealed partial class StoneUI : UIControllerBase
 
     public void LockButton()
     {
-        foreach(var stoneView in runtimeStoneItems)
+        for (int i = 0; i < runtimeStoneItems.Count; i++)
         {
-            var LockButton = stoneView.LockObject.GetComponent<Button>();
-            LockButton.onClick.RemoveAllListeners();
-            LockButton.onClick.AddListener(()=>InstanceMessageManager.TryShow("해금되지 않은 어빌리티입니다"));
+            StoneItemUI stoneView = runtimeStoneItems[i];
+            if (stoneView == null || stoneView.LockObject == null)
+                continue;
+
+            Button lockButton = stoneView.LockObject.GetComponent<Button>();
+            if (lockButton == null)
+                continue;
+
+            int capturedIndex = i;
+            lockButton.onClick.RemoveAllListeners();
+            lockButton.onClick.AddListener(() => OnLockedStoneClick(capturedIndex));
         }
+    }
+
+    private void OnLockedStoneClick(int viewIndex)
+    {
+        if (viewIndex < 0 || viewIndex >= stoneListEntries.Count)
+        {
+            InstanceMessageManager.TryShow(TextLockedAbilityMessage);
+            return;
+        }
+
+        StoneListEntry entry = stoneListEntries[viewIndex];
+        if (entry.StoneData == null || IsStoneUnlocked(entry.Grade, entry.Tier))
+        {
+            return;
+        }
+
+        InstanceMessageManager.TryShow(BuildLockedStoneMessage(entry.Grade, entry.Tier, entry.StoneData));
+    }
+
+    private string BuildLockedStoneMessage(StoneGrade grade, int tier, AbilityStone stoneData)
+    {
+        if (stoneData == null)
+            return TextLockedAbilityMessage;
+
+        List<string> lines = new List<string>
+        {
+            TextLockedAbilityMessage,
+            $"{TextUnlockLevel} : {stoneData.UnlockLevel}"
+        };
+
+        AbilityStoneManager abilityStoneManager = AbilityStoneManager.Instance;
+        if (abilityStoneManager == null || abilityStoneManager.so == null)
+            return string.Join("\n", lines);
+
+        if (grade == StoneGrade.Normal)
+        {
+            if (!TryGetPreviousTierKey(tier, out int previousTier))
+                return string.Join("\n", lines);
+
+            if (!abilityStoneManager.so.AbilityStoneDict.TryGetValue(previousTier, out var previousTierStoneDict))
+                return string.Join("\n", lines);
+
+            if (!previousTierStoneDict.TryGetValue(StoneGrade.Myth, out AbilityStone previousTierMythStone) || previousTierMythStone == null)
+                return string.Join("\n", lines);
+
+            lines.Add($"{previousTier + 1}티어 {GetGradeName(StoneGrade.Myth)} {TextUpgradeCount} : {stoneData.NeedUp}");
+            return string.Join("\n", lines);
+        }
+
+        StoneGrade previousGrade = (StoneGrade)((int)grade - 1);
+        lines.Add($"{tier + 1}티어 {GetGradeName(previousGrade)} {TextUpgradeCount} : {stoneData.NeedUp}");
+        return string.Join("\n", lines);
     }
 }

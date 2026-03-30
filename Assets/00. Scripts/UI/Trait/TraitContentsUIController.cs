@@ -759,14 +759,14 @@ public class TraitContentsUIController : UIControllerBase
     {
         // 퍼센트형 스탯은 보기 좋은 형태로 변환합니다.
         float displayValue = StatGroups.MultTypes.Contains(statType) ? value * 100f : value;
-        string number = displayValue.ToString("0.##", CultureInfo.InvariantCulture);
+        string number = displayValue.ToString("0.###", CultureInfo.InvariantCulture);
         return StatGroups.MultTypes.Contains(statType) ? number + "%" : number;
     }
 
     private static string FormatSignedStatValue(float value, StatType statType)
     {
         float displayValue = StatGroups.MultTypes.Contains(statType) ? value * 100f : value;
-        string format = displayValue >= 0f ? "+0.##;-0.##" : "0.##";
+        string format = displayValue >= 0f ? "+0.###;-0.###" : "0.###";
         string number = displayValue.ToString(format, CultureInfo.InvariantCulture);
         return StatGroups.MultTypes.Contains(statType) ? number + "%" : number;
     }
