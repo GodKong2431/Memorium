@@ -11,6 +11,7 @@ public enum CurrencyType
     BingoLink = 41,
     BingoItem_A = 42,
     BingoSynergy = 43,
+    SynergyDust = 45,
     BingoItem_B = 46,
     Gold =81,
     Crystal=82,

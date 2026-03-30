@@ -9,10 +9,6 @@ using UnityEngine.UI;
 public class SynergyUI : MonoBehaviour
 {
     private const int DustItemId = 3450001;
-    private const float SpawnRandomMinX = -80f;
-    private const float SpawnRandomMaxX = 80f;
-    private const float SpawnRandomMinY = -40f;
-    private const float SpawnRandomMaxY = 40f;
 
     public const string atkText = "공격력";
     public const string atkSPDText = "공격 속도";
@@ -48,6 +44,7 @@ public class SynergyUI : MonoBehaviour
 
     [Header("Dismantle Effect")]
     [SerializeField] private int dustAmountPerEffect = 20;
+    [SerializeField, Min(1)] private int maxDismantleEffectCount = 20;
     [SerializeField] private float effectSpawnInterval = 0.02f;
     [FormerlySerializedAs("initialFlightSpeed")]
     [SerializeField, Min(0f)] private float initialFlightSpeedMin = 850f;
@@ -59,6 +56,14 @@ public class SynergyUI : MonoBehaviour
     [SerializeField] private float curveWidth = 140f;
     [SerializeField] private float pathNoiseAmplitude = 28f;
     [SerializeField] private float pathNoiseFrequency = 5f;
+
+    [Header("Dismantle Spawn Range")]
+    [SerializeField, Min(0f)] private float spawnRangeX = 28f;
+    [SerializeField, Min(0f)] private float spawnRangeY = 14f;
+    [SerializeField, Min(0f)] private float spawnClampPadding = 4f;
+    [SerializeField] private RectTransform spawnClampRect;
+
+    private readonly Vector3[] spawnClampCorners = new Vector3[4];
     
     public static event Action<int> OnSynergyGachaButton;
     
@@ -177,6 +182,12 @@ public class SynergyUI : MonoBehaviour
             if (gainAmount <= 0)
                 break;
 
+            if (activeDismantleEffects.Count >= Mathf.Max(1, maxDismantleEffectCount))
+            {
+                GrantReservedDust(gainAmount);
+                continue;
+            }
+
             ParticleSystem effectInstance = SpawnDismantleEffect(sourceParent, out Vector3 startLocalPosition);
             if (effectInstance == null)
             {
@@ -280,7 +291,8 @@ public class SynergyUI : MonoBehaviour
         if (BingoEffectManager.Instance == null)
             return null;
 
-        Transform parent = source != null ? source : transform;
+        Transform sourceTransform = source != null ? source : transform;
+        Transform parent = ResolveEffectSpawnParent(sourceTransform);
         ParticleSystem effectInstance = BingoEffectManager.Instance.PlaySynergyDismantleEffectManual(parent);
         if (effectInstance == null)
             return null;
@@ -288,17 +300,31 @@ public class SynergyUI : MonoBehaviour
         Transform effectTransform = effectInstance.transform;
         if (effectTransform != null)
         {
-            float randomLocalX = UnityEngine.Random.Range(SpawnRandomMinX, SpawnRandomMaxX);
-            float randomLocalY = UnityEngine.Random.Range(SpawnRandomMinY, SpawnRandomMaxY);
-            randomLocalX = Mathf.Clamp(randomLocalX, SpawnRandomMinX, SpawnRandomMaxX);
-            randomLocalY = Mathf.Clamp(randomLocalY, SpawnRandomMinY, SpawnRandomMaxY);
-            effectTransform.localPosition = new Vector3(randomLocalX, randomLocalY, 0f);
-            startLocalPosition = effectTransform.localPosition;
+            Vector3 baseLocalPosition = parent != null
+                ? parent.InverseTransformPoint(sourceTransform.position)
+                : Vector3.zero;
+            baseLocalPosition.z = 0f;
+
+            Vector3 spawnLocalPosition = baseLocalPosition + SampleSpawnOffset(parent);
+            spawnLocalPosition = ClampSpawnLocalPosition(spawnLocalPosition, parent);
+            effectTransform.localPosition = spawnLocalPosition;
+            startLocalPosition = spawnLocalPosition;
         }
 
         effectInstance.transform.SetAsLastSibling();
         activeDismantleEffects.Add(effectInstance);
         return effectInstance;
+    }
+
+    private Transform ResolveEffectSpawnParent(Transform sourceTransform)
+    {
+        if (spawnClampRect != null)
+            return spawnClampRect;
+
+        if (rectTransform != null)
+            return rectTransform;
+
+        return sourceTransform != null ? sourceTransform : transform;
     }
 
     private Vector3 ResolveDismantleTargetLocalPosition(Transform localSpace)
@@ -335,8 +361,10 @@ public class SynergyUI : MonoBehaviour
         const float MaxFlightSeconds = 5f;
         Vector3 direction = (targetLocalPosition - startLocalPosition).normalized;
         Vector3 perpendicular = direction.sqrMagnitude <= 0f ? Vector3.right : Vector3.Cross(direction, Vector3.forward).normalized;
-        float dynamicCurveHeight = Mathf.Max(curveHeight, totalDistance * 0.55f);
-        float dynamicCurveWidth = Mathf.Max(curveWidth, totalDistance * 0.38f);
+        // Inspector 값이 실제로 경로 모양을 제어하도록 거리 기반 최소 강제값을 제거.
+        float dynamicCurveHeight = Mathf.Max(0f, curveHeight);
+        float dynamicCurveWidth = Mathf.Max(0f, curveWidth);
+        float dynamicNoiseAmplitude = Mathf.Min(Mathf.Max(0f, pathNoiseAmplitude), totalDistance * 0.35f);
 
         float sideSign = UnityEngine.Random.value < 0.5f ? -1f : 1f;
         float launchSide = sideSign * UnityEngine.Random.Range(dynamicCurveWidth * 0.45f, dynamicCurveWidth * 1.1f);
@@ -371,10 +399,10 @@ public class SynergyUI : MonoBehaviour
 
             Vector3 curveWorldPoint = EvaluateCubicBezier(startLocalPosition, controlPointA, controlPointB, targetLocalPosition, curveT);
             float noiseWeight = 4f * t * (1f - t);
-            float sideWave = Mathf.Sin((t * waveFrequency + waveSeed) * Mathf.PI * 2f) * (pathNoiseAmplitude * noiseWeight);
+            float sideWave = Mathf.Sin((t * waveFrequency + waveSeed) * Mathf.PI * 2f) * (dynamicNoiseAmplitude * noiseWeight);
             float noiseX = (Mathf.PerlinNoise(noiseSeed, t * pathNoiseFrequency) - 0.5f) * 2f;
             float noiseY = (Mathf.PerlinNoise(noiseSeed + 73.1f, t * pathNoiseFrequency) - 0.5f) * 2f;
-            curveWorldPoint += new Vector3(noiseX, noiseY, 0f) * (pathNoiseAmplitude * noiseWeight * 0.45f);
+            curveWorldPoint += new Vector3(noiseX, noiseY, 0f) * (dynamicNoiseAmplitude * noiseWeight * 0.45f);
             curveWorldPoint += perpendicular * sideWave;
             curveWorldPoint.z = fixedZ;
 
@@ -412,6 +440,76 @@ public class SynergyUI : MonoBehaviour
                (3f * oneMinusT * oneMinusT * t * p1) +
                (3f * oneMinusT * t * t * p2) +
                (t * t * t * p3);
+    }
+
+    private Vector3 SampleSpawnOffset(Transform parent)
+    {
+        float halfRangeX = spawnRangeX;
+        float halfRangeY = spawnRangeY;
+
+        if (parent is RectTransform parentRect)
+        {
+            Rect rect = parentRect.rect;
+            if (rect.width > 0f)
+                halfRangeX = Mathf.Min(halfRangeX, rect.width * 0.45f);
+
+            if (rect.height > 0f)
+                halfRangeY = Mathf.Min(halfRangeY, rect.height * 0.45f);
+        }
+
+        return new Vector3(
+            UnityEngine.Random.Range(-halfRangeX, halfRangeX),
+            UnityEngine.Random.Range(-halfRangeY, halfRangeY),
+            0f);
+    }
+
+    private Vector3 ClampSpawnLocalPosition(Vector3 localPosition, Transform localSpace)
+    {
+        if (localSpace == null)
+            return localPosition;
+
+        RectTransform clampRect = ResolveSpawnClampRect(localSpace);
+        if (clampRect == null)
+            return localPosition;
+
+        clampRect.GetWorldCorners(spawnClampCorners);
+        float minX = Mathf.Min(spawnClampCorners[0].x, spawnClampCorners[2].x) + spawnClampPadding;
+        float maxX = Mathf.Max(spawnClampCorners[0].x, spawnClampCorners[2].x) - spawnClampPadding;
+        float minY = Mathf.Min(spawnClampCorners[0].y, spawnClampCorners[2].y) + spawnClampPadding;
+        float maxY = Mathf.Max(spawnClampCorners[0].y, spawnClampCorners[2].y) - spawnClampPadding;
+
+        if (minX > maxX)
+        {
+            float centerX = (minX + maxX) * 0.5f;
+            minX = centerX;
+            maxX = centerX;
+        }
+
+        if (minY > maxY)
+        {
+            float centerY = (minY + maxY) * 0.5f;
+            minY = centerY;
+            maxY = centerY;
+        }
+
+        Vector3 worldPosition = localSpace.TransformPoint(localPosition);
+        worldPosition.x = Mathf.Clamp(worldPosition.x, minX, maxX);
+        worldPosition.y = Mathf.Clamp(worldPosition.y, minY, maxY);
+
+        Vector3 clampedLocalPosition = localSpace.InverseTransformPoint(worldPosition);
+        clampedLocalPosition.z = localPosition.z;
+        return clampedLocalPosition;
+    }
+
+    private RectTransform ResolveSpawnClampRect(Transform localSpace)
+    {
+        if (spawnClampRect != null)
+            return spawnClampRect;
+
+        if (localSpace is RectTransform localRect)
+            return localRect;
+
+        return rectTransform;
     }
 
     private void EnsureDismantleTarget()

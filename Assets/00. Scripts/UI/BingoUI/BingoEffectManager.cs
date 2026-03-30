@@ -15,6 +15,7 @@ public class BingoEffectManager : Singleton<BingoEffectManager>
     public ParticleSystem synergyDismantleEffect;
     public ParticleSystem GachaBingoSlot;
     public ParticleSystem GachaSynergySlot;
+    private const bool DisableSynergyDismantleTrails = true;
 
     private readonly Queue<ParticleSystem> linkRegisterEffectQueue = new Queue<ParticleSystem>();
     private readonly Queue<ParticleSystem> synergyRegisterEffectQueue = new Queue<ParticleSystem>();
@@ -268,21 +269,13 @@ public class BingoEffectManager : Singleton<BingoEffectManager>
         if (particle == null)
             return null;
 
+        if (DisableSynergyDismantleTrails)
+            SetTrailRenderingEnabled(template, false);
+
         particle.transform.SetParent(target, false);
         ApplyLocalPositionRotation(particle.transform, template.transform);
         particle.transform.localScale = GetHierarchyLocalScale(template.transform);
-
-        // 이동 중 파티클이 원점에 남지 않도록 로컬 시뮬레이션으로 고정한다.
-        ParticleSystem[] children = particle.GetComponentsInChildren<ParticleSystem>(true);
-        for (int i = 0; i < children.Length; i++)
-        {
-            ParticleSystem child = children[i];
-            if (child == null)
-                continue;
-
-            var main = child.main;
-            main.simulationSpace = ParticleSystemSimulationSpace.Local;
-        }
+        SetTrailRenderingEnabled(particle, !DisableSynergyDismantleTrails);
 
         if (particle.gameObject.layer != 5)
             particle.gameObject.layer = 5;
@@ -629,6 +622,33 @@ public class BingoEffectManager : Singleton<BingoEffectManager>
         }
 
         return scale;
+    }
+
+    private static void SetTrailRenderingEnabled(ParticleSystem root, bool enabled)
+    {
+        if (root == null)
+            return;
+
+        ParticleSystem[] particleSystems = root.GetComponentsInChildren<ParticleSystem>(true);
+        for (int i = 0; i < particleSystems.Length; i++)
+        {
+            ParticleSystem system = particleSystems[i];
+            if (system == null)
+                continue;
+
+            var trails = system.trails;
+            trails.enabled = enabled;
+        }
+
+        TrailRenderer[] trailRenderers = root.GetComponentsInChildren<TrailRenderer>(true);
+        for (int i = 0; i < trailRenderers.Length; i++)
+        {
+            TrailRenderer trailRenderer = trailRenderers[i];
+            if (trailRenderer == null)
+                continue;
+
+            trailRenderer.enabled = enabled;
+        }
     }
 
     private static void ApplyUiTransform(Transform target, Transform template, Transform parent)

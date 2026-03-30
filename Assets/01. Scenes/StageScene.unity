@@ -1314,7 +1314,7 @@ PrefabInstance:
     - target: {fileID: 8343397581583439962, guid: de8c1528181f5ec4a9f8a5e7437f75e5, type: 3}
       propertyPath: synergyDismantleEffect
       value: 
-      objectReference: {fileID: 198909081397204100, guid: 5c5666aea2ba3d7478603748abde9c4c, type: 3}
+      objectReference: {fileID: 1322353953578984632, guid: 709a54c03c750c140a7897dbb58deda8, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1672,6 +1672,11 @@ CanvasGroup:
 --- !u!224 &1146942030 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8350836174111335180, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+  m_PrefabInstance: {fileID: 7151944950682389466}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1179441546 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 4053874916979290579, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
   m_PrefabInstance: {fileID: 7151944950682389466}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &1198535630 stripped
@@ -3458,16 +3463,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: curveWidth
-      value: 80
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: curveHeight
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: spawnRangeX
       value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: spawnRangeY
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: dustTransform
       value: 
       objectReference: {fileID: 1921914256}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: spawnClampRect
+      value: 
+      objectReference: {fileID: 1179441546}
     - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: flightAcceleration
       value: 800
@@ -3482,19 +3499,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: flightAccelerationMax
-      value: 250
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: flightAccelerationMin
-      value: 180
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: initialFlightSpeedMax
-      value: 250
+      value: 1800
       objectReference: {fileID: 0}
     - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: initialFlightSpeedMin
-      value: 180
+      value: 1500
+      objectReference: {fileID: 0}
+    - target: {fileID: 829617708752088640, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: maxDismantleEffectCount
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 864451933630713486, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: m_AnchorMax.x
@@ -4255,6 +4276,14 @@ PrefabInstance:
     - target: {fileID: 6421086171069733181, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6544208348631603121, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 650
+      objectReference: {fileID: 0}
+    - target: {fileID: 6544208348631603121, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -1160
       objectReference: {fileID: 0}
     - target: {fileID: 6716066231131697382, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
       propertyPath: m_AnchorMax.y
