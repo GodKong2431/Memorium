@@ -10,7 +10,7 @@ public class PoisonEffect : StatusEffectBase
         tableData = data;
         duration = data.duration;
         tickInterval = data.tickInterval;
-        damage = 1;
+        damage = data.damageValue;
     }
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)

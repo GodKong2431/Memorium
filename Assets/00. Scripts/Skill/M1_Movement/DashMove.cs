@@ -14,9 +14,6 @@ public class DashMove : ISkillMovementStrategy
         if (data.m1Duration <= 0)
         {
             Vector3 endPos = subject.Position + direction * data.m1Scale;
-            if (NavMesh.SamplePosition(endPos, out var hit, SkillConstants.NAV_SEARCH_RADIUS, NavMesh.AllAreas))
-
-                endPos = hit.position;
             endPos.y = subject.Position.y;
             subject.SetPosition(endPos);
             yield break;
@@ -28,8 +25,6 @@ public class DashMove : ISkillMovementStrategy
             elapsedTime += Time.deltaTime;
             float step = speed * Time.deltaTime;
             Vector3 nextPos = subject.Position + direction * step;
-            if (NavMesh.SamplePosition(nextPos, out var hit, SkillConstants.NAV_SEARCH_RADIUS, NavMesh.AllAreas))
-                nextPos = hit.position;
             nextPos.y = subject.Position.y;
             subject.SetPosition(nextPos);
             yield return null;
