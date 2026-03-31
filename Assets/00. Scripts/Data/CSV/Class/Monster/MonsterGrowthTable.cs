@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class MonsterGrowthTable : TableBase
 {
     public int stageLevelScale;
-    public float monsterAttScale;
-    public float monsterAttsScale;
-    public float monsterHPScale;
+    public int monsterAttScale;
+    public int monsterAttsScale;
+    public int monsterHPScale;
 }
