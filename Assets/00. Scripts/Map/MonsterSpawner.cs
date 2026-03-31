@@ -12,7 +12,7 @@ public class MonsterSpawner : MonoBehaviour
     [SerializeField] private List<MonsterGroupTable> curSpawnGroupMonsterTable;
     // 현재 스폰 그룹의 보스 몬스터 행
     [SerializeField] private MonsterGroupTable curSpawnGroupBossMonsterTable;
-
+    
     // 스폰 포인트 이름은 테이블의 spawnerName과 맞춰서 갱신된다
     [Header("Spawn Points")]
     [SerializeField] private Transform[] spawnPos;
