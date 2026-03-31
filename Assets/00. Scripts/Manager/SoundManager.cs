@@ -37,6 +37,9 @@ public class SoundManager : Singleton<SoundManager>
     [SerializeField] private int combatWorldSourceMaxCount = 16;
     [SerializeField] private float combatWorldMinDistance = 1f;
     [SerializeField] private float combatWorldMaxDistance = 30f;
+    [Header("Rapid Repeat Guard")]
+    [Min(0f)] [SerializeField] private float defaultUiSfxDuplicateBlockSeconds = 0f;
+    [Min(0f)] [SerializeField] private float defaultCombatSfxDuplicateBlockSeconds = 0f;
     [SerializeField] private SoundVolDb volDb;
     [Range(0f, 1f)] [SerializeField] private float defaultMasterVolume = 1f;
     [Range(0f, 1f)] [SerializeField] private float defaultBgmVolume = 1f;
@@ -46,6 +49,7 @@ public class SoundManager : Singleton<SoundManager>
 
     #region Runtime Fields
     private readonly Dictionary<int, SoundEntry> soundById = new Dictionary<int, SoundEntry>();
+    private readonly Dictionary<int, float> sfxBlockedUntilById = new Dictionary<int, float>();
     private readonly List<AudioSource> uiSources = new List<AudioSource>();
     private readonly List<AudioSource> combatSources = new List<AudioSource>();
     private readonly List<AudioSource> activeCombatWorldSources = new List<AudioSource>();
@@ -165,19 +169,22 @@ public class SoundManager : Singleton<SoundManager>
         currentBgmClipVolume = 1f;
     }
 
-    public bool PlayUiSfx(int soundId)
+    public bool PlayUiSfx(int soundId, float minIntervalSeconds = -1f)
     {
-        return TryResolve(soundId, out SoundEntry entry) && PlayUi(entry);
+        float effectiveMinInterval = ResolveDuplicateBlockSeconds(minIntervalSeconds, defaultUiSfxDuplicateBlockSeconds);
+        return TryResolve(soundId, out SoundEntry entry) && PlayUi(soundId, entry, effectiveMinInterval);
     }
 
-    public bool PlayCombatSfx(int soundId)
+    public bool PlayCombatSfx(int soundId, float minIntervalSeconds = -1f)
     {
-        return TryResolve(soundId, out SoundEntry entry) && PlayCombat(entry);
+        float effectiveMinInterval = ResolveDuplicateBlockSeconds(minIntervalSeconds, defaultCombatSfxDuplicateBlockSeconds);
+        return TryResolve(soundId, out SoundEntry entry) && PlayCombat(soundId, entry, effectiveMinInterval);
     }
 
-    public bool PlayCombatSfxAt(int soundId, Vector3 worldPos)
+    public bool PlayCombatSfxAt(int soundId, Vector3 worldPos, float minIntervalSeconds = -1f)
     {
-        return TryResolve(soundId, out SoundEntry entry) && PlayCombatAt(entry, worldPos);
+        float effectiveMinInterval = ResolveDuplicateBlockSeconds(minIntervalSeconds, defaultCombatSfxDuplicateBlockSeconds);
+        return TryResolve(soundId, out SoundEntry entry) && PlayCombatAt(soundId, entry, worldPos, effectiveMinInterval);
     }
 
     public bool PlayCombatLoopSfx(int soundId)
@@ -407,7 +414,7 @@ public class SoundManager : Singleton<SoundManager>
         return true;
     }
 
-    private bool PlayUi(SoundEntry entry)
+    private bool PlayUi(int soundId, SoundEntry entry, float minIntervalSeconds)
     {
         if (!TryLoadClip(entry, out AudioClip clip))
             return false;
@@ -416,11 +423,15 @@ public class SoundManager : Singleton<SoundManager>
         if (source == null)
             return false;
 
+        if (IsSfxDuplicateBlocked(soundId, minIntervalSeconds))
+            return false;
+
         source.PlayOneShot(clip, GetEffectiveVolume(entry.clipVolume, uiSfxVolume));
+        RegisterSfxPlayback(soundId, minIntervalSeconds);
         return true;
     }
 
-    private bool PlayCombat(SoundEntry entry)
+    private bool PlayCombat(int soundId, SoundEntry entry, float minIntervalSeconds)
     {
         if (!TryLoadClip(entry, out AudioClip clip))
             return false;
@@ -429,11 +440,15 @@ public class SoundManager : Singleton<SoundManager>
         if (source == null)
             return false;
 
+        if (IsSfxDuplicateBlocked(soundId, minIntervalSeconds))
+            return false;
+
         source.PlayOneShot(clip, GetEffectiveVolume(entry.clipVolume, combatSfxVolume));
+        RegisterSfxPlayback(soundId, minIntervalSeconds);
         return true;
     }
 
-    private bool PlayCombatAt(SoundEntry entry, Vector3 worldPos)
+    private bool PlayCombatAt(int soundId, SoundEntry entry, Vector3 worldPos, float minIntervalSeconds)
     {
         if (!TryLoadClip(entry, out AudioClip clip))
             return false;
@@ -442,12 +457,20 @@ public class SoundManager : Singleton<SoundManager>
         if (source == null)
             return false;
 
+        if (IsSfxDuplicateBlocked(soundId, minIntervalSeconds))
+        {
+            ResetCombatWorldSource(source);
+            ObjectPoolManager.Return(source.gameObject);
+            return false;
+        }
+
         ConfigureCombatWorldSource(source);
         source.transform.position = worldPos;
         source.clip = clip;
         source.volume = GetEffectiveVolume(entry.clipVolume, combatSfxVolume);
         source.Play();
         activeCombatWorldSources.Add(source);
+        RegisterSfxPlayback(soundId, minIntervalSeconds);
         return true;
     }
 
@@ -668,6 +691,28 @@ public class SoundManager : Singleton<SoundManager>
     private float GetEffectiveVolume(float clipVolume, float categoryVolume)
     {
         return Mathf.Clamp01(clipVolume) * masterVolume * categoryVolume;
+    }
+
+    private static float ResolveDuplicateBlockSeconds(float requestedSeconds, float defaultSeconds)
+    {
+        return requestedSeconds >= 0f ? requestedSeconds : Mathf.Max(0f, defaultSeconds);
+    }
+
+    private bool IsSfxDuplicateBlocked(int soundId, float minIntervalSeconds)
+    {
+        if (soundId <= 0 || minIntervalSeconds <= 0f)
+            return false;
+
+        float now = Time.unscaledTime;
+        return sfxBlockedUntilById.TryGetValue(soundId, out float blockedUntil) && now < blockedUntil;
+    }
+
+    private void RegisterSfxPlayback(int soundId, float minIntervalSeconds)
+    {
+        if (soundId <= 0 || minIntervalSeconds <= 0f)
+            return;
+
+        sfxBlockedUntilById[soundId] = Time.unscaledTime + minIntervalSeconds;
     }
     #endregion
 
