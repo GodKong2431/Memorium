@@ -11,6 +11,10 @@ public class FireEffect : StatusEffectBase
         tickInterval = data.tickInterval;        
         damage = data.damageValue;
         defReduction = data.defDown;
+
+        var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
+        gemGrade = gemModule != null ? gemModule.GetHighestGrade(data.ID) : 0;
+        damage = data.damageValue + data.plusValue * (int)gemGrade;
     }
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
@@ -32,13 +36,7 @@ public class FireEffect : StatusEffectBase
 
     private void ApplyDefDebuff()
     {
-        buffApplicable.ApplyBuff(new StatModifier
-        {
-            id = tableData.ID,
-            statType = StatType.PHYS_DEF,
-            value = -defReduction,
-            duration = this.duration
-        });
+        buffApplicable.ApplyBuff(new StatModifier(tableData.ID,StatType.PHYS_DEF,-defReduction,this.duration));
     }
 
     protected override void OnTick()

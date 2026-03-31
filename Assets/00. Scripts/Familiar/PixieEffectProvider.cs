@@ -145,41 +145,31 @@ using UnityEngine;
         {
             int level = fairyData != null ? fairyData.level : 1;
             int gradeBonus = (int)gradeData.fairyGrade;
+            float levelBonus = level * stat.lvGrowth;
+            if (gradeData.fairyGrade == FairyGrade.Mythic)
+                levelBonus = level * stat.mythicLvGrowth;
 
-            return stat.baseValue + (level * stat.lvGrowth) + (gradeBonus * stat.grdGrowth);
+
+            return stat.baseValue + (levelBonus) + (20 * stat.lvGrowth * gradeBonus) + (gradeBonus * stat.grdGrowth);
         }
 
         private void ApplyPlayerBuff(FairyStatTable stat, float value)
         {
             if (playerEffectController == null) return;
-
-            playerEffectController.ApplyBuff(new StatModifier
-            {
-                id = stat.ID,
-                statType = stat.statType,
-                value = value,
-                duration = effectData.duration
-            });
+            playerEffectController.ApplyBuff(new StatModifier(stat.ID, stat.statType, value, effectData.duration));
         }
-
-    private void ApplyEnemyDebuff(FairyStatTable stat, float value)
-    {
-        float effectRadius = 100f;
-        int count = DetectEnemies(effectRadius);
-        for (int i = 0; i < count; i++)
+        private void ApplyEnemyDebuff(FairyStatTable stat, float value)
         {
-            if (hitBuffer[i].TryGetComponent<EffectController>(out var enemyEffectController))
+            float effectRadius = 100f;
+            int count = DetectEnemies(effectRadius);
+            for (int i = 0; i < count; i++)
             {
-                enemyEffectController.ApplyBuff(new StatModifier
+                if (hitBuffer[i].TryGetComponent<EffectController>(out var enemyEffectController))
                 {
-                    id = stat.ID,
-                    statType = stat.statType,
-                    value = value,
-                    duration = effectData.duration
-                });
+                    enemyEffectController.ApplyBuff(new StatModifier (stat.ID, stat.statType,value,effectData.duration ));
+                }
             }
         }
-    }
     private void SpawnDebuffEffects()
     {
         if (GameOptionSettings.HidePixieDebuffEffect)

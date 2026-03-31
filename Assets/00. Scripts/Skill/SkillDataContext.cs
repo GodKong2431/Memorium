@@ -40,6 +40,7 @@ public class SkillDataContext
     }
     public void SetSkillContext(int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb = -1)
     {
+
         if (!DataManager.Instance.SkillInfoDict.TryGetValue(skillID, out var table))
         {
             skillData = null;
@@ -57,6 +58,20 @@ public class SkillDataContext
         m4Data = DataManager.Instance.SkillModule4Dict.GetValueOrDefault(m4ID);
         m5DataA = DataManager.Instance.SkillModule5Dict.GetValueOrDefault(m5IDa);
         m5DataB = DataManager.Instance.SkillModule5Dict.GetValueOrDefault(m5IDb);
+    }
+    public void CopyFrom(SkillDataContext source)
+    {
+        if (source == null) return;
+        this.skillData = source.skillData;
+        this.m4Data = source.m4Data;
+        this.m5DataA = source.m5DataA;
+        this.m5DataB = source.m5DataB;
+        addonTriggerCount = 0;
+    }
+
+    public void ClearAddon()
+    {
+        m4Data = null;
     }
     public void RecordAddonTrigger()
     {

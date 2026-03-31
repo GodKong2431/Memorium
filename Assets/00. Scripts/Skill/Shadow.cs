@@ -1,15 +1,11 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(SkillCaster))]
-public class Shadow : MonoBehaviour
-{
+public class Shadow : MonoBehaviour{
     SkillCaster caster;
-
     private void Awake()
     {
         caster = GetComponent<SkillCaster>();
-
     }
     private void OnEnable()
     {
@@ -19,18 +15,18 @@ public class Shadow : MonoBehaviour
     {
         caster.OnSkillEnd -= SelfDestroy;
     }
-
-    public void Cast(SkillDataContext originalContext, float delay, Vector3 originTargetPos, Vector3 originDir)
+    public void Init(ISkillStatProvider stat, ISkillTargetProvider target)
+    {
+        caster.Init(stat, target);
+    }
+    public void Cast(SkillDataContext originalContext, float delay,
+                     Vector3 originTargetPos, Vector3 originDir)
     {
         caster.SetShadowData(originTargetPos, originDir);
-        int skillID = originalContext.skillData.skillTable.ID;
-        int m5ID = originalContext.m5DataA != null ? originalContext.m5DataA.ID : -1;
-        caster.CastSkill(caster.ResetContext(skillID, -1, m5ID), delay, false);
+        caster.CastSkill(originalContext, delay, false);
     }
-
     private void SelfDestroy()
     {
         ObjectPoolManager.Return(gameObject);
     }
-
 }

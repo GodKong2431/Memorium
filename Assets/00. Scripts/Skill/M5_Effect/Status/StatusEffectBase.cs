@@ -15,6 +15,7 @@ public abstract class StatusEffectBase
     protected float tickInterval;
     protected float damage;
     protected PoolableParticle effect;
+    protected GemGrade gemGrade;
 
     private static readonly Collider[] hitBuffer = new Collider[20];
 
@@ -26,8 +27,7 @@ public abstract class StatusEffectBase
         this.target = target;
         this.buffApplicable = buffApplicable;
         elapsedTime = 0f;
-        tickTimer = 0f; 
-
+        tickTimer = 0f;
 
     }
     public void Tick(float deltaTime)

@@ -1,19 +1,19 @@
 
-//부식
 using UnityEngine;
 
+// 열상 출혈 + 화상
 public class LacerationEffect : StatusEffectBase
 {
     private float defReduction;
     M5FusionTable fusion;
 
-    public LacerationEffect(M5FusionTable fusion,SkillModule5Table skillModule5)
+    public LacerationEffect(M5FusionTable fusion,SkillModule5Table bleedData, SkillModule5Table fireData)
     {
 
         this.fusion = fusion;
         duration = fusion.duration;
         tickInterval = fusion.tickInterval;
-        damage = 1;
+        damage = bleedData.damageValue;
         defReduction = fusion.defDown;
     }
 
@@ -27,13 +27,7 @@ public class LacerationEffect : StatusEffectBase
 
         base.OnApply(target, buffApplicable);
 
-        buffApplicable.ApplyBuff(new StatModifier
-        {
-            id = fusion.ID,
-            statType = StatType.PHYS_DEF,
-            value = -defReduction,
-            duration = this.duration
-        });
+        buffApplicable.ApplyBuff(new StatModifier(fusion.ID,StatType.PHYS_DEF,-defReduction,this.duration));
     }
 
     //생성된 파티클을 불러오고 이를 effect에 배치

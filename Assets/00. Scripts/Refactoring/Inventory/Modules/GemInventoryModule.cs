@@ -212,6 +212,7 @@ public sealed class GemInventoryModule : IInventoryModule
     public List<OwnedGemData> GetEquippableOwnedM4Gems(int skillId)
     {
         EnsureMappingData();
+        GetEquippedGemIds(skillId, out int eqM4, out int eqM5_0, out int eqM5_1);
         List<OwnedGemData> result = new List<OwnedGemData>();
 
         if (SkillToM4Dict.TryGetValue(skillId, out int[] m4Array))
@@ -226,6 +227,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
                 if (gemDict.TryGetValue(itemId, out var ownedData))
                 {
+                    if (itemId == eqM4) continue;
                     result.Add(ownedData);
                 }
             }
@@ -237,7 +239,9 @@ public sealed class GemInventoryModule : IInventoryModule
     /// </summary>
     public List<OwnedGemData> GetEquippableOwnedM5Gems(int skillId)
     {
-        EnsureMappingData();
+        EnsureMappingData(); 
+        GetEquippedGemIds(skillId, out int eqM4, out int eqM5_0, out int eqM5_1);
+
         List<OwnedGemData> result = new List<OwnedGemData>();
 
         if (SkillToM5Dict.TryGetValue(skillId, out int[] m5Array))
@@ -252,6 +256,7 @@ public sealed class GemInventoryModule : IInventoryModule
 
                 if (gemDict.TryGetValue(itemId, out var ownedData))
                 {
+                    if (itemId == eqM5_0 || itemId == eqM5_1) continue;
                     result.Add(ownedData);
                 }
             }
@@ -621,7 +626,20 @@ public sealed class GemInventoryModule : IInventoryModule
         }
         return GemGrade.None;
     }
+    private void GetEquippedGemIds(int skillId, out int m4Id, out int m5Id0, out int m5Id1)
+    {
+        m4Id = 0; m5Id0 = 0; m5Id1 = 0;
 
+        var skillModule = InventoryManager.Instance.GetModule<SkillInventoryModule>();
+        if (skillModule == null) return;
+
+        var gemSlot = skillModule.GetGemSlotData(skillId);
+        if (gemSlot == null) return;
+
+        m4Id = gemSlot.m4JemID;
+        m5Id0 = gemSlot.m5JemIDs != null && gemSlot.m5JemIDs.Length > 0 ? gemSlot.m5JemIDs[0] : 0;
+        m5Id1 = gemSlot.m5JemIDs != null && gemSlot.m5JemIDs.Length > 1 ? gemSlot.m5JemIDs[1] : 0;
+    }
     private static bool TryConvertAmountToInt(BigDouble amount, out int count)
     {
         count = 0;

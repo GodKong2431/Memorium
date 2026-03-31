@@ -10,10 +10,10 @@ public class StatusEffectHandler
     private IBuffApplicable buffTarget;
     private IDamageable owner;
 
-    public StatusEffectHandler(IBuffApplicable target, IDamageable enemyStateMachine)
+    public StatusEffectHandler(IBuffApplicable target, IDamageable Damageble)
     {
         this.buffTarget = target;
-        owner = enemyStateMachine;
+        owner = Damageble;
     }
     public void Apply(StatusEffectBase effect)
     {

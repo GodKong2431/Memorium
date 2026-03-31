@@ -76,7 +76,9 @@ public static class EnemyKillRewardDispatcher
 
         if (exp > 0)
         {
-            BigDouble finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.FinalStats[StatType.EXP_GAIN].finalStat));
+            //BigDouble finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.FinalStats[StatType.EXP_GAIN].finalStat));
+            //픽시 버프 포함하는 GetFinalStat()으로 변경
+            BigDouble finalExp = new BigDouble(exp * (1 + CharacterStatManager.Instance.GetFinalStat(StatType.EXP_GAIN)));
             CurrencyInventoryModule currencyModule = InventoryManager.Instance != null
                 ? InventoryManager.Instance.GetModule<CurrencyInventoryModule>()
                 : null;

@@ -1,8 +1,8 @@
-using Google.Impl;
+
 using System.Threading.Tasks;
 using UnityEngine;
 
-// 발화 출혈+화상
+// 발화 독+화상
 public class IgnitionEffect : StatusEffectBase
 {
     private float explosionDamage;
@@ -10,11 +10,18 @@ public class IgnitionEffect : StatusEffectBase
     M5FusionTable fusion;
     private LayerMask layerMask = LayerMask.GetMask("Enemy");//일단 하드코딩, 생성자에서 설정할수있게하면될듯? 플레이어말고 쓸일이 있을지는 모르겠
 
-    public IgnitionEffect(M5FusionTable fusion)
+    public IgnitionEffect(M5FusionTable fusion, SkillModule5Table poisonData, SkillModule5Table fireData)
     {
-        duration = fusion.duration;
-        tickInterval = fusion.tickInterval;
-        explosionDamage = 1f;
+        duration = poisonData.duration;
+        tickInterval = poisonData.tickInterval;
+        damage = poisonData.damageValue;
+
+        var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
+        gemGrade = gemModule != null ? gemModule.GetHighestGrade(poisonData.ID) : 0;
+
+        damage = poisonData.damageValue + poisonData.plusValue * (int)gemGrade;
+        int totalTicks = Mathf.FloorToInt(duration / tickInterval);
+        explosionDamage = totalTicks *damage;
         this.fusion = fusion;
     }
 

@@ -5,19 +5,26 @@ using UnityEngine;
 // 부식 출혈+독
 public class CorrosionEffect : StatusEffectBase
 {
-    private float burstDamage;
+    private float damage;
     private SkillModule5Table poisonData;
+    private SkillModule5Table bleedData;
     private LayerMask layerMask = LayerMask.GetMask("Enemy");//일단 하드코딩, 생성자에서 설정할수있게하면될듯? 플레이어말고 쓸일이 있을지는 모르겠
     M5FusionTable fusion;
 
 
-    public CorrosionEffect(M5FusionTable fusion, SkillModule5Table poisonSource)
+    public CorrosionEffect(M5FusionTable fusion, SkillModule5Table poisonSource,SkillModule5Table bleedData)
     {
         this.fusion = fusion;
-        duration = fusion.duration;
-        tickInterval = fusion.tickInterval;
-        burstDamage = 1;
+        duration = bleedData.duration;
+        tickInterval = bleedData.tickInterval;
         poisonData = poisonSource;
+        this.bleedData = bleedData;
+
+
+        var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
+        gemGrade = gemModule != null ? gemModule.GetHighestGrade(poisonData.ID) : 0;
+
+        damage = poisonData.damageValue + poisonData.plusValue * (int)gemGrade;
     }
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
@@ -53,8 +60,8 @@ public class CorrosionEffect : StatusEffectBase
         effect = particle.GetComponent<PoolableParticle>();
 
         base.OnApply(target, buffApplicable);
-        float count = poisonData.duration / poisonData.tickInterval;
-        float totalDamage = burstDamage * count;
+        int count = Mathf.FloorToInt(poisonData.duration / poisonData.tickInterval);
+        float totalDamage = damage * count;
         target.TakeDamage(totalDamage, DamageType.FixedPercentageDamage);
 
         ParticleSystem ps = particle.GetComponent<ParticleSystem>();

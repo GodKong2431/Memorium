@@ -5,13 +5,12 @@ public class EffectController : MonoBehaviour, IBuffApplicable
 {
     public BuffDebuffHandler BuffDebuff { get; protected set; }
     public StatusEffectHandler StatusEffect { get; protected set; }
-
     private void Awake()
     {
         BuffDebuff = new BuffDebuffHandler();
-        var enemy = GetComponent<EnemyStateMachine>();
-        if (enemy != null)
-            StatusEffect = new StatusEffectHandler(this, enemy);
+        var damageble = GetComponent<IDamageable>();
+        if (damageble != null)
+            StatusEffect = new StatusEffectHandler(this, damageble);
     }
 
     private void Update()

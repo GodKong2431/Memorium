@@ -1637,7 +1637,11 @@ public sealed class PixieContentsUIController : UIControllerBase
 
         int level = ownedPixie != null ? Mathf.Max(1, ownedPixie.level) : 1;
         int gradeBonus = ownedPixie != null && ownedPixie.gradeTable != null ? (int)ownedPixie.gradeTable.fairyGrade : 0;
-        return stat.baseValue + (level * stat.lvGrowth) + (gradeBonus * stat.grdGrowth);
+
+        float levelBonus = level * stat.lvGrowth; 
+        if (ownedPixie != null &&ownedPixie.gradeTable != null && ownedPixie.gradeTable.fairyGrade == FairyGrade.Mythic)
+            levelBonus = level * stat.mythicLvGrowth;
+        return stat.baseValue+ levelBonus+ (20 * stat.lvGrowth * gradeBonus)+ (gradeBonus * stat.grdGrowth);
     }
 
     private static string BuildStatLabel(FairyStatTable stat, OwnedPixieData ownedPixie)

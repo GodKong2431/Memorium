@@ -10,7 +10,10 @@ public class PoisonEffect : StatusEffectBase
         tableData = data;
         duration = data.duration;
         tickInterval = data.tickInterval;
-        damage = data.damageValue;
+
+        var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
+        gemGrade = gemModule != null ? gemModule.GetHighestGrade(data.ID) : 0;
+        damage = data.damageValue + data.plusValue * (int)gemGrade;
     }
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)

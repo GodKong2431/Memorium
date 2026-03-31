@@ -124,12 +124,15 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     public void CastSkill(SkillDataContext dataContext, float extraDelay = 0, bool applyAddon = true)
     {
         if (isCasting || isChanneling) return;
+        if (dataContext == null) return;
 
         isCasting = true;
-        skillDataContext = dataContext;
+        if (skillDataContext == null)
+            skillDataContext = new SkillDataContext(dataContext.skillData.skillTable.ID,-1,-1,-1);
+        skillDataContext.CopyFrom(dataContext);
 
-        if (applyAddon)
-            dataContext.ResetAddonState();
+        if (!applyAddon)
+            skillDataContext.ClearAddon();
         if (currentSkillRoutine != null)
             StopCoroutine(currentSkillRoutine);
         if (!isShadow)

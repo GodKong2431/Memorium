@@ -11,9 +11,10 @@ public abstract class SkillObjectileBase : MonoBehaviour, ISkillDetectable
     protected Collider[] cachedTargets = new Collider[SkillConstants.HIT_BUFFER_SIZE];
 
     public Collider[] GetBuffer() => hitBuffer;
+    public SkillDataContext GetSkillDataContext() => dataContext;
+    public Collider[] GetHitBuffer() => hitBuffer;
 
     protected SkillDataContext dataContext;
-    public SkillDataContext GetSkillDataContext() => dataContext;
 
     protected Vector3 debugLastCastPos;
     protected Vector3 debugLastCastDir;
@@ -21,11 +22,12 @@ public abstract class SkillObjectileBase : MonoBehaviour, ISkillDetectable
     public virtual void Initialize(ISkillHitHandler _owner, SkillDataContext dataContext, LayerMask layer)
     {
         owner = _owner;
-        this.dataContext = dataContext;
         targetLayer = layer;
+        if (this.dataContext == null)
+            this.dataContext = new SkillDataContext(dataContext.skillData.skillTable.ID, -1, -1, -1);
+        this.dataContext.CopyFrom(dataContext);
         data = this.dataContext.skillData;
         debugLastCastPos =transform.position;
-
     }
     public Collider[] GetAddonBuffer()
     {

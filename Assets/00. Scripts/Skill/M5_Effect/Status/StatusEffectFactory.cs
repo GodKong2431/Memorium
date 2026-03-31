@@ -39,9 +39,9 @@ public static class StatusEffectFactory
 
         StatusEffectBase effect = fusionID switch
         {
-            4060001 => new IgnitionEffect(fusionData),
-            4060002 => new CorrosionEffect(fusionData, typeA == M5Type.poison ? dataA : dataB),
-            4060003 => new LacerationEffect(fusionData, typeA == M5Type.bleed ? dataA : dataB),
+            4060001 => new IgnitionEffect(fusionData, typeA == M5Type.poison ? dataA : dataB, typeA == M5Type.fire ? dataA : dataB),
+            4060002 => new CorrosionEffect(fusionData, typeA == M5Type.poison ? dataA : dataB, typeA == M5Type.bleed ? dataA : dataB),
+            4060003 => new LacerationEffect(fusionData, typeA == M5Type.bleed ? dataA : dataB, typeA == M5Type.fire ? dataA : dataB),
             _ => null
         };
 

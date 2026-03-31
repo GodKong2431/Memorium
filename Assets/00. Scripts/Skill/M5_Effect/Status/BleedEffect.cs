@@ -16,6 +16,10 @@ public class BleedEffect : StatusEffectBase
         damage = data.damageValue;
         tickInterval = data.tickInterval;
         maxStack = data.maxStack;
+
+        var gemModule = InventoryManager.Instance?.GetModule<GemInventoryModule>();
+        gemGrade = gemModule != null ? gemModule.GetHighestGrade(data.ID) : 0;
+        damage = data.damageValue + data.plusValue * (int)gemGrade;
     }
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
