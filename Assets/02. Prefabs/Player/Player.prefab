@@ -7652,7 +7652,7 @@ NavMeshAgent:
   m_Speed: 15
   m_Acceleration: 120
   avoidancePriority: 50
-  m_AngularSpeed: 120
+  m_AngularSpeed: 1500
   m_StoppingDistance: 1.5
   m_AutoTraverseOffMeshLink: 0
   m_AutoBraking: 1
@@ -7709,17 +7709,13 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
-  projectilePrefab: {fileID: 1604259860813359153, guid: cc27048a1a6486843887c6285dab2d36, type: 3}
-  deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
-  auraPrefab: {fileID: 2459820414868955857, guid: b43ff52641abf8346a852294a7e603d6, type: 3}
-  shadowPrepab: {fileID: 9106158446547060106, guid: ad334d366ce436447a3b287029a8541f, type: 3}
-  fireZonePrefab: {fileID: 3087428585756455590, guid: feaf579888b89024e8d3d07f64cb07ed, type: 3}
   effectPath: Assets/02. Prefabs/SKill/HCFX_Hit_08.prefab
   projectilePath: Assets/02. Prefabs/SKill/Projectile/bullet.prefab
   deployPath: Assets/02. Prefabs/SKill/Deploy/Deploy.prefab
   auraPath: Assets/02. Prefabs/SKill/Aura/Aura.prefab
   shadowPath: Assets/02. Prefabs/SKill/Shadow/Shadow.prefab
   fireZonePath: Assets/02. Prefabs/SKill/FireZone.prefab
+  isShadow: 0
 --- !u!114 &8352981411728179296
 MonoBehaviour:
   m_ObjectHideFlags: 0
