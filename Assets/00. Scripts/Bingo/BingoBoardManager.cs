@@ -115,7 +115,8 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     private bool isInitStarted;
     private bool isSaveCallbacksBound;
     private bool isBoardButtonBound;
-
+    
+    private bool isGachaStart;
 
     public int BingoRange
     {
@@ -510,6 +511,9 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     
     public void BingoGacha(int enumIndex, int id)
     {
+        if (isGachaStart)
+            return;
+        
         if (isSoundOn == false)
             isSoundOn = true;
         RarityType cellRarity = (RarityType)enumIndex;
@@ -553,21 +557,25 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     }
     public IEnumerator GachaStart(RarityType cellRarity)
     {
+        
         BeginBingoGacha();
         try
         {
+            isGachaStart = true;
             eventTriggered = false;
             isAgain = false;
             isPluck = false;
             ParticleSystem selectedBingoEffect = null;
-                 
+            
             var slot = Gacha(cellRarity);
-            SoundManager.Instance.PlayUiSfx(9100067);
             
             // 여기서 가챠 애니메이션을 넣고싶어;
             if (cellRarity != RarityType.mythic)
+            {
+                SoundManager.Instance.PlayUiSfx(9100067);
                 yield return StartCoroutine(PlayGachaBingoSlotAnimation(cellRarity));
-            
+            }
+                
             if (againGacha)
             {
                 // 여기는 선택된 이펙트 계속 유지하는거
@@ -605,6 +613,7 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
             slot.CountUP(1);
             SoundManager.Instance.PlayUiSfx(9100066);
 
+            isGachaStart = false;
             //여기서 저장
             bingoSlotChanged.Invoke();
         }

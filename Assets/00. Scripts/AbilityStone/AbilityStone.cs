@@ -248,7 +248,11 @@ public class AbilityStone
         {
             return false;
         }
+        
         float r = Random.Range(0f,1f);
+        
+        if (slotIndex < 2)
+            r = 0;
         
         if (r < CurrentProbability)
         {

@@ -1119,7 +1119,7 @@ public class BottomPanelController : MonoBehaviour
 
 #region Layout
     // 시트 높이와 연결된 내부 레이아웃 높이를 함께 갱신한다.
-    private void ApplySheetHeight(float height)
+    public void ApplySheetHeight(float height)
     {
         if (sheetRect == null)
             return;
@@ -1159,7 +1159,7 @@ public class BottomPanelController : MonoBehaviour
     }
 
     // 최대 높이는 override, TopPanel, 부모 높이 순으로 결정한다.
-    private float GetMaxSheetHeight()
+    public float GetMaxSheetHeight()
     {
         float maxHeight = 0f;
         if (maxSheetHeightOverride > 0f)
