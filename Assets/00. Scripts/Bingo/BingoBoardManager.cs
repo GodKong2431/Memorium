@@ -896,7 +896,10 @@ public class BingoBoardManager : Singleton<BingoBoardManager>
     public void OnClick(ItemBase bingoItem)
     {
         //여기서 aginItem 등록되면 이펙트를 호출하고 등록이 끝나거나 null이 들어오면 돌려보내(이펙트 효과는 계속 유지 되어야해)
-
+        
+        if(InventoryManager.Instance.GetItemAmount(3420001) <= 0)
+            return;
+        
         ItemBase nextAgainItem = bingoItem == null ? null : (againItem == bingoItem ? null : bingoItem);
 
         if (againItemBoardEnterEffect != null && BingoEffectManager.Instance != null)
