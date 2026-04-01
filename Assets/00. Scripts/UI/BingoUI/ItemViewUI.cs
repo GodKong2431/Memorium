@@ -39,7 +39,6 @@ public class ItemViewUI : MonoBehaviour
         }
         
         itemIcon.sprite = currentItem.itemSprite.sprite;
-        itemCount.text = currentItem.itemCount.ToString();
         itemName.text = DataManager.Instance.ItemInfoDict[currentItem.itemInfoID].itemName;
         itemDesc.text = DataManager.Instance.ItemInfoDict[currentItem.itemInfoID].itemDesc;
     }

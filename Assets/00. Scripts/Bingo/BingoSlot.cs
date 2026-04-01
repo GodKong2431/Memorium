@@ -24,6 +24,8 @@ public class BingoSlot : MonoBehaviour
     
     [SerializeField] private int linkItemId;
     
+    [SerializeField] private TextMeshProUGUI bingoCountText;
+    
     public int Countnum
     {
         get {return _countnum;}
@@ -36,6 +38,13 @@ public class BingoSlot : MonoBehaviour
                 NextLinkItemUP();
                 ResetCount();
             }
+            if (bingoCountText == null)
+                return;
+            
+            if (bingoCountText.gameObject.activeSelf == false)
+                bingoCountText.gameObject.SetActive(true);
+            
+            bingoCountText.text = $"{_countnum}";
         }
     }
     
@@ -49,7 +58,7 @@ public class BingoSlot : MonoBehaviour
     
     [SerializeField] private bool _isUnlock;
     [SerializeField] private Image blackImage;
-        
+    
     public bool isUnlock
     {
         get

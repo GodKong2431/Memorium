@@ -95,7 +95,8 @@ public class SaveBingoData : ISaveData
         List<BingoSlotSaveData> slotSaveDataList = bingoData[bingoIndex].bingoSlotSaveDatas;
         foreach (BingoSlotSaveData slotSaveData in slotSaveDataList)
         {
-            _ctx.Columns[slotSaveData.col].bingoSlotDatas[slotSaveData.row].Countnum = slotSaveData.count;
+            if (slotSaveData.unlockStates)
+                _ctx.Columns[slotSaveData.col].bingoSlotDatas[slotSaveData.row].Countnum = slotSaveData.count;
             _ctx.Columns[slotSaveData.col].bingoSlotDatas[slotSaveData.row].bingoGrade = (RarityType)slotSaveData.rarityEnum;
             _ctx.Columns[slotSaveData.col].bingoSlotDatas[slotSaveData.row].isUnlock = slotSaveData.unlockStates;
         }
