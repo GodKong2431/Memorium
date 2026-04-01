@@ -257,7 +257,7 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
     {
         if (skilldataContexts == null) return false;
         if (skillCaster == null) return false;
-        if (skillCaster.IsCasting()) return false;
+        if (skillCaster.IsCasting()||skillCaster.IsChanneling()) return false;
 
         var enemy = EnemyTarget.GetTarget(transform.position);
         if (enemy == null) return false;
