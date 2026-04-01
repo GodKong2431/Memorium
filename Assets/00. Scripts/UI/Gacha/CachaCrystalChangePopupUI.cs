@@ -162,8 +162,12 @@ public sealed class CachaCrystalChangePopupUI : MonoBehaviour
 
     private static string GetTicketDisplayName(GachaType gachaType)
     {
-        if (TryGetTicketNameFromTable(gachaType, out string ticketName))
-            return ticketName;
+        if (GachaTicketResolver.TryGetTicketTable(gachaType, out GachaTicketTable table) &&
+            table != null &&
+            !string.IsNullOrWhiteSpace(table.ticketName))
+        {
+            return table.ticketName;
+        }
 
         switch (gachaType)
         {
@@ -178,38 +182,4 @@ public sealed class CachaCrystalChangePopupUI : MonoBehaviour
         }
     }
 
-    private static bool TryGetTicketNameFromTable(GachaType gachaType, out string ticketName)
-    {
-        ticketName = string.Empty;
-
-        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.GachaTicketDict == null)
-            return false;
-
-        TicketType ticketType = ConvertToTicketType(gachaType);
-        foreach (KeyValuePair<int, GachaTicketTable> pair in DataManager.Instance.GachaTicketDict)
-        {
-            GachaTicketTable table = pair.Value;
-            if (table == null || table.ticketType != ticketType || string.IsNullOrWhiteSpace(table.ticketName))
-                continue;
-
-            ticketName = table.ticketName;
-            return true;
-        }
-
-        return false;
-    }
-
-    private static TicketType ConvertToTicketType(GachaType gachaType)
-    {
-        switch (gachaType)
-        {
-            case GachaType.Armor:
-                return TicketType.Armor;
-            case GachaType.SkillScroll:
-                return TicketType.SkillScroll;
-            case GachaType.Weapon:
-            default:
-                return TicketType.Weapon;
-        }
-    }
 }

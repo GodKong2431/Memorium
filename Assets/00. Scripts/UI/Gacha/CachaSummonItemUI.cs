@@ -157,8 +157,11 @@ public sealed class CachaSummonItemUI : MonoBehaviour
         if (DataManager.Instance == null || !DataManager.Instance.DataLoad)
             return false;
 
+        if (InventoryManager.Instance == null || !InventoryManager.Instance.DataLoad)
+            return false;
+
         GachaManager manager = GachaManager.Instance;
-        if (manager == null)
+        if (manager == null || !manager.DataLoad)
             return false;
 
         return manager.CanPurchaseAndDraw(gachaType, drawCount);
@@ -201,45 +204,12 @@ public sealed class CachaSummonItemUI : MonoBehaviour
     private GachaLevelState TryGetLevelState()
     {
         GachaManager manager = GachaManager.Instance;
-        return manager != null ? manager.GetLevelState(gachaType) : null;
+        return manager != null && manager.DataLoad ? manager.GetLevelState(gachaType) : null;
     }
 
     private BigDouble GetTicketAmount()
     {
-        if (InventoryManager.Instance == null)
-            return BigDouble.Zero;
-
-        CurrencyInventoryModule currencyModule = InventoryManager.Instance.GetModule<CurrencyInventoryModule>();
-        if (currencyModule == null)
-            return BigDouble.Zero;
-
-        return currencyModule.GetAmount(GetTicketCurrency(gachaType));
-    }
-
-    private static float GetProgress01(GachaLevelState levelState)
-    {
-        if (levelState == null)
-            return 0f;
-
-        if (levelState.IsMaxLevel)
-            return 1f;
-
-        return Mathf.Clamp01((float)levelState.DrawCountInCurrentLevel / GachaConfig.DrawsPerLevel);
-    }
-
-    private static CurrencyType GetTicketCurrency(GachaType targetGachaType)
-    {
-        switch (targetGachaType)
-        {
-            case GachaType.Weapon:
-                return CurrencyType.WeaponDrawTicket;
-            case GachaType.Armor:
-                return CurrencyType.ArmorDrawTicket;
-            case GachaType.SkillScroll:
-                return CurrencyType.SkillScrollDrawTicket;
-            default:
-                return CurrencyType.WeaponDrawTicket;
-        }
+        return GachaTicketResolver.GetOwnedTicketAmount(gachaType);
     }
 
     private void FindIcons()
@@ -292,5 +262,16 @@ public sealed class CachaSummonItemUI : MonoBehaviour
             if (costIcons[i] != null)
                 costIcons[i].sprite = icon;
         }
+    }
+
+    private static float GetProgress01(GachaLevelState levelState)
+    {
+        if (levelState == null)
+            return 0f;
+
+        if (levelState.IsMaxLevel)
+            return 1f;
+
+        return Mathf.Clamp01((float)levelState.DrawCountInCurrentLevel / GachaConfig.DrawsPerLevel);
     }
 }
