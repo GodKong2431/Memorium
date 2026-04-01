@@ -53,6 +53,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     }
 
     private readonly List<RewardManager.DungeonRewardEntry> currentRewardEntries = new List<RewardManager.DungeonRewardEntry>();
+    private const string DungeonSweepRequiresClearMessage = "\uD55C \uBC88 \uC774\uC0C1 \uD074\uB9AC\uC5B4\uD55C \uB358\uC804\uB9CC \uC18C\uD0D5\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.";
 
     [Header("UI")]
     [SerializeField] private Image dungeonBackgroundImage;
@@ -203,6 +204,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         RefreshRewards();
 
         bool canEnterCurrentLevel = CheckDungeon.CanEnter(currentStageType, currentLevel, currentRequiredKeyCount);
+        bool canSweepCurrentLevel = CheckDungeon.CanSweep(currentStageType, currentLevel, currentRequiredKeyCount);
 
         if (beforeButton != null)
             beforeButton.interactable = currentLevel > 1;
@@ -211,7 +213,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             afterButton.interactable = currentLevel < maxUnlockedLevel;
 
         if (sweepButton != null)
-            sweepButton.interactable = canEnterCurrentLevel;
+            sweepButton.interactable = canSweepCurrentLevel;
 
         if (enterButton != null)
             enterButton.interactable = canEnterCurrentLevel;
@@ -248,7 +250,14 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         }
 
         int ticketCost = currentRequiredKeyCount;
-        if (!CheckDungeon.CanEnter(currentStageType, currentLevel, ticketCost))
+        if (!CheckDungeon.HasClearedDungeon(currentStageType, currentLevel))
+        {
+            RefreshState();
+            InstanceMessageManager.TryShow(DungeonSweepRequiresClearMessage);
+            return;
+        }
+
+        if (!CheckDungeon.CanSweep(currentStageType, currentLevel, ticketCost))
         {
             RefreshState();
             InstanceMessageManager.TryShow(InsufficientDungeonTicketMessage);

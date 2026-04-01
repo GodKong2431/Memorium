@@ -399,7 +399,7 @@ public class StageManager : Singleton<StageManager>
         int resolvedLevel = CheckDungeon.ClampLevel(dungeonStageType, dungeonLevel);
         int ticketCost = Mathf.Max(1, requiredKeyCount);
 
-        if (!CheckDungeon.CanEnter(dungeonStageType, resolvedLevel, ticketCost))
+        if (!CheckDungeon.CanSweep(dungeonStageType, resolvedLevel, ticketCost))
             return false;
 
         if (RewardManager.Instance == null)

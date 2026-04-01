@@ -18,4 +18,5 @@ public class BerserkmodeManageTable : TableBase
     public string berserkOrbAnimation;
     public string berserkEffect;
     public string berserkAttackEffect;
+    public string desc;
 }
