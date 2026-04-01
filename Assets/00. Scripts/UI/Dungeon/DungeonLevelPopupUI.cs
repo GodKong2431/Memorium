@@ -6,6 +6,10 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class DungeonLevelPopupUI : MonoBehaviour
 {
+    private const string InsufficientDungeonTicketMessage = "입장권이 부족합니다.";
+    private const string DungeonSweepFailedMessage = "던전 소탕에 실패했습니다.";
+    private const string DungeonEnterFailedMessage = "던전 입장에 실패했습니다.";
+
     private struct RectTransformState
     {
         public Vector2 anchorMin;
@@ -72,6 +76,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     private int maxLevelCount = 1;
     private int currentRequiredKeyCount = 1;
     private RectTransform popupRect;
+    private Image popupBackdropImage;
     private RectTransform originalParent;
     private RectTransform rootCanvasRect;
     private RectTransformState originalRectState;
@@ -103,6 +108,14 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     private void EnsureRuntimeReferences()
     {
         popupRect = transform as RectTransform;
+        if (popupBackdropImage == null)
+            popupBackdropImage = GetComponent<Image>();
+
+        // Keep the visual dim on this root, but let the shared popup backdrop
+        // receive the outside-click close event.
+        if (popupBackdropImage != null && popupBackdropImage.raycastTarget)
+            popupBackdropImage.raycastTarget = false;
+
         if (popupRect != null && originalParent == null)
         {
             originalParent = popupRect.parent as RectTransform;
@@ -122,6 +135,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     {
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnItemAmountChanged += OnItemAmountChanged;
+
         RefreshState();
     }
 
@@ -129,6 +143,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     {
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnItemAmountChanged -= OnItemAmountChanged;
+
         PopupStackService.Dismiss(ref popupHandle);
     }
 
@@ -187,7 +202,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
 
         RefreshRewards();
 
-        bool isLevelUnlocked = CheckDungeon.HasDungeonAccess(currentStageType, currentLevel);
+        bool canEnterCurrentLevel = CheckDungeon.CanEnter(currentStageType, currentLevel, currentRequiredKeyCount);
 
         if (beforeButton != null)
             beforeButton.interactable = currentLevel > 1;
@@ -196,10 +211,10 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             afterButton.interactable = currentLevel < maxUnlockedLevel;
 
         if (sweepButton != null)
-            sweepButton.interactable = isLevelUnlocked;
+            sweepButton.interactable = canEnterCurrentLevel;
 
         if (enterButton != null)
-            enterButton.interactable = CheckDungeon.CanEnter(currentStageType, currentLevel, currentRequiredKeyCount);
+            enterButton.interactable = canEnterCurrentLevel;
     }
 
     private void OnClickBefore()
@@ -222,8 +237,37 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
 
     private void OnClickSweep()
     {
-        // TODO: 스윕버튼 연결
-        Debug.LogWarning("[DungeonLevelPopupUI] 스윕 눌렀음");
+        if (currentStageType == StageType.None)
+            return;
+
+        if (StageManager.Instance != null && StageManager.Instance.IsDungeonInProgress)
+        {
+            InstanceMessageManager.TryShowDungeonInProgress();
+            RefreshState();
+            return;
+        }
+
+        int ticketCost = currentRequiredKeyCount;
+        if (!CheckDungeon.CanEnter(currentStageType, currentLevel, ticketCost))
+        {
+            RefreshState();
+            InstanceMessageManager.TryShow(InsufficientDungeonTicketMessage);
+            return;
+        }
+
+        if (StageManager.Instance == null ||
+            !StageManager.Instance.TrySweepDungeon(currentStageType, currentLevel, ticketCost))
+        {
+            RefreshState();
+            InstanceMessageManager.TryShow(DungeonSweepFailedMessage);
+            return;
+        }
+
+        maxUnlockedLevel = CheckDungeon.GetMaxUnlockedLevel(currentStageType);
+        RefreshState();
+
+        if (!DungeonClearPopupController.TryShowAny(currentStageType, currentLevel))
+            InstanceMessageManager.TryShow("소탕 완료");
     }
 
     private void OnClickEnter()
@@ -241,36 +285,28 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         int ticketCost = currentRequiredKeyCount;
 
         if (IsMaximumUseEnabled())
-        {
-            // TODO: 열쇠 전부 사용 연결
-            Debug.LogWarning("[DungeonLevelPopupUI] 열쇠 전부 사용");
-        }
+            Debug.LogWarning("[DungeonLevelPopupUI] Maximum-use entry is not wired yet.");
 
         if (!CheckDungeon.CanEnter(currentStageType, currentLevel, ticketCost))
         {
             RefreshState();
-            return;
-        }
-
-        if (!CheckDungeon.TryGetDungeonReq(currentStageType, currentLevel, out int dungeonId, out _))
-        {
-            RefreshState();
+            InstanceMessageManager.TryShow(InsufficientDungeonTicketMessage);
             return;
         }
 
         if (!CheckDungeon.TrySpendTicket(currentStageType, currentLevel, ticketCost))
         {
             RefreshState();
+            InstanceMessageManager.TryShow(InsufficientDungeonTicketMessage);
             return;
         }
 
-        if (DungeonManager.Instance != null)
-            DungeonManager.Instance.currentDungeonID = dungeonId;
-
-        StageManager.Instance.SetStageType(currentStageType, currentLevel);
-
-        Hide();
-        SceneController.Instance.LoadScene(SceneType.DungeonScene);
+        if (StageManager.Instance == null ||
+            !StageManager.Instance.TryEnterDungeon(currentStageType, currentLevel))
+        {
+            RefreshState();
+            InstanceMessageManager.TryShow(DungeonEnterFailedMessage);
+        }
     }
 
     private void OnItemAmountChanged(InventoryItemContext item, BigDouble amount)
@@ -286,7 +322,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         if (dungeonBackgroundImage == null)
             return;
 
-        // TODO: 배경 스프라이트 변경
+        // TODO: Apply per-dungeon preview sprite when the assets are ready.
     }
 
     private void RefreshRewards()
@@ -377,7 +413,8 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             ContentRoot = ResolvePopupHitRoot(),
             OverlayParent = popupRect.parent as RectTransform,
             OnRequestClose = Hide,
-            CloseOnOutside = true
+            CloseOnOutside = true,
+            BackdropColor = popupBackdropImage != null ? Color.clear : new Color(0f, 0f, 0f, 0.78431374f)
         });
     }
 

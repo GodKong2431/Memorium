@@ -156,13 +156,19 @@ public sealed class DungeonClearPopupController : MonoBehaviour
     private void HandleExitClicked()
     {
         HidePopup();
-        StageManager.Instance?.CheckDungeonClear();
+
+        if (StageManager.Instance != null && StageManager.Instance.IsDungeonInProgress)
+            StageManager.Instance.CheckDungeonClear();
     }
 
     private void HandleNextLevelClicked(StageType stageType)
     {
         if (activeStageType != stageType)
             activeStageType = stageType;
+
+        StageManager stageManager = StageManager.Instance;
+        if (stageManager == null)
+            return;
 
         int targetLevel = ResolveTargetLevel(stageType, activeStageLevel, out _);
         if (!CheckDungeon.CanEnter(stageType, targetLevel, requiredKeyCount))
@@ -185,8 +191,20 @@ public sealed class DungeonClearPopupController : MonoBehaviour
         if (DungeonManager.Instance != null)
             DungeonManager.Instance.currentDungeonID = dungeonId;
 
+        if (stageManager.IsDungeonInProgress)
+        {
+            HidePopup();
+            stageManager.ContinueDungeonAfterClear(stageType, targetLevel);
+            return;
+        }
+
+        if (!stageManager.TryEnterDungeon(stageType, targetLevel))
+        {
+            UpdateNextButtonState();
+            return;
+        }
+
         HidePopup();
-        StageManager.Instance?.ContinueDungeonAfterClear(stageType, targetLevel);
     }
 
     private void HidePopup()

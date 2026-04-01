@@ -371,6 +371,53 @@ public class StageManager : Singleton<StageManager>
         dungeonClear = true;
     }
 
+    public bool TryEnterDungeon(StageType dungeonStageType, int dungeonLevel)
+    {
+        if (dungeonStageType == StageType.None || dungeonStageType == StageType.NormalStage)
+            return false;
+
+        if (SceneController.Instance == null)
+            return false;
+
+        int resolvedLevel = CheckDungeon.ClampLevel(dungeonStageType, dungeonLevel);
+        if (!CheckDungeon.TryGetDungeonReq(dungeonStageType, resolvedLevel, out int dungeonId, out _))
+            return false;
+
+        if (DungeonManager.Instance != null)
+            DungeonManager.Instance.currentDungeonID = dungeonId;
+
+        SetStageType(dungeonStageType, resolvedLevel);
+        SceneController.Instance.LoadScene(SceneType.DungeonScene);
+        return true;
+    }
+
+    public bool TrySweepDungeon(StageType dungeonStageType, int dungeonLevel, int requiredKeyCount)
+    {
+        if (dungeonStageType == StageType.None || dungeonStageType == StageType.NormalStage)
+            return false;
+
+        int resolvedLevel = CheckDungeon.ClampLevel(dungeonStageType, dungeonLevel);
+        int ticketCost = Mathf.Max(1, requiredKeyCount);
+
+        if (!CheckDungeon.CanEnter(dungeonStageType, resolvedLevel, ticketCost))
+            return false;
+
+        if (RewardManager.Instance == null)
+            return false;
+
+        if (!CheckDungeon.TrySpendTicket(dungeonStageType, resolvedLevel, ticketCost))
+            return false;
+
+        if (!RewardManager.Instance.GrantDungeonClearReward(dungeonStageType, resolvedLevel))
+        {
+            return false;
+        }
+
+        UpdateSweptDungeonProgress(dungeonStageType, resolvedLevel);
+        AutoDataSaveManager.Instance?.SaveData();
+        return true;
+    }
+
     // 스테이지 실패 처리
     public void StageFailed()
     {
@@ -695,5 +742,24 @@ public class StageManager : Singleton<StageManager>
         continueDungeonAfterClear = false;
         continuedDungeonStageType = StageType.None;
         continuedDungeonLevel = 1;
+    }
+
+    private void UpdateSweptDungeonProgress(StageType dungeonStageType, int clearedLevel)
+    {
+        int index = (int)dungeonStageType - (int)StageType.NormalStage;
+        if (index < 0)
+            return;
+
+        if (saveStageData != null)
+            maxStage = saveStageData.GetAllMaxStage();
+
+        if (maxStage == null || index >= maxStage.Count)
+            return;
+
+        if (maxStage[index] >= clearedLevel)
+            return;
+
+        maxStage[index] = clearedLevel;
+        saveStageData?.SetMaxStage(dungeonStageType, clearedLevel);
     }
 }
