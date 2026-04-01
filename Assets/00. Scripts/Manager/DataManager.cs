@@ -106,6 +106,8 @@ public class DataManager : Singleton<DataManager>
     public SerializedDictionary<int, ConfigTable> ConfigDict;
 
     public SerializedDictionary<int, SoundTable> SoundDict;
+
+    public SerializedDictionary<int, OfflineRewardTable> OfflineRewardDict;
     #endregion
 
     public event Action<int, int, string> OnProgress;
