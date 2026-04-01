@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -688,6 +689,9 @@ public sealed partial class StoneUI
                 AbilityStoneSlot slotData = i < stoneData.Slots.Count ? stoneData.Slots[i] : null;
                 slotTexts[i].text = BuildPopupSlotText(slotData, i, stoneData.tier);
                 slotImages[i].sprite = IconManager.GetStatIcon(slotData.SlotType);
+                
+                bool hasIcon = slotImages[i].sprite != null;
+                slotImages[i].enabled = hasIcon;
             }
         }
 
