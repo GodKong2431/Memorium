@@ -278,8 +278,8 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
 
         stateContext.ConsumeMana(skilldataContexts[index].skillData.skillTable.manaCost);
         skillCaster.CastSkill(skilldataContexts[index]);
-        float cooldownReduce = CharacterStatManager.Instance.GetFinalStat(StatType.COOLDOWN_REDUCE);
-        float maxCooldown = Mathf.Max(0f, skilldataContexts[index].skillData.skillTable.skillCooldown * (1f - cooldownReduce * 0.01f));
+        float maxCooldown = CharacterStatManager.ApplyCooldownReductionToSkill(
+            skilldataContexts[index].skillData.skillTable.skillCooldown);
         cooldownTimers[index] = maxCooldown;
         cooldownTimeMax[index] = maxCooldown;
         return true;

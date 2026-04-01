@@ -283,7 +283,10 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
             manaCostText.SetText(FormatValue(table.manaCost));
 
         if (cooldownText != null)
-            cooldownText.SetText($"{FormatValue(table.skillCooldown)}s");
+        {
+            float displayedCooldown = CharacterStatManager.ApplyCooldownReductionToSkill(table.skillCooldown);
+            cooldownText.SetText($"{FormatValue(displayedCooldown)}s");
+        }
 
         if (defaultDescriptionText != null)
             defaultDescriptionText.SetText(GetDescription(table));

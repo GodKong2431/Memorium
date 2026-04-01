@@ -236,6 +236,33 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
         return baseValue;
     }
 
+    public static float ApplyFinalStatModifiers(
+        StatType statType,
+        float baseValue,
+        float abilityStoneMultStat,
+        float abilityStoneBonusStat,
+        float bingoSynergyStat)
+    {
+        float modifiedValue = baseValue * (1f + abilityStoneMultStat);
+
+        if (statType == StatType.COOLDOWN_REDUCE)
+            return (modifiedValue + abilityStoneBonusStat) * (1f + bingoSynergyStat);
+
+        return modifiedValue * (1f + abilityStoneBonusStat) * (1f + bingoSynergyStat);
+    }
+
+    public static float ApplyCooldownReductionToSkill(float baseCooldown)
+    {
+        if (baseCooldown <= 0f)
+            return 0f;
+
+        float cooldownReduce = Instance != null
+            ? Mathf.Clamp01(Instance.GetFinalStat(StatType.COOLDOWN_REDUCE))
+            : 0f;
+
+        return Mathf.Max(0f, baseCooldown * (1f - cooldownReduce));
+    }
+
     public float GetPreviewFinalStat(StatType statType, float additionalTraitValue = 0f)
     {
         if (statType == StatType.None)
@@ -264,9 +291,14 @@ public class CharacterStatManager : Singleton<CharacterStatManager>
             ? BingoBoardManager.Instance.GetSynergyStat(statType)
             : 0f;
 
-        float previewValue =
-            (baseStatValue + upgradeStatValue + levelBonusValue + traitStatValue + additionalTraitValue + equipStatValue + abilityStoneStat) *
-            (1 + abilityStoneBonusStat + bingoSynergyStat + abilityStoneMultStat);
+        float previewBaseValue =
+            baseStatValue + upgradeStatValue + levelBonusValue + traitStatValue + additionalTraitValue + equipStatValue + abilityStoneStat;
+        float previewValue = ApplyFinalStatModifiers(
+            statType,
+            previewBaseValue,
+            abilityStoneMultStat,
+            abilityStoneBonusStat,
+            bingoSynergyStat);
 
         if (isBerserker && BerserkerModeController.Instance != null)
         {

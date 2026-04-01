@@ -41,20 +41,36 @@ public class FinalStat
         // 장비 스탯
         float equipStat = CharacterStatManager.Instance.PlayerSlot.GetStat(playerStatType);
         
-        float abilityStoneStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetStat(playerStatType, 0) : 0f;
+        float abilityStoneStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
+            ? AbilityStoneManager.Instance.GetStat(playerStatType, 0)
+            : 0f;
         
-        float ablityStoneMultStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetStat(playerStatType, 1) : 0f;
+        float ablityStoneMultStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
+            ? AbilityStoneManager.Instance.GetStat(playerStatType, 1)
+            : 0f;
         
-        float ablityStoneBonusStat = AbilityStoneManager.Instance.LoadStone ? AbilityStoneManager.Instance.GetBonusStat(playerStatType) : 0f;
+        float ablityStoneBonusStat = AbilityStoneManager.Instance != null && AbilityStoneManager.Instance.LoadStone
+            ? AbilityStoneManager.Instance.GetBonusStat(playerStatType)
+            : 0f;
         
-        float bingoSynergyStat = BingoBoardManager.Instance.LoadBingo ? BingoBoardManager.Instance.GetSynergyStat(playerStatType) : 0f;
+        float bingoSynergyStat = BingoBoardManager.Instance != null && BingoBoardManager.Instance.LoadBingo
+            ? BingoBoardManager.Instance.GetSynergyStat(playerStatType)
+            : 0f;
         
-        float passiveStat = InventoryManager.Instance.DataLoad ? InventoryManager.Instance.GetModule<PassiveSkillModule>()?.GetPassiveStat(playerStatType) ?? 0f : 0f;
+        float passiveStat = InventoryManager.Instance != null && InventoryManager.Instance.DataLoad
+            ? InventoryManager.Instance.GetModule<PassiveSkillModule>()?.GetPassiveStat(playerStatType) ?? 0f
+            : 0f;
 
 
         //if (playerStatType != StatType.ATK)
         //{
-        var calc = (baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat + passiveStat) * ((1 + ablityStoneBonusStat)*(1+ bingoSynergyStat)*(1+ablityStoneMultStat));
+        float baseTotal = baseStatValue + upgradeStatValue + levelBonus + traitValue + equipStat + abilityStoneStat + passiveStat;
+        float calc = CharacterStatManager.ApplyFinalStatModifiers(
+            playerStatType,
+            baseTotal,
+            ablityStoneMultStat,
+            ablityStoneBonusStat,
+            bingoSynergyStat);
         //}
         //else
         //{
