@@ -200,7 +200,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         if (agent == null || !agent.isActiveAndEnabled) return;
 
         //agent.ResetPath();
-        //agent.Warp(transform.position);
+        agent.Warp(transform.position);
     }
 
     /// <summary>
