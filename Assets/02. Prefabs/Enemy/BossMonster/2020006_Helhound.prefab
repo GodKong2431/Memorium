@@ -2120,6 +2120,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStatPresenter
   monsterIdFromDataManager: 2020002
+  _data:
+    monsterID: 
+    monsterName: 
+    monsterType: 
+    monsterHealth: 0
+    monsterAttackpoint: 0
+    monsterAttackspeed: 0
+    monsterSpeed: 0
+    attackRange: 0
+    monsterDefense: 0
 --- !u!195 &-2170637809098698444
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2172,6 +2182,8 @@ MonoBehaviour:
   animator: {fileID: 4828417384829689835}
   animationConfig: {fileID: 0}
   attackEffectPrefab: {fileID: 0}
+  skillAttackEffectPrefab: {fileID: 0}
+  skillAttackEffectOffset: {x: 0, y: 0, z: 0}
   attackEffectScaleMultiplier: 0.2
   chaseTurnSpeed: 6
   attackTurnSpeed: 10
