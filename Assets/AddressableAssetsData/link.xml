@@ -56,7 +56,6 @@
     <type fullname="HS_ParticleCollisionInstance" preserve="all" />
     <type fullname="InfinityPBR.BlendShapesManager" preserve="all" />
     <type fullname="InfinityPBR.BlendShapesPresetManager" preserve="all" />
-    <type fullname="InstanceMessageManager" preserve="all" />
     <type fullname="ItemViewUI" preserve="all" />
     <type fullname="LockItem" preserve="all" />
     <type fullname="MapPosInfo" preserve="all" />
@@ -71,7 +70,6 @@
     <type fullname="OptionGamePanelUI" preserve="all" />
     <type fullname="OptionSoundPanelUI" preserve="all" />
     <type fullname="OverlayPopupPanelUI" preserve="all" />
-    <type fullname="PageController" preserve="all" />
     <type fullname="ParticleEffect.Scripts.GroundSlash" preserve="all" />
     <type fullname="PixieContentsUIController" preserve="all" />
     <type fullname="PixieEffectProvider" preserve="all" />
@@ -88,7 +86,6 @@
     <type fullname="PlayerStatUpgradeUIController" preserve="all" />
     <type fullname="PlayerStatView" preserve="all" />
     <type fullname="PluckItem" preserve="all" />
-    <type fullname="PolygonArsenal.PolygonSoundSpawn" preserve="all" />
     <type fullname="PoolableObject" preserve="all" />
     <type fullname="PoolableParticle" preserve="all" />
     <type fullname="PopupOpenBtn" preserve="all" />
@@ -104,10 +101,8 @@
     <type fullname="SkillCaster" preserve="all" />
     <type fullname="SkillDeploy" preserve="all" />
     <type fullname="SkillInfoPanelUI" preserve="all" />
-    <type fullname="SkillInventoryPanel" preserve="all" />
     <type fullname="SkillProjectile" preserve="all" />
     <type fullname="SkillSlotItem" preserve="all" />
-    <type fullname="SkillTestInjector" preserve="all" />
     <type fullname="StageUIController" preserve="all" />
     <type fullname="StatIconSO" preserve="all" />
     <type fullname="StatUpgradeUIItem" preserve="all" />
@@ -128,11 +123,22 @@
     <type fullname="TraitGroupItemUI" preserve="all" />
     <type fullname="TraitNodeItemUI" preserve="all" />
     <type fullname="UiButtonSoundPlayer" preserve="all" />
+    <type fullname="MonsterGroupTable" preserve="nothing" serialized="true" />
     <type fullname="ActiveSkillUIController/SkillDetailRequestedEvent" preserve="nothing" serialized="true" />
     <type fullname="BigDouble" preserve="nothing" serialized="true" />
     <type fullname="BottomPanelController/TabConfig" preserve="nothing" serialized="true" />
     <type fullname="DungeonClearPopupController/DungeonClearPanelBinding" preserve="nothing" serialized="true" />
     <type fullname="DustData" preserve="nothing" serialized="true" />
+    <type fullname="PlayerStatView/FinalStatUI" preserve="nothing" serialized="true" />
+    <type fullname="PlayerStatView/GaugeUI" preserve="nothing" serialized="true" />
+    <type fullname="PlayerStatView/StatUpgradUI" preserve="nothing" serialized="true" />
+    <type fullname="RarityType" preserve="nothing" serialized="true" />
+    <type fullname="SaveBingoData" preserve="nothing" serialized="true" />
+    <type fullname="StatType" preserve="nothing" serialized="true" />
+    <type fullname="SubMenuController/TabLink" preserve="nothing" serialized="true" />
+    <type fullname="SynergyData" preserve="nothing" serialized="true" />
+    <type fullname="SynergyDirection" preserve="nothing" serialized="true" />
+    <type fullname="SynergyStat" preserve="nothing" serialized="true" />
     <type fullname="EnemyStatData" preserve="nothing" serialized="true" />
     <type fullname="InfinityPBR.BlendShapeGameObject" preserve="nothing" serialized="true" />
     <type fullname="InfinityPBR.BlendShapePreset" preserve="nothing" serialized="true" />
@@ -140,26 +146,6 @@
     <type fullname="InfinityPBR.BlendShapeValue" preserve="nothing" serialized="true" />
     <type fullname="InfinityPBR.Shape" preserve="nothing" serialized="true" />
     <type fullname="MonsterAssetDatabase/Entry" preserve="nothing" serialized="true" />
-    <type fullname="MonsterGroupTable" preserve="nothing" serialized="true" />
-    <type fullname="PageController/SubMenu" preserve="nothing" serialized="true" />
-    <type fullname="PlayerStatView/FinalStatUI" preserve="nothing" serialized="true" />
-    <type fullname="PlayerStatView/GaugeUI" preserve="nothing" serialized="true" />
-    <type fullname="PlayerStatView/StatUpgradUI" preserve="nothing" serialized="true" />
-    <type fullname="RarityType" preserve="nothing" serialized="true" />
-    <type fullname="SaveBingoData" preserve="nothing" serialized="true" />
-    <type fullname="SkillData" preserve="nothing" serialized="true" />
-    <type fullname="SkillDataContext" preserve="nothing" serialized="true" />
-    <type fullname="SkillInfoTable" preserve="nothing" serialized="true" />
-    <type fullname="SkillModule1Table" preserve="nothing" serialized="true" />
-    <type fullname="SkillModule2Table" preserve="nothing" serialized="true" />
-    <type fullname="SkillModule3Table" preserve="nothing" serialized="true" />
-    <type fullname="SkillModule4Table" preserve="nothing" serialized="true" />
-    <type fullname="SkillModule5Table" preserve="nothing" serialized="true" />
-    <type fullname="StatType" preserve="nothing" serialized="true" />
-    <type fullname="SubMenuController/TabLink" preserve="nothing" serialized="true" />
-    <type fullname="SynergyData" preserve="nothing" serialized="true" />
-    <type fullname="SynergyDirection" preserve="nothing" serialized="true" />
-    <type fullname="SynergyStat" preserve="nothing" serialized="true" />
   </assembly>
   <assembly fullname="Unity.Addressables, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" preserve="all">
     <type fullname="UnityEngine.AddressableAssets.Addressables" preserve="all" />
@@ -226,11 +212,11 @@
     <type fullname="UnityEngine.Texture2D" preserve="all" />
     <type fullname="UnityEngine.TrailRenderer" preserve="all" />
     <type fullname="UnityEngine.Transform" preserve="all" />
+    <type fullname="UnityEngine.RenderingLayerMask" preserve="nothing" serialized="true" />
     <type fullname="UnityEngine.Events.ArgumentCache" preserve="nothing" serialized="true" />
     <type fullname="UnityEngine.Events.PersistentCallGroup" preserve="nothing" serialized="true" />
     <type fullname="UnityEngine.Events.PersistentListenerMode" preserve="nothing" serialized="true" />
     <type fullname="UnityEngine.RectOffset" preserve="nothing" serialized="true" />
-    <type fullname="UnityEngine.RenderingLayerMask" preserve="nothing" serialized="true" />
   </assembly>
   <assembly fullname="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
     <type fullname="UnityEngine.ParticleSystem" preserve="all" />

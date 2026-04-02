@@ -53,6 +53,14 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         BindButtons();
     }
 
+    public void ReclaimPopupFocus()
+    {
+        if (!isActiveAndEnabled || currentStageType == StageType.None)
+            return;
+
+        PresentPopup();
+    }
+
     private void Awake()
     {
         EnsureRuntimeReferences();

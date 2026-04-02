@@ -127,6 +127,9 @@ public sealed class PixieContentsUIController : UIControllerBase
     private Vector2 defaultGrowthCostAnchoredPosition;
     private Vector2 defaultGrowthGoldIconAnchoredPosition;
     private Vector2 defaultGrowthGoldIconSize;
+    private Vector2 defaultGrowthGoldIconAnchorMin;
+    private Vector2 defaultGrowthGoldIconAnchorMax;
+    private Vector2 defaultGrowthGoldIconPivot;
 
     protected override void Initialize()
     {
@@ -715,8 +718,6 @@ public sealed class PixieContentsUIController : UIControllerBase
         if (growthFragmentCostIcon != null)
         {
             EnsureGrowthFragmentCostText();
-            if (growthFragmentCostText != null && growthFragmentCostIcon.transform.parent != growthFragmentCostText.transform)
-                growthFragmentCostIcon.rectTransform.SetParent(growthFragmentCostText.transform, false);
             return;
         }
 
@@ -726,23 +727,26 @@ public sealed class PixieContentsUIController : UIControllerBase
         if (existing != null)
         {
             growthFragmentCostIcon = existing.GetComponent<Image>();
-            if (growthFragmentCostText != null && growthFragmentCostIcon != null && growthFragmentCostIcon.transform.parent != growthFragmentCostText.transform)
-                growthFragmentCostIcon.rectTransform.SetParent(growthFragmentCostText.transform, false);
+            if (growthFragmentCostIcon != null)
+            {
+                growthFragmentCostIcon.preserveAspect = true;
+                if (growthFragmentCostText != null && growthFragmentCostIcon.transform.parent != growthFragmentCostText.transform)
+                    growthFragmentCostIcon.rectTransform.SetParent(growthFragmentCostText.transform, false);
+
+                ApplyCostIconLayout(growthFragmentCostIcon, defaultGrowthGoldIconSize);
+            }
             return;
         }
 
         GameObject iconObject = new GameObject(FragmentCostIconObjectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
         RectTransform iconRect = iconObject.GetComponent<RectTransform>();
         iconRect.SetParent(growthFragmentCostText != null ? growthFragmentCostText.transform : growthCostText.transform, false);
-        iconRect.anchorMin = new Vector2(0f, 1f);
-        iconRect.anchorMax = new Vector2(0f, 1f);
-        iconRect.pivot = new Vector2(1f, 0.5f);
-        iconRect.anchoredPosition = defaultGrowthGoldIconAnchoredPosition;
-        iconRect.sizeDelta = defaultGrowthGoldIconSize;
 
         growthFragmentCostIcon = iconObject.GetComponent<Image>();
         growthFragmentCostIcon.raycastTarget = false;
         growthFragmentCostIcon.enabled = false;
+        growthFragmentCostIcon.preserveAspect = true;
+        ApplyCostIconLayout(growthFragmentCostIcon, defaultGrowthGoldIconSize);
     }
 
     private void CacheGrowthCostDefaults()
@@ -759,11 +763,17 @@ public sealed class PixieContentsUIController : UIControllerBase
         if (growthGoldCostIcon != null)
         {
             RectTransform iconRect = growthGoldCostIcon.rectTransform;
+            defaultGrowthGoldIconAnchorMin = iconRect.anchorMin;
+            defaultGrowthGoldIconAnchorMax = iconRect.anchorMax;
+            defaultGrowthGoldIconPivot = iconRect.pivot;
             defaultGrowthGoldIconAnchoredPosition = iconRect.anchoredPosition;
             defaultGrowthGoldIconSize = iconRect.sizeDelta;
         }
         else
         {
+            defaultGrowthGoldIconAnchorMin = new Vector2(0f, 0.5f);
+            defaultGrowthGoldIconAnchorMax = new Vector2(0f, 0.5f);
+            defaultGrowthGoldIconPivot = new Vector2(1f, 0.5f);
             defaultGrowthGoldIconAnchoredPosition = new Vector2(-20f, 0f);
             defaultGrowthGoldIconSize = new Vector2(50f, 50f);
         }
@@ -839,15 +849,13 @@ public sealed class PixieContentsUIController : UIControllerBase
         if (growthGoldCostIcon != null)
         {
             growthGoldCostIcon.enabled = false;
-            growthGoldCostIcon.rectTransform.anchoredPosition = defaultGrowthGoldIconAnchoredPosition;
-            growthGoldCostIcon.rectTransform.sizeDelta = defaultGrowthGoldIconSize;
+            ApplyCostIconLayout(growthGoldCostIcon, defaultGrowthGoldIconSize);
         }
 
         if (growthFragmentCostIcon != null)
         {
             growthFragmentCostIcon.enabled = false;
-            growthFragmentCostIcon.rectTransform.anchoredPosition = defaultGrowthGoldIconAnchoredPosition;
-            growthFragmentCostIcon.rectTransform.sizeDelta = defaultGrowthGoldIconSize;
+            ApplyCostIconLayout(growthFragmentCostIcon, defaultGrowthGoldIconSize);
         }
 
         if (!hasCost)
@@ -860,9 +868,18 @@ public sealed class PixieContentsUIController : UIControllerBase
             !ownedPixie.CanEvolve() &&
             !ownedPixie.IsMaxLevel());
 
+        Transform fragmentIconParent = ResolveFragmentIconParent(showFragmentCost, ownedPixie, isGrowthCost);
+        if (growthFragmentCostIcon != null &&
+            fragmentIconParent != null &&
+            growthFragmentCostIcon.transform.parent != fragmentIconParent)
+        {
+            growthFragmentCostIcon.rectTransform.SetParent(fragmentIconParent, false);
+            ApplyCostIconLayout(growthFragmentCostIcon, defaultGrowthGoldIconSize);
+        }
+
         if (showFragmentCost && fairyInfo != null && growthFragmentCostIcon != null)
         {
-            growthFragmentCostIcon.sprite = LoadItemIcon(fairyInfo.fragmentItemID);
+            growthFragmentCostIcon.sprite = LoadItemIcon(ResolveFragmentItemId(fairyInfo));
             growthFragmentCostIcon.enabled = growthFragmentCostIcon.sprite != null;
         }
 
@@ -886,8 +903,7 @@ public sealed class PixieContentsUIController : UIControllerBase
             if (growthGoldCostIcon != null)
             {
                 growthGoldCostIcon.enabled = true;
-                growthGoldCostIcon.rectTransform.anchoredPosition = defaultGrowthGoldIconAnchoredPosition;
-                growthGoldCostIcon.rectTransform.sizeDelta = MultiLineCostIconSize;
+                ApplyCostIconLayout(growthGoldCostIcon, MultiLineCostIconSize);
             }
 
             if (growthFragmentCostText != null)
@@ -903,8 +919,7 @@ public sealed class PixieContentsUIController : UIControllerBase
             if (growthFragmentCostIcon != null && growthFragmentCostText != null)
             {
                 growthFragmentCostIcon.enabled = growthFragmentCostIcon.sprite != null;
-                growthFragmentCostIcon.rectTransform.anchoredPosition = defaultGrowthGoldIconAnchoredPosition;
-                growthFragmentCostIcon.rectTransform.sizeDelta = MultiLineCostIconSize;
+                ApplyCostIconLayout(growthFragmentCostIcon, MultiLineCostIconSize);
             }
 
             return;
@@ -919,6 +934,36 @@ public sealed class PixieContentsUIController : UIControllerBase
 
         if (growthGoldCostIcon != null)
             growthGoldCostIcon.enabled = true;
+    }
+
+    private Transform ResolveFragmentIconParent(bool showFragmentCost, OwnedPixieData ownedPixie, bool isGrowthCost)
+    {
+        bool useSeparateFragmentLine = showFragmentCost &&
+            ownedPixie != null &&
+            ownedPixie.gradeTable != null &&
+            ownedPixie.gradeTable.fairyGrade == FairyGrade.Mythic &&
+            isGrowthCost &&
+            !ownedPixie.CanEvolve() &&
+            !ownedPixie.IsMaxLevel() &&
+            growthFragmentCostText != null;
+
+        if (useSeparateFragmentLine)
+            return growthFragmentCostText.transform;
+
+        return growthCostText != null ? growthCostText.transform : null;
+    }
+
+    private void ApplyCostIconLayout(Image icon, Vector2 size)
+    {
+        if (icon == null)
+            return;
+
+        RectTransform iconRect = icon.rectTransform;
+        iconRect.anchorMin = defaultGrowthGoldIconAnchorMin;
+        iconRect.anchorMax = defaultGrowthGoldIconAnchorMax;
+        iconRect.pivot = defaultGrowthGoldIconPivot;
+        iconRect.anchoredPosition = defaultGrowthGoldIconAnchoredPosition;
+        iconRect.sizeDelta = size;
     }
 
     private Sprite LoadItemIcon(int itemId)
@@ -963,6 +1008,28 @@ public sealed class PixieContentsUIController : UIControllerBase
 
         itemIconByItemId[itemId] = sprite;
         return sprite;
+    }
+
+    private int ResolveFragmentItemId(FairyInfoTable fairyInfo)
+    {
+        if (fairyInfo == null)
+            return 0;
+
+        if (fairyInfo.fragmentItemID != 0)
+            return fairyInfo.fragmentItemID;
+
+        if (DataManager.Instance?.FairyInfoDict == null)
+            return 0;
+
+        int rootPixieId = ResolveRootPixieId(fairyInfo.ID);
+        if (rootPixieId != 0 &&
+            DataManager.Instance.FairyInfoDict.TryGetValue(rootPixieId, out FairyInfoTable rootFairyInfo) &&
+            rootFairyInfo != null)
+        {
+            return rootFairyInfo.fragmentItemID;
+        }
+
+        return 0;
     }
 
     private void ApplyPixieType(FairyInfoTable fairyInfo)

@@ -251,7 +251,7 @@ public static class PopupStackService
             return null;
 
         if (backdropRoot.parent != parent)
-            backdropRoot.SetParent(parent, false);
+            TrySetParent(backdropRoot, parent);
 
         sharedBackdrop.gameObject.layer = parent.gameObject.layer;
         StretchToParent(backdropRoot);
@@ -263,7 +263,7 @@ public static class PopupStackService
         if (entry == null || entry.PopupRoot == null)
             return;
 
-        entry.PopupRoot.SetAsLastSibling();
+        TrySetAsLastSibling(entry.PopupRoot);
 
         if (backdropRoot == null)
             return;
@@ -271,11 +271,11 @@ public static class PopupStackService
         if (backdropRoot.parent == entry.PopupRoot.parent)
         {
             int popupSiblingIndex = entry.PopupRoot.GetSiblingIndex();
-            backdropRoot.SetSiblingIndex(Mathf.Max(0, popupSiblingIndex - 1));
+            TrySetSiblingIndex(backdropRoot, Mathf.Max(0, popupSiblingIndex - 1));
             return;
         }
 
-        backdropRoot.SetAsLastSibling();
+        TrySetAsLastSibling(backdropRoot);
     }
 
     private static RectTransform ResolveOverlayParent(RectTransform popupRoot, RectTransform requestedParent)
@@ -364,7 +364,7 @@ public static class PopupStackService
         entry.OriginalRectState = RectTransformState.Capture(entry.PopupRoot);
 
         if (entry.OverlayParent != null && entry.PopupRoot.parent != entry.OverlayParent)
-            entry.PopupRoot.SetParent(entry.OverlayParent, false);
+            TrySetParent(entry.PopupRoot, entry.OverlayParent);
 
         if (entry.StretchPopupToOverlayParent)
             StretchToParent(entry.PopupRoot);
@@ -375,8 +375,11 @@ public static class PopupStackService
         if (entry == null || entry.PopupRoot == null || !entry.ReparentToOverlayParent)
             return;
 
+        if (!CanRestorePresentation(entry))
+            return;
+
         if (entry.OriginalParent != null && entry.PopupRoot.parent != entry.OriginalParent)
-            entry.PopupRoot.SetParent(entry.OriginalParent, false);
+            TrySetParent(entry.PopupRoot, entry.OriginalParent);
 
         entry.OriginalRectState.Apply(entry.PopupRoot);
 
@@ -384,7 +387,7 @@ public static class PopupStackService
             return;
 
         int maxSiblingIndex = Mathf.Max(0, entry.OriginalParent.childCount - 1);
-        entry.PopupRoot.SetSiblingIndex(Mathf.Clamp(entry.OriginalSiblingIndex, 0, maxSiblingIndex));
+        TrySetSiblingIndex(entry.PopupRoot, Mathf.Clamp(entry.OriginalSiblingIndex, 0, maxSiblingIndex));
     }
 
     private static void StretchToParent(RectTransform target)
@@ -399,5 +402,65 @@ public static class PopupStackService
         target.anchoredPosition = Vector2.zero;
         target.localScale = Vector3.one;
         target.localRotation = Quaternion.identity;
+    }
+
+    private static bool CanRestorePresentation(Entry entry)
+    {
+        if (entry == null || entry.PopupRoot == null)
+            return false;
+
+        if (!Application.isPlaying)
+            return true;
+
+        GameObject popupObject = entry.PopupRoot.gameObject;
+        return popupObject != null && popupObject.activeInHierarchy;
+    }
+
+    private static bool TrySetParent(RectTransform target, RectTransform parent)
+    {
+        if (target == null || parent == null)
+            return false;
+
+        try
+        {
+            target.SetParent(parent, false);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private static bool TrySetSiblingIndex(RectTransform target, int siblingIndex)
+    {
+        if (target == null)
+            return false;
+
+        try
+        {
+            target.SetSiblingIndex(siblingIndex);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private static bool TrySetAsLastSibling(RectTransform target)
+    {
+        if (target == null)
+            return false;
+
+        try
+        {
+            target.SetAsLastSibling();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

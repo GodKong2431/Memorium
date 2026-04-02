@@ -153,6 +153,7 @@ public sealed class DungeonClearPopupController : MonoBehaviour
     private void HandleExitClicked()
     {
         HidePopup();
+        RestoreDungeonLevelPopupFocus();
 
         if (StageManager.Instance != null && StageManager.Instance.IsDungeonInProgress)
             StageManager.Instance.CheckDungeonClear();
@@ -375,6 +376,23 @@ public sealed class DungeonClearPopupController : MonoBehaviour
             return;
 
         UpdateNextButtonState();
+    }
+
+    private static void RestoreDungeonLevelPopupFocus()
+    {
+        DungeonLevelPopupUI[] popups = UnityEngine.Object.FindObjectsByType<DungeonLevelPopupUI>(
+            FindObjectsInactive.Exclude,
+            FindObjectsSortMode.None);
+
+        for (int i = 0; i < popups.Length; i++)
+        {
+            DungeonLevelPopupUI popup = popups[i];
+            if (popup == null || !popup.isActiveAndEnabled)
+                continue;
+
+            popup.ReclaimPopupFocus();
+            return;
+        }
     }
 
 }
