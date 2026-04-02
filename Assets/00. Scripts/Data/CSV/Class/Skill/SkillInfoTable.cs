@@ -20,4 +20,5 @@ public class SkillInfoTable : TableBase
     public int skillSound;
     public string skillIcon;
     public string desc;
+    public int skillUseCount;
 }
