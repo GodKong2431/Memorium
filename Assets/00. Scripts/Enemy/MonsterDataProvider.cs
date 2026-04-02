@@ -55,9 +55,9 @@ public static class MonsterDataProvider
 
         if (IsBoss(table.ID))
         {
-            plusMonsterHpByStage *= 5;
-            plusMonsterAttackByStage *= 5;
-            plusMonsterAttackSpeedByStage *= 5;
+            plusMonsterHpByStage *= 100;
+            plusMonsterAttackByStage *= 2;
+            plusMonsterAttackSpeedByStage *= 1;
         }
         return new EnemyStatData
         {
