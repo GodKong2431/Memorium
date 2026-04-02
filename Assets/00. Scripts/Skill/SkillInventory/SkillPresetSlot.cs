@@ -27,7 +27,6 @@ public class SkillPresetSlot
     {
         get { return skillID <= 0; }
     }
-
     public void Normalize()
     {
         EnsureGemSlots();
@@ -51,10 +50,7 @@ public class SkillPresetSlot
     public SkillPresetSlot Clone()
     {
         EnsureGemSlots();
-
-        int[] clonedM5GemIds = new int[m5JemIDs.Length];
-        Array.Copy(m5JemIDs, clonedM5GemIds, m5JemIDs.Length);
-        return new SkillPresetSlot(skillID, clonedM5GemIds, m4JemID);
+        return new SkillPresetSlot(skillID, (int[])m5JemIDs.Clone(), m4JemID);
     }
 
     public void Clear()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public sealed class SkillInventoryModule : IInventoryModule
 {
@@ -25,7 +26,7 @@ public sealed class SkillInventoryModule : IInventoryModule
 
     public int CurrentPresetIndex => presetHandler.CurrentPresetIndex; // 현재 선택된 프리셋 인덱스.
 
-
+    private const int DefaultSkillId = 4000001;
     private Dictionary<int, BigDouble> skillUpCostByLevel;
 
     private const int UNLOCK_COST = 3;
@@ -34,7 +35,8 @@ public sealed class SkillInventoryModule : IInventoryModule
     {
         InventoryManager.Instance.saveSkillData = JSONService.Load<SaveSkillData>();
         InventoryManager.Instance.saveSkillData.InitSkillData();
-
+        presetHandler = new SkillPresetHandler(skillDataById, presets);
+        
         List<OwnedSkillData> ownedSkillDatas = InventoryManager.Instance.saveSkillData.LoadSkillData();
         if (ownedSkillDatas.Count > 0)
         {
@@ -47,8 +49,8 @@ public sealed class SkillInventoryModule : IInventoryModule
         }
         for (int i = 0; i < PresetCount; i++)
             presets[i] = NormalizeLoadedPreset(InventoryManager.Instance.saveSkillData.LoadSkillPreset(i));
+        InitDefaultSkill();
 
-        presetHandler = new SkillPresetHandler(skillDataById, presets);
 
         //프리셋 데이터 혹은 프리셋 변경 시 이벤트
         OnPresetChanged += (ctx) => { 
@@ -71,6 +73,25 @@ public sealed class SkillInventoryModule : IInventoryModule
 
         OnInventoryChagedByData += InventoryManager.Instance.saveSkillData.SaveSkillInfoData;
         OnInventoryChanged?.Invoke();
+    }
+    private void InitDefaultSkill()
+    {
+
+        if (!skillDataById.ContainsKey(DefaultSkillId))
+        {
+            skillDataById[DefaultSkillId] = new OwnedSkillData
+            {
+                skillID = DefaultSkillId,
+                level = 1
+            };
+        }
+
+        if (presets[0].slots[0].IsEmpty)
+        {
+            presets[0].slots[0] = new SkillPresetSlot(DefaultSkillId,
+                new int[] { SkillPresetSlot.EmptySkillId, SkillPresetSlot.EmptySkillId },
+                SkillPresetSlot.EmptySkillId);
+        }
     }
 
     #region IInventoryModule
@@ -354,6 +375,15 @@ public sealed class SkillInventoryModule : IInventoryModule
     // 프리셋 슬롯에 스킬을 장착한다.
     public bool SetPresetSlot(int slotIndex, int skillId)
     {
+        int existingSlot = FindSkillSlotIndex(skillId, slotIndex);
+
+        if (existingSlot != -1)
+        {
+            SwapPresetSlots(slotIndex, existingSlot);
+            OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
+            return true;
+        }
+
         if (!presetHandler.SetPresetSlot(slotIndex, skillId))
             return false;
 
@@ -372,6 +402,40 @@ public sealed class SkillInventoryModule : IInventoryModule
         OnPresetChanged?.Invoke(presetHandler.CurrentPresetIndex);
         return true;
     }
+
+        /// <summary>
+        /// 현재 프리셋에서 해당 스킬이 장착된 슬롯 인덱스 반환, 없으면 -1
+        /// </summary>
+        public int FindSkillSlotIndex(int skillId, int excludeSlotIndex = -1)
+        {
+            var preset = presetHandler.GetCurrentPreset();
+            if (preset?.slots == null) return -1;
+
+            for (int i = 0; i < preset.slots.Length; i++)
+            {
+                if (i == excludeSlotIndex) continue;
+                var slot = preset.slots[i];
+                if (slot != null && !slot.IsEmpty && slot.skillID == skillId)
+                    return i;
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// 프리셋 슬롯 장착 위치 교체
+        /// </summary>
+        private void SwapPresetSlots(int slotA, int slotB)
+        {
+        var preset = presetHandler.GetCurrentPreset();
+        if (preset?.slots == null) return;
+
+        SkillPresetSlot cloneA = preset.slots[slotA].Clone();
+        SkillPresetSlot cloneB = preset.slots[slotB].Clone();
+
+        preset.slots[slotA] = cloneB;
+        preset.slots[slotB] = cloneA;
+        }
+
 
     // 프리셋 슬롯을 비운다.
     public void ClearPresetSlot(int slotIndex)
