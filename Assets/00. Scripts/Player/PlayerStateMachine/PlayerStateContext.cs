@@ -80,8 +80,10 @@ public class PlayerStateContext : BaseStateContext
             resistance = StatPresenter?.PlayerStat?.FinalStats[StatType.MAGIC_DEF].finalStat ?? 0f;
 
         resistance = Mathf.Clamp(resistance, 0f, 70f);
-        damage *= (1f - resistance * 0.01f);
+        //Debug.Log($"[PlayerStateContext] 받은 데미지 {damage} 감소량 {resistance}");
+        damage *= (1f - resistance);
 
+        //Debug.Log($"[PlayerStateContext] 받은 데미지 {damage} 감소량 {resistance}");
         CurrentHealth -= damage;
         OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
         if (CurrentHealth <= 0)
