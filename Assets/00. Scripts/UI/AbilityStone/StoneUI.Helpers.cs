@@ -48,7 +48,7 @@ public sealed partial class StoneUI
                 continue;
             }
 
-            slotTexts[i].text = BuildStoneSlotText(slotData, i);
+            slotTexts[i].text = BuildStoneSlotText(slotData, i, stoneData.stoneMult);
             slotTexts[i].color = !unlocked
                 ? disabledTextColor
                 : i == 2
@@ -687,7 +687,8 @@ public sealed partial class StoneUI
             if (slotTexts[i] != null)
             {
                 AbilityStoneSlot slotData = i < stoneData.Slots.Count ? stoneData.Slots[i] : null;
-                slotTexts[i].text = BuildPopupSlotText(slotData, i, stoneData.tier);
+                
+                slotTexts[i].text = BuildPopupSlotText(slotData, i, stoneData.tier, stoneData.stoneMult);
                 slotImages[i].sprite = IconManager.GetStatIcon(slotData.SlotType);
                 
                 bool hasIcon = slotImages[i].sprite != null;
@@ -1262,7 +1263,7 @@ public sealed partial class StoneUI
         return statType.ToString();
     }
 
-    private static string BuildStoneSlotText(AbilityStoneSlot slotData, int slotIndex)
+    private static string BuildStoneSlotText(AbilityStoneSlot slotData, int slotIndex, bool mult)
     {
         if (slotData == null || slotData.SlotType == StatType.None)
         {
@@ -1270,10 +1271,10 @@ public sealed partial class StoneUI
         }
 
         float displayValue = slotIndex == 2 ? -slotData.totalStat : slotData.totalStat;
-        return FormatSignedStatValue(slotData.SlotType, displayValue, false);
+        return FormatSignedStatValue(slotData.SlotType, displayValue, mult);
     }
 
-    private static string BuildPopupSlotText(AbilityStoneSlot slotData, int slotIndex, int tier)
+    private static string BuildPopupSlotText(AbilityStoneSlot slotData, int slotIndex, int tier, bool mult)
     {
         if (slotData == null || slotData.SlotType == StatType.None)
         {
@@ -1281,7 +1282,7 @@ public sealed partial class StoneUI
         }
 
         float displayValue = slotIndex == 2 ? -slotData.increaseStat : slotData.increaseStat;
-        return $"{GetStatName(slotData.SlotType, tier)} {FormatSignedStatValue(slotData.SlotType, displayValue, false)}";
+        return $"{GetStatName(slotData.SlotType, tier)} {FormatSignedStatValue(slotData.SlotType, displayValue, mult)}";
     }
 
     private static string BuildSlotStateText(AbilityStone stoneData, int slotIndex, bool stoneUnlocked, bool canAffordUpgrade)
