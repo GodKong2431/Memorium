@@ -8,7 +8,6 @@ using UnityEngine.AI;
 public class EnemyStateSpawn : IEnemyState
 {
     private const float SpawnDuration = 2f;
-    private float _endTime;
 
     [Header("Spawn 동안 NavMeshAgent 정지 여부")]
     [Tooltip("기본 false: 스폰 중에도 agent가 멈춰있는 상태가 남지 않게 처리")]
@@ -30,7 +29,7 @@ public class EnemyStateSpawn : IEnemyState
         if (ctx.IsBoss && ctx.BossSpawnSoundId > 0 && SoundManager.Instance != null && ctx.EnemyTransform != null)
             SoundManager.Instance.PlayCombatSfxAt(ctx.BossSpawnSoundId, ctx.EnemyTransform.position);
 
-        _endTime = Time.time + SpawnDuration;
+        ctx.Instance.SpawnEndTime = Time.time + SpawnDuration;
     }
 
     public void OnUpdate(EnemyStateContext ctx)
@@ -41,7 +40,7 @@ public class EnemyStateSpawn : IEnemyState
             return;
         }
 
-        if (Time.time >= _endTime)
+        if (Time.time >= ctx.Instance.SpawnEndTime)
             ctx.RequestState(EnemyStateType.Chase);
     }
 

@@ -5,6 +5,7 @@ public class PoolableParticle : MonoBehaviour, IPoolableRespawnable
 {
     private ParticleSystem particle;
     private Transform followTarget;
+    private Vector3 followLocalOffset;
     private bool isFollowing;
     private bool autoReturnToPool;
 
@@ -19,20 +20,22 @@ public class PoolableParticle : MonoBehaviour, IPoolableRespawnable
     private void LateUpdate()
     {
         if (!isFollowing || followTarget == null) return;
-        transform.position = followTarget.position;
+        transform.position = followTarget.TransformPoint(followLocalOffset);
     }
     public void OnSpawnFromPool()
     {
         followTarget = null;
+        followLocalOffset = Vector3.zero;
         isFollowing = false;
         autoReturnToPool = true;
 
         particle.Clear();
         particle.Play();
     }
-    public void SetFollow(Transform target)
+    public void SetFollow(Transform target, Vector3 localOffset = default)
     {
         followTarget = target;
+        followLocalOffset = localOffset;
         isFollowing = target != null;
     }
     public void SetAutoReturn(bool autoReturn)
@@ -42,6 +45,7 @@ public class PoolableParticle : MonoBehaviour, IPoolableRespawnable
     private void OnParticleSystemStopped()
     {
         followTarget = null;
+        followLocalOffset = Vector3.zero;
         isFollowing = false; 
         if (autoReturnToPool)
         {

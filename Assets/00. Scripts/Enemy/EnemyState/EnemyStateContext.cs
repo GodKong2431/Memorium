@@ -8,6 +8,9 @@ using UnityEngine.AI;
 /// </summary>
 public class EnemyStateContext
 {
+    /// <summary>몬스터별 런타임 상태(IEnemyState는 공유 인스턴스).</summary>
+    public EnemyInstanceState Instance { get; } = new EnemyInstanceState();
+
     public Transform EnemyTransform { get; set; }
     public Transform PlayerTransform { get; set; }
     public NavMeshAgent Agent { get; set; }
@@ -71,6 +74,8 @@ public class EnemyStateContext
     /// </summary>
     public GameObject AttackEffectPrefab { get; set; }
     public GameObject SkillAttackEffectPrefab { get; set; }
+    /// <summary>보스 스킬 이펙트(DB 프리팹·BossManageTable 파티클) 부모. ResolveAssets와 동일 DB에서 채움.</summary>
+    public BossSkillEffectAttachParent BossSkillEffectAttachParent { get; set; }
     public Vector3 SkillAttackEffectOffset { get; set; }
     public float AttackEffectScaleMultiplier { get; set; } = 1f;
     public float ChaseTurnSpeed { get; set; } = 6f;

@@ -12,9 +12,12 @@ public struct ParticleSpawnContext
     public Quaternion rotation;
     public Action<PoolableParticle> onSpawned;
     public Vector3 targetPosition;
+    /// <summary>follow == true일 때 target 로컬 공간 오프셋(<see cref="Transform.TransformPoint"/>).</summary>
+    public Vector3 followLocalOffset;
 
     public ParticleSpawnContext(string key, Transform target = null, bool follow = false, bool autoReturn = true,
-                                float scale = 1f, Quaternion? rotation = null, Action<PoolableParticle> onSpawned = null, Vector3? targetPosition = null)
+                                float scale = 1f, Quaternion? rotation = null, Action<PoolableParticle> onSpawned = null, Vector3? targetPosition = null,
+                                Vector3 followLocalOffset = default)
     {
         this.key = key;
         this.target = target;
@@ -23,7 +26,8 @@ public struct ParticleSpawnContext
         this.scale = scale;
         this.rotation = rotation ?? Quaternion.identity;
         this.onSpawned = onSpawned;
-        this.targetPosition = targetPosition ?? Vector3.zero; 
+        this.targetPosition = targetPosition ?? Vector3.zero;
+        this.followLocalOffset = followLocalOffset;
     }
 }
 
@@ -41,7 +45,9 @@ public class PoolableParticleManager : Singleton<PoolableParticleManager>
     {
         if (!IsValidKey(ctx.key)) return;
 
-        var pos = ctx.target != null ? ctx.target.position : ctx.targetPosition;
+        var pos = ctx.target != null
+            ? (ctx.follow ? ctx.target.TransformPoint(ctx.followLocalOffset) : ctx.target.position)
+            : ctx.targetPosition;
         var obj = PoolAddressableManager.Instance.GetPooledObject(ctx.key, pos, ctx.rotation);// 프리로드해서 매니저에 이미 있었을경우
 
         if (obj != null)
@@ -58,7 +64,9 @@ public class PoolableParticleManager : Singleton<PoolableParticleManager>
     {
         if (!IsValidKey(ctx.key)) return null;
 
-        var pos = ctx.target != null ? ctx.target.position : ctx.targetPosition;
+        var pos = ctx.target != null
+            ? (ctx.follow ? ctx.target.TransformPoint(ctx.followLocalOffset) : ctx.target.position)
+            : ctx.targetPosition;
         GameObject obj = PoolAddressableManager.Instance.GetPooledObject(ctx.key, pos, ctx.rotation);// 프리로드해서 매니저에 이미 있었을경우
 
         if (obj != null)
@@ -83,7 +91,7 @@ public class PoolableParticleManager : Singleton<PoolableParticleManager>
 
         if (obj.TryGetComponent<PoolableParticle>(out var particle))
         {
-            if (ctx.follow && ctx.target != null) particle.SetFollow(ctx.target);
+            if (ctx.follow && ctx.target != null) particle.SetFollow(ctx.target, ctx.followLocalOffset);
             particle.SetAutoReturn(ctx.autoReturn);
             if (ctx.scale != 1f) obj.transform.localScale = Vector3.one * ctx.scale;
             ctx.onSpawned?.Invoke(particle);

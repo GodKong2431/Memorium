@@ -9,7 +9,6 @@ public class EnemyStateChase : IEnemyState
 {
     [SerializeField][Tooltip("추적을 위한 목적지 갱신 주기입니다.")]
     private const float DestinationRefreshInterval = 0.25f;
-    private float _lastDestinationTime = -1f;
 
     public EnemyStateType Type => EnemyStateType.Chase;
 
@@ -20,7 +19,7 @@ public class EnemyStateChase : IEnemyState
             ctx.Agent.isStopped = false;
             ctx.Agent.updateRotation = false;
         }
-        _lastDestinationTime = -DestinationRefreshInterval;
+        ctx.Instance.ChaseLastDestinationTime = -DestinationRefreshInterval;
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Chase);
         // 이동/발소리 효과음 추가 예정 (선택)
     }
@@ -55,9 +54,10 @@ public class EnemyStateChase : IEnemyState
 
             if (agent.isActiveAndEnabled && agent.isOnNavMesh && !agent.isStopped)
             {
-                if (Time.time - _lastDestinationTime >= DestinationRefreshInterval)
+                var st = ctx.Instance;
+                if (Time.time - st.ChaseLastDestinationTime >= DestinationRefreshInterval)
                 {
-                    _lastDestinationTime = Time.time;
+                    st.ChaseLastDestinationTime = Time.time;
                     agent.SetDestination(player.position);
                 }
             }

@@ -8,8 +8,6 @@ using UnityEngine;
 public class EnemyStateDead : IEnemyState
 {
     private const float DestroyDelay = 1.5f;
-    private float _destroyTime;
-    private bool _destroyScheduled;
 
     public EnemyStateType Type => EnemyStateType.Dead;
 
@@ -22,8 +20,9 @@ public class EnemyStateDead : IEnemyState
         if (ctx.DieSoundId > 0 && SoundManager.Instance != null)
             SoundManager.Instance.PlayCombatSfxAt(ctx.DieSoundId, ctx.EnemyTransform.position);
 
-        _destroyTime = Time.time + DestroyDelay;
-        _destroyScheduled = false;
+        var st = ctx.Instance;
+        st.DeadDestroyTime = Time.time + DestroyDelay;
+        st.DeadDestroyScheduled = false;
 
         // 보상: 골드·경험치·아이템 (수식은 EnemyRewardData / EnemyRewardCalculator에서 관리)
         // EnemyStatSetting 대신 StageManager에 설정된 보상 데이터를 사용
@@ -44,10 +43,11 @@ public class EnemyStateDead : IEnemyState
 
     public void OnUpdate(EnemyStateContext ctx)
     {
-        if (_destroyScheduled) return;
-        if (Time.time < _destroyTime) return;
+        var st = ctx.Instance;
+        if (st.DeadDestroyScheduled) return;
+        if (Time.time < st.DeadDestroyTime) return;
 
-        _destroyScheduled = true;
+        st.DeadDestroyScheduled = true;
         GameObject enemyObject = ctx.EnemyTransform.gameObject;
 
         if (ObjectPoolManager.IsPooled(enemyObject))

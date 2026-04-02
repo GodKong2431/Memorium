@@ -7,22 +7,17 @@ using UnityEngine.AI;
 public class EnemyStateOnhit : IEnemyState
 {
     private const float OnhitDuration = 0.4f;
-    private float _endTime;
-
-    private KnockbackInfo knockbackInfo;
-    private float knockbackSpeed;
-    private float elapsedTime;
-    private bool _isKnockbackActive;
     public EnemyStateType Type => EnemyStateType.Onhit;
 
     public void OnEnter(EnemyStateContext ctx)
     {
-        _isKnockbackActive = false;
-        elapsedTime = 0f;
-        knockbackSpeed = 0f;
-        knockbackInfo = default;
+        var st = ctx.Instance;
+        st.OnhitKnockbackActive = false;
+        st.OnhitKnockbackElapsed = 0f;
+        st.OnhitKnockbackSpeed = 0f;
+        st.OnhitKnockbackInfo = default;
 
-        _endTime = Time.time + OnhitDuration;
+        st.OnhitEndTime = Time.time + OnhitDuration;
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Onhit);
         if (ctx.OnHitEffectPrefab != null)
         {
@@ -45,7 +40,8 @@ public class EnemyStateOnhit : IEnemyState
         }
         ProcessKnockback(ctx);
 
-        if (Time.time >= _endTime && (!_isKnockbackActive || elapsedTime >= knockbackInfo.duration))
+        var st = ctx.Instance;
+        if (Time.time >= st.OnhitEndTime && (!st.OnhitKnockbackActive || st.OnhitKnockbackElapsed >= st.OnhitKnockbackInfo.duration))
         {
             ctx.RequestState(EnemyStateType.Chase);
         }
@@ -60,20 +56,21 @@ public class EnemyStateOnhit : IEnemyState
 
     private void InitKnockback(EnemyStateContext ctx)
     {
+        var st = ctx.Instance;
         if (ctx.PendingKnockback.HasValue)
         {
-            _isKnockbackActive = true;
-            knockbackInfo = ctx.PendingKnockback.Value;
+            st.OnhitKnockbackActive = true;
+            st.OnhitKnockbackInfo = ctx.PendingKnockback.Value;
             ctx.PendingKnockback = null;
 
-            knockbackSpeed = knockbackInfo.distance / knockbackInfo.duration;
-            elapsedTime = 0f;
+            st.OnhitKnockbackSpeed = st.OnhitKnockbackInfo.distance / st.OnhitKnockbackInfo.duration;
+            st.OnhitKnockbackElapsed = 0f;
 
 
-            float knockbackEndTime = Time.time + knockbackInfo.duration;
-            if (knockbackEndTime > _endTime)
+            float knockbackEndTime = Time.time + st.OnhitKnockbackInfo.duration;
+            if (knockbackEndTime > st.OnhitEndTime)
             {
-                _endTime = knockbackEndTime;
+                st.OnhitEndTime = knockbackEndTime;
             }
             if (ctx.Agent != null && ctx.Agent.isActiveAndEnabled)
             {
@@ -82,23 +79,24 @@ public class EnemyStateOnhit : IEnemyState
         }
         else
         {
-            _isKnockbackActive = false;
+            st.OnhitKnockbackActive = false;
         }
     }
 
     private void ProcessKnockback(EnemyStateContext ctx)
     {
-        if (!_isKnockbackActive) return;
+        var st = ctx.Instance;
+        if (!st.OnhitKnockbackActive) return;
 
-        if (elapsedTime < knockbackInfo.duration)
+        if (st.OnhitKnockbackElapsed < st.OnhitKnockbackInfo.duration)
         {
-            elapsedTime += Time.deltaTime;
+            st.OnhitKnockbackElapsed += Time.deltaTime;
 
-            Vector3 direction = knockbackInfo.direction;
+            Vector3 direction = st.OnhitKnockbackInfo.direction;
             direction.y = 0f;
             direction = direction.normalized;
 
-            float step = knockbackSpeed * Time.deltaTime;
+            float step = st.OnhitKnockbackSpeed * Time.deltaTime;
             Vector3 nextPos = ctx.EnemyTransform.position + direction * step;
 
             if (NavMesh.SamplePosition(nextPos, out var hit, 2.0f, NavMesh.AllAreas))
@@ -114,8 +112,9 @@ public class EnemyStateOnhit : IEnemyState
     private void ExitKnockback(EnemyStateContext ctx)
     {
 
-        if (!_isKnockbackActive) return;
-        _isKnockbackActive = false;
+        var st = ctx.Instance;
+        if (!st.OnhitKnockbackActive) return;
+        st.OnhitKnockbackActive = false;
 
         if (ctx.Agent ==null) return;
 

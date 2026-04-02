@@ -27,8 +27,27 @@ public class BossSkillVfxSMB : StateMachineBehaviour
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (!TryResolve(animator, out var root, out var nameOrPath)) return;
+        // 사망·강제 전환 등으로 EnemyStateType이 Attack이 아닐 때도 반드시 끈다.
+        // (기존 TryResolve는 requireEnemyAttackState 때문에 Dead 등에서 false → VFX가 켜진 채 풀링됨)
+        if (!TryResolveForForcedHide(animator, out var root, out var nameOrPath)) return;
         BossEmbeddedVfxUtility.SetActiveUnderBoss(root, nameOrPath, false);
+    }
+
+    /// <summary>현재 공격/보스 스킬 종류와 관계없이 대상 오브젝트만 찾는다. Off 전용.</summary>
+    bool TryResolveForForcedHide(Animator animator, out Transform bossRoot, out string nameOrPath)
+    {
+        bossRoot = null;
+        nameOrPath = null;
+
+        var fsm = animator.GetComponent<EnemyStateMachine>();
+        if (fsm == null)
+            fsm = animator.GetComponentInParent<EnemyStateMachine>();
+        if (fsm == null)
+            return false;
+
+        bossRoot = fsm.transform;
+        nameOrPath = embeddedVfxObjectName;
+        return !string.IsNullOrWhiteSpace(nameOrPath);
     }
 
     bool TryResolve(Animator animator, out Transform bossRoot, out string nameOrPath)

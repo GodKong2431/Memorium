@@ -12,7 +12,7 @@ using static UnityEngine.GraphicsBuffer;
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyStatPresenter))]
 [RequireComponent(typeof(EffectController))]
-public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageable,IKnockbackable
+public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableReturnable, IDamageable,IKnockbackable
 {
     [Header("보스 피격 모션 제어")]
     [SerializeField, Tooltip("활성화 시 보스는 Attack/Spawn 상태에서 피격(Onhit)으로 끊기지 않습니다.")]
@@ -80,6 +80,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     private IEnemyState _current;
     private EnemyStateType _currentType;
     private float _nextBossOnhitAllowedTime;
+    private BossSkillEffectAttachParent _bossSkillEffectAttachParent = BossSkillEffectAttachParent.Player;
 
     public EnemyStateContext Context => _ctx;
     public EnemyStateType CurrentStateType => _currentType;
@@ -117,6 +118,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             IsBoss = statPresenter != null && statPresenter.IsBoss,
             AttackEffectPrefab = attackEffectPrefab,
             SkillAttackEffectPrefab = skillAttackEffectPrefab,
+            BossSkillEffectAttachParent = _bossSkillEffectAttachParent,
             SkillAttackEffectOffset = skillAttackEffectOffset,
             AttackEffectScaleMultiplier = attackEffectScaleMultiplier,
             ChaseTurnSpeed = chaseTurnSpeed,
@@ -154,6 +156,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     /// </summary>
     private void ResolveAssets(EnemyStatPresenter statPresenter)
     {
+        _bossSkillEffectAttachParent = BossSkillEffectAttachParent.Player;
         if (animator == null)
             animator = GetComponent<Animator>() ?? GetComponentInChildren<Animator>();
 
@@ -163,6 +166,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             var entry = db.GetEntry(statPresenter.monsterIdFromDataManager);
             if (entry != null)
             {
+                _bossSkillEffectAttachParent = entry.bossSkillEffectAttachParent;
                 if (animationConfig == null && entry.animationConfig != null)
                     animationConfig = entry.animationConfig;
 
@@ -396,6 +400,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
     /// </summary>
     public void OnSpawnFromPool()
     {
+        _ctx.Instance.Reset();
         _ctx.SpawnPosition = transform.position;
         _ctx.Initialize();
         RefreshPlayerTransform();
@@ -424,6 +429,57 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IDamageabl
             ChangeState(EnemyStateType.Spawn);
         else
             ChangeState(EnemyStateType.Chase);
+    }
+
+    /// <summary>
+    /// 풀 반환 직전 호출. 애니메이터·파티클·버프·붙은 이펙트 정리.
+    /// </summary>
+    public void OnReturnToPool()
+    {
+        if (_current != null)
+            _current.OnExit(_ctx);
+
+        _current = null;
+        _currentType = EnemyStateType.Dead;
+
+        _isKnockbackActive = false;
+        _knockbackElapsedTime = 0f;
+        _knockbackSpeed = 0f;
+        _knockbackInfo = default;
+        if (_ctx?.Animator != null)
+            _ctx.Animator.applyRootMotion = _wasRootMotionEnabled;
+        if (_rb != null)
+            _rb.isKinematic = _wasKinematic;
+        if (_ctx?.Agent != null && !_ctx.Agent.enabled)
+            _ctx.Agent.enabled = true;
+
+        if (_ctx?.Animator != null)
+        {
+            _ctx.Animator.Rebind();
+            _ctx.Animator.Update(0f);
+        }
+
+        StopAndClearChildParticles(transform);
+        _ctx?.EnemyEffectController?.ClearAll();
+
+        if (_ctx?.Instance?.CurrentAttackEffect != null)
+        {
+            Destroy(_ctx.Instance.CurrentAttackEffect);
+            _ctx.Instance.CurrentAttackEffect = null;
+        }
+
+        _ctx?.Instance?.Reset();
+    }
+
+    private static void StopAndClearChildParticles(Transform root)
+    {
+        if (root == null) return;
+        var systems = root.GetComponentsInChildren<ParticleSystem>(true);
+        for (int i = 0; i < systems.Length; i++)
+        {
+            systems[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            systems[i].Clear(true);
+        }
     }
 
     /// <summary>

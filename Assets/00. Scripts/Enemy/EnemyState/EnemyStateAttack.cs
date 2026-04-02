@@ -14,12 +14,6 @@ public class EnemyStateAttack : IEnemyState
     private const string BossSkill2SubStateTrigger = "Animation_Boss_Attack_Skill2";
     private const float SkillAttackEffectLifeTime = 1.5f;
 
-    private float _attackEndTime;
-    private bool _attackInProgress;
-    private GameObject _currentAttackEffect;
-    private bool _isSkillAttack;
-    private bool _damageApplied;
-    private BossManageTable _currentBossAttack;
     public EnemyStateType Type => EnemyStateType.Attack;
 
     public void OnEnter(EnemyStateContext ctx)
@@ -32,18 +26,18 @@ public class EnemyStateAttack : IEnemyState
             ctx.Agent.updateRotation = false;
         }
 
-        _isSkillAttack = ctx.IsSkillAttackType;
+        var st = ctx.Instance;
+        st.IsSkillAttack = ctx.IsSkillAttackType;
 
         // 일반 몬스터(근접/원거리 포함)
-        if (!_isSkillAttack)
+        if (!st.IsSkillAttack)
         {
-            _damageApplied = false;
+            st.DamageApplied = false;
 
-            float attackSpeed = ctx.AttackSpeed;
-            // float delay = attackSpeed > 0f ? 1f / attackSpeed : 0.5f;
+            // float delay = ctx.AttackSpeed > 0f ? 1f / ctx.AttackSpeed : 0.5f;
             float delay = 0.5f;
-            _attackEndTime = Time.time + delay;
-            _attackInProgress = true;
+            st.AttackEndTime = Time.time + delay;
+            st.AttackInProgress = true;
 
             bool skillTypeMonster = ctx.StatPresenter != null && ctx.StatPresenter.IsSkillAttackMonster;
             if (skillTypeMonster)
@@ -67,31 +61,31 @@ public class EnemyStateAttack : IEnemyState
             return;
         }
 
-        _currentBossAttack = ctx.BossAttackManager.SelectNextAttack();
-        if (_currentBossAttack == null)
+        st.CurrentBossAttack = ctx.BossAttackManager.SelectNextAttack();
+        if (st.CurrentBossAttack == null)
         {
             Debug.LogWarning("[EnemyStateAttack] Boss 공격 선택 실패(bossAttack == null) → Chase로 복귀");
             ctx.RequestState(EnemyStateType.Chase);
             return;
         }
 
-        _damageApplied = false;
-        _attackInProgress = true;
-        _attackEndTime = Time.time + _currentBossAttack.castingDelay + _currentBossAttack.castingTime;
+        st.DamageApplied = false;
+        st.AttackInProgress = true;
+        st.AttackEndTime = Time.time + st.CurrentBossAttack.castingDelay + st.CurrentBossAttack.castingTime;
         // Debug.Log($"[EnemyStateAttack] 보스 공격 시작 - enemy={ctx.EnemyTransform.name}, attackId={_currentBossAttack.ID}, type={_currentBossAttack.attackType}, delay={_currentBossAttack.castingDelay}, cast={_currentBossAttack.castingTime}");
 
-        if (_currentBossAttack.attackType != AttackType.normalAttack)
+        if (st.CurrentBossAttack.attackType != AttackType.normalAttack)
             PlayBossAreaPrepareSound(ctx);
 
-        if (_currentBossAttack.attackType == AttackType.skillAttack2)
+        if (st.CurrentBossAttack.attackType == AttackType.skillAttack2)
             ctx.SetAnimatorTrigger(BossSkill2SubStateTrigger);
         // 애니메이션 트리거는 BossManageTable.animation 값을 그대로 사용한다고 가정
-        else if (!string.IsNullOrEmpty(_currentBossAttack.animation))
-            ctx.SetAnimatorTrigger(_currentBossAttack.animation);
+        else if (!string.IsNullOrEmpty(st.CurrentBossAttack.animation))
+            ctx.SetAnimatorTrigger(st.CurrentBossAttack.animation);
         else
             ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
 
-        TrySpawnBossAttackVisual(ctx, _currentBossAttack);
+        TrySpawnBossAttackVisual(ctx, st.CurrentBossAttack);
     }
 
     public void OnUpdate(EnemyStateContext ctx)
@@ -115,15 +109,16 @@ public class EnemyStateAttack : IEnemyState
             return;
         }
 
-        if (_isSkillAttack)
+        var st = ctx.Instance;
+        if (st.IsSkillAttack)
         {
             if (ctx.FaceTargetWhileAttacking && ctx.PlayerTransform != null)
                 RotateTowardsTarget(ctx.EnemyTransform, ctx.PlayerTransform.position, ctx.AttackTurnSpeed);
 
-            if (_attackInProgress && Time.time >= _attackEndTime)
+            if (st.AttackInProgress && Time.time >= st.AttackEndTime)
             {
                 // 보스 스킬 공격: BossManageTable 기반으로 대미지/속성 적용
-                if (!_damageApplied && ctx.PlayerTransform != null)
+                if (!st.DamageApplied && ctx.PlayerTransform != null)
                 {
                     float dist = ctx.GetBoundsDistanceToPlayer();
                     if (dist <= ctx.AttackRange)
@@ -147,8 +142,8 @@ public class EnemyStateAttack : IEnemyState
                             float damage = baseDamage * rate;
                             // Debug.Log($"[EnemyStateAttack] 보스 공격 히트 - enemy={ctx.EnemyTransform.name}, base={baseDamage}, rate={rate}, final={damage}, type={damageType}");
                             damageable.TakeDamage(damage, damageType);
-                            _damageApplied = true;
-                            if (_currentBossAttack != null && _currentBossAttack.attackType != AttackType.normalAttack)
+                            st.DamageApplied = true;
+                            if (st.CurrentBossAttack != null && st.CurrentBossAttack.attackType != AttackType.normalAttack)
                                 PlayBossAreaCastSound(ctx);
                             else
                                 PlayAttackHitSound(ctx);
@@ -156,7 +151,7 @@ public class EnemyStateAttack : IEnemyState
                     }
                 }
 
-                _attackInProgress = false;
+                st.AttackInProgress = false;
                 ClearAttackEffect(ctx);
                 ctx.RequestState(EnemyStateType.Chase);
             }
@@ -166,11 +161,11 @@ public class EnemyStateAttack : IEnemyState
             if (ctx.FaceTargetWhileAttacking && ctx.PlayerTransform != null)
                 RotateTowardsTarget(ctx.EnemyTransform, ctx.PlayerTransform.position, ctx.AttackTurnSpeed);
 
-            if (!_attackInProgress || Time.time < _attackEndTime)
+            if (!st.AttackInProgress || Time.time < st.AttackEndTime)
                 return;
 
             // 공격 타이밍에 플레이어가 사거리 내에 있으면 TakeDamage 호출
-            if (!_damageApplied && ctx.PlayerTransform != null)
+            if (!st.DamageApplied && ctx.PlayerTransform != null)
             {
                 float dist = ctx.GetBoundsDistanceToPlayer();
                 if (dist <= ctx.AttackRange)
@@ -182,12 +177,12 @@ public class EnemyStateAttack : IEnemyState
                         float damage = ctx.AttackPoint;
 
                         damageable.TakeDamage(damage, DamageType.Physical);
-                        _damageApplied = true;
+                        st.DamageApplied = true;
                         PlayAttackHitSound(ctx);
                     }
                 }
             }
-            _attackInProgress = false;
+            st.AttackInProgress = false;
             ClearAttackEffect(ctx);
             ctx.RequestState(EnemyStateType.Chase);
         }
@@ -199,15 +194,16 @@ public class EnemyStateAttack : IEnemyState
             ctx.Agent.updateRotation = true;
 
         ClearAttackEffect(ctx);
-        _currentBossAttack = null;
+        ctx.Instance.CurrentBossAttack = null;
     }
 
     private void ClearAttackEffect(EnemyStateContext ctx)
     {
-        if (_currentAttackEffect != null)
+        var fx = ctx.Instance.CurrentAttackEffect;
+        if (fx != null)
         {
-            Object.Destroy(_currentAttackEffect);
-            _currentAttackEffect = null;
+            Object.Destroy(fx);
+            ctx.Instance.CurrentAttackEffect = null;
         }
     }
 
@@ -248,14 +244,7 @@ public class EnemyStateAttack : IEnemyState
         if (ctx.SkillAttackEffectPrefab == null)
             return;
 
-        var attach = BossSkillEffectAttachParent.Player;
-        int mid = ctx.StatPresenter != null ? ctx.StatPresenter.monsterIdFromDataManager : 0;
-        if (mid != 0 && MonsterAssetDatabase.Instance != null)
-        {
-            var entry = MonsterAssetDatabase.Instance.GetEntry(mid);
-            if (entry != null)
-                attach = entry.bossSkillEffectAttachParent;
-        }
+        var attach = ctx.BossSkillEffectAttachParent;
 
         Transform parent = attach == BossSkillEffectAttachParent.Enemy
             ? ctx.EnemyTransform
@@ -263,15 +252,21 @@ public class EnemyStateAttack : IEnemyState
         if (parent == null)
             return;
 
-        if (_currentAttackEffect != null)
-            Object.Destroy(_currentAttackEffect);
+        var st = ctx.Instance;
+        if (st.CurrentAttackEffect != null)
+            Object.Destroy(st.CurrentAttackEffect);
 
-        _currentAttackEffect = Object.Instantiate(ctx.SkillAttackEffectPrefab, parent);
-        _currentAttackEffect.transform.localPosition = ctx.SkillAttackEffectOffset;
-        _currentAttackEffect.transform.localRotation = Quaternion.identity;
+        st.CurrentAttackEffect = Object.Instantiate(ctx.SkillAttackEffectPrefab, parent);
 
-        float scaleMultiplier = Mathf.Max(0.1f, ctx.AttackEffectScaleMultiplier);
-        _currentAttackEffect.transform.localScale *= scaleMultiplier;
+        // Enemy: 프리팹에 정의된 로컬 트랜스폼 그대로(추가 위치/스케일 보정 없음). Player: 트랜스폼에 붙이고 오프셋·스케일 적용.
+        if (attach == BossSkillEffectAttachParent.Player)
+        {
+            st.CurrentAttackEffect.transform.localPosition = ctx.SkillAttackEffectOffset;
+            st.CurrentAttackEffect.transform.localRotation = Quaternion.identity;
+
+            float scaleMultiplier = Mathf.Max(0.1f, ctx.AttackEffectScaleMultiplier);
+            st.CurrentAttackEffect.transform.localScale *= scaleMultiplier;
+        }
     }
 
     private static bool HasValidBossParticleEffectKey(BossManageTable atk)
@@ -292,17 +287,35 @@ public class EnemyStateAttack : IEnemyState
             return;
 
         pm.Preload(atk.effect);
-        bool onPlayer = atk.attackType != AttackType.normalAttack;
-        Transform follow = onPlayer && ctx.PlayerTransform != null ? ctx.PlayerTransform : ctx.EnemyTransform;
-        pm.SpawnParticle(new ParticleSpawnContext(atk.effect, follow, follow: true));
+
+        Transform follow;
+        if (atk.attackType == AttackType.normalAttack)
+            follow = ctx.EnemyTransform;
+        else
+        {
+            follow = ctx.BossSkillEffectAttachParent == BossSkillEffectAttachParent.Enemy
+                ? ctx.EnemyTransform
+                : ctx.PlayerTransform;
+        }
+
+        if (follow == null)
+            follow = ctx.EnemyTransform;
+
+        Vector3 followLocalOffset = default;
+        if (atk.attackType != AttackType.normalAttack
+            && ctx.BossSkillEffectAttachParent == BossSkillEffectAttachParent.Player)
+            followLocalOffset = ctx.SkillAttackEffectOffset;
+
+        pm.SpawnParticle(new ParticleSpawnContext(atk.effect, follow, follow: true, followLocalOffset: followLocalOffset));
     }
 
     private void SpawnAttackEffect(EnemyStateContext ctx, bool spawnOnPlayer)
     {
         if (ctx.AttackEffectPrefab == null) return;
 
-        if (_currentAttackEffect != null)
-            Object.Destroy(_currentAttackEffect);
+        var st = ctx.Instance;
+        if (st.CurrentAttackEffect != null)
+            Object.Destroy(st.CurrentAttackEffect);
 
         Transform anchor = ctx.EnemyTransform;
         Transform parent = ctx.EnemyTransform;
@@ -313,7 +326,7 @@ public class EnemyStateAttack : IEnemyState
             parent = ctx.PlayerTransform;
         }
 
-        _currentAttackEffect = Object.Instantiate(
+        st.CurrentAttackEffect = Object.Instantiate(
             ctx.AttackEffectPrefab,
             anchor.position + Vector3.up * 1f,
             Quaternion.identity,
@@ -321,7 +334,7 @@ public class EnemyStateAttack : IEnemyState
         );
 
         float scaleMultiplier = Mathf.Max(0.1f, ctx.AttackEffectScaleMultiplier);
-        _currentAttackEffect.transform.localScale *= scaleMultiplier;
+        st.CurrentAttackEffect.transform.localScale *= scaleMultiplier;
     }
 
     private static void SpawnSkillAttackEffectAtPlayerHead(EnemyStateContext ctx)

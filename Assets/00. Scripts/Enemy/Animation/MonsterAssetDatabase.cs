@@ -49,9 +49,9 @@ public class MonsterAssetDatabase : ScriptableObject
         public GameObject attackEffectPrefab;
         [Tooltip("스킬 공격 이펙트(일반 스킬몹 + 보스 스킬1/2). 보스는 CSV effect(Addressable)보다 이 할당이 우선")]
         public GameObject skillAttackEffectPrefab;
-        [Tooltip("스킬 이펙트 로컬 오프셋. 일반 스킬몹: 플레이어 월드 기준. 보스: bossSkillEffectAttachParent 가리키는 부모의 로컬 기준")]
+        [Tooltip("스킬 이펙트 로컬 오프셋. 일반 스킬몹: 플레이어 기준. 보스 skillAttackEffectPrefab은 Player 부착일 때만 적용(Enemy 부착 시 오프셋 미사용)")]
         public Vector3 skillAttackEffectOffset;
-        [Tooltip("보스 스킬 DB 이펙트 부모. 기본 Player(기존 동작), 입장 연출 등은 Enemy")]
+        [Tooltip("보스 스킬 이펙트 부모. skillAttackEffectPrefab(직접 프리팹)과 BossManageTable.effect(Addressable) 스킬 연출에 공통 적용. EnemyStateMachine.assetDatabaseOverride와 동일 에셋의 항목이어야 함")]
         public BossSkillEffectAttachParent bossSkillEffectAttachParent = BossSkillEffectAttachParent.Player;
         public GameObject onHitEffectPrefab;
         public GameObject dieEffectPrefab;

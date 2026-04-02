@@ -31,6 +31,8 @@ public class PoolableObject : MonoBehaviour
     /// </summary>
     public virtual void OnReturnToPool()
     {
+        var returnable = GetComponent<IPoolableReturnable>();
+        returnable?.OnReturnToPool();
     }
 
     /// <summary>
