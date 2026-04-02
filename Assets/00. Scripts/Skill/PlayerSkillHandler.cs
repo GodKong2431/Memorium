@@ -263,7 +263,8 @@ public class PlayerSkillHandler : MonoBehaviour, ISkillStatProvider, ISkillTarge
         if (enemy == null) return false;
 
 
-        for (int i = 0; i < skilldataContexts.Length; i++)
+        TryCastSkill(skilldataContexts.Length-1, dist);
+        for (int i = 0; i < skilldataContexts.Length-1; i++)
         {
             if (TryCastSkill(i, dist)) return true;
         }
