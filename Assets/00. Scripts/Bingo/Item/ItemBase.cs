@@ -79,6 +79,12 @@ public abstract class ItemBase : MonoBehaviour
     {
         mgr = BingoBoardManager.Instance;
         Itemtoggle.onValueChanged.AddListener(_ => itemMgr.itemBase = _? this : null);
+        
+        DataManager.Instance.ItemInfoDict.TryGetValue(itemInfoID, out var table);
+        
+        string icon = table.itemIcon.Replace("Assets/Resources/", "").Replace(".png", "");
+                
+        itemSprite.sprite = Resources.Load<Sprite>(icon);
     }
     
     public void Reset()
