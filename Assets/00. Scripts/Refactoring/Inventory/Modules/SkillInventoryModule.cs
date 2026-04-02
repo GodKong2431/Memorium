@@ -290,6 +290,7 @@ public sealed class SkillInventoryModule : IInventoryModule
 
         OnInventoryChanged?.Invoke();
         OnInventoryChagedByData?.Invoke(skillDataById[skillId]);
+        NotifyPresetChanged();
         return true;
     }
     #endregion
