@@ -93,7 +93,7 @@ public class RewardManager : Singleton<RewardManager>
             DropSettings.equipmentDropRate.Add((float)equipmentDropTable.EquipmentTierWeight04 / fullRate);
         }
 
-        DropSettings.equipmentChance = (float)(dropTable.equipmentRate / 100.0);
+        DropSettings.equipmentChance = (float)(dropTable.equipmentRate);
         DropSettings.pixieFragmentChance = (float)dropTable.fairyPieceRate;
         DropSettings.skillScrollChance = (float)dropTable.scrollRate;
         DropSettings.skillGemChance = (float)dropTable.gemRate;
