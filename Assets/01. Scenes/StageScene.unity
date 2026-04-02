@@ -1257,7 +1257,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -2933,6 +2933,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1574483586547551556, guid: 56c5fdcfe9a3f7740b7aad38e1db7357, type: 3}
   m_PrefabInstance: {fileID: 2099775673}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2147002001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2147002003}
+  - component: {fileID: 2147002002}
+  m_Layer: 0
+  m_Name: DamageIndicatorService
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2147002002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147002001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d1a9a5a6d2e4bba873c3f6ec5fd5b10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamageIndicatorService
+  normalPrefab: {fileID: 7414875587115961723, guid: 1c408ef7bd8641dd8d5f421d4d40cb0d, type: 3}
+  criticalPrefab: {fileID: 7414875587115961723, guid: f5c1cc2eb9264f81a89b603865e28af2, type: 3}
+  worldYOffset: 0.35
+  minimumDisplayDamage: 0.01
+  forceWhiteText: 1
+  preloadOnAwake: 1
+  normalPrewarmCount: 20
+  criticalPrewarmCount: 8
+  bigDoubleFormat: F0
+--- !u!4 &2147002003
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147002001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9999990000
 GameObject:
   m_ObjectHideFlags: 0
@@ -3887,59 +3940,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5215490814558188373, guid: d0f1c4a12ad262245b5f22d7fa6977b2, type: 3}
   m_PrefabInstance: {fileID: 7151944950682389466}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2147002001
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2147002003}
-  - component: {fileID: 2147002002}
-  m_Layer: 0
-  m_Name: DamageIndicatorService
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2147002002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2147002001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d1a9a5a6d2e4bba873c3f6ec5fd5b10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DamageIndicatorService
-  normalPrefab: {fileID: 7414875587115961723, guid: 1c408ef7bd8641dd8d5f421d4d40cb0d, type: 3}
-  criticalPrefab: {fileID: 7414875587115961723, guid: f5c1cc2eb9264f81a89b603865e28af2, type: 3}
-  worldYOffset: 0.35
-  minimumDisplayDamage: 0.01
-  forceWhiteText: 1
-  preloadOnAwake: 1
-  normalPrewarmCount: 20
-  criticalPrewarmCount: 8
-  bigDoubleFormat: F0
---- !u!4 &2147002003
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2147002001}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
