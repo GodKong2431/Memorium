@@ -130,8 +130,9 @@ public class PlayerStateAttack : IPlayerState
 
 
             var finalDamage = statPresenter.IsBoss ? boss : normal;
+            bool isCritical = ctx.CurrentCritMult > 1f;
 
-            target.TakeDamage(finalDamage * ctx.CurrentCritMult);
+            target.TakeDamage(finalDamage * ctx.CurrentCritMult, DamageType.Physical, isCritical);
         }
     }
 

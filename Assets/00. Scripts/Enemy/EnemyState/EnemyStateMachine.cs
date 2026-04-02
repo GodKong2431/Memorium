@@ -364,8 +364,26 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     /// </summary>
     public void TakeDamage(float damage, DamageType type = DamageType.Physical)
     {
+        TakeDamageInternal(damage, type, false);
+    }
+
+    public void TakeDamage(float damage, DamageType type, bool isCritical)
+    {
+        TakeDamageInternal(damage, type, isCritical);
+    }
+
+    private void TakeDamageInternal(float damage, DamageType type, bool isCritical)
+    {
         if (!IsAlive) return;
+
+        float previousHealth = _ctx.CurrentHealth;
         _ctx.TakeDamage(damage,type);
+        float appliedDamage = Mathf.Max(0f, previousHealth - _ctx.CurrentHealth);
+
+        if (appliedDamage > 0f)
+        {
+            DamageIndicatorService.Instance.ShowDamage(transform, appliedDamage, isCritical);
+        }
 
         if (_ctx.CurrentHealth <= 0f)
         {

@@ -186,7 +186,17 @@ public class PlayerStateMachine : MonoBehaviour, IDamageable
 
     public void TakeDamage(float damage, DamageType damageType)
     {
+        if (_ctx == null)
+            return;
+
+        float previousHealth = _ctx.CurrentHealth;
         _ctx.TakeDamage(damage, damageType);
+        float appliedDamage = Mathf.Max(0f, previousHealth - _ctx.CurrentHealth);
+
+        if (appliedDamage > 0f)
+        {
+            DamageIndicatorService.Instance.ShowDamage(transform, appliedDamage);
+        }
     }
 
     public void OnAttackReady()

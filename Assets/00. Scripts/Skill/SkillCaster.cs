@@ -346,7 +346,12 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
                     float damage = data.skillData.skillTable.skillDamage + statProvider.GetAttack() * (1 + data.skillData.skillTable.skillDamageValue) * (1 + (0.1f * level));
                     if (skillGrade == SkillGrade.Mythic)
                         damage *= 1.5f;
-                    target.TakeDamage(damage);
+
+                    bool isCritical = RollCriticalHit();
+                    if (isCritical)
+                        damage *= Mathf.Max(1f, statProvider.GetCriticalMulti());
+
+                    ApplySkillDamage(target, damage, isCritical);
                 }
 
 
@@ -357,6 +362,35 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
                 }
             }
         }
+    }
+
+    private bool RollCriticalHit()
+    {
+        if (statProvider == null)
+            return false;
+
+        float criticalChance = statProvider.GetCriticalChance();
+        if (criticalChance <= 0f)
+            return false;
+
+        if (criticalChance >= 1f)
+            return true;
+
+        return UnityEngine.Random.value < criticalChance;
+    }
+
+    private static void ApplySkillDamage(IDamageable target, float damage, bool isCritical)
+    {
+        if (target == null)
+            return;
+
+        if (target is EnemyStateMachine enemyStateMachine)
+        {
+            enemyStateMachine.TakeDamage(damage, DamageType.Physical, isCritical);
+            return;
+        }
+
+        target.TakeDamage(damage, DamageType.Physical);
     }
 
 

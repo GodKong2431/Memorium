@@ -13,15 +13,33 @@ MonoBehaviour:
   m_Name: ItemDropSettings
   m_EditorClassIdentifier: Assembly-CSharp::ItemDropSettings
   dropGold:
-    mantissa: 1
-    exponent: 1
-  baseEquipmentTier: 1
-  equipmentDropRate: []
-  equipmentChance: 0.05
-  fairyShardChance: 0.0001
-  skillScrollChance: 0.00005
-  skillGemChance: 0.00001
-  dungeonTicketChance: 0.00001
+    mantissa: 1.47174680261
+    exponent: 11
+  baseEquipmentTier: 22
+  equipmentDropRate:
+  - 0.8
+  - 0.15
+  - 0.04
+  - 0.01
+  equipmentChance: 0.001
+  pixieFragmentChance: 0.01
+  skillScrollChance: 0.005
+  skillGemChance: 0.001
+  dungeonTicketChance: 0.01
+  bingoLinks:
+  - 0.001
+  - 0.0005
+  - 0.0001
+  - 0.00005
+  - 0.00001
+  bingoItem_A: 0.005
+  bingoItem_B: 0.001
+  bingoSynergy:
+  - 0.01
+  - 0.005
+  - 0.001
+  - 0.0005
+  - 0.0001
   stageGap: 3
   startIP: 100
   offsetTable:
@@ -34,7 +52,8 @@ MonoBehaviour:
   - offset: 300
     weight: 10
   equipmentIds: 
-  fairyShardIds: b1813200
+  pixieFragmentIds: b1813200
   skillScrollIds: 11fb3000
   skillGemIds: 21223100
   dungeonTicketIds: d9743a00
+  bingoLinkIds: 
