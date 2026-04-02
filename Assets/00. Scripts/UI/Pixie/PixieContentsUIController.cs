@@ -1236,11 +1236,11 @@ public sealed class PixieContentsUIController : UIControllerBase
 
         handle.Completed += operation =>
         {
-            if (runtime.loadHandle.HasValue && runtime.loadHandle.Value.Equals(operation))
-                runtime.loadHandle = null;
-
             if (requestVersion != runtime.requestVersion || this == null || runtime.stageTransform == null)
             {
+                if (runtime.loadHandle.HasValue && runtime.loadHandle.Value.Equals(operation))
+                    runtime.loadHandle = null;
+
                 if (operation.IsValid())
                     DeferredAddressablesRelease.Release(operation);
                 return;
@@ -1248,6 +1248,9 @@ public sealed class PixieContentsUIController : UIControllerBase
 
             if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
             {
+                if (runtime.loadHandle.HasValue && runtime.loadHandle.Value.Equals(operation))
+                    runtime.loadHandle = null;
+
                 if (operation.IsValid())
                     DeferredAddressablesRelease.Release(operation);
                 SetMenuPreviewVisible(runtime, false);
@@ -1255,11 +1258,14 @@ public sealed class PixieContentsUIController : UIControllerBase
             }
 
             runtime.instance = Instantiate(operation.Result, runtime.stageTransform);
-            if (operation.IsValid())
-                DeferredAddressablesRelease.Release(operation);
 
             if (runtime.instance == null)
             {
+                if (runtime.loadHandle.HasValue && runtime.loadHandle.Value.Equals(operation))
+                    runtime.loadHandle = null;
+
+                if (operation.IsValid())
+                    DeferredAddressablesRelease.Release(operation);
                 SetMenuPreviewVisible(runtime, false);
                 return;
             }
@@ -1477,11 +1483,11 @@ public sealed class PixieContentsUIController : UIControllerBase
 
         handle.Completed += operation =>
         {
-            if (previewLoadHandle.HasValue && previewLoadHandle.Value.Equals(operation))
-                previewLoadHandle = null;
-
             if (requestVersion != previewRequestVersion || this == null || previewStageTransform == null)
             {
+                if (previewLoadHandle.HasValue && previewLoadHandle.Value.Equals(operation))
+                    previewLoadHandle = null;
+
                 if (operation.IsValid())
                     DeferredAddressablesRelease.Release(operation);
                 return;
@@ -1489,6 +1495,9 @@ public sealed class PixieContentsUIController : UIControllerBase
 
             if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
             {
+                if (previewLoadHandle.HasValue && previewLoadHandle.Value.Equals(operation))
+                    previewLoadHandle = null;
+
                 if (operation.IsValid())
                     DeferredAddressablesRelease.Release(operation);
                 SetPreviewVisible(false);
@@ -1496,11 +1505,14 @@ public sealed class PixieContentsUIController : UIControllerBase
             }
 
             previewInstance = Instantiate(operation.Result, previewStageTransform);
-            if (operation.IsValid())
-                DeferredAddressablesRelease.Release(operation);
 
             if (previewInstance == null)
             {
+                if (previewLoadHandle.HasValue && previewLoadHandle.Value.Equals(operation))
+                    previewLoadHandle = null;
+
+                if (operation.IsValid())
+                    DeferredAddressablesRelease.Release(operation);
                 SetPreviewVisible(false);
                 return;
             }
