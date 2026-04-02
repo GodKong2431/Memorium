@@ -91,10 +91,7 @@ public class EnemyStateAttack : IEnemyState
         else
             ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Attack);
 
-        if (HasValidBossParticleEffectKey(_currentBossAttack))
-            SpawnBossTableParticleEffect(ctx, _currentBossAttack);
-        else
-            SpawnAttackEffect(ctx, spawnOnPlayer: true);
+        TrySpawnBossAttackVisual(ctx, _currentBossAttack);
     }
 
     public void OnUpdate(EnemyStateContext ctx)
@@ -214,6 +211,69 @@ public class EnemyStateAttack : IEnemyState
         }
     }
 
+    /// <summary>
+    /// 보스 공격 연출: MonsterAssetDatabase(컨텍스트의 프리팹) 우선, 없으면 BossManageTable.effect(Addressable).
+    /// </summary>
+    private void TrySpawnBossAttackVisual(EnemyStateContext ctx, BossManageTable atk)
+    {
+        if (ctx.EnemyTransform == null || atk == null)
+            return;
+
+        switch (atk.attackType)
+        {
+            case AttackType.normalAttack:
+                if (ctx.AttackEffectPrefab != null)
+                {
+                    SpawnAttackEffect(ctx, spawnOnPlayer: true);
+                    return;
+                }
+                break;
+            case AttackType.skillAttack1:
+            case AttackType.skillAttack2:
+                if (ctx.SkillAttackEffectPrefab != null)
+                {
+                    SpawnBossSkillEffectFromDbPrefab(ctx);
+                    return;
+                }
+                break;
+        }
+
+        if (HasValidBossParticleEffectKey(atk))
+            SpawnBossTablePoolableEffect(ctx, atk);
+    }
+
+    /// <summary>보스 스킬: DB skillAttackEffectPrefab — MonsterAssetDatabase.bossSkillEffectAttachParent 에 따라 플레이어 또는 보스에 부착</summary>
+    private void SpawnBossSkillEffectFromDbPrefab(EnemyStateContext ctx)
+    {
+        if (ctx.SkillAttackEffectPrefab == null)
+            return;
+
+        var attach = BossSkillEffectAttachParent.Player;
+        int mid = ctx.StatPresenter != null ? ctx.StatPresenter.monsterIdFromDataManager : 0;
+        if (mid != 0 && MonsterAssetDatabase.Instance != null)
+        {
+            var entry = MonsterAssetDatabase.Instance.GetEntry(mid);
+            if (entry != null)
+                attach = entry.bossSkillEffectAttachParent;
+        }
+
+        Transform parent = attach == BossSkillEffectAttachParent.Enemy
+            ? ctx.EnemyTransform
+            : ctx.PlayerTransform;
+        if (parent == null)
+            return;
+
+        if (_currentAttackEffect != null)
+            Object.Destroy(_currentAttackEffect);
+
+        _currentAttackEffect = Object.Instantiate(ctx.SkillAttackEffectPrefab, parent);
+        _currentAttackEffect.transform.localPosition = ctx.SkillAttackEffectOffset;
+        _currentAttackEffect.transform.localRotation = Quaternion.identity;
+
+        float scaleMultiplier = Mathf.Max(0.1f, ctx.AttackEffectScaleMultiplier);
+        _currentAttackEffect.transform.localScale *= scaleMultiplier;
+    }
+
     private static bool HasValidBossParticleEffectKey(BossManageTable atk)
     {
         if (atk == null || string.IsNullOrWhiteSpace(atk.effect))
@@ -223,8 +283,7 @@ public class EnemyStateAttack : IEnemyState
         return atk.effect != "0";
     }
 
-    /// <summary>BossManageTable.effect → Addressable 파티클 키 (PoolableParticleManager)</summary>
-    private static void SpawnBossTableParticleEffect(EnemyStateContext ctx, BossManageTable atk)
+    private static void SpawnBossTablePoolableEffect(EnemyStateContext ctx, BossManageTable atk)
     {
         if (!HasValidBossParticleEffectKey(atk) || ctx.EnemyTransform == null)
             return;
