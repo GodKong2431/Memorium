@@ -184,13 +184,16 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         {
             yield return CoroutineManager.waitForSeconds(extraDelay);
         }
-        SoundManager.Instance.PlayCombatSfx(data.skillTable.skillSound);
-        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.skillTable.skillVFX, transform, true,rotation: transform.rotation));
-        yield return SkillSequenceMove(data);
-        ResetAgentWarp();
+        for(int i=0;i < 5;i++)
+        {   
+            SoundManager.Instance.PlayCombatSfx(data.skillTable.skillSound);
+            PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.skillTable.skillVFX, transform, true, rotation: transform.rotation));
+            yield return SkillSequenceMove(data);
+            ResetAgentWarp();
 
-        debugLastCastPos = transform.position + debugLastCastDir * dataContext.skillData.m3Data.m3Distance;
-        yield return SkillSequenceExecute(dataContext);
+            debugLastCastPos = transform.position + debugLastCastDir * dataContext.skillData.m3Data.m3Distance;
+            yield return SkillSequenceExecute(dataContext);
+        }
 
         SkillEnd();
     }
