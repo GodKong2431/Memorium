@@ -56,12 +56,14 @@ public static class IconManager
 
     public static Sprite GetGachaTicketIcon(GachaType gachaType)
     {
-        return GetGachaTicketIcon(ConvertToTicketType(gachaType));
+        return GachaTicketResolver.TryGetTicketTable(gachaType, out GachaTicketTable table)
+            ? GetGachaTicketIcon(table.ticketType)
+            : null;
     }
 
     public static Sprite GetGachaTicketIcon(TicketType ticketType)
     {
-        if (!TryGetGachaTicketTable(ticketType, out GachaTicketTable table))
+        if (!GachaTicketResolver.TryGetTicketTable(ticketType, out GachaTicketTable table))
             return null;
 
         if (DataManager.Instance?.ItemInfoDict != null &&
@@ -101,39 +103,5 @@ public static class IconManager
             path = path.Substring(0, extensionIndex);
 
         return path.TrimStart('/');
-    }
-
-    private static bool TryGetGachaTicketTable(TicketType ticketType, out GachaTicketTable table)
-    {
-        table = null;
-
-        if (DataManager.Instance == null || !DataManager.Instance.DataLoad || DataManager.Instance.GachaTicketDict == null)
-            return false;
-
-        foreach (var pair in DataManager.Instance.GachaTicketDict)
-        {
-            GachaTicketTable current = pair.Value;
-            if (current == null || current.ticketType != ticketType)
-                continue;
-
-            table = current;
-            return true;
-        }
-
-        return false;
-    }
-
-    private static TicketType ConvertToTicketType(GachaType gachaType)
-    {
-        switch (gachaType)
-        {
-            case GachaType.Armor:
-                return TicketType.Armor;
-            case GachaType.SkillScroll:
-                return TicketType.SkillScroll;
-            case GachaType.Weapon:
-            default:
-                return TicketType.Weapon;
-        }
     }
 }

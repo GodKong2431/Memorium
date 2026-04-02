@@ -98,6 +98,34 @@ public static class CheckDungeon
                HasEnoughTicket(type, resolvedLevel, requiredCount);
     }
 
+    // 해당 던전 레벨을 한 번이라도 클리어했는지 확인한다
+    public static bool HasClearedDungeon(StageType type, int level)
+    {
+        if (!IsDungeonStage(type))
+            return false;
+
+        if (StageManager.Instance == null)
+            return false;
+
+        if (!TryGetDungeonProgressIndex(type, out int index))
+            return false;
+
+        List<int> maxStage = StageManager.Instance.maxStage;
+        if (maxStage == null || index < 0 || index >= maxStage.Count)
+            return false;
+
+        int resolvedLevel = ClampLevel(type, level);
+        return maxStage[index] >= resolvedLevel;
+    }
+
+    // 소탕은 클리어 기록과 입장권 보유를 모두 만족해야 한다
+    public static bool CanSweep(StageType type, int level, int requiredCount)
+    {
+        int resolvedLevel = ClampLevel(type, level);
+        return HasClearedDungeon(type, resolvedLevel) &&
+               HasEnoughTicket(type, resolvedLevel, requiredCount);
+    }
+
     // 던전 타입과 레벨로 실제 던전 리퀘스트 행을 찾는다
     public static bool TryGetDungeonReq(StageType type, int level, out int dungeonId, out DungeonReqTable dungeonReq)
     {

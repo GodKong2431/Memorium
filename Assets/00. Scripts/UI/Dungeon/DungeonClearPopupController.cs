@@ -48,12 +48,12 @@ public sealed class DungeonClearPopupController : MonoBehaviour
     private int activeStageLevel = 1;
     private bool isFailurePopup;
     private bool isButtonBound;
+    private PopupStackService.Handle popupHandle;
     private readonly List<RewardManager.DungeonRewardEntry> rewardPreviewBuffer = new List<RewardManager.DungeonRewardEntry>();
 
     private void Awake()
     {
-        if (popupRoot == null)
-            popupRoot = transform as RectTransform;
+        EnsureRuntimeReferences();
 
         GameEventManager.OnDungeonClearPopupRequested += HandlePopupRequested;
         BindButtons();
@@ -76,6 +76,8 @@ public sealed class DungeonClearPopupController : MonoBehaviour
     {
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnItemAmountChanged -= OnItemAmountChanged;
+
+        PopupStackService.Dismiss(ref popupHandle);
     }
 
     public void ResetForSceneChange()
@@ -89,8 +91,7 @@ public sealed class DungeonClearPopupController : MonoBehaviour
 
     public void RefreshView()
     {
-        if (popupRoot == null)
-            popupRoot = transform as RectTransform;
+        EnsureRuntimeReferences();
 
         RefreshActivePanel();
         UpdateNextButtonState();
@@ -98,12 +99,9 @@ public sealed class DungeonClearPopupController : MonoBehaviour
 
     public bool ShowPopup(StageType stageType, int stageLevel, bool showFailureState = false)
     {
+        EnsureRuntimeReferences();
         if (popupRoot == null)
-        {
-            popupRoot = transform as RectTransform;
-            if (popupRoot == null)
-                return false;
-        }
+            return false;
 
         BindButtons();
 
@@ -116,11 +114,10 @@ public sealed class DungeonClearPopupController : MonoBehaviour
         isFailurePopup = showFailureState;
 
         popupRoot.gameObject.SetActive(true);
-        popupRoot.SetAsLastSibling();
-
         ApplyDungeonPanelVisibility(stageType);
         RefreshActivePanel();
         UpdateNextButtonState();
+        PresentPopup();
 
         if (clearTitleText != null)
         {
@@ -156,6 +153,7 @@ public sealed class DungeonClearPopupController : MonoBehaviour
     private void HandleExitClicked()
     {
         HidePopup();
+        RestoreDungeonLevelPopupFocus();
 
         if (StageManager.Instance != null && StageManager.Instance.IsDungeonInProgress)
             StageManager.Instance.CheckDungeonClear();
@@ -209,8 +207,46 @@ public sealed class DungeonClearPopupController : MonoBehaviour
 
     private void HidePopup()
     {
+        PopupStackService.Dismiss(ref popupHandle);
+
         if (popupRoot != null)
             popupRoot.gameObject.SetActive(false);
+    }
+
+    private void EnsureRuntimeReferences()
+    {
+        if (popupRoot == null)
+            popupRoot = transform as RectTransform;
+    }
+
+    private void PresentPopup()
+    {
+        EnsureRuntimeReferences();
+        if (popupRoot == null)
+            return;
+
+        PopupStackService.Present(ref popupHandle, new PopupStackService.Request
+        {
+            PopupRoot = popupRoot,
+            ContentRoot = activePanelBinding != null && activePanelBinding.panelRoot != null
+                ? activePanelBinding.panelRoot
+                : popupRoot,
+            OverlayParent = ResolveOverlayRoot(),
+            CloseOnOutside = false,
+            BackdropColor = new Color(0f, 0f, 0f, 0.78431374f),
+            ReparentToOverlayParent = true,
+            StretchPopupToOverlayParent = false
+        });
+    }
+
+    private RectTransform ResolveOverlayRoot()
+    {
+        EnsureRuntimeReferences();
+        Canvas canvas = popupRoot != null ? popupRoot.GetComponentInParent<Canvas>() : null;
+        if (canvas != null && canvas.rootCanvas != null)
+            return canvas.rootCanvas.transform as RectTransform;
+
+        return popupRoot != null ? popupRoot.parent as RectTransform : null;
     }
 
     private void ApplyDungeonPanelVisibility(StageType stageType)
@@ -340,6 +376,23 @@ public sealed class DungeonClearPopupController : MonoBehaviour
             return;
 
         UpdateNextButtonState();
+    }
+
+    private static void RestoreDungeonLevelPopupFocus()
+    {
+        DungeonLevelPopupUI[] popups = UnityEngine.Object.FindObjectsByType<DungeonLevelPopupUI>(
+            FindObjectsInactive.Exclude,
+            FindObjectsSortMode.None);
+
+        for (int i = 0; i < popups.Length; i++)
+        {
+            DungeonLevelPopupUI popup = popups[i];
+            if (popup == null || !popup.isActiveAndEnabled)
+                continue;
+
+            popup.ReclaimPopupFocus();
+            return;
+        }
     }
 
 }

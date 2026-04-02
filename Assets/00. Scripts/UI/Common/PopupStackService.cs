@@ -18,6 +18,50 @@ public static class PopupStackService
         public bool CloseOnOutside = true;
         public float OutsideCloseDelay = 0f;
         public Color BackdropColor = new Color(0f, 0f, 0f, 0.78431374f);
+        public bool ReparentToOverlayParent = false;
+        public bool StretchPopupToOverlayParent = false;
+    }
+
+    private struct RectTransformState
+    {
+        public Vector2 anchorMin;
+        public Vector2 anchorMax;
+        public Vector2 anchoredPosition;
+        public Vector2 sizeDelta;
+        public Vector2 pivot;
+        public Vector2 offsetMin;
+        public Vector2 offsetMax;
+        public Vector3 localScale;
+        public Quaternion localRotation;
+
+        public static RectTransformState Capture(RectTransform target)
+        {
+            return new RectTransformState
+            {
+                anchorMin = target.anchorMin,
+                anchorMax = target.anchorMax,
+                anchoredPosition = target.anchoredPosition,
+                sizeDelta = target.sizeDelta,
+                pivot = target.pivot,
+                offsetMin = target.offsetMin,
+                offsetMax = target.offsetMax,
+                localScale = target.localScale,
+                localRotation = target.localRotation
+            };
+        }
+
+        public void Apply(RectTransform target)
+        {
+            target.anchorMin = anchorMin;
+            target.anchorMax = anchorMax;
+            target.pivot = pivot;
+            target.anchoredPosition = anchoredPosition;
+            target.sizeDelta = sizeDelta;
+            target.offsetMin = offsetMin;
+            target.offsetMax = offsetMax;
+            target.localScale = localScale;
+            target.localRotation = localRotation;
+        }
     }
 
     private sealed class Entry
@@ -31,6 +75,11 @@ public static class PopupStackService
         public int IgnoreOutsideCloseUntilFrame;
         public float IgnoreOutsideCloseUntilTime;
         public Color BackdropColor;
+        public bool ReparentToOverlayParent;
+        public bool StretchPopupToOverlayParent;
+        public RectTransform OriginalParent;
+        public int OriginalSiblingIndex;
+        public RectTransformState OriginalRectState;
     }
 
     private const string SharedBackdropName = "GlobalPopupBackdrop";
@@ -62,14 +111,14 @@ public static class PopupStackService
         if (handle == null)
             handle = new Handle();
 
-        RemoveEntry(handle);
+        RemoveEntry(handle, true);
 
         RectTransform overlayParent = ResolveOverlayParent(request.PopupRoot, request.OverlayParent);
         RectTransform contentRoot = request.ContentRoot != null
             ? request.ContentRoot
             : request.PopupRoot;
 
-        entries.Add(new Entry
+        Entry entry = new Entry
         {
             Handle = handle,
             PopupRoot = request.PopupRoot,
@@ -79,8 +128,13 @@ public static class PopupStackService
             CloseOnOutside = request.CloseOnOutside,
             IgnoreOutsideCloseUntilFrame = Time.frameCount,
             IgnoreOutsideCloseUntilTime = Time.unscaledTime + Mathf.Max(0f, request.OutsideCloseDelay),
-            BackdropColor = request.BackdropColor
-        });
+            BackdropColor = request.BackdropColor,
+            ReparentToOverlayParent = request.ReparentToOverlayParent,
+            StretchPopupToOverlayParent = request.StretchPopupToOverlayParent
+        };
+
+        ApplyOverlayPresentation(entry);
+        entries.Add(entry);
 
         RefreshBackdrop(true);
     }
@@ -97,7 +151,7 @@ public static class PopupStackService
             return;
         }
 
-        RemoveEntry(handle);
+        RemoveEntry(handle, true);
         handle = null;
         RefreshBackdrop(true);
     }
@@ -197,7 +251,7 @@ public static class PopupStackService
             return null;
 
         if (backdropRoot.parent != parent)
-            backdropRoot.SetParent(parent, false);
+            TrySetParent(backdropRoot, parent);
 
         sharedBackdrop.gameObject.layer = parent.gameObject.layer;
         StretchToParent(backdropRoot);
@@ -209,7 +263,7 @@ public static class PopupStackService
         if (entry == null || entry.PopupRoot == null)
             return;
 
-        entry.PopupRoot.SetAsLastSibling();
+        TrySetAsLastSibling(entry.PopupRoot);
 
         if (backdropRoot == null)
             return;
@@ -217,11 +271,11 @@ public static class PopupStackService
         if (backdropRoot.parent == entry.PopupRoot.parent)
         {
             int popupSiblingIndex = entry.PopupRoot.GetSiblingIndex();
-            backdropRoot.SetSiblingIndex(Mathf.Max(0, popupSiblingIndex - 1));
+            TrySetSiblingIndex(backdropRoot, Mathf.Max(0, popupSiblingIndex - 1));
             return;
         }
 
-        backdropRoot.SetAsLastSibling();
+        TrySetAsLastSibling(backdropRoot);
     }
 
     private static RectTransform ResolveOverlayParent(RectTransform popupRoot, RectTransform requestedParent)
@@ -257,7 +311,7 @@ public static class PopupStackService
         return null;
     }
 
-    private static void RemoveEntry(Handle handle)
+    private static void RemoveEntry(Handle handle, bool restorePresentation)
     {
         if (handle == null)
             return;
@@ -266,6 +320,9 @@ public static class PopupStackService
         {
             if (!ReferenceEquals(entries[i].Handle, handle))
                 continue;
+
+            if (restorePresentation)
+                RestoreOriginalPresentation(entries[i]);
 
             entries.RemoveAt(i);
             return;
@@ -281,6 +338,7 @@ public static class PopupStackService
             if (IsValid(entries[i]))
                 continue;
 
+            RestoreOriginalPresentation(entries[i]);
             entries.RemoveAt(i);
             removedAny = true;
         }
@@ -296,6 +354,42 @@ public static class PopupStackService
         return entry.PopupRoot.gameObject.activeInHierarchy;
     }
 
+    private static void ApplyOverlayPresentation(Entry entry)
+    {
+        if (entry == null || entry.PopupRoot == null || !entry.ReparentToOverlayParent)
+            return;
+
+        entry.OriginalParent = entry.PopupRoot.parent as RectTransform;
+        entry.OriginalSiblingIndex = entry.PopupRoot.GetSiblingIndex();
+        entry.OriginalRectState = RectTransformState.Capture(entry.PopupRoot);
+
+        if (entry.OverlayParent != null && entry.PopupRoot.parent != entry.OverlayParent)
+            TrySetParent(entry.PopupRoot, entry.OverlayParent);
+
+        if (entry.StretchPopupToOverlayParent)
+            StretchToParent(entry.PopupRoot);
+    }
+
+    private static void RestoreOriginalPresentation(Entry entry)
+    {
+        if (entry == null || entry.PopupRoot == null || !entry.ReparentToOverlayParent)
+            return;
+
+        if (!CanRestorePresentation(entry))
+            return;
+
+        if (entry.OriginalParent != null && entry.PopupRoot.parent != entry.OriginalParent)
+            TrySetParent(entry.PopupRoot, entry.OriginalParent);
+
+        entry.OriginalRectState.Apply(entry.PopupRoot);
+
+        if (entry.OriginalParent == null)
+            return;
+
+        int maxSiblingIndex = Mathf.Max(0, entry.OriginalParent.childCount - 1);
+        TrySetSiblingIndex(entry.PopupRoot, Mathf.Clamp(entry.OriginalSiblingIndex, 0, maxSiblingIndex));
+    }
+
     private static void StretchToParent(RectTransform target)
     {
         if (target == null)
@@ -308,5 +402,65 @@ public static class PopupStackService
         target.anchoredPosition = Vector2.zero;
         target.localScale = Vector3.one;
         target.localRotation = Quaternion.identity;
+    }
+
+    private static bool CanRestorePresentation(Entry entry)
+    {
+        if (entry == null || entry.PopupRoot == null)
+            return false;
+
+        if (!Application.isPlaying)
+            return true;
+
+        GameObject popupObject = entry.PopupRoot.gameObject;
+        return popupObject != null && popupObject.activeInHierarchy;
+    }
+
+    private static bool TrySetParent(RectTransform target, RectTransform parent)
+    {
+        if (target == null || parent == null)
+            return false;
+
+        try
+        {
+            target.SetParent(parent, false);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private static bool TrySetSiblingIndex(RectTransform target, int siblingIndex)
+    {
+        if (target == null)
+            return false;
+
+        try
+        {
+            target.SetSiblingIndex(siblingIndex);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private static bool TrySetAsLastSibling(RectTransform target)
+    {
+        if (target == null)
+            return false;
+
+        try
+        {
+            target.SetAsLastSibling();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

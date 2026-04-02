@@ -2,70 +2,43 @@ using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-/// <summary>
-/// 가챠(뽑기) 시스템 메인 매니저.
-/// 재화 소비, 뽑기 실행, 인벤토리 연동. (로직 우선 구현, UI 없음)
-/// 
-/// 주석을 최대한 적어봤습니다. 임시라고 써둔 것들은 UI 연동하시면서 지우셔도 무방합니다!
-/// </summary>
 public class GachaManager : Singleton<GachaManager>
 {
-
     [SerializeField] private SerializedDictionary<GachaType, GachaLevelState> levelStates = new SerializedDictionary<GachaType, GachaLevelState>();
 
     private CurrencyInventoryModule CurrencyModule => InventoryManager.Instance?.GetModule<CurrencyInventoryModule>();
 
     public SaveGachaData saveGachaData;
-
     public int crystalId = 0;
-
-    public bool DataLoad=false;
+    public bool DataLoad = false;
 
     protected override void Awake()
     {
         base.Awake();
-        //InitializeLevelStates();
-        StartCoroutine(CheckCrystalId());
         StartCoroutine(LoadData());
     }
 
-    IEnumerator CheckCrystalId()
+    private IEnumerator LoadData()
     {
         yield return new WaitUntil(() => DataManager.Instance != null);
         yield return new WaitUntil(() => DataManager.Instance.DataLoad);
-        foreach (var item in DataManager.Instance.ItemInfoDict)
-        {
-            if (item.Value.itemType == ItemType.PaidCurrency)
-            {
-                crystalId = item.Key;
-                break;
-            }
-        }
-    }
-    IEnumerator LoadData()
-    {
-        yield return new WaitUntil(() => DataManager.Instance != null);
-        yield return new WaitUntil(() => DataManager.Instance.DataLoad);
-        saveGachaData = JSONService.Load<SaveGachaData>();
+
+        ResolveCrystalId();
+
+        yield return new WaitUntil(() => InventoryManager.Instance != null);
+        yield return new WaitUntil(() => InventoryManager.Instance.DataLoad);
+
+        saveGachaData = JSONService.Load<SaveGachaData>() ?? new SaveGachaData();
         saveGachaData.InitGachaData();
 
         levelStates.Clear();
-
         foreach (GachaType type in Enum.GetValues(typeof(GachaType)))
             levelStates[type] = saveGachaData.GetGachaData(type);
 
+        MigrateLegacyTicketCurrencies();
         DataLoad = true;
     }
-
-    //private void InitializeLevelStates()
-    //{
-    //    levelStates.Clear();
-
-    //    foreach (GachaType type in Enum.GetValues(typeof(GachaType)))
-    //        levelStates[type] = new GachaLevelState(type, 1, 0);
-    //}
 
     public GachaLevelState GetLevelState(GachaType gachaType)
     {
@@ -78,54 +51,68 @@ public class GachaManager : Singleton<GachaManager>
         return state;
     }
 
-    /// <summary>1회 뽑기. 뽑기권 1장 또는 크리스탈 10개 소비.</summary>
     public bool TryDrawOnce(GachaType gachaType, out GachaDrawResult result)
     {
         return TryDraw(gachaType, 1, out result);
     }
 
-    /// <summary>10회 뽑기. 뽑기권 10장 또는 크리스탈 100개 소비.</summary>
     public bool TryDrawTen(GachaType gachaType, out GachaDrawResult result)
     {
         return TryDraw(gachaType, 10, out result);
     }
 
-    /// <summary>30회 뽑기. 뽑기권 30장 또는 크리스탈 300개 소비.</summary>
     public bool TryDrawBulk(GachaType gachaType, out GachaDrawResult result)
     {
         return TryDraw(gachaType, 30, out result);
     }
 
-    /// <summary>뽑기권 부족 시 크리스탈으로 필요한 만큼 구매(1장=10 크리스탈) 후 뽑기 진행. 구매 및 사용 한 번에.</summary>
     public bool TryPurchaseTicketsAndDraw(GachaType gachaType, int drawCount, out GachaDrawResult result)
     {
         result = GachaDrawResult.Create();
-        if (!IsEquipmentGacha(gachaType) && !IsSkillScrollGacha(gachaType)) return false;
 
-        if (!IsSupportedDrawCount(gachaType, drawCount)) return false;
+        if (!DataLoad)
+            return false;
 
-        CurrencyType ticketType = GetTicketCurrency(gachaType);
+        if (!IsEquipmentGacha(gachaType) && !IsSkillScrollGacha(gachaType))
+            return false;
+
+        if (!IsSupportedDrawCount(gachaType, drawCount))
+            return false;
+
+        int ticketItemId = GachaTicketResolver.GetTicketItemId(gachaType);
+        if (ticketItemId <= 0)
+            return false;
+
         int ticketNeeded = drawCount;
-        BigDouble currentTickets = CurrencyModule?.GetAmount(ticketType) ?? BigDouble.Zero;
+        BigDouble currentTickets = GachaTicketResolver.GetOwnedTicketAmount(gachaType);
 
         if (currentTickets >= ticketNeeded)
             return TryDraw(gachaType, drawCount, out result);
 
-        int ticketsToBuy = ticketNeeded - (int)currentTickets.ToDouble();
+        int ticketsToBuy = ticketNeeded - Mathf.Max(0, (int)currentTickets.ToDouble());
         int purchaseCount = ((ticketsToBuy - 1) / GachaConfig.TicketCostPerDraw + 1) * GachaConfig.TicketCostPerDraw;
-        int cost = purchaseCount * GachaConfig.CrystalCostPerDraw;
+        int crystalCost = purchaseCount * GachaConfig.CrystalCostPerDraw;
 
-        if (CurrencyModule == null || !CurrencyModule.HasEnough(CurrencyType.Crystal, new BigDouble(cost)))
+        if (CurrencyModule == null || crystalId <= 0)
             return false;
 
-        InventoryManager.Instance.RemoveItem(crystalId, cost);
-        CurrencyModule.AddCurrency(ticketType, new BigDouble(purchaseCount));
+        if (!CurrencyModule.HasEnough(CurrencyType.Crystal, new BigDouble(crystalCost)))
+            return false;
+
+        if (!InventoryManager.Instance.RemoveItem(crystalId, crystalCost))
+            return false;
+
+        if (!InventoryManager.Instance.AddItem(ticketItemId, purchaseCount))
+        {
+            InventoryManager.Instance.AddItem(crystalId, crystalCost);
+            return false;
+        }
 
         if (!TryDraw(gachaType, drawCount, out result))
             return false;
 
-        result.SpentCurrencies.TryGetValue(CurrencyType.Crystal, out int existing);
-        result.SpentCurrencies[CurrencyType.Crystal] = existing + cost;
+        result.SpentCurrencies.TryGetValue(CurrencyType.Crystal, out int existingCrystalSpend);
+        result.SpentCurrencies[CurrencyType.Crystal] = existingCrystalSpend + crystalCost;
         return true;
     }
 
@@ -142,10 +129,13 @@ public class GachaManager : Singleton<GachaManager>
         out int ownedTicketCount,
         out int missingTicketCount)
     {
-        spendCurrencyType = GetTicketCurrency(gachaType);
+        spendCurrencyType = CurrencyType.GachaTicket;
         spendAmount = 0;
         ownedTicketCount = 0;
         missingTicketCount = 0;
+
+        if (!DataLoad)
+            return false;
 
         if (!IsEquipmentGacha(gachaType) && !IsSkillScrollGacha(gachaType))
             return false;
@@ -153,25 +143,27 @@ public class GachaManager : Singleton<GachaManager>
         if (!IsSupportedDrawCount(gachaType, drawCount))
             return false;
 
+        if (InventoryManager.Instance == null || !InventoryManager.Instance.DataLoad)
+            return false;
+
         CurrencyInventoryModule currency = CurrencyModule;
         if (currency == null)
             return false;
 
-        CurrencyType ticketType = GetTicketCurrency(gachaType);
-        ownedTicketCount = Mathf.Max(0, (int)currency.GetAmount(ticketType).ToDouble());
-
+        ownedTicketCount = Mathf.Max(0, (int)GachaTicketResolver.GetOwnedTicketAmount(gachaType).ToDouble());
         if (ownedTicketCount >= drawCount)
         {
-            spendCurrencyType = ticketType;
+            spendCurrencyType = CurrencyType.GachaTicket;
             spendAmount = drawCount;
             return true;
         }
 
         int ticketsToBuy = drawCount - ownedTicketCount;
         missingTicketCount = ticketsToBuy;
+
         int purchaseCount = ((ticketsToBuy - 1) / GachaConfig.TicketCostPerDraw + 1) * GachaConfig.TicketCostPerDraw;
         int crystalCost = purchaseCount * GachaConfig.CrystalCostPerDraw;
-        if (!currency.HasEnough(CurrencyType.Crystal, new BigDouble(crystalCost)))
+        if (crystalId <= 0 || !currency.HasEnough(CurrencyType.Crystal, new BigDouble(crystalCost)))
             return false;
 
         spendCurrencyType = CurrencyType.Crystal;
@@ -182,7 +174,8 @@ public class GachaManager : Singleton<GachaManager>
     private bool TryDraw(GachaType gachaType, int count, out GachaDrawResult result)
     {
         result = GachaDrawResult.Create();
-        if (count <= 0)
+
+        if (!DataLoad || count <= 0)
             return false;
 
         if (!IsSupportedDrawCount(gachaType, count))
@@ -195,22 +188,28 @@ public class GachaManager : Singleton<GachaManager>
         if (currency == null)
             return false;
 
-        GachaLevelState state = GetLevelState(gachaType);
+        int ticketItemId = GachaTicketResolver.GetTicketItemId(gachaType);
+        if (ticketItemId <= 0)
+            return false;
 
-        CurrencyType ticketType = GetTicketCurrency(gachaType);
+        GachaLevelState state = GetLevelState(gachaType);
         int ticketCost = GetTicketCost(count);
         int crystalCost = GetCrystalCost(count);
-        BigDouble ticketAmount = currency.GetAmount(ticketType);
+        BigDouble ticketAmount = GachaTicketResolver.GetOwnedTicketAmount(gachaType);
         BigDouble crystalAmount = currency.GetAmount(CurrencyType.Crystal);
 
         if (ticketAmount >= ticketCost)
         {
-            currency.TrySpend(ticketType, new BigDouble(ticketCost));
-            result.SpentCurrencies[ticketType] = ticketCost;
+            if (!InventoryManager.Instance.RemoveItem(ticketItemId, ticketCost))
+                return false;
+
+            result.SpentCurrencies[CurrencyType.GachaTicket] = ticketCost;
         }
-        else if (crystalAmount >= crystalCost)
+        else if (crystalId > 0 && crystalAmount >= crystalCost)
         {
-            InventoryManager.Instance.RemoveItem(crystalId, crystalCost);
+            if (!InventoryManager.Instance.RemoveItem(crystalId, crystalCost))
+                return false;
+
             result.SpentCurrencies[CurrencyType.Crystal] = crystalCost;
         }
         else
@@ -236,7 +235,7 @@ public class GachaManager : Singleton<GachaManager>
                 continue;
             }
 
-            state.AddDraws(1); // 기획서 기준: 레벨 카운트를 먼저 반영하고 천장 처리
+            state.AddDraws(1);
 
             bool forcePity = state.ShouldForcePityThisDraw();
             EquipmentGachaLogic.DrawResult drawResult = gachaType == GachaType.Weapon
@@ -258,8 +257,6 @@ public class GachaManager : Singleton<GachaManager>
         }
 
         result.LevelUp = state.Level > levelBefore;
-
-        //가차 데이터 저장
         saveGachaData.SaveGachaLevel(gachaType, state.Level, state.DrawCountInCurrentLevel, state.PityCount);
         return true;
     }
@@ -298,37 +295,24 @@ public class GachaManager : Singleton<GachaManager>
         return count * GachaConfig.CrystalCostPerDraw;
     }
 
-    private static CurrencyType GetTicketCurrency(GachaType gachaType)
-    {
-        switch (gachaType)
-        {
-            case GachaType.Weapon:
-                return CurrencyType.WeaponDrawTicket;
-            case GachaType.Armor:
-                return CurrencyType.ArmorDrawTicket;
-            case GachaType.SkillScroll:
-                return CurrencyType.SkillScrollDrawTicket;
-            default:
-                return CurrencyType.WeaponDrawTicket;
-        }
-    }
-
-    /// <summary>뽑기권으로 N회 뽑기 가능한지 확인</summary>
     public bool CanDrawWithTickets(GachaType gachaType, int count)
     {
-        CurrencyType ticketType = GetTicketCurrency(gachaType);
+        if (!DataLoad)
+            return false;
+
         int cost = GetTicketCost(count);
-        return cost > 0 && (CurrencyModule?.GetAmount(ticketType) ?? BigDouble.Zero) >= new BigDouble(cost);
+        return cost > 0 && GachaTicketResolver.GetOwnedTicketAmount(gachaType) >= new BigDouble(cost);
     }
 
-    /// <summary>크리스탈으로 N회 뽑기 가능한지 확인 (티켓 부족 시 대체)</summary>
     public bool CanDrawWithCrystal(GachaType gachaType, int count)
     {
+        if (!DataLoad || crystalId <= 0)
+            return false;
+
         int cost = GetCrystalCost(count);
         return cost > 0 && (CurrencyModule?.GetAmount(CurrencyType.Crystal) ?? BigDouble.Zero) >= new BigDouble(cost);
     }
 
-    /// <summary>30회 벌크 뽑기 가능한지 확인. 스킬 주문서는 기획상 1회/10회만 지원.</summary>
     public bool CanDrawBulk(GachaType gachaType)
     {
         if (IsSkillScrollGacha(gachaType))
@@ -339,6 +323,61 @@ public class GachaManager : Singleton<GachaManager>
 
     public bool CanPurchaseTickets(GachaType gachaType)
     {
-        return (CurrencyModule?.GetAmount(CurrencyType.Crystal) ?? BigDouble.Zero) >= new BigDouble(GachaConfig.CrystalCostPerDraw);
+        return DataLoad
+            && crystalId > 0
+            && (CurrencyModule?.GetAmount(CurrencyType.Crystal) ?? BigDouble.Zero) >= new BigDouble(GachaConfig.CrystalCostPerDraw);
+    }
+
+    private void ResolveCrystalId()
+    {
+        crystalId = 0;
+
+        if (DataManager.Instance?.ItemInfoDict == null)
+            return;
+
+        foreach (var item in DataManager.Instance.ItemInfoDict)
+        {
+            if (item.Value.itemType != ItemType.PaidCurrency)
+                continue;
+
+            crystalId = item.Key;
+            return;
+        }
+    }
+
+    private void MigrateLegacyTicketCurrencies()
+    {
+        CurrencyInventoryModule currency = CurrencyModule;
+        InventoryManager inventory = InventoryManager.Instance;
+        if (currency == null || inventory == null)
+            return;
+
+        MigrateLegacyTicketCurrency(GachaType.Weapon, currency, inventory);
+        MigrateLegacyTicketCurrency(GachaType.Armor, currency, inventory);
+        MigrateLegacyTicketCurrency(GachaType.SkillScroll, currency, inventory);
+    }
+
+    private void MigrateLegacyTicketCurrency(GachaType gachaType, CurrencyInventoryModule currency, InventoryManager inventory)
+    {
+        int ticketItemId = GachaTicketResolver.GetTicketItemId(gachaType);
+        if (ticketItemId <= 0)
+            return;
+
+        CurrencyType legacyCurrencyType = GachaTicketResolver.GetLegacyCurrencyType(gachaType);
+        BigDouble legacyAmount = currency.GetAmount(legacyCurrencyType);
+        if (legacyAmount <= BigDouble.Zero)
+            return;
+
+        if (!currency.TrySpendSilent(legacyCurrencyType, legacyAmount))
+            return;
+
+        if (!inventory.AddItem(ticketItemId, legacyAmount))
+        {
+            currency.AddCurrency(legacyCurrencyType, legacyAmount);
+            return;
+        }
+
+        inventory.saveCurrencyData?.Save(legacyCurrencyType, BigDouble.Zero);
+        Debug.Log($"[GachaManager] Migrated legacy {legacyCurrencyType} to ticket item {ticketItemId}: {legacyAmount}");
     }
 }

@@ -16,12 +16,41 @@ public class DungeonContentUI : MonoBehaviour
 
     [Header("State")]
     [SerializeField] private GameObject contentLockPanel;
+    [SerializeField] private Button contentLockButton;
+    [SerializeField] private string ShowlockMessage= "해금되지 않은 콘텐츠입니다";
     [SerializeField] private Button enterButton;
     [SerializeField] private TextMeshProUGUI neededKeyText;
+    private StageType stageType;
 
     public void SetEnterInteractable(bool interactable) { enterButton.interactable = interactable; }
     public void SetDungeonName(string dungeonName) { dungeonNameText.text = dungeonName; }
-    public void SetLocked(bool isLocked) { contentLockPanel.SetActive(isLocked); }
+    public void SetDungeonType(StageType type) { stageType = type; }
+    public void SetLocked(bool isLocked) { 
+        contentLockPanel.SetActive(isLocked);
+        FindUnLockStageAndSetMessage();
+        if (contentLockButton == null)
+            Debug.Log("[DungeonContentUI] 던전 콘텐츠 버튼이 없습니다");
+        else
+            Debug.Log("[DungeonContentUI] 던전 콘텐츠 버튼이 있습니다");
+        contentLockButton.onClick.AddListener(() => InstanceMessageManager.TryShow(ShowlockMessage));
+    }
+
+    public void FindUnLockStageAndSetMessage()
+    {
+        int unLockStageId = -1;
+        foreach (var dungeonreqTable in DataManager.Instance.DungeonReqDict)
+        {
+            if (dungeonreqTable.Value.stageType == stageType)
+            {
+                unLockStageId = dungeonreqTable.Value.stageID01;
+                break;
+            }
+        }
+        if(unLockStageId < 0 )
+            return;
+        StageManageTable unLockStage = DataManager.Instance.StageManageDict[unLockStageId];
+        ShowlockMessage = "해금되지 않은 콘텐츠입니다\n해금 조건 : " +unLockStage.desc+" "+unLockStage.floorNumber+"-"+unLockStage.sceneNumber+ " 클리어";
+    }
 
     public void SetNeededKeyState(BigDouble currentKey, int requiredKey, Color normalColor, Color notEnoughColor)
     {

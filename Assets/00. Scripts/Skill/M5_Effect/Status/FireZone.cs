@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class FireZone : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class FireZone : MonoBehaviour
 
     private static readonly Collider[] hitBuffer = new Collider[SkillConstants.HIT_BUFFER_SIZE];
     private PoolableParticle currentParticle;
+
+    private PlayerStateMachine player;
+    private bool isReturned;
     public void Init(SkillModule5Table data,float radius,int layerMask)
     {
         tableData = data;
@@ -21,18 +25,37 @@ public class FireZone : MonoBehaviour
         targetLayer = layerMask;
         elapsed = 0f;
         detectTimer = 0f;
+        isReturned = false;
         PoolableParticleManager.Instance.SpawnParticle(
             new ParticleSpawnContext(data?.m5VFX2, transform, true, false, onSpawned: (particle) => currentParticle = particle));
+    }
+
+    private void OnEnable()
+    {
+        isReturned = false;
+
+        if (StageManager.Instance != null)
+            StageManager.Instance.OnStageClearOrFailed += ReturnToPool;
+    }
+    private void OnDisable()
+    {
+        if (StageManager.Instance != null)
+            StageManager.Instance.OnStageClearOrFailed -= ReturnToPool;
+
+
+        if (currentParticle != null)
+        {
+            currentParticle.StopAndReturnManual();
+            currentParticle = null;
+        }
     }
     private void Update()
     {
         float dt = Time.deltaTime;
         elapsed += dt;
-
         if (elapsed >= zoneDuration)
         {
-            ObjectPoolManager.Return(gameObject);
-            // TODO: 풀에 반납
+            ReturnToPool();
             return;
         }
 
@@ -44,6 +67,7 @@ public class FireZone : MonoBehaviour
         }
     }
 
+    //private bool IsPlayerAlive()=> player != null && player.IsAlive;
     private void DetectAndApply()
     {
         float halfHeight = SkillConstants.DETECT_HEIGHT;
@@ -62,13 +86,16 @@ public class FireZone : MonoBehaviour
             }
         }
     }
-    private void OnDisable()
+    //private void OnSceneUnloaded(Scene scene)
+    //{
+    //    ReturnToPool();
+    //}
+    private void ReturnToPool()
     {
-        if (currentParticle != null)
-        {
-            currentParticle.StopAndReturnManual();
-            currentParticle = null;
-        }
+        if (isReturned)
+            return;
+
+        isReturned = true;
         ObjectPoolManager.Return(gameObject);
     }
 }

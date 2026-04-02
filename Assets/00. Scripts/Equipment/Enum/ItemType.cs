@@ -10,6 +10,7 @@ public enum ItemType
     UniqueGem = 23,
     PixiePiece = 31,
     Pixie = 32,
+    GachaTicket=33,
     BingoLink = 41,
     BingoItem_A =42,
     BingoSynergy = 43,

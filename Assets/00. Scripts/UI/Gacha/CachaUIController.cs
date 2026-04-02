@@ -38,6 +38,10 @@ public sealed class CachaUIController : UIControllerBase
             toggleSkillScroll.onValueChanged.AddListener(OnSkillScrollToggleChanged);
 
         GameEventManager.OnCurrencyChanged += OnCurrencyChanged;
+
+        InventoryManager inventory = InventoryManager.Instance;
+        if (inventory != null)
+            inventory.OnItemAmountChanged += OnItemAmountChanged;
     }
 
     protected override void Unsubscribe()
@@ -52,6 +56,10 @@ public sealed class CachaUIController : UIControllerBase
             toggleSkillScroll.onValueChanged.RemoveListener(OnSkillScrollToggleChanged);
 
         GameEventManager.OnCurrencyChanged -= OnCurrencyChanged;
+
+        InventoryManager inventory = InventoryManager.Instance;
+        if (inventory != null)
+            inventory.OnItemAmountChanged -= OnItemAmountChanged;
 
         if (crystalChangePopup != null)
             crystalChangePopup.Hide();
@@ -180,15 +188,19 @@ public sealed class CachaUIController : UIControllerBase
 
     private void OnCurrencyChanged(CurrencyType type, BigDouble amount)
     {
-        if (!IsRelevantCurrency(type))
+        if (type != CurrencyType.Crystal)
             return;
 
         RefreshSummonItemUIs();
     }
 
-    private bool IsRelevantCurrency(CurrencyType currencyType)
+    private void OnItemAmountChanged(InventoryItemContext item, BigDouble amount)
     {
-        return currencyType == CurrencyType.Crystal || currencyType == GetTicketCurrency(currentSubMenu);
+        int ticketItemId = GachaTicketResolver.GetTicketItemId(currentSubMenu);
+        if (ticketItemId <= 0 || item.ItemId != ticketItemId)
+            return;
+
+        RefreshSummonItemUIs();
     }
 
     private static GachaType SanitizeSubMenu(GachaType gachaType)
@@ -244,21 +256,6 @@ public sealed class CachaUIController : UIControllerBase
                 return "\uC2A4\uD0AC \uC2A4\uD06C\uB864 \uC18C\uD658";
             default:
                 return "\uC18C\uD658";
-        }
-    }
-
-    private static CurrencyType GetTicketCurrency(GachaType gachaType)
-    {
-        switch (gachaType)
-        {
-            case GachaType.Weapon:
-                return CurrencyType.WeaponDrawTicket;
-            case GachaType.Armor:
-                return CurrencyType.ArmorDrawTicket;
-            case GachaType.SkillScroll:
-                return CurrencyType.SkillScrollDrawTicket;
-            default:
-                return CurrencyType.WeaponDrawTicket;
         }
     }
 }

@@ -8,6 +8,7 @@ public enum CurrencyType
     //ElementGem = 22,
     //UniqueGem = 23,
     PixieFragment =31,
+    GachaTicket = 33,
     BingoLink = 41,
     BingoItem_A = 42,
     BingoSynergy = 43,

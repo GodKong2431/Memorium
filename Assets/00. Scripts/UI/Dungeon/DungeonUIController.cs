@@ -118,6 +118,7 @@ public class DungeonUIController : UIControllerBase
 
             itemObject.name = $"(Img)DungeonBackground_{viewData.stageType}";
             item.SetDungeonName(viewData.dungeonName);
+            item.SetDungeonType(viewData.stageType);
 
             StageType cachedType = viewData.stageType;
             item.BindEnter(() => OnClickEnter(cachedType));

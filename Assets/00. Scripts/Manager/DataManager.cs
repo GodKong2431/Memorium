@@ -19,11 +19,14 @@ public class DataManager : Singleton<DataManager>
     private const float RetryDelaySeconds = 2f;
     private const float CatalogLookupTimeoutSeconds = 15f;
     private const float AssetDownloadTimeoutSeconds = 30f;
+    private const float PrefabDownloadTimeoutSeconds = 300f;
     private const string LabelToLoad = "CSV_Data";
+    private const string PrefabLabelToPreload = "Prefabs";
     private const string StatusStarting = "게임 데이터를 준비하는 중...";
     private const string StatusLookupCatalog = "콘텐츠 목록을 확인하는 중...";
     private const string StatusDownloadAssets = "게임 데이터를 다운로드하는 중...";
     private const string StatusProcessingFormat = "게임 데이터를 확인하는 중... ({0}/{1})";
+    private const string StatusDownloadPrefabs = "게임 리소스를 다운로드하는 중...";
     private const string StatusComplete = "게임 데이터 준비가 완료되었습니다.";
     private const string UserRetryHint = "화면을 터치하면 다시 시도합니다.";
 
@@ -106,6 +109,8 @@ public class DataManager : Singleton<DataManager>
     public SerializedDictionary<int, ConfigTable> ConfigDict;
 
     public SerializedDictionary<int, SoundTable> SoundDict;
+
+    public SerializedDictionary<int, OfflineRewardTable> OfflineRewardDict;
     #endregion
 
     public event Action<int, int, string> OnProgress;
@@ -371,6 +376,10 @@ public class DataManager : Singleton<DataManager>
             yield break;
         }
 
+        yield return DownloadInitialPrefabDependencies(attempt);
+        if (!string.IsNullOrWhiteSpace(LastFailureUserMessage))
+            yield break;
+
         OnProgress?.Invoke(totalCount, totalCount, "완료");
         ReportNormalizedProgress(1f, "완료");
         SetStatusMessage(StatusComplete);
@@ -386,13 +395,78 @@ public class DataManager : Singleton<DataManager>
         Debug.Log($"[DataManager] Data load completed successfully on attempt {attempt}/{TotalLoadAttemptCount}.");
     }
 
+    private IEnumerator DownloadInitialPrefabDependencies(int attempt)
+    {
+        AsyncOperationHandle<long> sizeHandle = Addressables.GetDownloadSizeAsync(PrefabLabelToPreload);
+        yield return sizeHandle;
+
+        if (sizeHandle.Status != AsyncOperationStatus.Succeeded)
+        {
+            FailCurrentAttempt(
+                BuildUserFacingFailureMessage("게임 리소스 확인", sizeHandle.OperationException, false),
+                BuildHandleFailureDetails("GetDownloadSizeAsync", attempt, sizeHandle, 0f, false));
+
+            if (sizeHandle.IsValid())
+                Addressables.Release(sizeHandle);
+            yield break;
+        }
+
+        long pendingBytes = sizeHandle.Result;
+        if (sizeHandle.IsValid())
+            Addressables.Release(sizeHandle);
+
+        if (pendingBytes <= 0)
+        {
+            ReportNormalizedProgress(0.98f, StatusDownloadPrefabs);
+            yield break;
+        }
+
+        AsyncOperationHandle downloadHandle = Addressables.DownloadDependenciesAsync(PrefabLabelToPreload, false);
+        bool timedOut = false;
+
+        yield return TrackHandleProgress(
+            downloadHandle,
+            0.88f,
+            0.98f,
+            StatusDownloadPrefabs,
+            PrefabDownloadTimeoutSeconds,
+            () =>
+            {
+                timedOut = true;
+                FailCurrentAttempt(
+                    BuildUserFacingFailureMessage("게임 리소스 다운로드", downloadHandle.OperationException, true),
+                    BuildHandleFailureDetails("DownloadDependenciesAsync", attempt, downloadHandle, PrefabDownloadTimeoutSeconds, true));
+            });
+
+        if (timedOut)
+        {
+            if (downloadHandle.IsValid())
+                Addressables.Release(downloadHandle);
+            yield break;
+        }
+
+        if (downloadHandle.Status != AsyncOperationStatus.Succeeded)
+        {
+            FailCurrentAttempt(
+                BuildUserFacingFailureMessage("게임 리소스 다운로드", downloadHandle.OperationException, false),
+                BuildHandleFailureDetails("DownloadDependenciesAsync", attempt, downloadHandle, PrefabDownloadTimeoutSeconds, false));
+
+            if (downloadHandle.IsValid())
+                Addressables.Release(downloadHandle);
+            yield break;
+        }
+
+        if (downloadHandle.IsValid())
+            Addressables.Release(downloadHandle);
+    }
+
     private static float CalculateProcessingProgress(int currentCount, int totalCount)
     {
         if (totalCount <= 0)
-            return 1f;
+            return 0.88f;
 
         float processingProgress = Mathf.Clamp01((float)currentCount / totalCount);
-        return Mathf.Lerp(0.75f, 1f, processingProgress);
+        return Mathf.Lerp(0.75f, 0.88f, processingProgress);
     }
 
     private IEnumerator TrackHandleProgress<T>(
@@ -425,6 +499,36 @@ public class DataManager : Singleton<DataManager>
 
         // Addressables completes some internal callbacks in LateUpdate.
         // Waiting one frame here prevents releasing the handle before those callbacks run.
+        yield return null;
+    }
+
+    private IEnumerator TrackHandleProgress(
+        AsyncOperationHandle handle,
+        float startProgress,
+        float endProgress,
+        string label,
+        float timeoutSeconds,
+        Action onTimeout)
+    {
+        SetStatusMessage(label);
+        float elapsed = 0f;
+
+        while (!handle.IsDone)
+        {
+            float normalizedProgress = Mathf.Lerp(startProgress, endProgress, handle.PercentComplete);
+            ReportNormalizedProgress(normalizedProgress, label);
+
+            elapsed += Time.unscaledDeltaTime;
+            if (timeoutSeconds > 0f && elapsed >= timeoutSeconds)
+            {
+                onTimeout?.Invoke();
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        ReportNormalizedProgress(endProgress, label);
         yield return null;
     }
 
@@ -506,6 +610,28 @@ public class DataManager : Singleton<DataManager>
         string operationName,
         int attempt,
         AsyncOperationHandle<T> handle,
+        float timeoutSeconds,
+        bool timedOut)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine("[DataManager] Addressables load failure detail");
+        builder.AppendLine($"Attempt: {attempt}/{TotalLoadAttemptCount}");
+        builder.AppendLine($"Operation: {operationName}");
+        builder.AppendLine($"TimedOut: {timedOut}");
+        if (timedOut)
+            builder.AppendLine($"TimeoutSeconds: {timeoutSeconds:F1}");
+
+        builder.AppendLine($"Status: {handle.Status}");
+        builder.AppendLine($"PercentComplete: {handle.PercentComplete:P0}");
+        builder.AppendLine($"NetworkReachability: {Application.internetReachability}");
+        builder.AppendLine($"OperationException: {handle.OperationException}");
+        return builder.ToString();
+    }
+
+    private static string BuildHandleFailureDetails(
+        string operationName,
+        int attempt,
+        AsyncOperationHandle handle,
         float timeoutSeconds,
         bool timedOut)
     {

@@ -1,26 +1,40 @@
-﻿using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyListManager : Singleton<EnemyListManager>
 {
-    [SerializeField] EnemyStatPresenter[] enemyList;
+    [SerializeField] private EnemyStatPresenter[] enemyList;
+
     public Dictionary<int, GameObject> enemyMap;
     public Dictionary<int, EnemyRewardData> enemyRewardMap;
-    private bool dataLoad=false;
+
+    private bool dataLoad = false;
     public bool DataLoad => dataLoad;
 
     protected override void Awake()
     {
         base.Awake();
-        enemyMap = new Dictionary<int, GameObject>();
-        foreach (var enemy in enemyList)
-        {
+        if (Instance != this)
+            return;
 
-            //Debug.Log($"[EnemyListManager] 몬스터 ID {enemy.monsterIdFromDataManager}");
-            enemyMap[enemy.monsterIdFromDataManager]=enemy.gameObject;
+        enemyMap = new Dictionary<int, GameObject>();
+        enemyRewardMap = new Dictionary<int, EnemyRewardData>();
+
+        if (enemyList == null)
+        {
+            dataLoad = true;
+            return;
+        }
+
+        foreach (EnemyStatPresenter enemy in enemyList)
+        {
+            if (enemy == null)
+                continue;
+
+            enemyMap[enemy.monsterIdFromDataManager] = enemy.gameObject;
             //enemyRewardMap[enemy.monsterIdFromDataManager] = enemy.RewardData;
         }
+
         dataLoad = true;
     }
 }

@@ -10,49 +10,8 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     private const string DungeonSweepFailedMessage = "던전 소탕에 실패했습니다.";
     private const string DungeonEnterFailedMessage = "던전 입장에 실패했습니다.";
 
-    private struct RectTransformState
-    {
-        public Vector2 anchorMin;
-        public Vector2 anchorMax;
-        public Vector2 anchoredPosition;
-        public Vector2 sizeDelta;
-        public Vector2 pivot;
-        public Vector2 offsetMin;
-        public Vector2 offsetMax;
-        public Vector3 localScale;
-        public Quaternion localRotation;
-
-        public static RectTransformState Capture(RectTransform target)
-        {
-            return new RectTransformState
-            {
-                anchorMin = target.anchorMin,
-                anchorMax = target.anchorMax,
-                anchoredPosition = target.anchoredPosition,
-                sizeDelta = target.sizeDelta,
-                pivot = target.pivot,
-                offsetMin = target.offsetMin,
-                offsetMax = target.offsetMax,
-                localScale = target.localScale,
-                localRotation = target.localRotation
-            };
-        }
-
-        public void Apply(RectTransform target)
-        {
-            target.anchorMin = anchorMin;
-            target.anchorMax = anchorMax;
-            target.pivot = pivot;
-            target.anchoredPosition = anchoredPosition;
-            target.sizeDelta = sizeDelta;
-            target.offsetMin = offsetMin;
-            target.offsetMax = offsetMax;
-            target.localScale = localScale;
-            target.localRotation = localRotation;
-        }
-    }
-
     private readonly List<RewardManager.DungeonRewardEntry> currentRewardEntries = new List<RewardManager.DungeonRewardEntry>();
+    private const string DungeonSweepRequiresClearMessage = "\uD55C \uBC88 \uC774\uC0C1 \uD074\uB9AC\uC5B4\uD55C \uB358\uC804\uB9CC \uC18C\uD0D5\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.";
 
     [Header("UI")]
     [SerializeField] private Image dungeonBackgroundImage;
@@ -69,7 +28,6 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     [SerializeField] private RectTransform popupContentRoot;
 
     private bool isButtonBound;
-    private bool isPresentedAsOverlay;
     private StageType currentStageType = StageType.None;
     private int currentLevel = 1;
     private int maxUnlockedLevel = 1;
@@ -77,10 +35,6 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     private int currentRequiredKeyCount = 1;
     private RectTransform popupRect;
     private Image popupBackdropImage;
-    private RectTransform originalParent;
-    private RectTransform rootCanvasRect;
-    private RectTransformState originalRectState;
-    private int originalSiblingIndex;
     private PopupStackService.Handle popupHandle;
 
     public void Hide()
@@ -89,7 +43,6 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         currentStageType = StageType.None;
         currentRewardEntries.Clear();
         PopupStackService.Dismiss(ref popupHandle);
-        RestoreOriginalPresentation();
 
         if (gameObject.activeSelf)
             gameObject.SetActive(false);
@@ -98,6 +51,14 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
     public void BindHost(DungeonUIController controller)
     {
         BindButtons();
+    }
+
+    public void ReclaimPopupFocus()
+    {
+        if (!isActiveAndEnabled || currentStageType == StageType.None)
+            return;
+
+        PresentPopup();
     }
 
     private void Awake()
@@ -115,20 +76,6 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         // receive the outside-click close event.
         if (popupBackdropImage != null && popupBackdropImage.raycastTarget)
             popupBackdropImage.raycastTarget = false;
-
-        if (popupRect != null && originalParent == null)
-        {
-            originalParent = popupRect.parent as RectTransform;
-            originalSiblingIndex = popupRect.GetSiblingIndex();
-            originalRectState = RectTransformState.Capture(popupRect);
-        }
-
-        if (rootCanvasRect == null)
-        {
-            Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas != null && canvas.rootCanvas != null)
-                rootCanvasRect = canvas.rootCanvas.transform as RectTransform;
-        }
     }
 
     private void OnEnable()
@@ -173,7 +120,6 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
 
         ApplyDungeonPreview(stageType);
 
-        PresentAsOverlay();
         gameObject.SetActive(true);
         PresentPopup();
         RefreshState();
@@ -203,6 +149,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         RefreshRewards();
 
         bool canEnterCurrentLevel = CheckDungeon.CanEnter(currentStageType, currentLevel, currentRequiredKeyCount);
+        bool canSweepCurrentLevel = CheckDungeon.CanSweep(currentStageType, currentLevel, currentRequiredKeyCount);
 
         if (beforeButton != null)
             beforeButton.interactable = currentLevel > 1;
@@ -211,7 +158,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
             afterButton.interactable = currentLevel < maxUnlockedLevel;
 
         if (sweepButton != null)
-            sweepButton.interactable = canEnterCurrentLevel;
+            sweepButton.interactable = canSweepCurrentLevel;
 
         if (enterButton != null)
             enterButton.interactable = canEnterCurrentLevel;
@@ -248,7 +195,14 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         }
 
         int ticketCost = currentRequiredKeyCount;
-        if (!CheckDungeon.CanEnter(currentStageType, currentLevel, ticketCost))
+        if (!CheckDungeon.HasClearedDungeon(currentStageType, currentLevel))
+        {
+            RefreshState();
+            InstanceMessageManager.TryShow(DungeonSweepRequiresClearMessage);
+            return;
+        }
+
+        if (!CheckDungeon.CanSweep(currentStageType, currentLevel, ticketCost))
         {
             RefreshState();
             InstanceMessageManager.TryShow(InsufficientDungeonTicketMessage);
@@ -347,58 +301,14 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         return maximumUsePanel != null && maximumUsePanel.activeSelf;
     }
 
-    private void PresentAsOverlay()
-    {
-        EnsureRuntimeReferences();
-        if (popupRect == null)
-            return;
-
-        if (!isPresentedAsOverlay)
-        {
-            originalParent = popupRect.parent as RectTransform;
-            originalSiblingIndex = popupRect.GetSiblingIndex();
-            originalRectState = RectTransformState.Capture(popupRect);
-            isPresentedAsOverlay = true;
-        }
-
-        RectTransform overlayRoot = ResolveOverlayRoot();
-        if (overlayRoot == null)
-            return;
-
-        if (popupRect.parent != overlayRoot)
-            popupRect.SetParent(overlayRoot, false);
-
-        StretchToParent(popupRect);
-        popupRect.SetAsLastSibling();
-    }
-
-    private void RestoreOriginalPresentation()
-    {
-        EnsureRuntimeReferences();
-        if (!isPresentedAsOverlay || popupRect == null)
-            return;
-
-        if (originalParent != null && popupRect.parent != originalParent)
-            popupRect.SetParent(originalParent, false);
-
-        originalRectState.Apply(popupRect);
-
-        if (originalParent != null)
-        {
-            int maxSiblingIndex = Mathf.Max(0, originalParent.childCount - 1);
-            popupRect.SetSiblingIndex(Mathf.Clamp(originalSiblingIndex, 0, maxSiblingIndex));
-        }
-
-        isPresentedAsOverlay = false;
-    }
-
     private RectTransform ResolveOverlayRoot()
     {
         EnsureRuntimeReferences();
-        if (rootCanvasRect != null)
-            return rootCanvasRect;
+        Canvas canvas = popupRect != null ? popupRect.GetComponentInParent<Canvas>() : null;
+        if (canvas != null && canvas.rootCanvas != null)
+            return canvas.rootCanvas.transform as RectTransform;
 
-        return rootCanvasRect != null ? rootCanvasRect : originalParent;
+        return popupRect != null ? popupRect.parent as RectTransform : null;
     }
 
     private void PresentPopup()
@@ -411,10 +321,12 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         {
             PopupRoot = popupRect,
             ContentRoot = ResolvePopupHitRoot(),
-            OverlayParent = popupRect.parent as RectTransform,
+            OverlayParent = ResolveOverlayRoot(),
             OnRequestClose = Hide,
             CloseOnOutside = true,
-            BackdropColor = popupBackdropImage != null ? Color.clear : new Color(0f, 0f, 0f, 0.78431374f)
+            BackdropColor = popupBackdropImage != null ? Color.clear : new Color(0f, 0f, 0f, 0.78431374f),
+            ReparentToOverlayParent = true,
+            StretchPopupToOverlayParent = true
         });
     }
 
@@ -449,15 +361,4 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         return popupRect;
     }
 
-    private static void StretchToParent(RectTransform target)
-    {
-        target.anchorMin = Vector2.zero;
-        target.anchorMax = Vector2.one;
-        target.pivot = new Vector2(0.5f, 0.5f);
-        target.anchoredPosition = Vector2.zero;
-        target.offsetMin = Vector2.zero;
-        target.offsetMax = Vector2.zero;
-        target.localScale = Vector3.one;
-        target.localRotation = Quaternion.identity;
-    }
 }
