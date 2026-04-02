@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6755611732281308830}
   - component: {fileID: 6445958461898642981}
   - component: {fileID: 9076956273958136005}
+  - component: {fileID: -7414105170915415521}
   m_Layer: 0
   m_Name: 2010014_FX_Ice_EarthShatter
   m_TagString: Untagged
@@ -4922,6 +4923,18 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &-7414105170915415521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4017531642684342029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 655bd8dd654fedd4ab726334799bb09d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoolableParticle
 --- !u!1 &5944870274400440643
 GameObject:
   m_ObjectHideFlags: 0
