@@ -29,7 +29,8 @@ public class PlayerStateMove : IPlayerState
 
         Transform goal = GameObject.FindAnyObjectByType<Goal>().transform;
 
-        agent.SetDestination(goal.position);
+        if(agent.enabled)
+            agent.SetDestination(goal.position);
 
         if (EnemyRegistry.isEnemyExist)
         {
