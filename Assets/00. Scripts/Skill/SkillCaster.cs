@@ -216,9 +216,9 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         debugLastCastDir = GetTargetDirection();
         if (agent != null)
         {
-            //agent.isStopped = true;
-            //agent.updateRotation = false;
-            agent.enabled = false;
+            agent.isStopped = true;
+            agent.updateRotation = false;
+            //agent.enabled = false;
         }
         if (data.m1Data.m1Delay > 0)
         {
@@ -257,10 +257,10 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         isCasting = false;
         if(agent != null)
         {
-            //agent.isStopped = false;
-            //agent.updateRotation = true;
+            agent.isStopped = false;
+            agent.updateRotation = true;
 
-            agent.enabled = true;
+            //agent.enabled = true;
         }
         OnSkillEnd?.Invoke();
     }
