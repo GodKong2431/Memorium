@@ -49,6 +49,9 @@ public sealed class MiscContentsUIController : UIControllerBase
     [Header("Item Template")]
     [SerializeField] private MiscItemFrameUI itemPrefab;
 
+    [Header("Detail Popup")]
+    [SerializeField] private ItemDetailPopupUI itemDetailPopup;
+
     private readonly List<FilterButtonBinding> filterButtons = new(4);
     private readonly List<MiscItemEntry> visibleEntries = new();
     private readonly List<MiscItemFrameUI> itemViews = new();
@@ -63,6 +66,7 @@ public sealed class MiscContentsUIController : UIControllerBase
     private bool isDirty;
     private bool shouldResetScrollPosition = true;
     private bool missingTemplateLogged;
+    private bool missingDetailPopupLogged;
 
     protected override void Initialize()
     {
@@ -350,6 +354,14 @@ public sealed class MiscContentsUIController : UIControllerBase
                 entry.ItemId);
 
             view.Bind(entry.Icon, FormatAmount(entry.Amount));
+
+            if (view.Button != null)
+            {
+                int capturedItemId = entry.ItemId;
+                view.Button.onClick.AddListener(() => HandleItemClicked(capturedItemId));
+                UiButtonSoundPlayer.Ensure(view.Button, UiSoundIds.DefaultButton);
+            }
+
             itemViews.Add(view);
         }
 
@@ -399,6 +411,23 @@ public sealed class MiscContentsUIController : UIControllerBase
     private void HandleGemInventoryChanged()
     {
         MarkDirty();
+    }
+
+    private void HandleItemClicked(int itemId)
+    {
+        if (itemDetailPopup == null)
+        {
+            if (!missingDetailPopupLogged)
+            {
+                Debug.LogWarning("[MiscContentsUIController] Item detail popup binding is missing.", this);
+                missingDetailPopupLogged = true;
+            }
+
+            return;
+        }
+
+        missingDetailPopupLogged = false;
+        itemDetailPopup.Show(itemId);
     }
 
     private void CollectVisibleEntries()
