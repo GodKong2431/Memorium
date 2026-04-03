@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -60,6 +61,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
 
     [Header("Level Up")]
     // 레벨업 실행 버튼입니다.
+    [SerializeField] private Button equipButton;
     [SerializeField] private Button levelUpButton;
     // 레벨업 비용을 표시할 텍스트입니다.
     [SerializeField] private TMP_Text levelUpCostText;
@@ -93,6 +95,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     private int currentSkillId = -1;
     // 현재 기본 정보 탭을 보고 있는지 여부입니다.
     private bool showingDefaultInfo = true;
+    private Action<int> onEquipRequested;
 
     // 최초 로드 시 버튼 리스너와 기본 탭 상태를 준비합니다.
     private void Awake()
@@ -134,6 +137,11 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
 
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
+    }
+
+    public void SetEquipRequestedHandler(Action<int> handler)
+    {
+        onEquipRequested = handler;
     }
 
     // 현재 표시 중인 스킬 정보를 다시 갱신합니다.
@@ -197,6 +205,12 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
             levelUpButton.onClick.AddListener(HandleLevelUpButtonClicked);
             UiButtonSoundPlayer.Ensure(levelUpButton, UiSoundIds.DefaultButton);
         }
+        if (equipButton != null)
+        {
+            equipButton.onClick.RemoveListener(HandleEquipButtonClicked);
+            equipButton.onClick.AddListener(HandleEquipButtonClicked);
+            UiButtonSoundPlayer.Ensure(equipButton, UiSoundIds.DefaultButton);
+        }
         if (gemButtons != null)
         {
             for (int i = 0; i < gemButtons.Length; i++)
@@ -246,6 +260,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     {
         ApplyHeader(table, ownedData);
         ApplyDefaultInfo(table, ownedData);
+        ApplyEquipButton(ownedData);
         ApplyLevelUpButton(table, ownedData);
         ApplyGemButtons(ownedData);
         ApplyRarityDescriptions(ownedData);
@@ -291,6 +306,16 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         if (defaultDescriptionText != null)
             defaultDescriptionText.SetText(GetDescription(table));
     }
+    private void ApplyEquipButton(OwnedSkillData ownedData)
+    {
+        if (equipButton == null)
+            return;
+
+        bool canEquip = ownedData != null && ownedData.IsEquippable;
+        equipButton.gameObject.SetActive(canEquip);
+        equipButton.interactable = canEquip;
+    }
+
     private void ApplyLevelUpButton(SkillInfoTable table, OwnedSkillData ownedData)
     {
         SkillInventoryModule skillModule = GetSkillModule();
@@ -324,6 +349,22 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
             levelUpButton.interactable = canLevelUp;
         }
     }
+
+    private void HandleEquipButtonClicked()
+    {
+        if (currentSkillId < 0 || onEquipRequested == null)
+            return;
+
+        SkillInventoryModule skillModule = GetSkillModule();
+        OwnedSkillData ownedData = skillModule != null ? skillModule.GetSkillData(currentSkillId) : null;
+        if (ownedData == null || !ownedData.IsEquippable)
+            return;
+
+        int skillId = currentSkillId;
+        Hide();
+        onEquipRequested.Invoke(skillId);
+    }
+
     private void HandleLevelUpButtonClicked()
     {
         if (currentSkillId < 0)

@@ -98,11 +98,17 @@ public class ActiveSkillUIController : UIControllerBase
         BindPresetButtons();
         BindEquippedSkillSlots();
         BindEquipBackgroundOverlay();
+
+        if (skillInfoPanel != null)
+            skillInfoPanel.SetEquipRequestedHandler(HandleSkillInfoEquipRequested);
     }
 
     // UI 비활성 시 버튼과 모듈 이벤트를 해제합니다.
     protected override void Unsubscribe()
     {
+        if (skillInfoPanel != null)
+            skillInfoPanel.SetEquipRequestedHandler(null);
+
         UnbindEquipBackgroundOverlay();
         UnbindPresetButtons();
         UnbindEquippedSkillSlots();
@@ -505,6 +511,12 @@ public class ActiveSkillUIController : UIControllerBase
     }
 
     // 장착 가능 여부에 따라 슬롯 패널과 버튼 색상을 갱신합니다.
+    private void HandleSkillInfoEquipRequested(int skillId)
+    {
+        CurrentDetailSkillId = -1;
+        BeginEquipSelection(skillId);
+    }
+
     private void UpdateEquipSelectionState()
     {
         bool isSelecting = pendingEquipSkillId >= 0;
