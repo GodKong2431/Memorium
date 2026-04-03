@@ -73,6 +73,13 @@ public class EnemyStateOnhit : IEnemyState
         var st = ctx.Instance;
         if (ctx.PendingKnockback.HasValue)
         {
+            if (ctx.IsBoss)
+            {
+                ctx.PendingKnockback = null;
+                st.OnhitKnockbackActive = false;
+                return;
+            }
+
             st.OnhitKnockbackActive = true;
             st.OnhitKnockbackInfo = ctx.PendingKnockback.Value;
             ctx.PendingKnockback = null;

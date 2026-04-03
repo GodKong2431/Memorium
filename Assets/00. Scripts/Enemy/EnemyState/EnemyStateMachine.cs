@@ -366,6 +366,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     public void ApplyKnockback(Vector3 direction, float distance, float duration)
     {
         if (!IsAlive) return;
+        if (_ctx != null && _ctx.IsBoss) return;
 
         _knockbackInfo = new KnockbackInfo
         {
