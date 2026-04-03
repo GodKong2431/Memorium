@@ -941,19 +941,19 @@ MonoBehaviour:
     bossCombat:
       skillAttackEffectOffset: {x: 0, y: 0, z: 0}
       skillPrepareEffectPrefab: {fileID: 0}
-      skillPrepareAttachTo: 0
+      skillPrepareAttachTo: 1
       skillPrepareSpawn:
         attachParentNameOrPath: 
         localPosition: {x: 0, y: 0, z: 0}
         localEulerAngles: {x: 0, y: 0, z: 0}
         uniformScaleMultiplier: 0
       skillCastEffectPrefab: {fileID: 914701966259072190, guid: 8a55d60fa76874544bfe949ce176f785, type: 3}
-      skillCastAttachTo: 0
+      skillCastAttachTo: 1
       skillCastSpawn:
         attachParentNameOrPath: 
         localPosition: {x: 0, y: 0, z: 0}
-        localEulerAngles: {x: 0, y: 0, z: 0}
-        uniformScaleMultiplier: 0
+        localEulerAngles: {x: 0, y: -90, z: 0}
+        uniformScaleMultiplier: 30
       bossNormalAttackEffectPrefab: {fileID: 0}
       attackEffectPrefab: {fileID: 0}
       onHitEffectPrefab: {fileID: 0}

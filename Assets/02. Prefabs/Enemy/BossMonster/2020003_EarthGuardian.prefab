@@ -1685,8 +1685,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7581462744483251969}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.6980272, z: -0, w: 0.71607137}
-  m_LocalPosition: {x: -17.297516, y: 23.4, z: 8.016022}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 7, y: 7, z: 7}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1694,7 +1694,7 @@ Transform:
   - {fileID: 6292133026577271170}
   - {fileID: 1796441188334139401}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -88.538, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8821505893171259612
 Animator:
   serializedVersion: 7
@@ -6689,10 +6689,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.7
-  m_Height: 3
+  m_Radius: 0.29869992
+  m_Height: 1.024711
   m_Direction: 1
-  m_Center: {x: 0, y: 1.4, z: 0}
+  m_Center: {x: 0, y: 0.37, z: -0.14248148}
 --- !u!114 &2584331918649257444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6705,9 +6705,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0fa6a29b7ef3e541a34901725fc1151, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimatorStateEnteredNotifier
-  targetAnimator: {fileID: 0}
+  targetAnimator: {fileID: 8821505893171259612}
   layerIndex: 0
-  bindings: []
+  bindings:
+  - stateShortName: PrepTaunt
+    onEntered:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 618621799190646691}
+          m_TargetAssemblyTypeName: EnemyStateMachine, Assembly-CSharp
+          m_MethodName: Anim_SpawnSkillPrepareEffect
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - stateShortName: Skill2Attack
+    onEntered:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 618621799190646691}
+          m_TargetAssemblyTypeName: EnemyStateMachine, Assembly-CSharp
+          m_MethodName: Anim_SpawnSkillCastEffect
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &7809730416499482034
 GameObject:
   m_ObjectHideFlags: 0
