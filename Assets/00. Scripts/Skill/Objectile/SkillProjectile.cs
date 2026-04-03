@@ -26,7 +26,9 @@ public class SkillProjectile : SkillObjectileBase
         {
             var m2 = SkillStrategyContainer.GetDetect(data.m2Data.m2Type);
             int count = m2.Detect(transform.position, transform.forward, data.m2Data, this, targetLayer);
-            owner.HandleSkillHit(count, dataContext, hitBuffer);
+
+            if (count > 0 && !IsOwnerDestroyed())
+                owner?.HandleSkillHit(count, dataContext, hitBuffer);
         }
 
         ObjectPoolManager.Return(gameObject);

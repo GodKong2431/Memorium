@@ -29,6 +29,7 @@ public abstract class SkillObjectileBase : MonoBehaviour, ISkillDetectable
         data = this.dataContext.skillData;
         debugLastCastPos =transform.position;
     }
+    protected bool IsOwnerDestroyed() => owner == null || (owner as Object) == null;
     public Collider[] GetAddonBuffer()
     {
         return cachedTargets; 
