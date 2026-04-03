@@ -578,6 +578,7 @@ GameObject:
   - component: {fileID: 116426804403618000}
   - component: {fileID: 6790695459237514047}
   - component: {fileID: -8280274751277326901}
+  - component: {fileID: -7202749104471579747}
   m_Layer: 6
   m_Name: 2020004_Devourer
   m_TagString: Untagged
@@ -1790,7 +1791,6 @@ MonoBehaviour:
   animator: {fileID: 8834335221629952253}
   animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
   attackEffectPrefab: {fileID: 0}
-  skillAttackEffectPrefab: {fileID: 0}
   skillAttackEffectOffset: {x: 0, y: 0, z: 0}
   attackEffectScaleMultiplier: 0.5
   chaseTurnSpeed: 6
@@ -1831,6 +1831,21 @@ CapsuleCollider:
   m_Height: 2.071333
   m_Direction: 1
   m_Center: {x: 0, y: -6.1579733, z: 0}
+--- !u!114 &-7202749104471579747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1221655170790989618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0fa6a29b7ef3e541a34901725fc1151, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimatorStateEnteredNotifier
+  targetAnimator: {fileID: 0}
+  layerIndex: 0
+  bindings: []
 --- !u!1 &1369789598424832195
 GameObject:
   m_ObjectHideFlags: 0

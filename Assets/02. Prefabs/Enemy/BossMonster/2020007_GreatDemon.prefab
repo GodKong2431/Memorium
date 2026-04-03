@@ -1725,8 +1725,9 @@ GameObject:
   - component: {fileID: -3957583156213208728}
   - component: {fileID: -7970626736506660462}
   - component: {fileID: 5466097360923748345}
+  - component: {fileID: 6622503510485640971}
   m_Layer: 6
-  m_Name: 2020003_ScorchedOne
+  m_Name: 2020007_GreatDemon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1847,7 +1848,6 @@ MonoBehaviour:
   animator: {fileID: 3832477019529213149}
   animationConfig: {fileID: 0}
   attackEffectPrefab: {fileID: 0}
-  skillAttackEffectPrefab: {fileID: 0}
   skillAttackEffectOffset: {x: 0, y: 0, z: 0}
   attackEffectScaleMultiplier: 0.2
   chaseTurnSpeed: 6
@@ -1938,6 +1938,53 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.63384664
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6622503510485640971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6499504835944854902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0fa6a29b7ef3e541a34901725fc1151, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimatorStateEnteredNotifier
+  targetAnimator: {fileID: 3832477019529213149}
+  layerIndex: 0
+  bindings:
+  - stateShortName: PrepTaunt
+    onEntered:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: -3440440636452123000}
+          m_TargetAssemblyTypeName: EnemyStateMachine, Assembly-CSharp
+          m_MethodName: Anim_SpawnSkillPrepareEffect
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - stateShortName: Skill2Attack
+    onEntered:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: -3440440636452123000}
+          m_TargetAssemblyTypeName: EnemyStateMachine, Assembly-CSharp
+          m_MethodName: Anim_SpawnSkillCastEffect
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &6552680631955701667
 GameObject:
   m_ObjectHideFlags: 0

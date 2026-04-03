@@ -2048,6 +2048,7 @@ GameObject:
   - component: {fileID: -2049480750191621610}
   - component: {fileID: 2467351369668297064}
   - component: {fileID: -2759388778849731676}
+  - component: {fileID: -4320304069890445129}
   m_Layer: 6
   m_Name: 2020006_Helhound
   m_TagString: Untagged
@@ -2182,7 +2183,6 @@ MonoBehaviour:
   animator: {fileID: 4828417384829689835}
   animationConfig: {fileID: 0}
   attackEffectPrefab: {fileID: 0}
-  skillAttackEffectPrefab: {fileID: 0}
   skillAttackEffectOffset: {x: 0, y: 0, z: 0}
   attackEffectScaleMultiplier: 0.2
   chaseTurnSpeed: 6
@@ -2248,6 +2248,21 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 1.1028045
   m_Center: {x: 0.0000000072785356, y: 0.4810264, z: 0.12177835}
+--- !u!114 &-4320304069890445129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6279837177258545959}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0fa6a29b7ef3e541a34901725fc1151, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimatorStateEnteredNotifier
+  targetAnimator: {fileID: 0}
+  layerIndex: 0
+  bindings: []
 --- !u!1 &6344245725210520688
 GameObject:
   m_ObjectHideFlags: 0
