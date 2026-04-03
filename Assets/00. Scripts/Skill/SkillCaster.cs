@@ -424,7 +424,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
             if (obj != null)
             {
                 if (obj.TryGetComponent<FireZone>(out var fireZone))
-                    fireZone.Init(m5A, 3.0f, targetLayer);
+                    fireZone.Init(activeData, 3.0f, targetLayer);
             }
         }
         else
