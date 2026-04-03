@@ -91,7 +91,7 @@ public sealed class DungeonLevelPopupUI : MonoBehaviour
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnItemAmountChanged -= OnItemAmountChanged;
 
-        PopupStackService.Dismiss(ref popupHandle);
+        PopupStackService.Release(ref popupHandle);
     }
 
     public void Show(

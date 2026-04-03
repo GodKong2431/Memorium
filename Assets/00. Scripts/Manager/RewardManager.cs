@@ -240,23 +240,16 @@ public class RewardManager : Singleton<RewardManager>
                 if (!TryGetCelestiAlchemyWorkshopReward(stageLevel, out CelestiAlchemyWorkshopRewardTable alchemyReward))
                     return false;
 
-                bool grantedAlchemyReward = false;
-                BigDouble pixiePieceCount = new BigDouble(Mathf.Max(0, alchemyReward.pixiePieceCount));
-                BigDouble skillScrollCount = new BigDouble(Mathf.Max(0, alchemyReward.skillscrollCount));
+                bool grantedPiece = GrantRolledItems(
+                    ItemType.PixiePiece,
+                    Mathf.Max(0, alchemyReward.pixiePieceCount),
+                    PixiePieceItemId);
+                bool grantedScroll = GrantRolledItems(
+                    ItemType.SkillScroll,
+                    Mathf.Max(0, alchemyReward.skillscrollCount),
+                    SkillScrollItemId);
 
-                if (GrantReward(PixiePieceItemId, pixiePieceCount))
-                {
-                    AddGrantedItemReward(PixiePieceItemId, pixiePieceCount);
-                    grantedAlchemyReward = true;
-                }
-
-                if (GrantReward(SkillScrollItemId, skillScrollCount))
-                {
-                    AddGrantedItemReward(SkillScrollItemId, skillScrollCount);
-                    grantedAlchemyReward = true;
-                }
-
-                return grantedAlchemyReward;
+                return grantedPiece || grantedScroll;
 
             case StageType.EidosTreasureVault:
                 if (!TryGetEidosTreasureVaultReward(stageLevel, out EidosTreasureVaultRewardTable equipmentReward))
@@ -289,6 +282,15 @@ public class RewardManager : Singleton<RewardManager>
     }
 
     // 보상 타입에 맞는 아이콘을 반환한다.
+    public void ClearLastDungeonClearRewards()
+    {
+        lastGrantedDungeonRewards.Clear();
+        lastGrantedDungeonStageType = StageType.None;
+        lastGrantedDungeonLevel = 0;
+        hasLastGrantedDungeonRewards = false;
+    }
+
+    // Returns the icon that matches the reward visual type.
     public Sprite ResolveDungeonRewardIcon(DungeonRewardEntry reward)
     {
         switch (reward.visualType)
@@ -516,12 +518,78 @@ public class RewardManager : Singleton<RewardManager>
         if (itemId <= 0 || amount <= BigDouble.Zero)
             return;
 
+        for (int i = 0; i < lastGrantedDungeonRewards.Count; i++)
+        {
+            DungeonRewardEntry reward = lastGrantedDungeonRewards[i];
+            if (reward.visualType != DungeonRewardVisualType.Item || reward.itemId != itemId)
+                continue;
+
+            reward.amount += amount;
+            lastGrantedDungeonRewards[i] = reward;
+            return;
+        }
+
         lastGrantedDungeonRewards.Add(new DungeonRewardEntry
         {
             visualType = DungeonRewardVisualType.Item,
             itemId = itemId,
             amount = amount
         });
+    }
+
+    private bool GrantRolledItems(ItemType type, int count, int fallbackItemId)
+    {
+        if (count <= 0)
+            return false;
+
+        List<int> pool = GetItemPool(type);
+        Dictionary<int, int> counts = new Dictionary<int, int>();
+        for (int i = 0; i < count; i++)
+        {
+            int itemId = PickItemId(pool, fallbackItemId);
+            if (itemId <= 0)
+                continue;
+
+            if (counts.ContainsKey(itemId))
+                counts[itemId]++;
+            else
+                counts[itemId] = 1;
+        }
+
+        bool grantedAny = false;
+        foreach (KeyValuePair<int, int> pair in counts)
+        {
+            if (!GrantReward(pair.Key, pair.Value))
+                continue;
+
+            AddGrantedItemReward(pair.Key, pair.Value);
+            grantedAny = true;
+        }
+
+        return grantedAny;
+    }
+
+    private static List<int> GetItemPool(ItemType type)
+    {
+        if (DataManager.Instance?.ItemInfoDict == null)
+            return null;
+
+        List<int> itemIds = new List<int>();
+        foreach (KeyValuePair<int, ItemInfoTable> pair in DataManager.Instance.ItemInfoDict)
+        {
+            if (pair.Value != null && pair.Value.itemType == type)
+                itemIds.Add(pair.Key);
+        }
+
+        return itemIds;
+    }
+
+    private static int PickItemId(List<int> pool, int fallbackItemId)
+    {
+        if (pool != null && pool.Count > 0)
+            return pool[Random.Range(0, pool.Count)];
+
+        return fallbackItemId;
     }
 
     private void AddGrantedEquipmentReward(int equipmentItemId)

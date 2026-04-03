@@ -40,6 +40,7 @@ public sealed class DungeonClearPopupController : MonoBehaviour
     [Header("Entry")]
     [SerializeField] private int requiredKeyCount = 1;
     [SerializeField] private GameObject equipmentRewardItemPrefab;
+    [SerializeField] private ActiveSkillUIController skillUi;
     [SerializeField] private string nextLevelLabel = "다음 단계";
     [SerializeField] private string retryLabel = "재도전";
 
@@ -77,7 +78,7 @@ public sealed class DungeonClearPopupController : MonoBehaviour
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnItemAmountChanged -= OnItemAmountChanged;
 
-        PopupStackService.Dismiss(ref popupHandle);
+        PopupStackService.Release(ref popupHandle);
     }
 
     public void ResetForSceneChange()
@@ -112,6 +113,7 @@ public sealed class DungeonClearPopupController : MonoBehaviour
         activeStageType = stageType;
         activeStageLevel = CheckDungeon.ClampLevel(stageType, Mathf.Max(1, stageLevel));
         isFailurePopup = showFailureState;
+        skillUi?.CloseEquip();
 
         popupRoot.gameObject.SetActive(true);
         ApplyDungeonPanelVisibility(stageType);
@@ -314,8 +316,19 @@ public sealed class DungeonClearPopupController : MonoBehaviour
             activePanelBinding.rewardContentRoot.gameObject.SetActive(true);
 
         rewardPreviewBuffer.Clear();
+        if (isFailurePopup)
+        {
+            DungeonContentUI.RebuildRewardItems(
+                activePanelBinding.rewardContentRoot,
+                rewardPreviewBuffer,
+                DungeonUIController.LoadRewardIcon,
+                true,
+                equipmentRewardItemPrefab);
+            return;
+        }
+
         bool hasActualRewards = false;
-        if (!isFailurePopup && RewardManager.Instance != null)
+        if (RewardManager.Instance != null)
             hasActualRewards = RewardManager.Instance.TryGetLastDungeonClearRewards(activeStageType, activeStageLevel, rewardPreviewBuffer);
 
         if (!hasActualRewards && RewardManager.Instance != null)

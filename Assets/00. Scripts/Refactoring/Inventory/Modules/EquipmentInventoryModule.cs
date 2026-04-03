@@ -362,15 +362,9 @@ public sealed class EquipmentInventoryModule : IInventoryModule
             return;
 
         int nextCount = Mathf.Max(0, owned.equipmentValue - count);
-        if (nextCount <= 0)
-            equipmentByItemId.Remove(itemId);
-        else
-        {
-            EquipmentData equipmentData = owned;
-            equipmentData.equipmentValue = nextCount;
-            //equipmentByItemId[itemId] = nextCount;
-            equipmentByItemId[itemId] = equipmentData;
-        }
+        EquipmentData equipmentData = owned;
+        equipmentData.equipmentValue = nextCount;
+        equipmentByItemId[itemId] = equipmentData;
     }
 
     private void AddRawCount(int itemId, int count)

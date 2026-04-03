@@ -22,6 +22,11 @@ public class SkillAura : SkillObjectileBase
 
         while (timer < duration)
         {
+            if (IsOwnerDestroyed())
+            {
+                ReturnPool();
+                yield break;
+            }
 
             Vector3 targetPos = owner.transform.position + (owner.transform.forward * data.m3Data.m3Distance);
             int count = m2.Detect(targetPos, transform.forward, data.m2Data, this, targetLayer);
@@ -34,15 +39,18 @@ public class SkillAura : SkillObjectileBase
             yield return CoroutineManager.waitForSeconds(interval);
             timer += interval;
         }
-        owner.SetChanneling(false);
-        ObjectPoolManager.Return(gameObject);
+        ReturnPool();
     }
 
+    private void ReturnPool()
+    {
+        if (IsOwnerDestroyed()) return;
+        owner?.SetChanneling(false);
+        ObjectPoolManager.Return(gameObject);
+    }
     private void OnDisable()
     {
-        if (owner != null)
-        {
-            owner.SetChanneling(false);
-        }
+        if (IsOwnerDestroyed()) return;
+        owner?.SetChanneling(false);
     }
 }

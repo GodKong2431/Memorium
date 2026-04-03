@@ -184,7 +184,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         {
             yield return CoroutineManager.waitForSeconds(extraDelay);
         }
-        for(int i=0;i < 5;i++)
+        
+        for(int i=0;i < dataContext.skillData.skillTable.skillUseCount; i++)
         {   
             SoundManager.Instance.PlayCombatSfx(data.skillTable.skillSound);
             PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(data.skillTable.skillVFX, transform, true, rotation: transform.rotation));
@@ -217,6 +218,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         {
             agent.isStopped = true;
             agent.updateRotation = false;
+            //agent.enabled = false;
         }
         if (data.m1Data.m1Delay > 0)
         {
@@ -257,6 +259,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         {
             agent.isStopped = false;
             agent.updateRotation = true;
+
+            //agent.enabled = true;
         }
         OnSkillEnd?.Invoke();
     }
