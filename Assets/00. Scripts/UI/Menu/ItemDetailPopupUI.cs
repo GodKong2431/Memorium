@@ -178,12 +178,12 @@ public sealed class ItemDetailPopupUI : MonoBehaviour
                 }
 
                 if (!string.IsNullOrWhiteSpace(entry.Kr))
-                    return entry.Kr.Trim();
+                    return entry.Kr.Trim().Replace("\\n", "\n");
 
                 break;
             }
         }
 
-        return trimmedValue;
+        return trimmedValue.Replace("\\n", "\n");
     }
 }
