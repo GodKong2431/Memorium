@@ -30174,6 +30174,8 @@ GameObject:
   - component: {fileID: 7492740308370291844}
   - component: {fileID: 2385649165554822086}
   - component: {fileID: 299160374108411290}
+  - component: {fileID: 5047020692044349330}
+  - component: {fileID: 9160991529693404296}
   m_Layer: 5
   m_Name: (Panel)EquipReinforce
   m_TagString: Untagged
@@ -30240,6 +30242,46 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!223 &5047020692044349330
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2668336402271504260}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 30
+  m_TargetDisplay: 0
+--- !u!114 &9160991529693404296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2668336402271504260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &2672966215093215770
 GameObject:
   m_ObjectHideFlags: 0
@@ -45055,6 +45097,7 @@ GameObject:
   - component: {fileID: 866114246667759529}
   - component: {fileID: 6085242127580181275}
   - component: {fileID: 9149987992411280840}
+  - component: {fileID: 8955409964815158816}
   m_Layer: 5
   m_Name: (Popup)CombatPowerChange
   m_TagString: Untagged
@@ -45153,6 +45196,29 @@ MonoBehaviour:
   beforeColor: {r: 0.85, g: 0.9, b: 1, a: 1}
   afterColor: {r: 1, g: 0.78, b: 0.2, a: 1}
   arrowColor: {r: 1, g: 0.6, b: 0.25, a: 1}
+--- !u!223 &8955409964815158816
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4026351356014602347}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 100
+  m_TargetDisplay: 0
 --- !u!1 &4027139822435871071
 GameObject:
   m_ObjectHideFlags: 0
@@ -112905,6 +112971,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5785961352270675592, guid: 18a1a435ec5f182469e488cd85d4af4c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8719898576993746645}
+    - targetCorrespondingSourceObject: {fileID: 5785961352270675592, guid: 18a1a435ec5f182469e488cd85d4af4c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8763629664081903480}
   m_SourcePrefab: {fileID: 100100000, guid: 18a1a435ec5f182469e488cd85d4af4c, type: 3}
 --- !u!224 &2905640142262069798 stripped
 RectTransform:
@@ -112945,6 +113014,20 @@ MonoBehaviour:
   m_HorizontalFit: 2
   m_VerticalFit: 0
 --- !u!114 &8719898576993746645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4238825717706979258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
+--- !u!114 &8763629664081903480
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
