@@ -27,10 +27,11 @@ public class PlayerStateMove : IPlayerState
     {
         NavMeshAgent agent = ctx.Agent;
 
-        Transform goal = GameObject.FindAnyObjectByType<Goal>().transform;
+        if (!agent.enabled)
+            return;
 
-        if(agent.enabled)
-            agent.SetDestination(goal.position);
+        Transform goal = GameObject.FindAnyObjectByType<Goal>().transform;
+        agent.SetDestination(goal.position);
 
         if (EnemyRegistry.isEnemyExist)
         {
