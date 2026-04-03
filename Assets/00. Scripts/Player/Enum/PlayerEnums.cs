@@ -43,6 +43,7 @@ public static class StatGroups
         StatType.COOLDOWN_REDUCE,
         StatType.PHYS_DEF,
         StatType.MAGIC_DEF,
+        StatType.ATK_SPEED,
     };
 }
 
