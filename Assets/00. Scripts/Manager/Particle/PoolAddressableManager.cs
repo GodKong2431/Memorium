@@ -204,8 +204,7 @@ public class PoolAddressableManager : Singleton<PoolAddressableManager>
     {
         string originalFileName = Path.GetFileName(originalKey);
         if (string.IsNullOrWhiteSpace(originalFileName)
-            || !prefabLocationsByFileName.TryGetValue(originalFileName, out List<IResourceLocation> locations)
-            || locations.Count == 0)
+            || !TryGetPrefabLocationsByFileName(originalFileName, out List<IResourceLocation> locations))
         {
             return null;
         }
@@ -232,6 +231,22 @@ public class PoolAddressableManager : Singleton<PoolAddressableManager>
         //if (IsValidKey(key) && prefabCache.TryGetValue(key, out var prefab))
         //    return prefab;
         return null;
+    }
+
+    /// <summary>
+    /// 인덱스 키는 대부분 "파일.prefab". 이름만 넣은 경우 ".prefab"을 붙여 재시도.
+    /// </summary>
+    private bool TryGetPrefabLocationsByFileName(string fileName, out List<IResourceLocation> locations)
+    {
+        locations = null;
+        if (string.IsNullOrWhiteSpace(fileName))
+            return false;
+        if (prefabLocationsByFileName.TryGetValue(fileName, out locations) && locations != null && locations.Count > 0)
+            return true;
+        if (!fileName.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase)
+            && prefabLocationsByFileName.TryGetValue(fileName + ".prefab", out locations) && locations != null && locations.Count > 0)
+            return true;
+        return false;
     }
 
     private static bool PathMatches(string source, string originalKey, IReadOnlyList<string> candidateKeys)
@@ -400,6 +415,15 @@ public class PoolAddressableManager : Singleton<PoolAddressableManager>
         }
 
         AddCandidate(candidates, Path.GetFileName(normalizedKey));
+
+        // 확장자 없이 이름만 쓴 경우(예: HCFX_Hit_08) — Addressables·Prefabs 라벨 조회 모두에 후보 추가
+        if (!normalizedKey.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase))
+        {
+            AddCandidate(candidates, normalizedKey + ".prefab");
+            string leaf = Path.GetFileName(normalizedKey);
+            if (!string.IsNullOrEmpty(leaf) && !string.Equals(leaf, normalizedKey, StringComparison.OrdinalIgnoreCase))
+                AddCandidate(candidates, leaf + ".prefab");
+        }
 
         return candidates;
     }

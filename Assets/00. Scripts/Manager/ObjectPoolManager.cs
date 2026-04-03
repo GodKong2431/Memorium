@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -43,12 +43,14 @@ public static class ObjectPoolManager
         if (queue.Count > 0)
         {
             obj = queue.Dequeue();
+            var poolable = obj.GetComponent<PoolableObject>();
+            poolable?.NotifyTakenFromPoolQueue();
+
             obj.transform.SetParent(parent ?? PoolRoot);
             obj.transform.position = position;
             obj.transform.rotation = rotation;
             obj.SetActive(true);
 
-            var poolable = obj.GetComponent<PoolableObject>();
             poolable?.OnSpawnFromPool();
 
         }
@@ -79,15 +81,18 @@ public static class ObjectPoolManager
             return;
         }
 
+        if (poolable.IsStoredInPoolQueue)
+            return;
+
         poolable.OnReturnToPool();
         obj.SetActive(false);
         obj.transform.SetParent(PoolRoot);
-
 
         int key = poolable.PrefabId;
         if (!_pools.TryGetValue(key, out var queue))
             _pools[key] = queue = new Queue<GameObject>();
         queue.Enqueue(obj);
+        poolable.NotifyStoredInPoolQueue();
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
@@ -19,10 +19,18 @@ public class EnemyStateOnhit : IEnemyState
 
         st.OnhitEndTime = Time.time + OnhitDuration;
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Onhit);
-        if (ctx.OnHitEffectPrefab != null)
+        if (ctx.EnemyTransform != null && ctx.OnHitEffectPrefab != null)
         {
-            GameObject effect = Object.Instantiate(ctx.OnHitEffectPrefab, ctx.EnemyTransform.position, Quaternion.identity);
-            Object.Destroy(effect, 1.0f);
+            if (st.CurrentOnhitEffect != null)
+                EnemyStateMachine.DestroyOrReturnPooledEffect(st.CurrentOnhitEffect);
+
+            var prefab = ctx.OnHitEffectPrefab;
+            var parent = ctx.EnemyTransform;
+            var go = ObjectPoolManager.Get(prefab, parent.position, parent.rotation, parent);
+            go.transform.localPosition = Vector3.zero;
+            go.transform.localRotation = Quaternion.identity;
+            go.transform.localScale = prefab.transform.localScale;
+            st.CurrentOnhitEffect = go;
         }
 
         if (ctx.OnHitSoundId > 0 && SoundManager.Instance != null)
@@ -50,6 +58,12 @@ public class EnemyStateOnhit : IEnemyState
     public void OnExit(EnemyStateContext ctx)
     {
         ExitKnockback(ctx);
+        var st = ctx?.Instance;
+        if (st?.CurrentOnhitEffect != null)
+        {
+            EnemyStateMachine.DestroyOrReturnPooledEffect(st.CurrentOnhitEffect);
+            st.CurrentOnhitEffect = null;
+        }
     }
 
     #region 넉백 

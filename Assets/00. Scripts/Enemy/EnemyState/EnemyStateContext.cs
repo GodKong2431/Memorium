@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -62,27 +62,36 @@ public class EnemyStateContext
 
     /// <summary>
     /// 버프/디버프 적용된 방어력
-    /// <summary>
+    /// </summary>
     public float Defense => GetModifiedStat(StatType.PHYS_DEF, BaseDefense);
 
     /// <summary>StatPresenter.IsBoss 또는 인스펙터 isBoss 중 하나라도 true면 보스. (인스펙터 명시적 설정 우선)</summary>
     private bool _isBossFallback;
     public bool IsBoss { get => (StatPresenter?.IsBoss ?? false) || _isBossFallback; set => _isBossFallback = value; }
 
-    /// <summary>
-    /// 공격 시 생성할 이펙트 프리팹. EnemyStateMachine에서 설정
-    /// </summary>
+    /// <summary>공격 타격 VFX 프리팹 — 스폰 시 플레이어에 부착.</summary>
     public GameObject AttackEffectPrefab { get; set; }
-    public GameObject SkillAttackEffectPrefab { get; set; }
-    /// <summary>보스 스킬 이펙트(DB 프리팹·BossManageTable 파티클) 부모. ResolveAssets와 동일 DB에서 채움.</summary>
-    public BossSkillEffectAttachParent BossSkillEffectAttachParent { get; set; }
+    /// <summary>스킬 준비 이펙트 프리팹.</summary>
+    public GameObject SkillPrepareEffectPrefab { get; set; }
+    public SkillEffectAttachTarget SkillPrepareAttachTo { get; set; }
+    /// <summary>스킬 시전 이펙트 프리팹.</summary>
+    public GameObject SkillCastEffectPrefab { get; set; }
+    public SkillEffectAttachTarget SkillCastAttachTo { get; set; }
+    /// <summary>보스 일반 공격 전용 프리팹. 비면 <see cref="AttackEffectPrefab"/> 사용.</summary>
+    public GameObject BossNormalAttackEffectPrefab { get; set; }
+    /// <summary>적 로컬 기준 추가 오프셋. DB skillAttackEffectOffset.</summary>
     public Vector3 SkillAttackEffectOffset { get; set; }
+    /// <summary>스킬 준비 프리팹의 부모 기준 로컬 위치·회전·배율.</summary>
+    public SkillEffectSpawnTransform SkillPrepareSpawn { get; set; }
+    /// <summary>스킬 시전 프리팹의 부모 기준 로컬 위치·회전·배율.</summary>
+    public SkillEffectSpawnTransform SkillCastSpawn { get; set; }
     public float AttackEffectScaleMultiplier { get; set; } = 1f;
     public float ChaseTurnSpeed { get; set; } = 6f;
     public float AttackTurnSpeed { get; set; } = 10f;
     public bool FaceTargetWhileAttacking { get; set; } = true;
     public float MaxAttackAngle { get; set; } = 60f;
 
+    /// <summary>피격 VFX 프리팹 — EnemyStateOnhit에서 몬스터에 부착.</summary>
     public GameObject OnHitEffectPrefab { get; set; }
 
     /// <summary>SoundTable·SoundManager 전투 SFX ID (0 = 없음)</summary>
@@ -97,12 +106,12 @@ public class EnemyStateContext
     public int SkillCastSoundId { get; set; }
     /// <summary>보스 스폰 연출(Spawn 상태). 0 = 없음</summary>
     public int BossSpawnSoundId { get; set; }
-    /// <summary>보스 skillAttack1/2 등 시전 준비. 0 = 없음</summary>
+    /// <summary>보스 스킬 시전 준비. 0 = 없음</summary>
     public int BossAreaAttackPrepareSoundId { get; set; }
     /// <summary>보스 범위 공격 히트 타이밍. 0 = 없음</summary>
     public int BossAreaAttackCastSoundId { get; set; }
 
-    /// <summary>보스 공격 패턴 관리(일반/스킬1/스킬2).</summary>
+    /// <summary>보스 공격 패턴 관리(일반/스킬).</summary>
     public BossAttackManager BossAttackManager { get; set; }
 
     /// <summary>
@@ -116,6 +125,18 @@ public class EnemyStateContext
     public void Initialize(float? startHealth = null)
     {
         CurrentHealth = startHealth ?? MaxHealth;
+    }
+
+    /// <summary>
+    /// <see cref="BossManageTable.castingDelay"/> / <see cref="BossManageTable.castingTime"/>(초). CSV 값 그대로(MonsterAssetDatabase 배율·오프셋 없음).
+    /// </summary>
+    public void ComputeBossManagedCastingDurations(BossManageTable row, out float castingDelay, out float castingTime)
+    {
+        castingDelay = 0f;
+        castingTime = 0f;
+        if (row == null) return;
+        castingDelay = Mathf.Max(0f, row.castingDelay);
+        castingTime = Mathf.Max(0f, row.castingTime);
     }
 
     public void SetStateChangeCallback(Action<EnemyStateType> callback)

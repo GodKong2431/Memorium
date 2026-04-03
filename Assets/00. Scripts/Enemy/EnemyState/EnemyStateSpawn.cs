@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
@@ -7,7 +7,7 @@ using UnityEngine.AI;
 /// </summary>
 public class EnemyStateSpawn : IEnemyState
 {
-    private const float SpawnDuration = 2f;
+    private const float SpawnDuration = 1f;
 
     [Header("Spawn 동안 NavMeshAgent 정지 여부")]
     [Tooltip("기본 false: 스폰 중에도 agent가 멈춰있는 상태가 남지 않게 처리")]

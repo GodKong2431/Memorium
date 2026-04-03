@@ -33,6 +33,8 @@ public struct ParticleSpawnContext
 
 public class PoolableParticleManager : Singleton<PoolableParticleManager>
 {
+    public static bool IsValidSpawnKey(string key) => !string.IsNullOrEmpty(key) && key != "0";
+
     public void Preload(string key)
     {
         PoolAddressableManager.Instance.Preload(key);
@@ -97,8 +99,5 @@ public class PoolableParticleManager : Singleton<PoolableParticleManager>
             ctx.onSpawned?.Invoke(particle);
         }
     }
-    private bool IsValidKey(string key)
-    {
-        return !string.IsNullOrEmpty(key) && key != "0";
-    }
+    private static bool IsValidKey(string key) => IsValidSpawnKey(key);
 }

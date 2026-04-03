@@ -1,7 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEngine.GraphicsBuffer;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+using UnityEngine.InputSystem;
+#endif
 
 /// <summary>
 /// 몬스터 상태 머신.
@@ -31,16 +34,14 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
     private MonsterAnimationConfig animationConfig;
 
-    [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
+    [SerializeField][Tooltip("공격 VFX(플레이어 부착). 비우면 DB 공용 공격 프리팹")]
     private GameObject attackEffectPrefab;
-    [SerializeField][Tooltip("스킬 공격형 일반 몬스터 공격 시 출력할 연출 VFX. 비워두면 DB에서 monsterId로 조회.")]
-    private GameObject skillAttackEffectPrefab;
-    [SerializeField][Tooltip("스킬 공격형 이펙트 위치 오프셋(플레이어 기준). DB 값 우선")]
+    [SerializeField][Tooltip("DB skillAttackEffectOffset 대신 인스펙터에서 덮어쓸 때 사용")]
     private Vector3 skillAttackEffectOffset;
 
     [SerializeField, Min(0.1f)]
-    [Tooltip("몬스터 공격 이펙트 크기 배율. 1=기본, 0.8=20% 축소")]
-    private float attackEffectScaleMultiplier = 0.5f;
+    [Tooltip("보스 스킬 DB 프리팹·스킬 풀 타격 등에만 사용. 공용 공격 풀(sharedAttack)에는 적용 안 함")]
+    private float attackEffectScaleMultiplier = 1f;
 
     [Header("타겟 바라보기")]
     [SerializeField, Min(0f)]
@@ -58,7 +59,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     [Tooltip("타격 판정 시 허용되는 정면 각도(도)")]
     private float maxAttackAngle = 60f;
     
-    [SerializeField][Tooltip("비워두면 DB에서 monsterId로 조회.")]
+    [SerializeField][Tooltip("피격 VFX(몬스터 부착). 비우면 DB 공용 피격 프리팹")]
     private GameObject onHitEffectPrefab;
     
     [Header("SFX 오버라이드 (SoundTable ID, 0이면 MonsterAssetDatabase 값 사용)")]
@@ -80,7 +81,13 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     private IEnemyState _current;
     private EnemyStateType _currentType;
     private float _nextBossOnhitAllowedTime;
-    private BossSkillEffectAttachParent _bossSkillEffectAttachParent = BossSkillEffectAttachParent.Player;
+    private GameObject _skillPrepareEffectPrefab;
+    private SkillEffectAttachTarget _skillPrepareAttachTo = SkillEffectAttachTarget.Enemy;
+    private GameObject _skillCastEffectPrefab;
+    private SkillEffectAttachTarget _skillCastAttachTo = SkillEffectAttachTarget.Field;
+    private SkillEffectSpawnTransform _skillPrepareSpawn;
+    private SkillEffectSpawnTransform _skillCastSpawn;
+    private GameObject _bossNormalAttackEffectPrefab;
 
     public EnemyStateContext Context => _ctx;
     public EnemyStateType CurrentStateType => _currentType;
@@ -117,8 +124,13 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
             AnimationConfig = animationConfig,
             IsBoss = statPresenter != null && statPresenter.IsBoss,
             AttackEffectPrefab = attackEffectPrefab,
-            SkillAttackEffectPrefab = skillAttackEffectPrefab,
-            BossSkillEffectAttachParent = _bossSkillEffectAttachParent,
+            SkillPrepareEffectPrefab = _skillPrepareEffectPrefab,
+            SkillPrepareAttachTo = _skillPrepareAttachTo,
+            SkillCastEffectPrefab = _skillCastEffectPrefab,
+            SkillCastAttachTo = _skillCastAttachTo,
+            BossNormalAttackEffectPrefab = _bossNormalAttackEffectPrefab,
+            SkillPrepareSpawn = _skillPrepareSpawn,
+            SkillCastSpawn = _skillCastSpawn,
             SkillAttackEffectOffset = skillAttackEffectOffset,
             AttackEffectScaleMultiplier = attackEffectScaleMultiplier,
             ChaseTurnSpeed = chaseTurnSpeed,
@@ -152,36 +164,93 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     }
 
     /// <summary>
-    /// 프리팹에 넣지 않은 에셋을 DB 또는 자동 검색으로 채움. Animator, AnimationConfig, AttackEffectPrefab.
+    /// 프리팹에 넣지 않은 에셋을 DB 또는 자동 검색으로 채움. Animator, AnimationConfig, VFX 키 등.
     /// </summary>
     private void ResolveAssets(EnemyStatPresenter statPresenter)
     {
-        _bossSkillEffectAttachParent = BossSkillEffectAttachParent.Player;
+        _skillPrepareEffectPrefab = null;
+        _skillPrepareAttachTo = SkillEffectAttachTarget.Enemy;
+        _skillCastEffectPrefab = null;
+        _skillCastAttachTo = SkillEffectAttachTarget.Field;
+        _skillPrepareSpawn = default;
+        _skillCastSpawn = default;
+        _bossNormalAttackEffectPrefab = null;
+
         if (animator == null)
             animator = GetComponent<Animator>() ?? GetComponentInChildren<Animator>();
 
         var db = assetDatabaseOverride != null ? assetDatabaseOverride : MonsterAssetDatabase.Instance;
+        if (db != null)
+        {
+            if (attackEffectPrefab == null)
+                attackEffectPrefab = db.sharedAttackEffectPrefab;
+            if (onHitEffectPrefab == null)
+                onHitEffectPrefab = db.sharedOnHitEffectPrefab;
+        }
+
+        bool isBoss = statPresenter != null && statPresenter.IsBoss;
+
         if (db != null && statPresenter != null && statPresenter.monsterIdFromDataManager != 0)
         {
             var entry = db.GetEntry(statPresenter.monsterIdFromDataManager);
             if (entry != null)
             {
-                _bossSkillEffectAttachParent = entry.bossSkillEffectAttachParent;
                 if (animationConfig == null && entry.animationConfig != null)
                     animationConfig = entry.animationConfig;
 
-                // 몬스터별 OverrideController 자동 적용 (공통 Controller + 클립 교체 방식)
                 if (animator != null && entry.animatorOverrideController != null)
                     animator.runtimeAnimatorController = entry.animatorOverrideController;
 
-                if (attackEffectPrefab == null && entry.attackEffectPrefab != null)
-                    attackEffectPrefab = entry.attackEffectPrefab;
-                if (skillAttackEffectPrefab == null && entry.skillAttackEffectPrefab != null)
-                    skillAttackEffectPrefab = entry.skillAttackEffectPrefab;
-                skillAttackEffectOffset = entry.skillAttackEffectOffset;
+                if (isBoss)
+                {
+                    var b = entry.bossCombat;
+                    if (b != null)
+                    {
+                        skillAttackEffectOffset = b.skillAttackEffectOffset;
 
-                if (onHitEffectPrefab == null && entry.onHitEffectPrefab != null)
-                    onHitEffectPrefab = entry.onHitEffectPrefab;
+                        _skillPrepareEffectPrefab = b.skillPrepareEffectPrefab;
+                        _skillPrepareAttachTo = b.skillPrepareAttachTo;
+                        _skillPrepareSpawn = b.skillPrepareSpawn;
+                        _skillCastEffectPrefab = b.skillCastEffectPrefab;
+                        _skillCastAttachTo = b.skillCastAttachTo;
+                        _skillCastSpawn = b.skillCastSpawn;
+                        _bossNormalAttackEffectPrefab = b.bossNormalAttackEffectPrefab;
+                        if (b.attackEffectPrefab != null)
+                            attackEffectPrefab = b.attackEffectPrefab;
+                        if (b.onHitEffectPrefab != null)
+                            onHitEffectPrefab = b.onHitEffectPrefab;
+
+                        if (bossSpawnSoundId == 0 && b.bossSpawnSoundId != 0)
+                            bossSpawnSoundId = b.bossSpawnSoundId;
+                        if (bossAreaAttackPrepareSoundId == 0 && b.bossAreaAttackPrepareSoundId != 0)
+                            bossAreaAttackPrepareSoundId = b.bossAreaAttackPrepareSoundId;
+                        if (bossAreaAttackCastSoundId == 0 && b.bossAreaAttackCastSoundId != 0)
+                            bossAreaAttackCastSoundId = b.bossAreaAttackCastSoundId;
+                    }
+                }
+                else
+                {
+                    var n = entry.normalCombat;
+                    if (n != null)
+                    {
+                        skillAttackEffectOffset = n.skillAttackEffectOffset;
+                        _skillPrepareEffectPrefab = n.skillPrepareEffectPrefab;
+                        _skillPrepareAttachTo = n.skillPrepareAttachTo;
+                        _skillPrepareSpawn = n.skillPrepareSpawn;
+                        _skillCastEffectPrefab = n.skillCastEffectPrefab;
+                        _skillCastAttachTo = n.skillCastAttachTo;
+                        _skillCastSpawn = n.skillCastSpawn;
+                        if (n.attackEffectPrefab != null)
+                            attackEffectPrefab = n.attackEffectPrefab;
+                        if (n.onHitEffectPrefab != null)
+                            onHitEffectPrefab = n.onHitEffectPrefab;
+
+                        if (skillPrepareSoundId == 0 && n.skillPrepareSoundId != 0)
+                            skillPrepareSoundId = n.skillPrepareSoundId;
+                        if (skillCastSoundId == 0 && n.skillCastSoundId != 0)
+                            skillCastSoundId = n.skillCastSoundId;
+                    }
+                }
 
                 if (attackSoundId == 0 && entry.attackSoundId != 0)
                     attackSoundId = entry.attackSoundId;
@@ -191,16 +260,6 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
                     dieSoundId = entry.dieSoundId;
                 if (footstepSoundId == 0 && entry.footstepSoundId != 0)
                     footstepSoundId = entry.footstepSoundId;
-                if (skillPrepareSoundId == 0 && entry.skillPrepareSoundId != 0)
-                    skillPrepareSoundId = entry.skillPrepareSoundId;
-                if (skillCastSoundId == 0 && entry.skillCastSoundId != 0)
-                    skillCastSoundId = entry.skillCastSoundId;
-                if (bossSpawnSoundId == 0 && entry.bossSpawnSoundId != 0)
-                    bossSpawnSoundId = entry.bossSpawnSoundId;
-                if (bossAreaAttackPrepareSoundId == 0 && entry.bossAreaAttackPrepareSoundId != 0)
-                    bossAreaAttackPrepareSoundId = entry.bossAreaAttackPrepareSoundId;
-                if (bossAreaAttackCastSoundId == 0 && entry.bossAreaAttackCastSoundId != 0)
-                    bossAreaAttackCastSoundId = entry.bossAreaAttackCastSoundId;
             }
         }
     }
@@ -209,15 +268,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     {
         RefreshPlayerTransform();
 
-        // 일반 몬스터는 모두 기본 근접/원거리 로직을 사용하고,
-        // 보스 몬스터만 BossManageTable 기반 스킬 패턴을 사용하도록 설정.
         if (_ctx.IsBoss)
         {
             if (DataManager.Instance?.BossManageDict != null && DataManager.Instance.BossManageDict.Count > 0)
-            {
                 _ctx.BossAttackManager = new BossAttackManager(DataManager.Instance.BossManageDict.Values);
-            }
-
         }
 
         EnemyStatData data = _ctx.StatPresenter?.Data;
@@ -232,6 +286,22 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
             ChangeState(EnemyStateType.Spawn);
         else
             ChangeState(EnemyStateType.Chase);
+
+        SyncAnimatorStateEnteredNotifiers();
+    }
+
+    /// <summary>
+    /// Rebind·상태 전환 직후, 자동 애니 흐름을 "이미 여기 있음"으로 찍어 두어
+    /// <see cref="AnimatorStateEnteredNotifier"/>가 의도치 않은 진입 이벤트를 쏘지 않게 합니다.
+    /// </summary>
+    void SyncAnimatorStateEnteredNotifiers()
+    {
+        var notifiers = GetComponentsInChildren<AnimatorStateEnteredNotifier>(true);
+        for (int i = 0; i < notifiers.Length; i++)
+        {
+            if (notifiers[i] != null)
+                notifiers[i].SyncWithCurrentState();
+        }
     }
 
     /// <summary>
@@ -254,6 +324,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     {
         if (_current == null) return;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        TryCheatBossSkillFromKeyboard();
+#endif
+
         // 보스 공격 패턴 쿨타임/가중치 갱신
         if (_ctx.IsBoss && _ctx.BossAttackManager != null)
         {
@@ -263,6 +337,32 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
 
         _current.OnUpdate(_ctx);
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>보스 스킬 디버그: F9로 다음 Attack을 스킬 행으로 강제.</summary>
+    void TryCheatBossSkillFromKeyboard()
+    {
+        if (Keyboard.current == null || !Keyboard.current.f9Key.wasPressedThisFrame)
+            return;
+        if (_ctx == null || !_ctx.IsBoss || _ctx.BossAttackManager == null) return;
+        if (!IsAlive || _currentType == EnemyStateType.Dead || _currentType == EnemyStateType.Spawn)
+            return;
+
+        if (!_ctx.BossAttackManager.CheatRequestSkillOnce())
+        {
+            Debug.LogWarning("[EnemyStateMachine] Cheat skill: BossManageTable에 skillAttack1/2 행이 없습니다.");
+            return;
+        }
+
+        if (_currentType == EnemyStateType.Attack)
+        {
+            ChangeState(EnemyStateType.Chase);
+            ChangeState(EnemyStateType.Attack);
+        }
+        else
+            ChangeState(EnemyStateType.Attack);
+    }
+#endif
     public void ApplyKnockback(Vector3 direction, float distance, float duration)
     {
         if (!IsAlive) return;
@@ -381,9 +481,7 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
         float appliedDamage = Mathf.Max(0f, previousHealth - _ctx.CurrentHealth);
 
         if (appliedDamage > 0f)
-        {
-            DamageIndicatorService.Instance.ShowDamage(transform, appliedDamage, isCritical);
-        }
+            TryShowEnemyDamageIndicator(transform, appliedDamage, isCritical);
 
         if (_ctx.CurrentHealth <= 0f)
         {
@@ -418,6 +516,18 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     /// </summary>
     public void OnSpawnFromPool()
     {
+        if (_ctx?.Instance != null)
+        {
+            var inst = _ctx.Instance;
+            EnemyStateAttack.CleanupTrackedSkillParticles(_ctx);
+            DestroyOrReturnPooledEffect(inst.CurrentOnhitEffect);
+            inst.CurrentOnhitEffect = null;
+            DestroyOrReturnPooledEffect(inst.CurrentAttackEffect);
+            inst.CurrentAttackEffect = null;
+        }
+
+        StopAndClearChildParticles(transform);
+
         _ctx.Instance.Reset();
         _ctx.SpawnPosition = transform.position;
         _ctx.Initialize();
@@ -447,6 +557,8 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
             ChangeState(EnemyStateType.Spawn);
         else
             ChangeState(EnemyStateType.Chase);
+
+        SyncAnimatorStateEnteredNotifiers();
     }
 
     /// <summary>
@@ -480,13 +592,53 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
         StopAndClearChildParticles(transform);
         _ctx?.EnemyEffectController?.ClearAll();
 
-        if (_ctx?.Instance?.CurrentAttackEffect != null)
+        EnemyStateAttack.CleanupTrackedSkillParticles(_ctx);
+
+        if (_ctx?.Instance != null)
         {
-            Destroy(_ctx.Instance.CurrentAttackEffect);
-            _ctx.Instance.CurrentAttackEffect = null;
+            var inst = _ctx.Instance;
+            if (inst.CurrentAttackEffect != null)
+            {
+                DestroyOrReturnPooledEffect(inst.CurrentAttackEffect);
+                inst.CurrentAttackEffect = null;
+            }
+            DestroyOrReturnPooledEffect(inst.CurrentOnhitEffect);
+            inst.CurrentOnhitEffect = null;
         }
 
         _ctx?.Instance?.Reset();
+    }
+
+    /// <summary>
+    /// 씬의 DamageIndicatorService(이름 고정)에 리플렉션으로 표시. 스크립트가 IDE csproj에 없을 때도 컴파일 유지.
+    /// </summary>
+    static void TryShowEnemyDamageIndicator(Transform target, float damage, bool isCritical)
+    {
+        var go = GameObject.Find("DamageIndicatorService");
+        if (go == null) return;
+        foreach (var mb in go.GetComponents<MonoBehaviour>())
+        {
+            if (mb == null || mb.GetType().Name != "DamageIndicatorService") continue;
+            var m = mb.GetType().GetMethod(
+                "ShowDamage",
+                BindingFlags.Instance | BindingFlags.Public,
+                null,
+                new[] { typeof(Transform), typeof(float), typeof(bool) },
+                null);
+            m?.Invoke(mb, new object[] { target, damage, isCritical });
+            return;
+        }
+    }
+
+    public static void DestroyOrReturnPooledEffect(GameObject go)
+    {
+        if (go == null) return;
+        if (go.TryGetComponent<PoolableParticle>(out var pp))
+            pp.StopAndReturnManual();
+        else if (ObjectPoolManager.IsPooled(go))
+            ObjectPoolManager.Return(go);
+        else
+            Object.Destroy(go);
     }
 
     private static void StopAndClearChildParticles(Transform root)
@@ -508,5 +660,35 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
         if (_ctx == null || _ctx.FootstepSoundId <= 0 || SoundManager.Instance == null)
             return;
         SoundManager.Instance.PlayCombatSfxAt(_ctx.FootstepSoundId, transform.position);
+    }
+
+    /// <summary>
+    /// 애니 State 진입·애니 이벤트·인스펙터 UnityEvent 연결용: DB 스킬 준비 VFX 풀 스폰.
+    /// </summary>
+    public void Anim_SpawnSkillPrepareEffect()
+    {
+        if (_ctx == null) return;
+        EnemyStateAttack.ExternalSpawnSkillPrepare(_ctx);
+    }
+
+    /// <summary>DB 스킬 시전(히트 타이밍) VFX 풀 스폰.</summary>
+    public void Anim_SpawnSkillCastEffect()
+    {
+        if (_ctx == null) return;
+        EnemyStateAttack.ExternalSpawnSkillCast(_ctx);
+    }
+
+    /// <summary>준비 VFX 반환(타운트 끝 State 진입 등).</summary>
+    public void Anim_ReturnSkillPrepareEffect()
+    {
+        if (_ctx == null) return;
+        EnemyStateAttack.ExternalReturnSkillPrepare(_ctx);
+    }
+
+    /// <summary>시전 VFX 반환.</summary>
+    public void Anim_ReturnSkillCastEffect()
+    {
+        if (_ctx == null) return;
+        EnemyStateAttack.ExternalReturnSkillCast(_ctx);
     }
 }

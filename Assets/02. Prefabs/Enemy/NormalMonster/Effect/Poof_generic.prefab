@@ -9827,6 +9827,7 @@ GameObject:
   - component: {fileID: 9169863999176627208}
   - component: {fileID: 9169863999176627215}
   - component: {fileID: -8198531768175374772}
+  - component: {fileID: 6147487292769083674}
   m_Layer: 0
   m_Name: Poof_generic
   m_TagString: Untagged
@@ -14738,6 +14739,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 655bd8dd654fedd4ab726334799bb09d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoolableParticle
+--- !u!114 &6147487292769083674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9169863999176627214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3941da6a3fde0df49b2d387dfb0dc8c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoolableObject
 --- !u!1 &9169863999396320858
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// 오브젝트 풀에서 관리되는 오브젝트에 부착.
@@ -11,11 +11,21 @@ public class PoolableObject : MonoBehaviour
 
     public int PrefabId => _prefabId;
 
+    /// <summary>
+    /// 풀 큐에 들어가 비활성 대기 중이면 true. 중복 Return으로 큐가 깨지는 것을 막는다.
+    /// </summary>
+    public bool IsStoredInPoolQueue { get; private set; }
+
     public void Initialize(GameObject prefab)
     {
         _prefab = prefab;
         _prefabId = prefab != null ? prefab.GetInstanceID() : 0;
+        IsStoredInPoolQueue = false;
     }
+
+    public void NotifyTakenFromPoolQueue() => IsStoredInPoolQueue = false;
+
+    public void NotifyStoredInPoolQueue() => IsStoredInPoolQueue = true;
 
     /// <summary>
     /// 풀에서 꺼낼 때 호출. 리셋 로직은 여기서 처리.

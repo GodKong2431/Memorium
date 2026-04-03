@@ -12,418 +12,1156 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bc5014c5a9a0384a8f8e791b0464bb0, type: 3}
   m_Name: MonsterAssetDatabase
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAssetDatabase
+  sharedAttackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
+  sharedOnHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
   entries:
   - monsterId: 2010001
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100022
     onHitSoundId: 9100028
     dieSoundId: 9100035
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010002
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100022
     onHitSoundId: 9100028
     dieSoundId: 9100035
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010003
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100023
     onHitSoundId: 9100029
     dieSoundId: 9100036
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010004
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100026
     onHitSoundId: 9100033
     dieSoundId: 9100039
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010005
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100023
     onHitSoundId: 9100029
     dieSoundId: 9100036
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010006
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100023
     onHitSoundId: 9100029
     dieSoundId: 9100036
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010007
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100024
     onHitSoundId: 9100031
     dieSoundId: 9100037
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010008
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100027
     onHitSoundId: 9100034
     dieSoundId: 9100040
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010009
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100027
     onHitSoundId: 9100034
     dieSoundId: 9100040
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010010
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100027
     onHitSoundId: 9100034
     dieSoundId: 9100040
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010011
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100024
     onHitSoundId: 9100031
     dieSoundId: 9100037
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010012
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100025
     onHitSoundId: 9100032
     dieSoundId: 9100038
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010013
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 6087068039412072396, guid: 86a22610e39b4314ca2df84d16074dc5, type: 3}
-    skillAttackEffectOffset: {x: -5, y: 10, z: -4}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 6087068039412072396, guid: 86a22610e39b4314ca2df84d16074dc5, type: 3}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 6087068039412072396, guid: 86a22610e39b4314ca2df84d16074dc5, type: 3}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100025
     onHitSoundId: 9100032
     dieSoundId: 9100038
     footstepSoundId: 0
-    skillPrepareSoundId: 9100041
-    skillCastSoundId: 9100042
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010014
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 4017531642684342029, guid: a4cbefe0dc82a684a809aafc45f4092f, type: 3}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 4017531642684342029, guid: a4cbefe0dc82a684a809aafc45f4092f, type: 3}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 4017531642684342029, guid: a4cbefe0dc82a684a809aafc45f4092f, type: 3}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100024
     onHitSoundId: 9100031
     dieSoundId: 9100037
     footstepSoundId: 0
-    skillPrepareSoundId: 9100041
-    skillCastSoundId: 9100043
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010015
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 5454049557852298115, guid: b18ab0f5e15c0214cb44aeec8db6642c, type: 3}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 5454049557852298115, guid: b18ab0f5e15c0214cb44aeec8db6642c, type: 3}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 5454049557852298115, guid: b18ab0f5e15c0214cb44aeec8db6642c, type: 3}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100024
     onHitSoundId: 9100031
     dieSoundId: 9100037
     footstepSoundId: 0
-    skillPrepareSoundId: 9100041
-    skillCastSoundId: 9100044
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2010016
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 7964522443107168680, guid: dce851eef4aec5c4f8719e1734035768, type: 3}
-    skillAttackEffectPrefab: {fileID: 2204741430546232309, guid: 28e96cda5b964354080108b5e8daf8d5, type: 3}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 2204741430546232309, guid: 28e96cda5b964354080108b5e8daf8d5, type: 3}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 7964522443107168680, guid: dce851eef4aec5c4f8719e1734035768, type: 3}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100024
     onHitSoundId: 9100031
     dieSoundId: 9100037
     footstepSoundId: 0
-    skillPrepareSoundId: 9100041
-    skillCastSoundId: 9100045
-    bossSpawnSoundId: 0
-    bossAreaAttackPrepareSoundId: 0
-    bossAreaAttackCastSoundId: 0
   - monsterId: 2020001
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 4914878029721687101, guid: bffdf399d2e9ad24c9f1f52ac2b93739, type: 3}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 1
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 5448815497011765457, guid: 53682e2af8016754a8156c9fa7d22212, type: 3}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: English DragonJaw
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 4914878029721687101, guid: bffdf399d2e9ad24c9f1f52ac2b93739, type: 3}
+      skillCastAttachTo: 0
+      skillCastSpawn:
+        attachParentNameOrPath: English DragonJaw
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 180, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100052
     onHitSoundId: 9100054
     dieSoundId: 9100058
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 9100046
-    bossAreaAttackPrepareSoundId: 9100054
-    bossAreaAttackCastSoundId: 9100055
   - monsterId: 2020002
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100052
     onHitSoundId: 9100054
     dieSoundId: 9100059
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 9100047
-    bossAreaAttackPrepareSoundId: 9100054
-    bossAreaAttackCastSoundId: 9100056
   - monsterId: 2020003
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 914701966259072190, guid: 8a55d60fa76874544bfe949ce176f785, type: 3}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 1
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 914701966259072190, guid: 8a55d60fa76874544bfe949ce176f785, type: 3}
+      skillCastAttachTo: 0
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100052
     onHitSoundId: 9100054
     dieSoundId: 9100059
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 9100047
-    bossAreaAttackPrepareSoundId: 9100054
-    bossAreaAttackCastSoundId: 9100056
   - monsterId: 2020004
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 2823662785091978773, guid: 3a2412e4cff1d6f4eaead59dab91e3cb, type: 3}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100052
     onHitSoundId: 9100054
     dieSoundId: 9100060
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 9100048
-    bossAreaAttackPrepareSoundId: 9100054
-    bossAreaAttackCastSoundId: 9100056
   - monsterId: 2020005
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100051
     onHitSoundId: 9100053
     dieSoundId: 9100061
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 9100050
-    bossAreaAttackPrepareSoundId: 9100053
-    bossAreaAttackCastSoundId: 9100057
   - monsterId: 2020006
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100052
     onHitSoundId: 9100054
     dieSoundId: 9100060
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 9100049
-    bossAreaAttackPrepareSoundId: 9100054
-    bossAreaAttackCastSoundId: 9100056
   - monsterId: 2020007
     animationConfig: {fileID: 11400000, guid: b7de0373738612745a1170a6b39d1dc6, type: 2}
     animatorOverrideController: {fileID: 0}
-    attackEffectPrefab: {fileID: 1004229041087787908, guid: edfad62e83cddbb4e9e28d04a417913a, type: 3}
-    skillAttackEffectPrefab: {fileID: 0}
-    skillAttackEffectOffset: {x: 0, y: 0, z: 0}
-    bossSkillEffectAttachParent: 0
-    onHitEffectPrefab: {fileID: 9169863999176627214, guid: eb1fa0d3134e60840975f9ec83f619fd, type: 3}
+    normalCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      skillPrepareSoundId: 0
+      skillCastSoundId: 0
+    bossCombat:
+      skillAttackEffectOffset: {x: 0, y: 0, z: 0}
+      skillPrepareEffectPrefab: {fileID: 0}
+      skillPrepareAttachTo: 0
+      skillPrepareSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      skillCastEffectPrefab: {fileID: 0}
+      skillCastAttachTo: 1
+      skillCastSpawn:
+        attachParentNameOrPath: 
+        localPosition: {x: 0, y: 0, z: 0}
+        localEulerAngles: {x: 0, y: 0, z: 0}
+        uniformScaleMultiplier: 0
+      bossNormalAttackEffectPrefab: {fileID: 0}
+      attackEffectPrefab: {fileID: 0}
+      onHitEffectPrefab: {fileID: 0}
+      bossSpawnSoundId: 0
+      bossAreaAttackPrepareSoundId: 0
+      bossAreaAttackCastSoundId: 0
     dieEffectPrefab: {fileID: 0}
     attackSoundId: 9100051
     onHitSoundId: 9100053
     dieSoundId: 9100062
     footstepSoundId: 0
-    skillPrepareSoundId: 0
-    skillCastSoundId: 0
-    bossSpawnSoundId: 9100050
-    bossAreaAttackPrepareSoundId: 9100053
-    bossAreaAttackCastSoundId: 9100057
