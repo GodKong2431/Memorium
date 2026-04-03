@@ -201,9 +201,11 @@ public class StageManager : Singleton<StageManager>
 
         if (curStageType == StageType.NormalStage && CanAutoQueueBossSpawn() && !onFailedStage)
             QueueBossSpawnRequest();
-        else if(curStageType != StageType.NormalStage && CanAutoQueueBossSpawn())
+        else if (curStageType != StageType.NormalStage && CanAutoQueueBossSpawn())
+        {
+            //Debug.Log("[StageManager] 보스 몬스터 소환 여부 체크: 시작");
             QueueBossSpawnRequest();
-
+        }
         GameEventManager.OnStageProgressChanged?.Invoke(curMonsterKillCount, maxMonsterKillCount);
     }
 
@@ -510,8 +512,11 @@ public class StageManager : Singleton<StageManager>
     public void SetStageType(StageType dungeonType, int level)
     {
         //monsterSpawner.ClearMonster();
-        monsterSpawner = null;
 
+        EnemyKillRewardDispatcher.ResetKillCount();
+        curMonsterKillCount = 0;
+
+        monsterSpawner = null;
         int requestedLevel = Mathf.Max(1, level);
 
         if (curStageType == StageType.NormalStage && dungeonType != StageType.NormalStage)
@@ -521,6 +526,9 @@ public class StageManager : Singleton<StageManager>
 
         QueuePendingStageEntryRequest(dungeonType, requestedLevel);
         ApplyStageState(dungeonType, requestedLevel, updateNormalStage: dungeonType == StageType.NormalStage);
+
+
+        isReadyToBossSpawn = false;
     }
 
     // 씬 로드 완료 시 스테이지 상태를 다시 반영한다.
@@ -628,6 +636,8 @@ public class StageManager : Singleton<StageManager>
         if (maxMonsterKillCount <= 0)
             return false;
 
+       
+
         return curMonsterKillCount >= maxMonsterKillCount;
     }
 
@@ -643,6 +653,8 @@ public class StageManager : Singleton<StageManager>
     {
         if (!CanQueueBossSpawn())
             return;
+        //Debug.Log("[StageManager] 보스 몬스터 스폰 여부 체크");
+        //Debug.Log($"[StageManager] 보스 현재 몬스터 : {curMonsterKillCount} 최대 몬스터 : {maxMonsterKillCount}");
 
         hasPendingBossSpawnRequest = true;
         isReadyToBossSpawn = true;
