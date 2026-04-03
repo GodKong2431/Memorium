@@ -322,7 +322,9 @@ public class StageManager : Singleton<StageManager>
             RewardManager.Instance?.GrantDungeonClearReward(curStageType, curStage);
             AutoDataSaveManager.Instance.SaveData();
 
-            player.GetComponent<NavMeshAgent>().isStopped = true;
+            //player.GetComponent<NavMeshAgent>().isStopped = true;
+            Debug.Log("[StageManager] 플레이어 네브메쉬 종료");
+            player.GetComponent<NavMeshAgent>().enabled = false;
 
             ResetDungeonClearFlow();
             dungeonClear = false;
