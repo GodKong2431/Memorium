@@ -490,6 +490,15 @@ public class ActiveSkillUIController : UIControllerBase
         pendingEquipSkillType = default;
         UpdateEquipSelectionState();
     }
+
+    public void CloseEquip()
+    {
+        if (pendingEquipSkillId < 0)
+            return;
+
+        ClearEquipSelection();
+    }
+
     private void HandleLevelUpClicked(int skillId)
     {
         SkillInventoryModule skillModule = GetSkillModule();

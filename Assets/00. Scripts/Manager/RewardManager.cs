@@ -289,6 +289,15 @@ public class RewardManager : Singleton<RewardManager>
     }
 
     // 보상 타입에 맞는 아이콘을 반환한다.
+    public void ClearLastDungeonClearRewards()
+    {
+        lastGrantedDungeonRewards.Clear();
+        lastGrantedDungeonStageType = StageType.None;
+        lastGrantedDungeonLevel = 0;
+        hasLastGrantedDungeonRewards = false;
+    }
+
+    // Returns the icon that matches the reward visual type.
     public Sprite ResolveDungeonRewardIcon(DungeonRewardEntry reward)
     {
         switch (reward.visualType)

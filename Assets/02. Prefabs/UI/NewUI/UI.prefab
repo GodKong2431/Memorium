@@ -15295,7 +15295,7 @@ MonoBehaviour:
   textRewardTouch: {fileID: 8564643680433946746}
   startOpened: 0
   allClearTitle: All Clear
-  rewardTouchText: "\uD130\uCE58\uD558\uC5EC \uBCF4\uC0C1 \uC218\uB839"
+  rewardTouchText: "\uD130\uCE58\uD558\uC5EC \uBCF4\uC0C1 \uC218"
 --- !u!210 &379577979874795122
 SortingGroup:
   m_ObjectHideFlags: 0
@@ -17824,6 +17824,7 @@ MonoBehaviour:
   equipmentRewardItemPrefab: {fileID: 8470297352295664229, guid: d206eece595ede74a8330c2d733765f4, type: 3}
   nextLevelLabel: "\uB2E4\uC74C \uB2E8\uACC4"
   retryLabel: "\uC7AC\uB3C4\uC804"
+  skillUi: {fileID: 9182746501234567890}
 --- !u!1 &1597054860866740911
 GameObject:
   m_ObjectHideFlags: 0
@@ -65227,7 +65228,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00092703954, y: -20.88}
+  m_AnchoredPosition: {x: -0.00045537288, y: -20.88}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &9138444524742916954
@@ -105026,7 +105027,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1235575651291064861, guid: 4a12c5e1cb4556c4aaf89fdc77a89948, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -300
+      value: 146.0002
       objectReference: {fileID: 0}
     - target: {fileID: 2296943369595910198, guid: 4a12c5e1cb4556c4aaf89fdc77a89948, type: 3}
       propertyPath: m_Pivot.x
@@ -105127,6 +105128,10 @@ PrefabInstance:
     - target: {fileID: 2544712607593408125, guid: 4a12c5e1cb4556c4aaf89fdc77a89948, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7984245869621996947, guid: 4a12c5e1cb4556c4aaf89fdc77a89948, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 446
       objectReference: {fileID: 0}
     - target: {fileID: 8029661491842394616, guid: 4a12c5e1cb4556c4aaf89fdc77a89948, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -108948,6 +108953,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!114 &9182746501234567890 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 832395065718319827, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
+  m_PrefabInstance: {fileID: 4235013712881300772}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2f7a2a9a1de4c7e923c4da8b26a8c66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4287220209821637873
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -113099,6 +113115,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5785961352270675592, guid: 18a1a435ec5f182469e488cd85d4af4c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2681564695580343865}
+    - targetCorrespondingSourceObject: {fileID: 5785961352270675592, guid: 18a1a435ec5f182469e488cd85d4af4c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3152772665515044553}
   m_SourcePrefab: {fileID: 100100000, guid: 18a1a435ec5f182469e488cd85d4af4c, type: 3}
 --- !u!224 &2905640142262069798 stripped
 RectTransform:
@@ -113167,6 +113186,20 @@ MonoBehaviour:
   m_HorizontalFit: 2
   m_VerticalFit: 0
 --- !u!114 &2681564695580343865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4238825717706979258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 2
+  m_VerticalFit: 0
+--- !u!114 &3152772665515044553
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -482,6 +482,7 @@ public class StageManager : Singleton<StageManager>
 
             ResetDungeonClearFlow();
             dungeonClear = false;
+            RewardManager.Instance?.ClearLastDungeonClearRewards();
 
             bool popupShown = DungeonClearPopupController.TryShowAny(curStageType, curStage, true);
             if (!popupShown)

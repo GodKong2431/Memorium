@@ -156,6 +156,23 @@ public static class PopupStackService
         RefreshBackdrop(true);
     }
 
+    public static void Release(ref Handle handle)
+    {
+        bool removedInvalidEntries = CleanupInvalidEntries();
+
+        if (handle == null)
+        {
+            if (removedInvalidEntries)
+                RefreshBackdrop(false);
+
+            return;
+        }
+
+        RemoveEntry(handle, false);
+        handle = null;
+        RefreshBackdrop(true);
+    }
+
     private static void HandleOutsideClicked()
     {
         if (CleanupInvalidEntries())

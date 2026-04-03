@@ -96,6 +96,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     // 현재 기본 정보 탭을 보고 있는지 여부입니다.
     private bool showingDefaultInfo = true;
     private Action<int> onEquipRequested;
+    private PopupStackService.Handle popupHandle;
 
     // 최초 로드 시 버튼 리스너와 기본 탭 상태를 준비합니다.
     private void Awake()
@@ -107,6 +108,12 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
         ApplyTabState(true);
         HideGemSelect();
     }
+    private void OnDisable()
+    {
+        HideGemSelect();
+        PopupStackService.Release(ref popupHandle);
+    }
+
     private void CacheGemButtonImages()
     {
         if (gemButtonImages != null) return;
@@ -137,6 +144,8 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
 
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
+
+        PresentPopup();
     }
 
     public void SetEquipRequestedHandler(Action<int> handler)
@@ -163,6 +172,7 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     {
         HideGemSelect();
         currentSkillId = -1;
+        PopupStackService.Dismiss(ref popupHandle);
 
         if (gameObject.activeSelf)
             gameObject.SetActive(false);
@@ -256,6 +266,33 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
     }
 
     // 선택한 스킬 데이터로 패널의 모든 표시값을 갱신합니다.
+    private void PresentPopup()
+    {
+        EnsureSetup();
+        EnsureOverlayParent();
+
+        if (cachedRectTransform == null)
+            return;
+
+        PopupStackService.Present(ref popupHandle, new PopupStackService.Request
+        {
+            PopupRoot = cachedRectTransform,
+            ContentRoot = skillCardRoot != null ? skillCardRoot : cachedRectTransform,
+            OverlayParent = ResolvePopupOverlayRoot(),
+            OnRequestClose = Hide,
+            CloseOnOutside = false,
+            BackdropColor = Color.clear
+        });
+    }
+
+    private RectTransform ResolvePopupOverlayRoot()
+    {
+        if (overlayRoot != null)
+            return overlayRoot;
+
+        return cachedRectTransform != null ? cachedRectTransform.parent as RectTransform : null;
+    }
+
     private void ApplyView(SkillInfoTable table, OwnedSkillData ownedData)
     {
         ApplyHeader(table, ownedData);
@@ -455,11 +492,9 @@ public sealed class SkillInfoPanelUI : MonoBehaviour, IPointerClickHandler
             return;
 
         if (gemOverlayCanvas != null)
-        {
-            gemOverlayCanvas.overrideSorting = true;
-            gemOverlayCanvas.sortingOrder = 100; 
-        }
+            gemOverlayCanvas.overrideSorting = false;
 
+        gemSelectRoot.SetAsLastSibling();
         gemSelectRoot.gameObject.SetActive(true);
         PopulateGemList();
     }
