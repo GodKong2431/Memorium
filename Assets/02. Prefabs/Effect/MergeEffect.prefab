@@ -4796,7 +4796,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 260d137386a8ab04688bf338750eca14, type: 2}
+  - {fileID: 2100000, guid: 76e69033653781540b1346edafbb292a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9653,7 +9653,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 949906b4a682d644bad138ed68af2b9b, type: 2}
+  - {fileID: 2100000, guid: 6a69dbab8cd083a4ca0824f44e88925c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9724,7 +9724,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &438183406232432589
 Transform:
   m_ObjectHideFlags: 0
@@ -14510,7 +14510,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: df017766124fd80469fb88f86e1083f5, type: 2}
+  - {fileID: 2100000, guid: e76203b7108aa624ab50ebc7a7511286, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -14576,6 +14576,7 @@ GameObject:
   - component: {fileID: 7872055657189755673}
   - component: {fileID: 2357245024144487816}
   - component: {fileID: -757289117468854228}
+  - component: {fileID: 7137948980186317939}
   m_Layer: 5
   m_Name: MergeEffect
   m_TagString: Untagged
@@ -19421,9 +19422,22 @@ SortingGroup:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7230890256902027415}
-  m_Enabled: 1
+  m_Enabled: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 10
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
+--- !u!114 &7137948980186317939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7230890256902027415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd631dcb37b3f09478243945a5de838c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipEffectCanvas
+  targetMask: {fileID: 0}

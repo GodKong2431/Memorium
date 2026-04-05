@@ -5862,7 +5862,7 @@ GameObject:
   - component: {fileID: 3470105251016414650}
   - component: {fileID: 1259494729914413920}
   - component: {fileID: 6273214550659731707}
-  - component: {fileID: 6783503577947581767}
+  - component: {fileID: 8707106263395192304}
   m_Layer: 5
   m_Name: Viewport
   m_TagString: Untagged
@@ -5910,7 +5910,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 03d846980c3fcb444a767d16713fd3fe, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -5928,7 +5928,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &6783503577947581767
+--- !u!114 &8707106263395192304
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5937,10 +5937,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 605651411593150001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
-  m_ShowMaskGraphic: 0
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &609363352169715551
 GameObject:
   m_ObjectHideFlags: 0
@@ -17822,9 +17823,9 @@ MonoBehaviour:
     nextLevelButtonText: {fileID: 4873486504659628579}
   requiredKeyCount: 1
   equipmentRewardItemPrefab: {fileID: 8470297352295664229, guid: d206eece595ede74a8330c2d733765f4, type: 3}
+  skillUi: {fileID: 3551238313482330103}
   nextLevelLabel: "\uB2E4\uC74C \uB2E8\uACC4"
   retryLabel: "\uC7AC\uB3C4\uC804"
-  skillUi: {fileID: 9182746501234567890}
 --- !u!1 &1597054860866740911
 GameObject:
   m_ObjectHideFlags: 0
@@ -108823,6 +108824,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+--- !u!114 &3551238313482330103 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 832395065718319827, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
+  m_PrefabInstance: {fileID: 4235013712881300772}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2f7a2a9a1de4c7e923c4da8b26a8c66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ActiveSkillUIController
 --- !u!114 &3809589240513890612 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1016594923166219280, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
@@ -108953,17 +108965,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
---- !u!114 &9182746501234567890 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 832395065718319827, guid: 1ba1222f387ea254bbe3494e2318d746, type: 3}
-  m_PrefabInstance: {fileID: 4235013712881300772}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2f7a2a9a1de4c7e923c4da8b26a8c66, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &4287220209821637873
 PrefabInstance:
   m_ObjectHideFlags: 0
