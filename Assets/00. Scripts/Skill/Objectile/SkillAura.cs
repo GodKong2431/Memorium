@@ -44,13 +44,13 @@ public class SkillAura : SkillObjectileBase
 
     private void ReturnPool()
     {
-        if (IsOwnerDestroyed()) return;
-        owner?.SetChanneling(false);
+        if (!IsOwnerDestroyed())
+            owner.SetChanneling(false);
         ObjectPoolManager.Return(gameObject);
     }
     private void OnDisable()
     {
-        if (IsOwnerDestroyed()) return;
-        owner?.SetChanneling(false);
+        if (!IsOwnerDestroyed())
+            owner.SetChanneling(false);
     }
 }

@@ -18800,18 +18800,14 @@ GameObject:
   m_Component:
   - component: {fileID: 7800207156206823513}
   - component: {fileID: 1222390567440106146}
-  - component: {fileID: 1016143701387593962}
   - component: {fileID: 3407236278280561486}
-  - component: {fileID: 6141046255775260210}
   - component: {fileID: 4675727908022016098}
-  - component: {fileID: 4839889636937643700}
-  - component: {fileID: 2501289504875183678}
   - component: {fileID: 8407326528544848984}
   - component: {fileID: -4180344624138950428}
   - component: {fileID: -3368676396805144496}
   m_Layer: 0
   m_Name: Shadow
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -18857,20 +18853,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1016143701387593962
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8486658846645172330}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37070df5d4a3aa44e8a8879c32336647, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ToTestInfinityMapPlayerMove
-  agent: {fileID: 0}
-  currentLinkSpeed: 0
 --- !u!54 &3407236278280561486
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -18898,20 +18880,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 10
   m_CollisionDetection: 0
---- !u!114 &6141046255775260210
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8486658846645172330}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe7d81c7d4fb6ed4c89deff66bfe4076, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerStatPresenter
-  playerStat: {fileID: 0}
-  view: {fileID: 0}
 --- !u!114 &4675727908022016098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18927,41 +18895,13 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
-  projectilePrefab: {fileID: 1604259860813359153, guid: cc27048a1a6486843887c6285dab2d36, type: 3}
-  deployPrefab: {fileID: 6662785154758209260, guid: 469d8926f582a464c81aeacf13a336de, type: 3}
-  auraPrefab: {fileID: 2459820414868955857, guid: b43ff52641abf8346a852294a7e603d6, type: 3}
-  shadowPrepab: {fileID: 9106158446547060106, guid: ad334d366ce436447a3b287029a8541f, type: 3}
-  fireZonePrefab: {fileID: 3087428585756455590, guid: feaf579888b89024e8d3d07f64cb07ed, type: 3}
   effectPath: Assets/02. Prefabs/SKill/HCFX_Hit_08.prefab
   projectilePath: Assets/02. Prefabs/SKill/Projectile/bullet.prefab
   deployPath: Assets/02. Prefabs/SKill/Deploy/Deploy.prefab
   auraPath: Assets/02. Prefabs/SKill/Aura/Aura.prefab
   shadowPath: Assets/02. Prefabs/SKill/Shadow/Shadow.prefab
   fireZonePath: Assets/02. Prefabs/SKill/FireZone.prefab
---- !u!114 &4839889636937643700
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8486658846645172330}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1464f6c377137e24eb8205c204d47017, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EffectController
---- !u!114 &2501289504875183678
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8486658846645172330}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9a57d3a15692f948b3a67936078b5d0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PixieSpawner
+  isShadow: 0
 --- !u!136 &8407326528544848984
 CapsuleCollider:
   m_ObjectHideFlags: 0
