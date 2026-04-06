@@ -76,6 +76,10 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     [SerializeField][Tooltip("비워두면 Resources 또는 전역 DB 사용.")]
     private MonsterAssetDatabase assetDatabaseOverride;
 
+    [Header("위치 이탈 방어")]
+    [SerializeField, Tooltip("스폰 시점 Y 기준 위·아래 이 거리(±)를 넘기면 즉시 처치. 0 이하면 비활성.")]
+    private float killIfWorldYRange = 200f;
+
     private EnemyStateContext _ctx;
     private Dictionary<EnemyStateType, IEnemyState> _states;
     private IEnemyState _current;
@@ -324,6 +328,9 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
     {
         if (_current == null) return;
 
+        if (TryKillIfWorldYOutOfRange())
+            return;
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         TryCheatBossSkillFromKeyboard();
 #endif
@@ -336,6 +343,25 @@ public class EnemyStateMachine : MonoBehaviour, IPoolableRespawnable, IPoolableR
         UpdateKnockback();
 
         _current.OnUpdate(_ctx);
+    }
+
+    /// <summary>
+    /// 스폰 Y 기준 ±범위를 벗어나면 사망 처리. 추적 불가·맵 이탈 버그 복구용.
+    /// </summary>
+    private bool TryKillIfWorldYOutOfRange()
+    {
+        if (!IsAlive || _ctx?.EnemyTransform == null || killIfWorldYRange <= 0f)
+            return false;
+
+        float y = transform.position.y;
+        float baseY = _ctx.SpawnPosition.y;
+        if (y > baseY + killIfWorldYRange || y < baseY - killIfWorldYRange)
+        {
+            TakeDamage(100f, DamageType.FixedPercentageDamage);
+            return true;
+        }
+
+        return false;
     }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
