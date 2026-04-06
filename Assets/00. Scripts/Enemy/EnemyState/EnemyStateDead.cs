@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// 몬스터 Dead 상태: 사망 애니메이션·이펙트 출력 후 오브젝트 Destroy.
@@ -17,6 +17,8 @@ public class EnemyStateDead : IEnemyState
             ctx.Agent.isStopped = true;
         ctx.SetAnimatorTrigger(MonsterAnimationConfig.TriggerKey.Die);
 
+        if (ctx.OnHitSoundId > 0 && SoundManager.Instance != null && ctx.EnemyTransform != null)
+            SoundManager.Instance.PlayCombatSfxAt(ctx.OnHitSoundId, ctx.EnemyTransform.position);
         if (ctx.DieSoundId > 0 && SoundManager.Instance != null)
             SoundManager.Instance.PlayCombatSfxAt(ctx.DieSoundId, ctx.EnemyTransform.position);
 
