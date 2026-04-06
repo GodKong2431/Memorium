@@ -34,8 +34,8 @@ public class SoundManager : Singleton<SoundManager>
     [SerializeField] private int uiSourceCount = 4;
     [SerializeField] private int combatSourceCount = 8;
     [SerializeField] private int combatWorldSourceCount = 6;
-    [SerializeField] private int combatWorldSourceMaxCount = 16;
-    [SerializeField] private float combatWorldMinDistance = 1f;
+    [SerializeField] private int combatWorldSourceMaxCount = 20;
+    [SerializeField] private float combatWorldMinDistance = 5f;
     [SerializeField] private float combatWorldMaxDistance = 30f;
     [Header("Rapid Repeat Guard")]
     [Min(0f)] [SerializeField] private float defaultUiSfxDuplicateBlockSeconds = 0f;
