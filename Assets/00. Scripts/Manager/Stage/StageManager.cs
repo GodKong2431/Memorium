@@ -266,7 +266,7 @@ public class StageManager : Singleton<StageManager>
     public void StageClear()
     {
         if (stageMoveCoroutine == null)
-            StartCoroutine(StageClearCoroutine());
+            stageMoveCoroutine=StartCoroutine(StageClearCoroutine());
     }
 
     public bool CheckPlayerStateToStageChanged()
@@ -426,7 +426,7 @@ public class StageManager : Singleton<StageManager>
     public void StageFailed()
     {
         if(stageMoveCoroutine==null)
-            StartCoroutine(StageFailedCoroutine());
+            stageMoveCoroutine = StartCoroutine(StageFailedCoroutine());
     }
     IEnumerator StageFailedCoroutine()
     {
