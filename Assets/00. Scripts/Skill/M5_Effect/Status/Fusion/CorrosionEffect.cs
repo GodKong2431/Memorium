@@ -81,11 +81,13 @@ public class CorrosionEffect : StatusEffectBase
 
     public override void OnTargetDeath()
     {
+        Vector3 deathPos = (target != null && target.transform != null)? target.transform.position: Vector3.zero;
+
         base.OnTargetDeath();
 
-        int count = DetectInRadius(target.transform.position, 3f, layerMask);
+        int count = DetectInRadius(deathPos, 3f, layerMask);
         var buffer = GetHitBuffer();
-        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(poisonData.m5VFX2, target.transform, true, false, onSpawned: OnParticleSpawned));
+        PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(poisonData.m5VFX2, onSpawned: OnParticleSpawned, targetPosition: deathPos));
         for (int i = 0; i < count; i++)
         {
             if (buffer[i].TryGetComponent<EffectController>(out var ec)
