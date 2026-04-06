@@ -305,7 +305,7 @@ public class StageManager : Singleton<StageManager>
                 saveStageData.SetMaxStage(curStageType, curStage - 1);
             }
 
-            AutoDataSaveManager.Instance.SaveData();
+            _ = AutoDataSaveManager.Instance.AutoSaveTask();
 
             OnStageClearOrFailed.Invoke();
             player.GetComponent<NavMeshAgent>().enabled = true;
