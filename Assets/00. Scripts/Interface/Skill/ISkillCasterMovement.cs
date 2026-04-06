@@ -9,9 +9,8 @@ public interface ISkillCasterMovement
     Vector3 Position { get; }
 
     Vector3 CastPosition { get; }
-
-    Vector3 CastDirection { get; }
     Vector3 CastTargetPosition { get; }
+    Vector3 CastDirection { get; }
     public Vector3 GetTargetPosition();
     void SetPosition(Vector3 position);
     void SetInvincible(bool active);
