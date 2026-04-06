@@ -74,8 +74,23 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     {
         isChanneling = active;
     }
+    private void ResetSkillState()
+    {
+        isCasting = false;
+        currentSkillRoutine = null;
 
+        if (agent != null && agent.enabled)
+        {
+            agent.isStopped = false;
+            agent.updateRotation = true;
+        }
+    }
 
+    private void CancelSkill()
+    {
+        ResetSkillState();
+        isChanneling = false;
+    }
     public void PlayAnim(string key)
     {
 
@@ -177,7 +192,12 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     }
     private IEnumerator SkillSequence(SkillDataContext dataContext, float extraDelay = 0)
     {
-        if (dataContext == null) yield break;
+        if (dataContext == null || dataContext.skillData == null)
+        {
+            CancelSkill();
+            yield break;
+        }
+
         SkillData data = dataContext.skillData;
         debugLastSkillData = data;
         if(extraDelay > 0)
@@ -212,6 +232,11 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     /// </summary>
     private IEnumerator SkillSequenceMove(SkillData data)
     {
+        if (data == null)
+        {
+            CancelSkill();
+            yield break;
+        }
         Vector3 targetPosition = GetTargetPosition();
         debugLastCastDir = GetTargetDirection();
         if (agent != null && agent.enabled == true)
@@ -225,7 +250,11 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
             yield return CoroutineManager.waitForSeconds(data.m1Data.m1Delay);
         }
         var m1Strategy = SkillStrategyContainer.GetMovement(data.m1Data.m1Type);
-
+        if (m1Strategy == null)
+        {
+            CancelSkill();
+            yield break;
+        }
         yield return m1Strategy.SkillMove(this, targetPosition, data.m1Data);
     }
 
@@ -236,6 +265,12 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     /// <returns></returns>
     private IEnumerator SkillSequenceExecute(SkillDataContext dataContext)
     {
+        if (dataContext == null || dataContext.skillData == null)
+        {
+            CancelSkill();
+            yield break;
+        }
+
         M3Type m3Type = dataContext.skillData.m3Data.m3Type;
         float delay = dataContext.skillData.m3Data.m3Delay;
         Vector3 executePivot = transform.position;
@@ -245,7 +280,11 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
             yield return CoroutineManager.waitForSeconds(delay);
         }
         var m3Strategy = SkillStrategyContainer.GetExecute(m3Type);
-
+        if (m3Strategy == null)
+        {
+            CancelSkill();
+            yield break;
+        }
         //나중에 프리팹을 넘기는게아니라 데이터 테이블에서 프리팹을 가져오도록 바꿀예정
 
         yield return m3Strategy.Execute(this, this, dataContext, executePivot, castDirection, targetLayer);
@@ -254,15 +293,8 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
 
     private void SkillEnd()
     {
-        isCasting = false;
-        if(agent != null&& agent.enabled==true)
-        {
-            agent.isStopped = false;
-            agent.updateRotation = true;
-
-            //agent.enabled = true;
-        }
-        transform.position = new Vector3(transform.position.x, CastPosition.y, transform.position.z);//높이 보정, 스킬 이동 후 높이가 변하는 경우가 있어서 추가
+        ResetSkillState();
+        transform.position = new Vector3(transform.position.x, CastPosition.y, transform.position.z);
         OnSkillEnd?.Invoke();
     }
     public void StopSkill()
