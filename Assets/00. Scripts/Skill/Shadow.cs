@@ -11,8 +11,6 @@ public class Shadow : MonoBehaviour{
     {
         if (caster == null)
             caster = GetComponent<SkillCaster>();
-        caster.SetChanneling(false);
-        caster.OnSkillEnd -= SelfDestroy;
         caster.OnSkillEnd += SelfDestroy;
 
     }
