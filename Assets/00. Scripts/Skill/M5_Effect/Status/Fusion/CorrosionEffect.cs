@@ -29,6 +29,7 @@ public class CorrosionEffect : StatusEffectBase
 
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
+        base.OnApply(target, buffApplicable);
         SoundManager.Instance.PlayCombatSfx(fusion.fusionSound);
         //PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(fusion.fusionVFX, target.transform, true, true, onSpawned: OnParticleSpawned));
         //base.OnApply(target, buffApplicable);
@@ -59,7 +60,6 @@ public class CorrosionEffect : StatusEffectBase
 
         effect = particle.GetComponent<PoolableParticle>();
 
-        base.OnApply(target, buffApplicable);
         int count = Mathf.FloorToInt(poisonData.duration / poisonData.tickInterval);
         float totalDamage = damage * count;
         target.TakeDamage(totalDamage, DamageType.FixedPercentageDamage);

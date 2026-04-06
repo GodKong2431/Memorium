@@ -28,6 +28,8 @@ public class IgnitionEffect : StatusEffectBase
     public override void OnApply(IDamageable target, IBuffApplicable buffApplicable)
     {
         SoundManager.Instance.PlayCombatSfx(fusion.fusionSound);
+        base.OnApply(target, buffApplicable);
+
         //PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(fusion.fusionVFX, target.transform, true, true, onSpawned: OnParticleSpawned));
         //base.OnApply(target, buffApplicable);
 
@@ -66,8 +68,6 @@ public class IgnitionEffect : StatusEffectBase
         }
 
         effect = particle.GetComponent<PoolableParticle>();
-
-        base.OnApply(target, buffApplicable);
 
         int count = DetectInRadius(target.transform.position, explosionRadius, layerMask);
         var buffer = GetHitBuffer();

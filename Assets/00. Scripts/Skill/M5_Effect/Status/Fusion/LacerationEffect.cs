@@ -22,10 +22,10 @@ public class LacerationEffect : StatusEffectBase
         SoundManager.Instance.PlayCombatSfx(fusion.fusionSound);
         //PoolableParticleManager.Instance.SpawnParticle(new ParticleSpawnContext(fusion.fusionVFX, target.transform, true, true, onSpawned: OnParticleSpawned));
 
+        base.OnApply(target, buffApplicable);
         //비동기 방식 진행을 위해 메서드 분리
         SpawnAndSetEffect(target, buffApplicable);
 
-        base.OnApply(target, buffApplicable);
 
         buffApplicable.ApplyBuff(new StatModifier(fusion.ID,StatType.PHYS_DEF,-defReduction,this.duration));
     }
