@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 /// <summary>
 /// 스킬로 옮겨질 대상이 구현해야하는 인터페이스, m1로 이동될 객체가 구현해야함,
@@ -11,6 +11,7 @@ public interface ISkillCasterMovement
     Vector3 CastPosition { get; }
 
     Vector3 CastDirection { get; }
+    Vector3 CastTargetPosition { get; }
     public Vector3 GetTargetPosition();
     void SetPosition(Vector3 position);
     void SetInvincible(bool active);

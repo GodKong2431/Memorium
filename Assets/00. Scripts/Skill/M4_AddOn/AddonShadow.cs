@@ -7,8 +7,11 @@ public class AddonShadow : ISkillCastAddon
     {
         var originalCaster = caster as SkillCaster;
         if (originalCaster == null) return;
-        Vector3 spawnPos = originalCaster.CastPosition;
-        Quaternion spawnRot = Quaternion.LookRotation(originalCaster.CastDirection);
+        int m5AId = dataContext.m5DataA?.ID ?? -1;
+        int m5BId = dataContext.m5DataB?.ID ?? -1;
+        originalCaster.ResetContext(dataContext.skillData.skillTable.ID, -1, m5AId, m5BId);
+        Vector3 spawnPos = caster.CastPosition;
+        Quaternion spawnRot = Quaternion.LookRotation(caster.CastDirection);
         var cloneObj = PoolAddressableManager.Instance.GetPooledObject("Assets/02. Prefabs/SKill/Shadow/Shadow.prefab", spawnPos, spawnRot);
         if (cloneObj == null)
             return;
@@ -16,7 +19,7 @@ public class AddonShadow : ISkillCastAddon
         {
             // 원본의 캐싱된 타겟 위치와 시전 방향을 넘겨줌
             shadow.Init(stat, target);
-            shadow.Cast(dataContext, SkillConstants.SHADOW_CAST_DELAY, originalCaster.CastTargetPosition, originalCaster.CastDirection);
+            shadow.Cast(dataContext, SkillConstants.SHADOW_CAST_DELAY, caster.CastTargetPosition, caster.CastDirection);
         }
     }
 }

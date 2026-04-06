@@ -113,12 +113,12 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
         return transform.forward;
     }
 
-    public SkillDataContext ResetContext(int skillID, int m4ID = -1, int m5ID = -1)
+    public SkillDataContext ResetContext(int skillID, int m4ID = -1, int m5IDa = -1, int m5IDb = -1)
     {
         if (skillDataContext == null)
-            skillDataContext = new SkillDataContext(skillID, m4ID, m5ID);
+            skillDataContext = new SkillDataContext(skillID, m4ID, m5IDa,m5IDb);
         else
-            skillDataContext.SetSkillContext(skillID, m4ID, m5ID);
+            skillDataContext.SetSkillContext(skillID, m4ID, m5IDa, m5IDb);
         return skillDataContext;
     }
     public void CastSkill(SkillDataContext dataContext, float extraDelay = 0, bool applyAddon = true)
@@ -214,7 +214,7 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     {
         Vector3 targetPosition = GetTargetPosition();
         debugLastCastDir = GetTargetDirection();
-        if (agent != null)
+        if (agent != null && agent.enabled == true)
         {
             agent.isStopped = true;
             agent.updateRotation = false;
@@ -255,13 +255,14 @@ public class SkillCaster : MonoBehaviour, ISkillCasterMovement, ISkillHitHandler
     private void SkillEnd()
     {
         isCasting = false;
-        if(agent != null)
+        if(agent != null&& agent.enabled==true)
         {
             agent.isStopped = false;
             agent.updateRotation = true;
 
             //agent.enabled = true;
         }
+        transform.position = new Vector3(transform.position.x, CastPosition.y, transform.position.z);//높이 보정, 스킬 이동 후 높이가 변하는 경우가 있어서 추가
         OnSkillEnd?.Invoke();
     }
     public void StopSkill()

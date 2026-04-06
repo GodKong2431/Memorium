@@ -9,7 +9,10 @@ public class Shadow : MonoBehaviour{
     }
     private void OnEnable()
     {
+        if (caster == null)
+            caster = GetComponent<SkillCaster>();
         caster.OnSkillEnd += SelfDestroy;
+
     }
     private void OnDisable()
     {
